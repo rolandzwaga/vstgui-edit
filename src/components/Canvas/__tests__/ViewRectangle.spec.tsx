@@ -156,53 +156,6 @@ describe('ViewRectangle', () => {
     });
   });
 
-  describe('Given a small view with title (title truncation)', () => {
-    it('should hide title when view width is under 20px', () => {
-      const view = createMockView({ width: 15, title: 'Hidden' });
-
-      render(() => (
-        <svg>
-          <ViewRectangle view={view} />
-        </svg>
-      ));
-
-      const group = screen.getByTestId('view-test-view');
-      const text = group.querySelector('text');
-
-      expect(text).toBeNull();
-    });
-
-    it('should show title when view width is 20px or more', () => {
-      const view = createMockView({ width: 20, title: 'Visible' });
-
-      render(() => (
-        <svg>
-          <ViewRectangle view={view} />
-        </svg>
-      ));
-
-      const group = screen.getByTestId('view-test-view');
-      const text = group.querySelector('text');
-
-      expect(text).toBeInTheDocument();
-    });
-
-    it('should hide title when view height is under 12px', () => {
-      const view = createMockView({ width: 200, height: 10, title: 'Hidden' });
-
-      render(() => (
-        <svg>
-          <ViewRectangle view={view} />
-        </svg>
-      ));
-
-      const group = screen.getByTestId('view-test-view');
-      const text = group.querySelector('text');
-
-      expect(text).toBeNull();
-    });
-  });
-
   describe('Given views with different categories (US4 - category coloring)', () => {
     // Note: CSS Modules transform class names, so we check that the class attribute
     // contains the category name pattern (e.g., '_container_' or 'container')

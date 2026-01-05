@@ -2,14 +2,8 @@ import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
 import styles from './Canvas.module.css';
 
-/** Minimum width in pixels to show title text */
-const MIN_WIDTH_FOR_TITLE = 20;
-/** Minimum height in pixels to show title text */
-const MIN_HEIGHT_FOR_TITLE = 12;
 /** Padding from left edge for title */
 const TITLE_PADDING_X = 4;
-/** Vertical offset for title (from top) */
-const TITLE_OFFSET_Y = 12;
 
 export interface ViewRectangleProps {
   view: RenderableView;
@@ -20,10 +14,6 @@ export interface ViewRectangleProps {
  * For views with a title attribute (e.g., CTextLabel), displays the title text.
  */
 export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
-  const shouldShowTitle = () =>
-    props.view.title &&
-    props.view.width >= MIN_WIDTH_FOR_TITLE &&
-    props.view.height >= MIN_HEIGHT_FOR_TITLE;
 
   /**
    * Computes the vertical offset for title text.
@@ -58,7 +48,7 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         width={props.view.width}
         height={props.view.height}
       />
-      <Show when={shouldShowTitle()}>
+      <Show when={props.view.title}>
         <text
           class={styles.viewTitle}
           x={props.view.absoluteX + TITLE_PADDING_X}
