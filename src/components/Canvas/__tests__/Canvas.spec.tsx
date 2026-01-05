@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@solidjs/testing-library';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { canvasStore, resetPan, resetZoom } from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
@@ -18,9 +18,7 @@ describe('Canvas', () => {
     mockDocumentStore.document = null;
   });
 
-  afterEach(() => {
-    cleanup();
-  });
+  // Note: cleanup() and resetCanvas() are handled automatically by src/__tests__/setup.ts
 
   describe('Given no document loaded (US1 - empty state)', () => {
     it('should render EmptyState component', () => {
