@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vstgui-ui-description version="1">
+  <colors>
+    <color name="background" rgba="#2d2d2dff"/>
+    <color name="text" rgba="#ffffffff"/>
+  </colors>
+  <fonts>
+    <font name="default" font-name="Arial" size="12"/>
+  </fonts>
+  <template name="view" class="CViewContainer" size="400, 300" background-color="background">
+    <view class="CTextLabel" origin="10, 10" size="380, 30" title="Hello VSTGUI" font="default" font-color="text"/>
+  </template>
+</vstgui-ui-description>
