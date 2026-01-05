@@ -698,5 +698,31 @@ describe('Canvas', () => {
       // Zoom should be significantly greater than 1.0 (approximately 1.1^5 ≈ 1.61)
       expect(canvasStore.zoomLevel).toBeGreaterThan(1.5);
     });
+
+    it('should stop at MAX_ZOOM limit when zooming in excessively', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Zoom in many times to hit the limit (1.1^20 ≈ 6.7, but should cap at 5.0)
+      for (let i = 0; i < 20; i++) {
+        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+      }
+
+      // Should be capped at MAX_ZOOM (5.0)
+      expect(canvasStore.zoomLevel).toBe(5.0);
+    });
+
+    it('should stop at MIN_ZOOM limit when zooming out excessively', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Zoom out many times to hit the limit (1/1.1^30 ≈ 0.042, but should cap at 0.1)
+      for (let i = 0; i < 30; i++) {
+        fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150 });
+      }
+
+      // Should be capped at MIN_ZOOM (0.1)
+      expect(canvasStore.zoomLevel).toBe(0.1);
+    });
   });
 });
