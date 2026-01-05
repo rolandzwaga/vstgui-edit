@@ -3,11 +3,8 @@
  * Styles for the uidesc visual editor canvas
  */
 
-/* Scrollable canvas wrapper */
+/* Canvas wrapper - dimensions set inline to match template bounds */
 .canvasWrapper {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
   background-color: var(--color-canvas-background);
 }
 

@@ -78,7 +78,14 @@ export const Canvas: Component = () => {
       when={!isEmpty()}
       fallback={<EmptyState />}
     >
-      <div class={styles.canvasWrapper} data-testid="canvas-wrapper">
+      <div
+        class={styles.canvasWrapper}
+        data-testid="canvas-wrapper"
+        style={{
+          width: `${templateBounds()?.width ?? 100}px`,
+          height: `${templateBounds()?.height ?? 100}px`,
+        }}
+      >
         <svg
           class={styles.canvas}
           width={templateBounds()?.width ?? 100}
