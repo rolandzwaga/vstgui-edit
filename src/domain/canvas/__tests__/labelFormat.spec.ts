@@ -45,4 +45,42 @@ describe('formatLabel', () => {
       expect(result).toBe('Unknown');
     });
   });
+
+  describe('Given a custom category view (US4 - [Custom] indicator)', () => {
+    it('should add [Custom] suffix for custom category with valid class name', () => {
+      const result = formatLabel('MyCustomView', 'custom');
+
+      expect(result).toBe('MyCustomView [Custom]');
+    });
+
+    it('should not add [Custom] suffix for container category', () => {
+      const result = formatLabel('CViewContainer', 'container');
+
+      expect(result).toBe('CViewContainer');
+    });
+
+    it('should not add [Custom] suffix for control category', () => {
+      const result = formatLabel('CTextButton', 'control');
+
+      expect(result).toBe('CTextButton');
+    });
+
+    it('should not add [Custom] suffix for display category', () => {
+      const result = formatLabel('CTextLabel', 'display');
+
+      expect(result).toBe('CTextLabel');
+    });
+
+    it('should return "Unknown" for undefined class even with custom category', () => {
+      const result = formatLabel(undefined, 'custom');
+
+      expect(result).toBe('Unknown');
+    });
+
+    it('should not add [Custom] suffix when category is not provided', () => {
+      const result = formatLabel('MyCustomView');
+
+      expect(result).toBe('MyCustomView');
+    });
+  });
 });

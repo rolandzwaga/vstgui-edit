@@ -13,3 +13,11 @@ export { flattenHierarchy } from './flattenHierarchy';
 
 // Label formatting
 export { formatLabel } from './labelFormat';
+
+// View category classification
+export {
+  CONTAINER_CLASSES,
+  CONTROL_CLASSES,
+  DISPLAY_CLASSES,
+  getViewCategory,
+} from './viewCategory';

@@ -198,4 +198,74 @@ describe('ViewRectangle', () => {
       expect(text).toBeNull();
     });
   });
+
+  describe('Given views with different categories (US4 - category coloring)', () => {
+    // Note: CSS Modules transform class names, so we check that the class attribute
+    // contains the category name pattern (e.g., '_container_' or 'container')
+
+    it('should apply container CSS class for container category', () => {
+      const view = createMockView({ category: 'container' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+      const classAttr = rect?.getAttribute('class') ?? '';
+
+      // CSS Modules adds the category class (transformed)
+      expect(classAttr).toMatch(/container/i);
+    });
+
+    it('should apply control CSS class for control category', () => {
+      const view = createMockView({ category: 'control' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+      const classAttr = rect?.getAttribute('class') ?? '';
+
+      expect(classAttr).toMatch(/control/i);
+    });
+
+    it('should apply display CSS class for display category', () => {
+      const view = createMockView({ category: 'display' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+      const classAttr = rect?.getAttribute('class') ?? '';
+
+      expect(classAttr).toMatch(/display/i);
+    });
+
+    it('should apply custom CSS class for custom category', () => {
+      const view = createMockView({ category: 'custom' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+      const classAttr = rect?.getAttribute('class') ?? '';
+
+      expect(classAttr).toMatch(/custom/i);
+    });
+  });
 });

@@ -155,21 +155,21 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T048 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T049 [P] [US4] Write tests for getViewCategory in src/domain/canvas/__tests__/viewCategory.spec.ts
-- [ ] T050 [P] [US4] Write tests for [Custom] indicator in formatLabel in src/domain/canvas/__tests__/labelFormat.spec.ts
-- [ ] T051 [P] [US4] Write tests for category-based CSS class application in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
+- [x] T048 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T049 [P] [US4] Write tests for getViewCategory in src/domain/canvas/__tests__/viewCategory.spec.ts
+- [x] T050 [P] [US4] Write tests for [Custom] indicator in formatLabel in src/domain/canvas/__tests__/labelFormat.spec.ts
+- [x] T051 [P] [US4] Write tests for category-based CSS class application in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
 
 ### Implementation for User Story 4
 
-- [ ] T052 [P] [US4] Define CONTAINER_CLASSES, CONTROL_CLASSES, DISPLAY_CLASSES sets in src/domain/canvas/viewCategory.ts
-- [ ] T053 [US4] Implement getViewCategory function in src/domain/canvas/viewCategory.ts
-- [ ] T054 [US4] Update formatLabel to add [Custom] indicator for custom category in src/domain/canvas/labelFormat.ts
-- [ ] T055 [US4] Add category property to RenderableView in flattenHierarchy in src/domain/canvas/flattenHierarchy.ts
-- [ ] T056 [US4] Apply category-based CSS classes in ViewRectangle in src/components/Canvas/ViewRectangle.tsx
-- [ ] T057 [US4] Add category color styles (.container, .control, .display, .custom) to src/components/Canvas/Canvas.module.css
-- [ ] T058 [US4] Update barrel export in src/domain/canvas/index.ts
-- [ ] T059 [US4] **Commit**: Stage and commit US4 changes with message "feat(003): add category color coding (US4)"
+- [x] T052 [P] [US4] Define CONTAINER_CLASSES, CONTROL_CLASSES, DISPLAY_CLASSES sets in src/domain/canvas/viewCategory.ts
+- [x] T053 [US4] Implement getViewCategory function in src/domain/canvas/viewCategory.ts
+- [x] T054 [US4] Update formatLabel to add [Custom] indicator for custom category in src/domain/canvas/labelFormat.ts
+- [x] T055 [US4] Add category property to RenderableView in flattenHierarchy in src/domain/canvas/flattenHierarchy.ts
+- [x] T056 [US4] Apply category-based CSS classes in ViewRectangle in src/components/Canvas/ViewRectangle.tsx
+- [x] T057 [US4] Add category color styles (.container, .control, .display, .custom) to src/components/Canvas/Canvas.module.css
+- [x] T058 [US4] Update barrel export in src/domain/canvas/index.ts
+- [x] T059 [US4] **Commit**: Stage and commit US4 changes with message "feat(003): add category color coding (US4)"
 
 **Checkpoint**: Views are visually distinguishable by category color
 
