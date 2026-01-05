@@ -4,11 +4,7 @@
  * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
-import {
-  clampZoom,
-  calculateNewZoom,
-  calculateZoomPanAdjustment,
-} from '../domain/canvas/zoom';
+import { calculateNewZoom, calculateZoomPanAdjustment, clampZoom } from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
 
 // --- Signals for pan state ---

@@ -204,29 +204,60 @@ reset();
 
 ### Canvas Store (`src/stores/canvasStore.ts`)
 
-Global store for canvas pan state management:
+Global store for canvas pan and zoom state management:
 
-- `canvasStore` - Reactive store with pan offset, panning state, and pan start position
+- `canvasStore` - Reactive store with pan offset, panning state, pan start position, and zoom level
 - `startPan(x, y)` - Start pan gesture at given mouse position
 - `updatePan(x, y)` - Update pan offset by delta from panStart
 - `endPan()` - End pan gesture (preserves panOffset)
 - `resetPan()` - Reset all pan state to initial values
+- `setZoom(level)` - Set zoom level (clamped to 0.1-5.0)
+- `resetZoom()` - Reset zoom to 1.0 (100%)
+- `applyZoom(cursorX, cursorY, wrapperRect, deltaY)` - Apply cursor-centered zoom from wheel
+- `resetCanvas()` - Reset both pan and zoom to initial values
 
 ```typescript
-import { canvasStore, startPan, updatePan, endPan, resetPan } from './stores/canvasStore';
+import { canvasStore, startPan, updatePan, endPan, resetPan, setZoom, resetZoom, applyZoom, resetCanvas } from './stores/canvasStore';
 
 // Access pan state
 console.log(canvasStore.panOffset); // { x: number, y: number }
 console.log(canvasStore.isPanning); // boolean
 console.log(canvasStore.panStart); // { x: number, y: number } | null
 
+// Access zoom state
+console.log(canvasStore.zoomLevel); // number (0.1 to 5.0)
+
 // Pan gesture flow
 startPan(100, 100);   // Begin pan at mouse position
 updatePan(150, 120);  // Update: panOffset += delta, panStart = current pos
 endPan();             // End pan, preserve offset for next gesture
 
-// Reset to initial state
-resetPan();
+// Zoom operations
+setZoom(2.0);         // Set zoom to 200%
+applyZoom(400, 300, rect, -100);  // Zoom in centered on cursor
+
+// Reset operations
+resetPan();           // Reset pan only
+resetZoom();          // Reset zoom only
+resetCanvas();        // Reset both pan and zoom
+```
+
+### Zoom Utilities (`src/domain/canvas/zoom.ts`)
+
+Zoom calculation utilities for cursor-centered zooming:
+
+- `MIN_ZOOM` - Minimum zoom level (0.1 = 10%)
+- `MAX_ZOOM` - Maximum zoom level (5.0 = 500%)
+- `ZOOM_FACTOR` - Zoom factor per wheel tick (1.1 = 10%)
+- `clampZoom(zoom)` - Clamp zoom to valid range
+- `calculateNewZoom(current, deltaY)` - Calculate new zoom from wheel delta
+- `calculateZoomPanAdjustment(cursorX, cursorY, rect, pan, oldZoom, newZoom)` - Calculate pan offset for cursor-centered zoom
+
+```typescript
+import { MIN_ZOOM, MAX_ZOOM, clampZoom, calculateNewZoom } from './domain/canvas/zoom';
+
+const newZoom = calculateNewZoom(1.0, -100); // 1.1 (zoom in)
+const clamped = clampZoom(10.0); // 5.0 (max)
 ```
 
 ### Parser Module (`src/domain/parser/`)
@@ -675,6 +706,15 @@ class SetPropertyCommand implements Command {
 - 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
 
 **[Track feature additions here]**
+
+- 2026-01-05: Implemented 005-canvas-zoom feature
+  - Mouse wheel zoom in/out (deltaY < 0 = zoom in, deltaY > 0 = zoom out)
+  - Cursor-centered zooming (point under cursor stays stationary)
+  - Zoom limits: 10% (0.1) to 500% (5.0)
+  - Zoom factor: 10% per wheel tick (1.1 multiplier)
+  - State persistence in canvasStore (zoomLevel signal)
+  - Auto-reset zoom/pan on new document load (FR-009)
+  - 356 passing tests (30 new + 326 existing)
 
   - Canvas pan via middle-mouse drag (FR-001)
   - Canvas pan via Space+left-drag (FR-002)

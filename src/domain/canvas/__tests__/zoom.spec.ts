@@ -3,12 +3,12 @@
  */
 import { describe, expect, test } from 'vitest';
 import {
-  MIN_ZOOM,
-  MAX_ZOOM,
-  ZOOM_FACTOR,
-  clampZoom,
   calculateNewZoom,
   calculateZoomPanAdjustment,
+  clampZoom,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  ZOOM_FACTOR,
 } from '../zoom';
 
 describe('zoom constants', () => {
