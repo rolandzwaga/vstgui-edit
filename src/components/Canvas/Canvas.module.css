@@ -61,7 +61,7 @@
 }
 
 /* View label */
-.label {
+.viewLabel {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
   fill: var(--color-text-primary);

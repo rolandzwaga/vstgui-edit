@@ -94,4 +94,108 @@ describe('ViewRectangle', () => {
       expect(screen.getByTestId('view-unique-id-123')).toBeInTheDocument();
     });
   });
+
+  describe('Given a view with a label (US3 - label rendering)', () => {
+    it('should render SVG text element with the label', () => {
+      const view = createMockView({ label: 'CTextButton' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toBeInTheDocument();
+      expect(text).toHaveTextContent('CTextButton');
+    });
+
+    it('should render label for container views', () => {
+      const view = createMockView({
+        label: 'CViewContainer',
+        category: 'container',
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toHaveTextContent('CViewContainer');
+    });
+
+    it('should position label inside the view rectangle', () => {
+      const view = createMockView({
+        absoluteX: 100,
+        absoluteY: 200,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      // Label should be positioned with some padding from the left edge
+      const textX = Number(text?.getAttribute('x'));
+      expect(textX).toBeGreaterThanOrEqual(100);
+    });
+  });
+
+  describe('Given a small view (US3 - label truncation)', () => {
+    it('should hide label when view width is under 60px', () => {
+      const view = createMockView({ width: 50 });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      // Text should not be rendered or should be hidden
+      expect(text).toBeNull();
+    });
+
+    it('should show label when view width is 60px or more', () => {
+      const view = createMockView({ width: 60 });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toBeInTheDocument();
+    });
+
+    it('should hide label when view height is under 20px', () => {
+      const view = createMockView({ width: 200, height: 15 });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toBeNull();
+    });
+  });
 });

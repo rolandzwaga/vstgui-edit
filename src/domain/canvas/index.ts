@@ -10,3 +10,6 @@ export { parsePoint, parseSize } from './coordinates';
 
 // Hierarchy flattening
 export { flattenHierarchy } from './flattenHierarchy';
+
+// Label formatting
+export { formatLabel } from './labelFormat';

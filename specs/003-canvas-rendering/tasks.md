@@ -126,19 +126,19 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T038 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T039 [P] [US3] Write tests for formatLabel in src/domain/canvas/__tests__/labelFormat.spec.ts
-- [ ] T040 [P] [US3] Write tests for label rendering in ViewRectangle in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
-- [ ] T041 [P] [US3] Write tests for label truncation on small views in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
+- [x] T038 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T039 [P] [US3] Write tests for formatLabel in src/domain/canvas/__tests__/labelFormat.spec.ts
+- [x] T040 [P] [US3] Write tests for label rendering in ViewRectangle in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
+- [x] T041 [P] [US3] Write tests for label truncation on small views in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Implement formatLabel function (basic, no [Custom] yet) in src/domain/canvas/labelFormat.ts
-- [ ] T043 [US3] Add SVG text element to ViewRectangle for label display in src/components/Canvas/ViewRectangle.tsx
-- [ ] T044 [US3] Add label typography styles to src/components/Canvas/Canvas.module.css
-- [ ] T045 [US3] Implement label truncation/hiding for views under 60px wide in src/components/Canvas/ViewRectangle.tsx
-- [ ] T046 [US3] Update barrel export in src/domain/canvas/index.ts
-- [ ] T047 [US3] **Commit**: Stage and commit US3 changes with message "feat(003): add view class labels (US3)"
+- [x] T042 [US3] Implement formatLabel function (basic, no [Custom] yet) in src/domain/canvas/labelFormat.ts
+- [x] T043 [US3] Add SVG text element to ViewRectangle for label display in src/components/Canvas/ViewRectangle.tsx
+- [x] T044 [US3] Add label typography styles to src/components/Canvas/Canvas.module.css
+- [x] T045 [US3] Implement label truncation/hiding for views under 60px wide in src/components/Canvas/ViewRectangle.tsx
+- [x] T046 [US3] Update barrel export in src/domain/canvas/index.ts
+- [x] T047 [US3] **Commit**: Stage and commit US3 changes with message "feat(003): add view class labels (US3)"
 
 **Checkpoint**: All views display their class name labels
 
