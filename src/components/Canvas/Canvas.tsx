@@ -1,4 +1,4 @@
-import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
+import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import { canvasStore, startPan, updatePan, endPan } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
@@ -83,12 +83,23 @@ export const Canvas: Component = () => {
   const isEmpty = () => firstTemplate() === null;
 
   /**
+   * Track whether Space key is held for Space+drag pan.
+   */
+  const [spaceHeld, setSpaceHeld] = createSignal(false);
+
+  /**
    * Handle mouse down for pan initiation.
-   * Middle mouse button (button=1) starts panning.
+   * Middle mouse button (button=1) or Space+left-click (button=0) starts panning.
    */
   const handleMouseDown = (e: MouseEvent) => {
+    // Don't start new pan if already panning
+    if (canvasStore.isPanning) {
+      return;
+    }
+
     // Middle mouse button = button 1
-    if (e.button === 1) {
+    // Or Space held + left mouse button = button 0
+    if (e.button === 1 || (e.button === 0 && spaceHeld())) {
       e.preventDefault(); // Prevent browser auto-scroll
       startPan(e.clientX, e.clientY);
 
@@ -115,10 +126,42 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
+  /**
+   * Handle keydown for Space key detection.
+   */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      e.preventDefault(); // Prevent page scroll
+      setSpaceHeld(true);
+    }
+  };
+
+  /**
+   * Handle keyup to detect Space release.
+   * Ends pan if Space released during panning.
+   */
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      setSpaceHeld(false);
+      // End pan if Space released during panning
+      if (canvasStore.isPanning) {
+        endPan();
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      }
+    }
+  };
+
+  // Add document-level keyboard listeners
+  document.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('keyup', handleKeyUp);
+
   // Clean up listeners on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('keyup', handleKeyUp);
   });
 
   return (

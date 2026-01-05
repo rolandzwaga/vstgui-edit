@@ -65,7 +65,7 @@
 - [x] T016 [US1] Apply CSS transform `translate(x, y)` to canvas wrapper based on panOffset from store
 - [x] T017 [US1] Prevent default browser auto-scroll on middle-click
 - [x] T018 [US1] Run quality checks and verify all tests pass
-- [ ] T019 [US1] **Commit**: Stage and commit US1 changes with message "feat(004): implement middle-mouse pan navigation"
+- [x] T019 [US1] **Commit**: Stage and commit US1 changes with message "feat(004): implement middle-mouse pan navigation"
 
 **Checkpoint**: Middle-mouse pan fully functional. Can be tested independently.
 
@@ -81,21 +81,21 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T020 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T021 [US2] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: Space keydown sets spaceHeld state
-- [ ] T022 [US2] Write test: Space+left-click (button=0) initiates pan mode
-- [ ] T023 [US2] Write test: Space keyup during pan ends the pan gesture
-- [ ] T024 [US2] Write test: mouseup during Space+drag ends pan
-- [ ] T025 [US2] Write test: Space+drag ignored when another drag operation is in progress (edge case)
+- [x] T020 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T021 [US2] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: Space keydown sets spaceHeld state
+- [x] T022 [US2] Write test: Space+left-click (button=0) initiates pan mode
+- [x] T023 [US2] Write test: Space keyup during pan ends the pan gesture
+- [x] T024 [US2] Write test: mouseup during Space+drag ends pan
+- [x] T025 [US2] Write test: Space+drag ignored when another drag operation is in progress (edge case)
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Add spaceHeld signal to Canvas component
-- [ ] T027 [US2] Implement document-level keydown/keyup listeners for Space key in `src/components/Canvas/Canvas.tsx`
-- [ ] T028 [US2] Modify mousedown handler to check spaceHeld + button=0 as alternative pan trigger
-- [ ] T029 [US2] Prevent default Space behavior (page scroll) when over canvas
-- [ ] T030 [US2] Clean up keyboard listeners on component unmount using onCleanup
-- [ ] T031 [US2] Run quality checks and verify all tests pass
+- [x] T026 [US2] Add spaceHeld signal to Canvas component
+- [x] T027 [US2] Implement document-level keydown/keyup listeners for Space key in `src/components/Canvas/Canvas.tsx`
+- [x] T028 [US2] Modify mousedown handler to check spaceHeld + button=0 as alternative pan trigger
+- [x] T029 [US2] Prevent default Space behavior (page scroll) when over canvas
+- [x] T030 [US2] Clean up keyboard listeners on component unmount using onCleanup
+- [x] T031 [US2] Run quality checks and verify all tests pass
 - [ ] T032 [US2] **Commit**: Stage and commit US2 changes with message "feat(004): implement Space+drag pan navigation"
 
 **Checkpoint**: Both pan methods (middle-mouse and Space+drag) fully functional.

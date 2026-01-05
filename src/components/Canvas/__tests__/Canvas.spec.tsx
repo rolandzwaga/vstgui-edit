@@ -449,4 +449,117 @@ describe('Canvas', () => {
       expect(preventDefaultSpy).toHaveBeenCalled();
     });
   });
+
+  describe('Given canvas with content (US2 - Space+Drag Pan)', () => {
+    beforeEach(() => {
+      resetPan();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should initiate pan mode when Space held and left mouse button pressed (button=0)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Press Space key
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      // Left-click while Space held
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+
+      expect(canvasStore.isPanning).toBe(true);
+      expect(canvasStore.panStart).toEqual({ x: 100, y: 100 });
+    });
+
+    it('should update panOffset when dragging with Space held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseMove(document, { clientX: 150, clientY: 130 });
+
+      expect(canvasStore.panOffset).toEqual({ x: 50, y: 30 });
+    });
+
+    it('should end pan gesture when Space key released during pan', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseMove(document, { clientX: 150, clientY: 150 });
+      fireEvent.keyUp(document, { key: ' ', code: 'Space' });
+
+      expect(canvasStore.isPanning).toBe(false);
+      expect(canvasStore.panOffset).toEqual({ x: 50, y: 50 }); // Offset preserved
+    });
+
+    it('should end pan gesture when mouse released during Space+drag', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+
+      expect(canvasStore.isPanning).toBe(false);
+      expect(canvasStore.panOffset).toEqual({ x: 100, y: 100 }); // Offset preserved
+    });
+
+    it('should NOT initiate pan when left-click without Space held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // No Space key pressed
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+
+      expect(canvasStore.isPanning).toBe(false);
+    });
+
+    it('should prevent default Space behavior (page scroll) when Space pressed over canvas', () => {
+      render(() => <Canvas />);
+
+      const event = new KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+      document.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+    });
+
+    it('should ignore Space+drag if middle-mouse pan is already in progress', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Start middle-mouse pan
+      fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
+      expect(canvasStore.isPanning).toBe(true);
+
+      // Now try Space+left-click while already panning
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 200, clientY: 200 });
+
+      // Pan start should NOT change to the new position
+      // (it was already panning from middle-mouse)
+      expect(canvasStore.panStart).toEqual({ x: 100, y: 100 });
+    });
+  });
 });
