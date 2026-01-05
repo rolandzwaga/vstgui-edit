@@ -13,10 +13,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome lint .",
-		"lint:css": "stylelint \"**/*.module.css\"",
-		"format": "biome format --write .",
-		"check": "biome check --write .",
-		"typecheck": "tsc --noEmit",
+    "lint:css": "stylelint \"**/*.module.css\"",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "typecheck": "tsc --noEmit",
     "generate:types": "json2ts vstgui-uidesc.schema.json src/types/uidesc.d.ts"
   },
   "dependencies": {
@@ -32,6 +32,7 @@
     "@solidjs/testing-library": "0.8.10",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/user-event": "14.6.1",
+    "@vitest/coverage-v8": "^4.0.16",
     "jsdom": "27.4.0",
     "json-schema-to-typescript": "^15.0.4",
     "stylelint": "16.26.1",

@@ -76,3 +76,15 @@ export interface TemplateBounds {
   width: number;
   height: number;
 }
+
+/**
+ * Pan state for canvas navigation.
+ */
+export interface PanState {
+  /** Current pan offset in pixels */
+  panOffset: Point;
+  /** Whether a pan gesture is currently active */
+  isPanning: boolean;
+  /** Mouse position when pan gesture started */
+  panStart: Point | null;
+}

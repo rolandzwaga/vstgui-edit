@@ -6,6 +6,7 @@
 /* Canvas wrapper - dimensions set inline to match template bounds */
 .canvasWrapper {
   background-color: var(--color-canvas-background);
+  outline: none; /* Remove default focus outline, canvas uses cursor feedback instead */
 }
 
 /* Canvas SVG - renders at actual pixel dimensions */
@@ -116,4 +117,13 @@
   stroke: var(--color-template-bounds);
   stroke-width: 2;
   stroke-dasharray: 5 3;
+}
+
+/* Pan cursor feedback */
+.grab {
+  cursor: grab;
+}
+
+.grabbing {
+  cursor: grabbing;
 }

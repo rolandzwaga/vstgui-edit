@@ -37,6 +37,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - In-memory SolidJS store (extends existing documentStore from 001-uidesc-upload) (002-uidesc-parsing)
 - TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required) (003-canvas-rendering)
 - N/A (reads from existing documentStore) (003-canvas-rendering)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state) (004-canvas-pan)
+- N/A (pan state is transient, not persisted) (004-canvas-pan)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -196,6 +198,33 @@ await loadFile(file);
 
 // Reset to initial state
 reset();
+```
+
+### Canvas Store (`src/stores/canvasStore.ts`)
+
+Global store for canvas pan state management:
+
+- `canvasStore` - Reactive store with pan offset, panning state, and pan start position
+- `startPan(x, y)` - Start pan gesture at given mouse position
+- `updatePan(x, y)` - Update pan offset by delta from panStart
+- `endPan()` - End pan gesture (preserves panOffset)
+- `resetPan()` - Reset all pan state to initial values
+
+```typescript
+import { canvasStore, startPan, updatePan, endPan, resetPan } from './stores/canvasStore';
+
+// Access pan state
+console.log(canvasStore.panOffset); // { x: number, y: number }
+console.log(canvasStore.isPanning); // boolean
+console.log(canvasStore.panStart); // { x: number, y: number } | null
+
+// Pan gesture flow
+startPan(100, 100);   // Begin pan at mouse position
+updatePan(150, 120);  // Update: panOffset += delta, panStart = current pos
+endPan();             // End pan, preserve offset for next gesture
+
+// Reset to initial state
+resetPan();
 ```
 
 ### Parser Module (`src/domain/parser/`)
@@ -639,12 +668,21 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 004-canvas-pan: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state)
 - 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
 - 002-uidesc-parsing: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev)
 
 **[Track feature additions here]**
 
-- 2026-01-05: Implemented 003-canvas-rendering feature
+- 2026-01-05: Implemented 004-canvas-pan feature
+  - Canvas pan via middle-mouse drag (FR-001)
+  - Canvas pan via Space+left-drag (FR-002)
+  - 1:1 mouse movement to pan offset (FR-003)
+  - Pan offset preserved between gestures (FR-004)
+  - Cursor feedback: grab/grabbing (FR-005, FR-006)
+  - canvasStore with reactive signals for pan state
+  - 323 passing tests (50 new + 273 existing)
+
   - Canvas component with SVG rendering for uidesc templates
   - Recursive view hierarchy flattening with absolute position calculation
   - View labels with class names and [Custom] indicator
@@ -652,14 +690,12 @@ class SetPropertyCommand implements Command {
   - Template bounds indicator with dashed border
   - Z-ordering via DOM order (parents before children)
   - 275 passing tests (108 new canvas tests + 167 existing)
-- 2026-01-05: Implemented 002-uidesc-parsing feature
   - Auto-detect JSON/XML format from file content
   - JSON Schema validation with AJV (allErrors mode, strict)
   - XML parsing with DOMParser and conversion to JSON
   - Path mapping for XML error locations
   - Auto-parse on successful file upload
   - 149 passing tests (121 new + 28 existing)
-- 2026-01-05: Implemented 001-uidesc-upload feature
   - UploadZone component with drag-drop and file selector
   - documentStore for global state management
   - Design tokens in `src/styles/tokens.css`
