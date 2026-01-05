@@ -1,8 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@solidjs/testing-library';
-import { canvasStore, resetPan, resetZoom } from '../../../stores/canvasStore';
+import {
+  canvasStore,
+  fitToView,
+  resetPan,
+  resetZoom,
+  zoomIn,
+  zoomOut,
+} from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
+
+vi.mock('../../../stores/canvasStore', async () => {
+  const actual = await vi.importActual('../../../stores/canvasStore');
+  return {
+    ...actual,
+    zoomIn: vi.fn((actual as { zoomIn: () => void }).zoomIn),
+    zoomOut: vi.fn((actual as { zoomOut: () => void }).zoomOut),
+    resetZoom: vi.fn((actual as { resetZoom: () => void }).resetZoom),
+    fitToView: vi.fn((actual as { fitToView: () => void }).fitToView),
+  };
+});
 
 // Define mock store using vi.hoisted so it's available in vi.mock
 const mockDocumentStore = vi.hoisted(() => ({
@@ -721,6 +739,250 @@ describe('Canvas', () => {
 
       // Should be capped at MIN_ZOOM (0.1)
       expect(canvasStore.zoomLevel).toBe(0.1);
+    });
+  });
+
+  describe('Given canvas with content (US1 - Keyboard Zoom)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger zoomIn when + key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press + key
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '+' });
+
+      expect(zoomIn).toHaveBeenCalled();
+    });
+
+    it('should trigger zoomIn when = key pressed and canvas has focus (alternative key)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press = key (same physical key as + without Shift)
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '=' });
+
+      expect(zoomIn).toHaveBeenCalled();
+    });
+
+    it('should trigger zoomOut when - key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press - key
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '-' });
+
+      expect(zoomOut).toHaveBeenCalled();
+    });
+
+    it('should not trigger zoom when modifier keys are held (prevents browser shortcuts conflict)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl++ should not trigger our zoom (browser zoom)
+      fireEvent.keyDown(wrapper, { key: '+', ctrlKey: true });
+      expect(zoomIn).not.toHaveBeenCalled();
+
+      // Cmd++ should not trigger our zoom (browser zoom on Mac)
+      fireEvent.keyDown(wrapper, { key: '+', metaKey: true });
+      expect(zoomIn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (US2 - Reset Keyboard Shortcut)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger resetZoom when 0 key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '0' });
+
+      expect(resetZoom).toHaveBeenCalled();
+    });
+
+    it('should not trigger resetZoom when modifier keys are held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl+0 should not trigger our reset (browser zoom reset)
+      fireEvent.keyDown(wrapper, { key: '0', ctrlKey: true });
+      expect(resetZoom).not.toHaveBeenCalled();
+
+      // Cmd+0 should not trigger our reset (browser zoom reset on Mac)
+      fireEvent.keyDown(wrapper, { key: '0', metaKey: true });
+      expect(resetZoom).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (US3 - Fit to View Keyboard Shortcut)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger fitToView when F key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'f' });
+
+      expect(fitToView).toHaveBeenCalled();
+    });
+
+    it('should trigger fitToView when uppercase F key pressed', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'F' });
+
+      expect(fitToView).toHaveBeenCalled();
+    });
+
+    it('should not trigger fitToView when modifier keys are held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl+F should not trigger fit (browser find)
+      fireEvent.keyDown(wrapper, { key: 'f', ctrlKey: true });
+      expect(fitToView).not.toHaveBeenCalled();
+
+      // Cmd+F should not trigger fit (browser find on Mac)
+      fireEvent.keyDown(wrapper, { key: 'f', metaKey: true });
+      expect(fitToView).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (FR-013 - Keyboard Filter)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should ignore keyboard shortcuts when focus is in a text input element', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <input type="text" data-testid="text-input" />
+        </div>
+      ));
+
+      const textInput = screen.getByTestId('text-input');
+
+      // Focus the text input and fire keyboard event
+      textInput.focus();
+
+      // Simulate keydown event bubbling from input to canvas wrapper
+      fireEvent.keyDown(textInput, { key: '+', bubbles: true });
+      fireEvent.keyDown(textInput, { key: '-', bubbles: true });
+      fireEvent.keyDown(textInput, { key: '0', bubbles: true });
+      fireEvent.keyDown(textInput, { key: 'f', bubbles: true });
+
+      // None of the zoom functions should be called
+      expect(zoomIn).not.toHaveBeenCalled();
+      expect(zoomOut).not.toHaveBeenCalled();
+      expect(resetZoom).not.toHaveBeenCalled();
+      expect(fitToView).not.toHaveBeenCalled();
+    });
+
+    it('should ignore keyboard shortcuts when focus is in a textarea element', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <textarea data-testid="textarea" />
+        </div>
+      ));
+
+      const textarea = screen.getByTestId('textarea');
+
+      // Focus the textarea and fire keyboard event
+      textarea.focus();
+
+      // Simulate keydown event bubbling from textarea
+      fireEvent.keyDown(textarea, { key: '+', bubbles: true });
+      fireEvent.keyDown(textarea, { key: '-', bubbles: true });
+
+      // Zoom functions should not be called
+      expect(zoomIn).not.toHaveBeenCalled();
+      expect(zoomOut).not.toHaveBeenCalled();
     });
   });
 });

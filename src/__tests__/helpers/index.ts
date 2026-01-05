@@ -1,5 +1,5 @@
 /**
- * Test helper library for VSGUI-Edit
+ * Test helper library for VSTGUI-Edit
  *
  * Provides utilities for testing SolidJS components and stores.
  * See specs/TESTING-GUIDE.md for usage patterns.

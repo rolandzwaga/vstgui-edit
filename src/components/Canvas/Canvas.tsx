@@ -1,6 +1,16 @@
 import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
-import { canvasStore, startPan, updatePan, endPan, applyZoom } from '../../stores/canvasStore';
+import {
+  canvasStore,
+  startPan,
+  updatePan,
+  endPan,
+  applyZoom,
+  fitToView,
+  zoomIn,
+  zoomOut,
+  resetZoom,
+} from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -131,6 +141,58 @@ export const Canvas: Component = () => {
     applyZoom(e.clientX, e.clientY, wrapper.getBoundingClientRect(), e.deltaY);
   };
 
+  /**
+   * Handle keyboard events for zoom shortcuts.
+   * + or = key: zoom in
+   * - key: zoom out
+   * 0 key: reset to 100%
+   * F key: fit to view
+   * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
+   * Ignores when focus is in a text input/textarea (FR-013).
+   */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Ignore when modifier keys are held (browser shortcuts)
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+
+    // Ignore when focus is in a text input or textarea (FR-013)
+    const target = e.target as HTMLElement;
+    const tagName = target.tagName.toLowerCase();
+    if (tagName === 'input' || tagName === 'textarea') {
+      return;
+    }
+
+    if (e.key === '+' || e.key === '=') {
+      zoomIn();
+    } else if (e.key === '-') {
+      zoomOut();
+    } else if (e.key === '0') {
+      resetZoom();
+    } else if (e.key === 'f' || e.key === 'F') {
+      handleFitToView();
+    }
+  };
+
+  /**
+   * Handle fit to view action.
+   * Gets the viewport size from the canvas container and template size from bounds.
+   */
+  const handleFitToView = () => {
+    const bounds = templateBounds();
+    if (!bounds) return;
+
+    // Use a reasonable default viewport size if we can't get the actual size
+    // In practice, this would come from the parent container
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    fitToView(
+      { width: viewportWidth, height: viewportHeight },
+      { width: bounds.width, height: bounds.height }
+    );
+  };
+
   // Clean up listeners on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
@@ -149,8 +211,10 @@ export const Canvas: Component = () => {
             [styles.grabbing]: canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
+          tabIndex={0}
           onMouseDown={handleMouseDown}
           onWheel={handleWheel}
+          onKeyDown={handleKeyDown}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,

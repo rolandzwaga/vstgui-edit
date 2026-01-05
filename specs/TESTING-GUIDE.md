@@ -1,4 +1,4 @@
-# VSGUI-Edit Testing Guide
+# VSTGUI-Edit Testing Guide
 
 **Vitest 4.x + @solidjs/testing-library 0.8.10** | Updated: 2026-01-05
 

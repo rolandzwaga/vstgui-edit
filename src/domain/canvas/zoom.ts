@@ -37,6 +37,14 @@ export function calculateNewZoom(currentZoom: number, deltaY: number): number {
 }
 
 /**
+ * Formats a zoom level as a percentage string (e.g., 1.0 → "100%").
+ * Rounds to nearest integer percent.
+ */
+export function formatZoomPercent(zoom: number): string {
+  return `${Math.round(zoom * 100)}%`;
+}
+
+/**
  * Calculates the pan offset adjustment needed to keep the cursor point
  * stationary when zooming.
  *

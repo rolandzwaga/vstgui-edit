@@ -3,12 +3,15 @@ import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
   canvasStore,
   endPan,
+  fitToView,
   resetCanvas,
   resetPan,
   resetZoom,
   setZoom,
   startPan,
   updatePan,
+  zoomIn,
+  zoomOut,
 } from '../canvasStore';
 
 describe('canvasStore', () => {
@@ -295,6 +298,133 @@ describe('canvasStore', () => {
 
         expect(canvasStore.zoomLevel).toBe(1.0);
         expect(canvasStore.panOffset).toEqual({ x: 0, y: 0 });
+      });
+    });
+  });
+
+  describe('zoomIn', () => {
+    test('multiplies zoom by ZOOM_FACTOR (1.1)', () => {
+      testInRoot(() => {
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        zoomIn();
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.1);
+      });
+    });
+
+    test('accumulates multiple zoom in calls', () => {
+      testInRoot(() => {
+        resetZoom();
+        zoomIn();
+        zoomIn();
+        zoomIn();
+        // 1.0 * 1.1 * 1.1 * 1.1 = 1.331
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.331);
+      });
+    });
+
+    test('clamps at MAX_ZOOM (5.0)', () => {
+      testInRoot(() => {
+        setZoom(4.9);
+        zoomIn();
+        // 4.9 * 1.1 = 5.39 -> clamped to 5.0
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+
+    test('does not exceed MAX_ZOOM with repeated calls', () => {
+      testInRoot(() => {
+        setZoom(5.0);
+        zoomIn();
+        zoomIn();
+        zoomIn();
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+  });
+
+  describe('zoomOut', () => {
+    test('divides zoom by ZOOM_FACTOR (1.1)', () => {
+      testInRoot(() => {
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        zoomOut();
+        // 1.0 / 1.1 ≈ 0.909
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.0 / 1.1);
+      });
+    });
+
+    test('accumulates multiple zoom out calls', () => {
+      testInRoot(() => {
+        resetZoom();
+        zoomOut();
+        zoomOut();
+        zoomOut();
+        // 1.0 / 1.1 / 1.1 / 1.1 ≈ 0.751
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.0 / 1.1 / 1.1 / 1.1);
+      });
+    });
+
+    test('clamps at MIN_ZOOM (0.1)', () => {
+      testInRoot(() => {
+        setZoom(0.105);
+        zoomOut();
+        // 0.105 / 1.1 ≈ 0.095 -> clamped to 0.1
+        expect(canvasStore.zoomLevel).toBe(0.1);
+      });
+    });
+
+    test('does not go below MIN_ZOOM with repeated calls', () => {
+      testInRoot(() => {
+        setZoom(0.1);
+        zoomOut();
+        zoomOut();
+        zoomOut();
+        expect(canvasStore.zoomLevel).toBe(0.1);
+      });
+    });
+  });
+
+  describe('fitToView', () => {
+    test('sets zoom and pan to fit template in viewport', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 1600x1200
+        // Expected zoom: ~0.45, centered pan
+        fitToView({ width: 800, height: 600 }, { width: 1600, height: 1200 });
+        expect(canvasStore.zoomLevel).toBeCloseTo(0.45, 2);
+        expect(canvasStore.panOffset.x).toBeCloseTo(40, 0);
+        expect(canvasStore.panOffset.y).toBeCloseTo(30, 0);
+      });
+    });
+
+    test('caps zoom at 1.0 for small templates', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 100x100 (small)
+        fitToView({ width: 800, height: 600 }, { width: 100, height: 100 });
+        expect(canvasStore.zoomLevel).toBe(1.0);
+      });
+    });
+
+    test('centers template in viewport', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 400x300
+        // zoom = 1.0 (capped), center: (800-400)/2 = 200, (600-300)/2 = 150
+        fitToView({ width: 800, height: 600 }, { width: 400, height: 300 });
+        expect(canvasStore.panOffset.x).toBe(200);
+        expect(canvasStore.panOffset.y).toBe(150);
+      });
+    });
+
+    test('handles 0x0 template gracefully', () => {
+      testInRoot(() => {
+        resetCanvas();
+        fitToView({ width: 800, height: 600 }, { width: 0, height: 0 });
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        expect(canvasStore.panOffset.x).toBe(0);
+        expect(canvasStore.panOffset.y).toBe(0);
       });
     });
   });
