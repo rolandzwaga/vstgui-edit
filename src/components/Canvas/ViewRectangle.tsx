@@ -3,9 +3,9 @@ import type { RenderableView } from '../../types/canvas';
 import styles from './Canvas.module.css';
 
 /** Minimum width in pixels to show title text */
-const MIN_WIDTH_FOR_TITLE = 40;
+const MIN_WIDTH_FOR_TITLE = 20;
 /** Minimum height in pixels to show title text */
-const MIN_HEIGHT_FOR_TITLE = 16;
+const MIN_HEIGHT_FOR_TITLE = 12;
 /** Padding from left edge for title */
 const TITLE_PADDING_X = 4;
 /** Vertical offset for title (from top) */

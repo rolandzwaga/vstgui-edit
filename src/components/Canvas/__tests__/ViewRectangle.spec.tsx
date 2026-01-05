@@ -157,8 +157,8 @@ describe('ViewRectangle', () => {
   });
 
   describe('Given a small view with title (title truncation)', () => {
-    it('should hide title when view width is under 40px', () => {
-      const view = createMockView({ width: 30, title: 'Hidden' });
+    it('should hide title when view width is under 20px', () => {
+      const view = createMockView({ width: 15, title: 'Hidden' });
 
       render(() => (
         <svg>
@@ -172,8 +172,8 @@ describe('ViewRectangle', () => {
       expect(text).toBeNull();
     });
 
-    it('should show title when view width is 40px or more', () => {
-      const view = createMockView({ width: 40, title: 'Visible' });
+    it('should show title when view width is 20px or more', () => {
+      const view = createMockView({ width: 20, title: 'Visible' });
 
       render(() => (
         <svg>
@@ -187,8 +187,8 @@ describe('ViewRectangle', () => {
       expect(text).toBeInTheDocument();
     });
 
-    it('should hide title when view height is under 16px', () => {
-      const view = createMockView({ width: 200, height: 12, title: 'Hidden' });
+    it('should hide title when view height is under 12px', () => {
+      const view = createMockView({ width: 200, height: 10, title: 'Hidden' });
 
       render(() => (
         <svg>
