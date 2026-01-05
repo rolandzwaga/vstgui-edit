@@ -1,9 +1,10 @@
 /**
- * Canvas Store - Pan state management for canvas navigation.
+ * Canvas Store - Pan and zoom state management for canvas navigation.
  *
- * Uses SolidJS signals for reactive pan state with fine-grained updates.
+ * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
+import { calculateNewZoom, calculateZoomPanAdjustment, clampZoom } from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
 
 // --- Signals for pan state ---
@@ -12,10 +13,14 @@ const [panOffset, setPanOffset] = createSignal<Point>({ x: 0, y: 0 });
 const [isPanning, setIsPanning] = createSignal(false);
 const [panStart, setPanStart] = createSignal<Point | null>(null);
 
+// --- Signals for zoom state ---
+
+const [zoomLevel, setZoomLevel] = createSignal(1.0);
+
 // --- Reactive store object ---
 
 /**
- * Reactive canvas store exposing pan state.
+ * Reactive canvas store exposing pan and zoom state.
  * Access values as getters (they are signals).
  */
 export const canvasStore = {
@@ -27,6 +32,9 @@ export const canvasStore = {
   },
   get panStart() {
     return panStart();
+  },
+  get zoomLevel() {
+    return zoomLevel();
   },
 };
 
@@ -79,4 +87,58 @@ export function resetPan(): void {
   setPanOffset({ x: 0, y: 0 });
   setIsPanning(false);
   setPanStart(null);
+}
+
+// --- Zoom Actions ---
+
+/**
+ * Set the zoom level, clamped to valid range [MIN_ZOOM, MAX_ZOOM].
+ */
+export function setZoom(level: number): void {
+  setZoomLevel(clampZoom(level));
+}
+
+/**
+ * Reset zoom level to default (1.0 = 100%).
+ */
+export function resetZoom(): void {
+  setZoomLevel(1.0);
+}
+
+/**
+ * Reset all canvas state (pan and zoom) to initial values.
+ * Call this when loading a new document.
+ */
+export function resetCanvas(): void {
+  resetPan();
+  resetZoom();
+}
+
+/**
+ * Apply zoom based on wheel delta, centered on cursor position.
+ * Adjusts both zoom level and pan offset to keep the point under cursor stationary.
+ */
+export function applyZoom(
+  cursorX: number,
+  cursorY: number,
+  wrapperRect: DOMRect,
+  deltaY: number
+): void {
+  const oldZoom = zoomLevel();
+  const newZoom = calculateNewZoom(oldZoom, deltaY);
+
+  // Only update if zoom actually changed (not clamped at limits)
+  if (newZoom !== oldZoom) {
+    const newPan = calculateZoomPanAdjustment(
+      cursorX,
+      cursorY,
+      wrapperRect,
+      panOffset(),
+      oldZoom,
+      newZoom
+    );
+
+    setPanOffset(newPan);
+    setZoomLevel(newZoom);
+  }
 }

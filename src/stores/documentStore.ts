@@ -1,6 +1,7 @@
 import { createStore } from 'solid-js/store';
 import { parseUidesc } from '../domain/parser';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
+import { resetCanvas } from './canvasStore';
 
 const initialState: DocumentStoreState = {
   // Upload state (from 001-uidesc-upload)
@@ -47,6 +48,9 @@ function parseContent(content: string): void {
   const result = parseUidesc(content);
 
   if (result.success) {
+    // FR-009: Reset canvas (pan and zoom) on new document load
+    resetCanvas();
+
     setStore({
       parseState: 'valid',
       document: result.document,

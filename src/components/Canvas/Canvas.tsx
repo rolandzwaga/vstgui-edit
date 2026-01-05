@@ -1,6 +1,6 @@
 import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
-import { canvasStore, startPan, updatePan, endPan } from '../../stores/canvasStore';
+import { canvasStore, startPan, updatePan, endPan, applyZoom } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -121,6 +121,16 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
+  /**
+   * Handle wheel event for zoom.
+   * Prevents default browser zoom and applies cursor-centered zoom.
+   */
+  const handleWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    const wrapper = e.currentTarget as HTMLElement;
+    applyZoom(e.clientX, e.clientY, wrapper.getBoundingClientRect(), e.deltaY);
+  };
+
   // Clean up listeners on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
@@ -140,10 +150,11 @@ export const Canvas: Component = () => {
           }}
           data-testid="canvas-wrapper"
           onMouseDown={handleMouseDown}
+          onWheel={handleWheel}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,
-            transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px)`,
+            transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px) scale(${canvasStore.zoomLevel})`,
           }}
         >
           <svg
