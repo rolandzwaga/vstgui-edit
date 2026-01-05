@@ -1,11 +1,18 @@
 import { createStore } from 'solid-js/store';
+import { parseUidesc } from '../domain/parser';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 
 const initialState: DocumentStoreState = {
+  // Upload state (from 001-uidesc-upload)
   content: null,
   metadata: null,
   uploadState: 'idle',
   error: null,
+  // Parse state (from 002-uidesc-parsing)
+  document: null,
+  parseState: 'idle',
+  parseErrors: null,
+  detectedFormat: null,
 };
 
 const [store, setStore] = createStore<DocumentStoreState>({ ...initialState });
@@ -27,6 +34,33 @@ function readFileAsText(file: File): Promise<string> {
     reader.onerror = () => reject(reader.error);
     reader.readAsText(file);
   });
+}
+
+/**
+ * Parse the content and update parse state
+ * FR-000: Automatically triggered after successful file upload
+ */
+function parseContent(content: string): void {
+  // Set parsing state
+  setStore({ parseState: 'parsing' });
+
+  const result = parseUidesc(content);
+
+  if (result.success) {
+    setStore({
+      parseState: 'valid',
+      document: result.document,
+      parseErrors: null,
+      detectedFormat: result.format,
+    });
+  } else {
+    setStore({
+      parseState: 'invalid',
+      document: null,
+      parseErrors: result.errors,
+      detectedFormat: result.format,
+    });
+  }
 }
 
 /**
@@ -78,6 +112,9 @@ export async function loadFile(file: File): Promise<void> {
       uploadState: 'success',
       error: null,
     });
+
+    // FR-000: Automatically trigger parsing after successful upload
+    parseContent(content);
   } catch {
     setStore({
       uploadState: 'error',
