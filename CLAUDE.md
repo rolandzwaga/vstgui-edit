@@ -39,6 +39,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - N/A (reads from existing documentStore) (003-canvas-rendering)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state) (004-canvas-pan)
 - N/A (pan state is transient, not persisted) (004-canvas-pan)
+- TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (createSignal for zoom state) (005-canvas-zoom)
+- N/A (in-memory state only) (005-canvas-zoom)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -668,13 +670,12 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 005-canvas-zoom: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (createSignal for zoom state)
 - 004-canvas-pan: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state)
 - 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
-- 002-uidesc-parsing: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev)
 
 **[Track feature additions here]**
 
-- 2026-01-05: Implemented 004-canvas-pan feature
   - Canvas pan via middle-mouse drag (FR-001)
   - Canvas pan via Space+left-drag (FR-002)
   - 1:1 mouse movement to pan offset (FR-003)

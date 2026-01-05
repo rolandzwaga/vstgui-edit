@@ -1,7 +1,7 @@
 /**
- * Canvas Store - Pan state management for canvas navigation.
+ * Canvas Store - Pan and zoom state management for canvas navigation.
  *
- * Uses SolidJS signals for reactive pan state with fine-grained updates.
+ * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
 import type { Point } from '../types/canvas';
@@ -12,10 +12,14 @@ const [panOffset, setPanOffset] = createSignal<Point>({ x: 0, y: 0 });
 const [isPanning, setIsPanning] = createSignal(false);
 const [panStart, setPanStart] = createSignal<Point | null>(null);
 
+// --- Signals for zoom state ---
+
+const [zoomLevel, setZoomLevel] = createSignal(1.0);
+
 // --- Reactive store object ---
 
 /**
- * Reactive canvas store exposing pan state.
+ * Reactive canvas store exposing pan and zoom state.
  * Access values as getters (they are signals).
  */
 export const canvasStore = {
@@ -27,6 +31,9 @@ export const canvasStore = {
   },
   get panStart() {
     return panStart();
+  },
+  get zoomLevel() {
+    return zoomLevel();
   },
 };
 
