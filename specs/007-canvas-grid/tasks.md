@@ -205,12 +205,12 @@
 
 **Purpose**: Ensure all work is committed and requirements met
 
-- [ ] T065 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T066 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T067 **Confirm Clean**: Verify working tree is clean (nothing to commit)
-- [ ] T068 Update spec.md Requirement Compliance Table with evidence for all FR-xxx and SC-xxx
-- [ ] T069 Verify all requirements show MET status in compliance table
-- [ ] T070 **Final Commit**: Commit updated spec.md with compliance table
+- [x] T065 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] T066 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] T067 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] T068 Update spec.md Requirement Compliance Table with evidence for all FR-xxx and SC-xxx
+- [x] T069 Verify all requirements show MET status in compliance table
+- [x] T070 **Final Commit**: Commit updated spec.md with compliance table
 
 **CRITICAL**: Feature is NOT complete until all requirements verified and all work committed.
 
