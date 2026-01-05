@@ -3,12 +3,18 @@
  * Styles for the uidesc visual editor canvas
  */
 
-/* Canvas container */
-.canvas {
+/* Scrollable canvas wrapper */
+.canvasWrapper {
   width: 100%;
   height: 100%;
+  overflow: auto;
   background-color: var(--color-canvas-background);
+}
+
+/* Canvas SVG - renders at actual pixel dimensions */
+.canvas {
   display: block;
+  background-color: var(--color-canvas-background);
 }
 
 /* Empty state container */

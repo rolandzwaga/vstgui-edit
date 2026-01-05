@@ -78,18 +78,22 @@ export const Canvas: Component = () => {
       when={!isEmpty()}
       fallback={<EmptyState />}
     >
-      <svg
-        class={styles.canvas}
-        viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
-        data-testid="canvas"
-      >
-        <Show when={templateBounds()}>
-          {(bounds) => <TemplateBounds bounds={bounds()} />}
-        </Show>
-        <For each={renderableViews()}>
-          {(view) => <ViewRectangle view={view} />}
-        </For>
-      </svg>
+      <div class={styles.canvasWrapper} data-testid="canvas-wrapper">
+        <svg
+          class={styles.canvas}
+          width={templateBounds()?.width ?? 100}
+          height={templateBounds()?.height ?? 100}
+          viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
+          data-testid="canvas"
+        >
+          <Show when={templateBounds()}>
+            {(bounds) => <TemplateBounds bounds={bounds()} />}
+          </Show>
+          <For each={renderableViews()}>
+            {(view) => <ViewRectangle view={view} />}
+          </For>
+        </svg>
+      </div>
     </Show>
   );
 };
