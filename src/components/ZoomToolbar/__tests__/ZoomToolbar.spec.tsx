@@ -123,4 +123,34 @@ describe('ZoomToolbar', () => {
       expect(() => fireEvent.click(button)).not.toThrow();
     });
   });
+
+  describe('disabled states (FR-012)', () => {
+    it('should disable + button when at MAX_ZOOM (5.0)', () => {
+      setZoom(5.0);
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /zoom in/i });
+      expect(button).toBeDisabled();
+    });
+
+    it('should disable - button when at MIN_ZOOM (0.1)', () => {
+      setZoom(0.1);
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /zoom out/i });
+      expect(button).toBeDisabled();
+    });
+
+    it('should enable + button when below MAX_ZOOM', () => {
+      setZoom(4.9);
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /zoom in/i });
+      expect(button).not.toBeDisabled();
+    });
+
+    it('should enable - button when above MIN_ZOOM', () => {
+      setZoom(0.2);
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /zoom out/i });
+      expect(button).not.toBeDisabled();
+    });
+  });
 });

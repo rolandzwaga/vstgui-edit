@@ -41,6 +41,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - N/A (pan state is transient, not persisted) (004-canvas-pan)
 - TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (createSignal for zoom state) (005-canvas-zoom)
 - N/A (in-memory state only) (005-canvas-zoom)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for component state, createMemo for derived values) (006-zoom-controls)
+- N/A (in-memory state via canvasStore) (006-zoom-controls)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -213,11 +215,14 @@ Global store for canvas pan and zoom state management:
 - `resetPan()` - Reset all pan state to initial values
 - `setZoom(level)` - Set zoom level (clamped to 0.1-5.0)
 - `resetZoom()` - Reset zoom to 1.0 (100%)
+- `zoomIn()` - Zoom in by one step (multiply by ZOOM_FACTOR)
+- `zoomOut()` - Zoom out by one step (divide by ZOOM_FACTOR)
 - `applyZoom(cursorX, cursorY, wrapperRect, deltaY)` - Apply cursor-centered zoom from wheel
+- `fitToView(viewportSize, templateSize)` - Fit template to viewport with 5% padding
 - `resetCanvas()` - Reset both pan and zoom to initial values
 
 ```typescript
-import { canvasStore, startPan, updatePan, endPan, resetPan, setZoom, resetZoom, applyZoom, resetCanvas } from './stores/canvasStore';
+import { canvasStore, startPan, updatePan, endPan, resetPan, setZoom, resetZoom, zoomIn, zoomOut, applyZoom, fitToView, resetCanvas } from './stores/canvasStore';
 
 // Access pan state
 console.log(canvasStore.panOffset); // { x: number, y: number }
@@ -234,7 +239,10 @@ endPan();             // End pan, preserve offset for next gesture
 
 // Zoom operations
 setZoom(2.0);         // Set zoom to 200%
+zoomIn();             // Zoom in by 10% (ZOOM_FACTOR)
+zoomOut();            // Zoom out by 10%
 applyZoom(400, 300, rect, -100);  // Zoom in centered on cursor
+fitToView({ width: 800, height: 600 }, { width: 400, height: 300 });  // Fit and center
 
 // Reset operations
 resetPan();           // Reset pan only
@@ -252,12 +260,34 @@ Zoom calculation utilities for cursor-centered zooming:
 - `clampZoom(zoom)` - Clamp zoom to valid range
 - `calculateNewZoom(current, deltaY)` - Calculate new zoom from wheel delta
 - `calculateZoomPanAdjustment(cursorX, cursorY, rect, pan, oldZoom, newZoom)` - Calculate pan offset for cursor-centered zoom
+- `formatZoomPercent(zoom)` - Format zoom level as percentage string (e.g., "150%")
 
 ```typescript
-import { MIN_ZOOM, MAX_ZOOM, clampZoom, calculateNewZoom } from './domain/canvas/zoom';
+import { MIN_ZOOM, MAX_ZOOM, clampZoom, calculateNewZoom, formatZoomPercent } from './domain/canvas/zoom';
 
 const newZoom = calculateNewZoom(1.0, -100); // 1.1 (zoom in)
 const clamped = clampZoom(10.0); // 5.0 (max)
+const display = formatZoomPercent(1.5); // "150%"
+```
+
+### Fit-to-View Utilities (`src/domain/canvas/fitToView.ts`)
+
+Calculates zoom and pan to fit a template within a viewport:
+
+- `calculateFitZoom(templateSize, viewportSize, padding?)` - Calculate zoom and pan to fit template
+- `DEFAULT_PADDING` - Default padding (0.05 = 5%)
+
+```typescript
+import { calculateFitZoom, DEFAULT_PADDING } from './domain/canvas/fitToView';
+
+const result = calculateFitZoom(
+  { width: 800, height: 600 },   // template size
+  { width: 1200, height: 800 },  // viewport size
+  0.05                            // optional padding (default 5%)
+);
+// result: { zoom: 0.9, panX: 240, panY: 130 }
+
+// Note: zoom is capped at 1.0 (100%) for small templates
 ```
 
 ### Parser Module (`src/domain/parser/`)
@@ -701,13 +731,21 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 006-zoom-controls: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for component state, createMemo for derived values)
 - 005-canvas-zoom: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (createSignal for zoom state)
 - 004-canvas-pan: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state)
-- 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
 
 **[Track feature additions here]**
 
-- 2026-01-05: Implemented 005-canvas-zoom feature
+- 2026-01-05: Implemented 006-zoom-controls feature
+  - ZoomToolbar component with +/- buttons, 100% reset, and Fit button
+  - Zoom percentage display with formatZoomPercent utility
+  - Keyboard shortcuts: +/= (zoom in), - (zoom out), 0 (reset), F (fit)
+  - Fit-to-view with 5% padding and 100% cap for small templates
+  - Disabled button states at zoom limits (10% and 500%)
+  - Keyboard filter to ignore shortcuts in text inputs (FR-013)
+  - 416 passing tests (62 new + 354 existing)
+
   - Mouse wheel zoom in/out (deltaY < 0 = zoom in, deltaY > 0 = zoom out)
   - Cursor-centered zooming (point under cursor stays stationary)
   - Zoom limits: 10% (0.1) to 500% (5.0)

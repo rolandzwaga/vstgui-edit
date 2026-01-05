@@ -1,6 +1,6 @@
-import type { Component } from 'solid-js';
+import { type Component, createMemo } from 'solid-js';
 import { canvasStore, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { formatZoomPercent } from '../../domain/canvas/zoom';
+import { formatZoomPercent, MAX_ZOOM, MIN_ZOOM } from '../../domain/canvas/zoom';
 import styles from './ZoomToolbar.module.css';
 
 export interface ZoomToolbarProps {
@@ -17,8 +17,13 @@ export interface ZoomToolbarProps {
  * - Zoom out (-) button (FR-003)
  * - Fit to view button (FR-004)
  * - Reset to 100% button (FR-005)
+ * - Disabled states at zoom limits (FR-012)
  */
 export const ZoomToolbar: Component<ZoomToolbarProps> = (props) => {
+  // Derive disabled states based on zoom limits
+  const isZoomInDisabled = createMemo(() => canvasStore.zoomLevel >= MAX_ZOOM);
+  const isZoomOutDisabled = createMemo(() => canvasStore.zoomLevel <= MIN_ZOOM);
+
   return (
     <div class={styles.toolbar} role="toolbar" aria-label="Zoom controls">
       <button
@@ -26,6 +31,7 @@ export const ZoomToolbar: Component<ZoomToolbarProps> = (props) => {
         class={styles.button}
         onClick={() => zoomOut()}
         aria-label="Zoom out"
+        disabled={isZoomOutDisabled()}
       >
         −
       </button>
@@ -39,6 +45,7 @@ export const ZoomToolbar: Component<ZoomToolbarProps> = (props) => {
         class={styles.button}
         onClick={() => zoomIn()}
         aria-label="Zoom in"
+        disabled={isZoomInDisabled()}
       >
         +
       </button>

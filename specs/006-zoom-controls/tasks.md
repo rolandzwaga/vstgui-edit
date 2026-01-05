@@ -196,23 +196,23 @@
 
 ### Disabled States (FR-012)
 
-- [ ] T069 Write test: + button disabled at MAX_ZOOM in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
-- [ ] T070 [P] Write test: - button disabled at MIN_ZOOM
-- [ ] T071 Implement disabled state derivation using createMemo in `src/components/ZoomToolbar/ZoomToolbar.tsx`
-- [ ] T072 Add disabled button styles in `src/components/ZoomToolbar/ZoomToolbar.module.css`
+- [x] T069 Write test: + button disabled at MAX_ZOOM in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
+- [x] T070 [P] Write test: - button disabled at MIN_ZOOM
+- [x] T071 Implement disabled state derivation using createMemo in `src/components/ZoomToolbar/ZoomToolbar.tsx`
+- [x] T072 Add disabled button styles in `src/components/ZoomToolbar/ZoomToolbar.module.css` (using existing disabled styles)
 
 ### Keyboard Filter (FR-013)
 
-- [ ] T073 Write test: keyboard shortcuts ignored when focus in text input in `src/components/Canvas/__tests__/Canvas.spec.tsx`
-- [ ] T074 Implement focus filter in keyboard handler to skip when `e.target` is input/textarea
+- [x] T073 Write test: keyboard shortcuts ignored when focus in text input in `src/components/Canvas/__tests__/Canvas.spec.tsx`
+- [x] T074 Implement focus filter in keyboard handler to skip when `e.target` is input/textarea
 
 ### Final Verification
 
-- [ ] T075 Run `npm test` to verify all tests pass
-- [ ] T076 Run `npm run test:coverage` to verify 80%+ coverage on new code
-- [ ] T077 Run `npx tsc --noEmit` to verify no TypeScript errors
-- [ ] T078 Run `npx biome check --write .` to fix any remaining lint issues
-- [ ] T079 [P] Update CLAUDE.md with new ZoomToolbar component and fitToView utility documentation
+- [x] T075 Run `npm test` to verify all tests pass
+- [x] T076 Run `npm run test:coverage` to verify 80%+ coverage on new code (new zoom code: 100%)
+- [x] T077 Run `npx tsc --noEmit` to verify no TypeScript errors
+- [x] T078 Run `npx biome check --write .` to fix any remaining lint issues
+- [x] T079 [P] Update CLAUDE.md with new ZoomToolbar component and fitToView utility documentation
 - [ ] T080 **Commit**: Stage and commit Polish phase changes with message "feat(006-zoom-controls): add disabled states, keyboard filter, documentation"
 
 ---

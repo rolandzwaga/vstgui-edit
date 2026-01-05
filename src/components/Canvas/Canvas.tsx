@@ -148,10 +148,18 @@ export const Canvas: Component = () => {
    * 0 key: reset to 100%
    * F key: fit to view
    * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
+   * Ignores when focus is in a text input/textarea (FR-013).
    */
   const handleKeyDown = (e: KeyboardEvent) => {
     // Ignore when modifier keys are held (browser shortcuts)
     if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+
+    // Ignore when focus is in a text input or textarea (FR-013)
+    const target = e.target as HTMLElement;
+    const tagName = target.tagName.toLowerCase();
+    if (tagName === 'input' || tagName === 'textarea') {
       return;
     }
 

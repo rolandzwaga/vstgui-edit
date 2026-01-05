@@ -915,4 +915,74 @@ describe('Canvas', () => {
       expect(fitToView).not.toHaveBeenCalled();
     });
   });
+
+  describe('Given canvas with content (FR-013 - Keyboard Filter)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should ignore keyboard shortcuts when focus is in a text input element', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <input type="text" data-testid="text-input" />
+        </div>
+      ));
+
+      const textInput = screen.getByTestId('text-input');
+
+      // Focus the text input and fire keyboard event
+      textInput.focus();
+
+      // Simulate keydown event bubbling from input to canvas wrapper
+      fireEvent.keyDown(textInput, { key: '+', bubbles: true });
+      fireEvent.keyDown(textInput, { key: '-', bubbles: true });
+      fireEvent.keyDown(textInput, { key: '0', bubbles: true });
+      fireEvent.keyDown(textInput, { key: 'f', bubbles: true });
+
+      // None of the zoom functions should be called
+      expect(zoomIn).not.toHaveBeenCalled();
+      expect(zoomOut).not.toHaveBeenCalled();
+      expect(resetZoom).not.toHaveBeenCalled();
+      expect(fitToView).not.toHaveBeenCalled();
+    });
+
+    it('should ignore keyboard shortcuts when focus is in a textarea element', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <textarea data-testid="textarea" />
+        </div>
+      ));
+
+      const textarea = screen.getByTestId('textarea');
+
+      // Focus the textarea and fire keyboard event
+      textarea.focus();
+
+      // Simulate keydown event bubbling from textarea
+      fireEvent.keyDown(textarea, { key: '+', bubbles: true });
+      fireEvent.keyDown(textarea, { key: '-', bubbles: true });
+
+      // Zoom functions should not be called
+      expect(zoomIn).not.toHaveBeenCalled();
+      expect(zoomOut).not.toHaveBeenCalled();
+    });
+  });
 });
