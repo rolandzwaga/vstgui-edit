@@ -6,6 +6,7 @@
 /* Canvas wrapper - dimensions set inline to match template bounds */
 .canvasWrapper {
   background-color: var(--color-canvas-background);
+  outline: none; /* Remove default focus outline, canvas uses cursor feedback instead */
 }
 
 /* Canvas SVG - renders at actual pixel dimensions */

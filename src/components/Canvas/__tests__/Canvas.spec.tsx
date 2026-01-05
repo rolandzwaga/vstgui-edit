@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@solidjs/testing-library';
 import { canvasStore, resetPan } from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
+import styles from '../Canvas.module.css';
 
 // Define mock store using vi.hoisted so it's available in vi.mock
 const mockDocumentStore = vi.hoisted(() => ({
@@ -473,6 +474,8 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      // Focus the canvas wrapper so it receives keyboard events
+      wrapper.focus();
       // Press Space key
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       // Left-click while Space held
@@ -486,6 +489,7 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      wrapper.focus();
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 150, clientY: 130 });
@@ -497,6 +501,7 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      wrapper.focus();
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 150, clientY: 150 });
@@ -510,6 +515,7 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      wrapper.focus();
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
@@ -531,6 +537,10 @@ describe('Canvas', () => {
 
     it('should prevent default Space behavior (page scroll) when Space pressed over canvas', () => {
       render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the canvas wrapper so it receives keyboard events
+      wrapper.focus();
 
       const event = new KeyboardEvent('keydown', {
         key: ' ',
@@ -549,6 +559,7 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      wrapper.focus();
       // Start middle-mouse pan
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
       expect(canvasStore.isPanning).toBe(true);
@@ -582,21 +593,18 @@ describe('Canvas', () => {
       };
     });
 
-    // Helper to check if any class contains a substring (for CSS Module hashed names)
-    const hasClassContaining = (element: Element, substring: string) => {
-      return Array.from(element.classList).some((cls) => cls.includes(substring));
-    };
-
     it('should apply grab cursor class when Space is held', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      // Focus the canvas wrapper so it receives keyboard events
+      wrapper.focus();
       // Press Space key
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
 
-      // Check for grab cursor class (CSS Module hashed name contains 'grab')
-      expect(hasClassContaining(wrapper, 'grab')).toBe(true);
-      expect(hasClassContaining(wrapper, 'grabbing')).toBe(false);
+      // Check for grab cursor class using imported CSS Module styles
+      expect(wrapper.classList.contains(styles.grab)).toBe(true);
+      expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
     });
 
     it('should apply grabbing cursor class when panning is active', () => {
@@ -606,20 +614,22 @@ describe('Canvas', () => {
       // Start middle-mouse pan
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
 
-      // Check for grabbing cursor class
-      expect(hasClassContaining(wrapper, 'grabbing')).toBe(true);
+      // Check for grabbing cursor class using imported CSS Module styles
+      expect(wrapper.classList.contains(styles.grabbing)).toBe(true);
     });
 
     it('should apply grabbing cursor class during Space+drag pan', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      // Focus so Space key is captured
+      wrapper.focus();
       // Space+left-click to pan
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
 
       // Check for grabbing cursor class (should override grab)
-      expect(hasClassContaining(wrapper, 'grabbing')).toBe(true);
+      expect(wrapper.classList.contains(styles.grabbing)).toBe(true);
     });
 
     it('should return to default cursor when pan ends', () => {
@@ -630,26 +640,25 @@ describe('Canvas', () => {
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
       fireEvent.mouseUp(document);
 
-      // No grab or grabbing class (but may have base canvasWrapper class)
-      const classes = Array.from(wrapper.classList);
-      const hasCursorClass = classes.some(
-        (cls) => cls.includes('grab') && !cls.includes('Wrapper')
-      );
-      expect(hasCursorClass).toBe(false);
+      // No grab or grabbing class
+      expect(wrapper.classList.contains(styles.grab)).toBe(false);
+      expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
     });
 
     it('should return to grab cursor when Space+drag pan ends but Space still held', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
+      // Focus so Space key is captured
+      wrapper.focus();
       // Space held + pan
       fireEvent.keyDown(document, { key: ' ', code: 'Space' });
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
       fireEvent.mouseUp(document);
 
       // Should have grab cursor (Space still held), not grabbing
-      expect(hasClassContaining(wrapper, 'grab')).toBe(true);
-      expect(hasClassContaining(wrapper, 'grabbing')).toBe(false);
+      expect(wrapper.classList.contains(styles.grab)).toBe(true);
+      expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { type Component, createMemo, createSignal, For, onCleanup, Show, onMount } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import { canvasStore, startPan, updatePan, endPan } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
@@ -88,6 +88,12 @@ export const Canvas: Component = () => {
   const [spaceHeld, setSpaceHeld] = createSignal(false);
 
   /**
+   * Ref to canvas wrapper for focus checking.
+   * Space+drag only activates when canvas has focus.
+   */
+  let canvasWrapperRef: HTMLDivElement | undefined;
+
+  /**
    * Handle mouse down for pan initiation.
    * Middle mouse button (button=1) or Space+left-click (button=0) starts panning.
    */
@@ -128,8 +134,13 @@ export const Canvas: Component = () => {
 
   /**
    * Handle keydown for Space key detection.
+   * Only captures Space when canvas wrapper has focus or contains active element.
    */
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Only capture Space when canvas area has focus
+    if (!canvasWrapperRef?.contains(document.activeElement) && document.activeElement !== canvasWrapperRef) {
+      return;
+    }
     if (e.code === 'Space' || e.key === ' ') {
       e.preventDefault(); // Prevent page scroll
       setSpaceHeld(true);
@@ -171,12 +182,14 @@ export const Canvas: Component = () => {
     >
       <div>
         <div
+          ref={canvasWrapperRef}
           class={styles.canvasWrapper}
           classList={{
             [styles.grab]: spaceHeld() && !canvasStore.isPanning,
             [styles.grabbing]: canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
+          tabindex="0"
           onMouseDown={handleMouseDown}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
