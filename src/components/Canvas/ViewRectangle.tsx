@@ -25,6 +25,30 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     props.view.width >= MIN_WIDTH_FOR_TITLE &&
     props.view.height >= MIN_HEIGHT_FOR_TITLE;
 
+  /**
+   * Computes the vertical offset for title text.
+   * Uses font size if available, otherwise defaults to TITLE_OFFSET_Y.
+   */
+  const titleOffsetY = () => {
+    const fontSize = props.view.fontSize ?? 10;
+    // Position text with baseline roughly in the middle-ish of the view
+    return Math.min(fontSize + 2, props.view.height - 2);
+  };
+
+  /**
+   * Builds inline styles for the title text based on resolved font properties.
+   */
+  const titleStyle = () => {
+    const style: Record<string, string> = {};
+    if (props.view.fontSize) {
+      style['font-size'] = `${props.view.fontSize}px`;
+    }
+    if (props.view.fontColor) {
+      style.fill = props.view.fontColor;
+    }
+    return style;
+  };
+
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
       <rect
@@ -38,7 +62,8 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         <text
           class={styles.viewTitle}
           x={props.view.absoluteX + TITLE_PADDING_X}
-          y={props.view.absoluteY + TITLE_OFFSET_Y}
+          y={props.view.absoluteY + titleOffsetY()}
+          style={titleStyle()}
         >
           {props.view.title}
         </text>

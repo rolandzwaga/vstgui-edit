@@ -438,4 +438,135 @@ describe('flattenHierarchy', () => {
       expect(buttonZIndex).toBeGreaterThan(panelZIndex);
     });
   });
+
+  describe('Given font and color options (font styling)', () => {
+    it('should resolve fontSize from fonts definition', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          font: 'myFont',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {
+        fonts: {
+          myFont: { 'font-name': 'Arial', size: '14' },
+        },
+      });
+
+      expect(result[0].fontSize).toBe(14);
+    });
+
+    it('should resolve fontColor from colors definition', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          'font-color': 'myColor',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {
+        colors: {
+          myColor: '#FF0000',
+        },
+      });
+
+      expect(result[0].fontColor).toBe('#FF0000');
+    });
+
+    it('should convert #RRGGBBAA to rgba format', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          'font-color': '#FF000080',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {});
+
+      expect(result[0].fontColor).toMatch(/rgba\(255, 0, 0, 0\.50\)/);
+    });
+
+    it('should resolve predefined VSTGUI colors', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          'font-color': '~ WhiteCColor',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {});
+
+      expect(result[0].fontColor).toBe('#FFFFFF');
+    });
+
+    it('should resolve color reference chains', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          'font-color': 'textColor',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {
+        colors: {
+          textColor: 'primaryColor',
+          primaryColor: '#0000FF',
+        },
+      });
+
+      expect(result[0].fontColor).toBe('#0000FF');
+    });
+
+    it('should not set fontSize when font is not found', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          font: 'unknownFont',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {
+        fonts: {},
+      });
+
+      expect(result[0].fontSize).toBeUndefined();
+    });
+
+    it('should not set fontColor when color is not found', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Test',
+          'font-color': 'unknownColor',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root', {
+        colors: {},
+      });
+
+      expect(result[0].fontColor).toBeUndefined();
+    });
+  });
 });

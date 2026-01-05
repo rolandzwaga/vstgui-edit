@@ -44,13 +44,20 @@ export const Canvas: Component = () => {
 
   /**
    * Flattens the template hierarchy into renderable views.
+   * Passes fonts and colors from document for style resolution.
    */
   const renderableViews = createMemo((): RenderableView[] => {
     const template = firstTemplate();
     if (!template) return [];
 
+    const doc = documentStore.document;
+    const vstgui = doc?.['vstgui-ui-description'];
+
     const [name, view] = template;
-    return flattenHierarchy(view, name);
+    return flattenHierarchy(view, name, {
+      fonts: vstgui?.fonts,
+      colors: vstgui?.colors,
+    });
   });
 
   /**

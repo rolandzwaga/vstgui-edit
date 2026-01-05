@@ -61,6 +61,12 @@ export interface RenderableView {
 
   /** Title text from uidesc (for CTextLabel display) */
   title?: string;
+
+  /** Font size in pixels (resolved from uidesc font definition) */
+  fontSize?: number;
+
+  /** Font color as CSS color string (resolved from uidesc color definition) */
+  fontColor?: string;
 }
 
 /**
