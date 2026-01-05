@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parsePoint, parseSize } from '../coordinates';
 
 describe('parsePoint', () => {

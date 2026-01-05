@@ -130,4 +130,137 @@ describe('Canvas', () => {
       expect(rects.length).toBeGreaterThanOrEqual(1);
     });
   });
+
+  describe('Given document with nested views (US2 - z-ordering)', () => {
+    it('should render all child views', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+              children: {
+                button1: {
+                  attributes: {
+                    class: 'CTextButton',
+                    origin: '10, 10',
+                    size: '100, 30',
+                  },
+                },
+                button2: {
+                  attributes: {
+                    class: 'CTextButton',
+                    origin: '10, 50',
+                    size: '100, 30',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <Canvas />);
+
+      const canvas = screen.getByTestId('canvas');
+      const rects = canvas.querySelectorAll('rect');
+      // Root + 2 children = 3 rectangles
+      expect(rects.length).toBe(3);
+    });
+
+    it('should render children after parents in DOM order', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+              children: {
+                childButton: {
+                  attributes: {
+                    class: 'CTextButton',
+                    origin: '10, 10',
+                    size: '100, 30',
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <Canvas />);
+
+      // Verify parent appears before child in DOM
+      const parentView = screen.getByTestId('view-MainView');
+      const childView = screen.getByTestId('view-childButton');
+
+      // Parent should come before child in document order
+      expect(
+        parentView.compareDocumentPosition(childView) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+
+    it('should render deeply nested views in correct DOM order', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+              children: {
+                panel: {
+                  attributes: {
+                    class: 'CViewContainer',
+                    origin: '10, 10',
+                    size: '200, 200',
+                  },
+                  children: {
+                    nestedButton: {
+                      attributes: {
+                        class: 'CTextButton',
+                        origin: '5, 5',
+                        size: '80, 30',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <Canvas />);
+
+      const canvas = screen.getByTestId('canvas');
+      const rects = canvas.querySelectorAll('rect');
+      // Root + panel + nestedButton = 3 rectangles
+      expect(rects.length).toBe(3);
+
+      // Verify correct DOM order: MainView -> panel -> nestedButton
+      const mainView = screen.getByTestId('view-MainView');
+      const panelView = screen.getByTestId('view-panel');
+      const nestedButton = screen.getByTestId('view-nestedButton');
+
+      expect(
+        mainView.compareDocumentPosition(panelView) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+      expect(
+        panelView.compareDocumentPosition(nestedButton) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+  });
 });

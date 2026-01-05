@@ -19,14 +19,14 @@
 
 **Purpose**: Project structure and shared types
 
-- [ ] T001 Create Canvas component directory structure at src/components/Canvas/
-- [ ] T002 Create domain canvas directory structure at src/domain/canvas/
-- [ ] T003 [P] Define ViewCategory type in src/types/canvas.ts
-- [ ] T004 [P] Define Point and Size interfaces in src/types/canvas.ts
-- [ ] T005 [P] Define RenderableView interface in src/types/canvas.ts
-- [ ] T006 [P] Define TemplateBounds interface in src/types/canvas.ts
-- [ ] T007 Add category color design tokens to src/styles/tokens.css
-- [ ] T008 **Commit**: Stage and commit Phase 1 changes with message "feat(003): setup canvas types and project structure"
+- [x] T001 Create Canvas component directory structure at src/components/Canvas/
+- [x] T002 Create domain canvas directory structure at src/domain/canvas/
+- [x] T003 [P] Define ViewCategory type in src/types/canvas.ts
+- [x] T004 [P] Define Point and Size interfaces in src/types/canvas.ts
+- [x] T005 [P] Define RenderableView interface in src/types/canvas.ts
+- [x] T006 [P] Define TemplateBounds interface in src/types/canvas.ts
+- [x] T007 Add category color design tokens to src/styles/tokens.css
+- [x] T008 **Commit**: Stage and commit Phase 1 changes with message "feat(003): setup canvas types and project structure"
 
 ---
 
@@ -40,16 +40,16 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T009 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T010 [P] Write tests for parsePoint in src/domain/canvas/__tests__/coordinates.spec.ts
-- [ ] T011 [P] Write tests for parseSize in src/domain/canvas/__tests__/coordinates.spec.ts
+- [x] T009 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T010 [P] Write tests for parsePoint in src/domain/canvas/__tests__/coordinates.spec.ts
+- [x] T011 [P] Write tests for parseSize in src/domain/canvas/__tests__/coordinates.spec.ts
 
 ### Implementation for Foundational
 
-- [ ] T012 [P] Implement parsePoint function in src/domain/canvas/coordinates.ts
-- [ ] T013 [P] Implement parseSize function in src/domain/canvas/coordinates.ts
-- [ ] T014 Create barrel export in src/domain/canvas/index.ts
-- [ ] T015 **Commit**: Stage and commit Phase 2 changes with message "feat(003): add coordinate parsing utilities"
+- [x] T012 [P] Implement parsePoint function in src/domain/canvas/coordinates.ts
+- [x] T013 [P] Implement parseSize function in src/domain/canvas/coordinates.ts
+- [x] T014 Create barrel export in src/domain/canvas/index.ts
+- [x] T015 **Commit**: Stage and commit Phase 2 changes with message "feat(003): add coordinate parsing utilities"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -66,22 +66,22 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T016 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T017 [P] [US1] Write tests for basic flattenHierarchy (single view) in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
-- [ ] T018 [P] [US1] Write tests for EmptyState component in src/components/Canvas/__tests__/EmptyState.spec.tsx
-- [ ] T019 [P] [US1] Write tests for basic ViewRectangle (position/size only) in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
-- [ ] T020 [P] [US1] Write tests for Canvas component (empty state + basic rendering) in src/components/Canvas/__tests__/Canvas.spec.tsx
+- [x] T016 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T017 [P] [US1] Write tests for basic flattenHierarchy (single view) in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
+- [x] T018 [P] [US1] Write tests for EmptyState component in src/components/Canvas/__tests__/EmptyState.spec.tsx
+- [x] T019 [P] [US1] Write tests for basic ViewRectangle (position/size only) in src/components/Canvas/__tests__/ViewRectangle.spec.tsx
+- [x] T020 [P] [US1] Write tests for Canvas component (empty state + basic rendering) in src/components/Canvas/__tests__/Canvas.spec.tsx
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement basic flattenHierarchy (single view, no recursion yet) in src/domain/canvas/flattenHierarchy.ts
-- [ ] T022 [P] [US1] Implement EmptyState component in src/components/Canvas/EmptyState.tsx
-- [ ] T023 [P] [US1] Add empty state styles to src/components/Canvas/Canvas.module.css
-- [ ] T024 [US1] Implement basic ViewRectangle component (SVG rect only, no label) in src/components/Canvas/ViewRectangle.tsx
-- [ ] T025 [US1] Add basic rectangle styles to src/components/Canvas/Canvas.module.css
-- [ ] T026 [US1] Implement Canvas component with documentStore integration in src/components/Canvas/Canvas.tsx
-- [ ] T027 [US1] Export Canvas component from src/components/Canvas/index.ts
-- [ ] T028 [US1] **Commit**: Stage and commit US1 changes with message "feat(003): implement basic canvas rendering (US1)"
+- [x] T021 [US1] Implement basic flattenHierarchy (single view, no recursion yet) in src/domain/canvas/flattenHierarchy.ts
+- [x] T022 [P] [US1] Implement EmptyState component in src/components/Canvas/EmptyState.tsx
+- [x] T023 [P] [US1] Add empty state styles to src/components/Canvas/Canvas.module.css
+- [x] T024 [US1] Implement basic ViewRectangle component (SVG rect only, no label) in src/components/Canvas/ViewRectangle.tsx
+- [x] T025 [US1] Add basic rectangle styles to src/components/Canvas/Canvas.module.css
+- [x] T026 [US1] Implement Canvas component with documentStore integration in src/components/Canvas/Canvas.tsx
+- [x] T027 [US1] Export Canvas component from src/components/Canvas/index.ts
+- [x] T028 [US1] **Commit**: Stage and commit US1 changes with message "feat(003): implement basic canvas rendering (US1)"
 
 **Checkpoint**: Basic rectangles render at correct positions - MVP testable
 
@@ -98,18 +98,18 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T029 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T030 [P] [US2] Write tests for recursive flattenHierarchy in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
-- [ ] T031 [P] [US2] Write tests for absolute position calculation in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
-- [ ] T032 [P] [US2] Write tests for z-ordering (DOM order) in src/components/Canvas/__tests__/Canvas.spec.tsx
+- [x] T029 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T030 [P] [US2] Write tests for recursive flattenHierarchy in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
+- [x] T031 [P] [US2] Write tests for absolute position calculation in src/domain/canvas/__tests__/flattenHierarchy.spec.ts
+- [x] T032 [P] [US2] Write tests for z-ordering (DOM order) in src/components/Canvas/__tests__/Canvas.spec.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Extend flattenHierarchy with recursive child processing in src/domain/canvas/flattenHierarchy.ts
-- [ ] T034 [US2] Implement absolute position calculation (parent + child origin) in src/domain/canvas/flattenHierarchy.ts
-- [ ] T035 [US2] Implement zIndex assignment based on traversal order in src/domain/canvas/flattenHierarchy.ts
-- [ ] T036 [US2] Verify Canvas renders views in correct DOM order for z-ordering
-- [ ] T037 [US2] **Commit**: Stage and commit US2 changes with message "feat(003): implement view hierarchy with z-ordering (US2)"
+- [x] T033 [US2] Extend flattenHierarchy with recursive child processing in src/domain/canvas/flattenHierarchy.ts
+- [x] T034 [US2] Implement absolute position calculation (parent + child origin) in src/domain/canvas/flattenHierarchy.ts
+- [x] T035 [US2] Implement zIndex assignment based on traversal order in src/domain/canvas/flattenHierarchy.ts
+- [x] T036 [US2] Verify Canvas renders views in correct DOM order for z-ordering
+- [x] T037 [US2] **Commit**: Stage and commit US2 changes with message "feat(003): implement view hierarchy with z-ordering (US2)"
 
 **Checkpoint**: Nested views render with correct parent-child positioning
 
