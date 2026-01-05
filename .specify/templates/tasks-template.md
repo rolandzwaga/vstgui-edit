@@ -51,6 +51,7 @@ description: "Task list template for feature implementation"
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
+- [ ] T0XX **Commit**: Stage and commit Phase 1 changes with descriptive message
 
 ---
 
@@ -68,6 +69,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T007 Create base models/entities that all stories depend on
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
+- [ ] T0XX **Commit**: Stage and commit Phase 2 changes with descriptive message
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,6 +96,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
 - [ ] T016 [US1] Add validation and error handling
 - [ ] T017 [US1] Add logging for user story 1 operations
+- [ ] T0XX [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -116,6 +119,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T021 [US2] Implement [Service] in src/services/[service].py
 - [ ] T022 [US2] Implement [endpoint/feature] in src/[location]/[file].py
 - [ ] T023 [US2] Integrate with User Story 1 components (if needed)
+- [ ] T0XX [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,12 +141,13 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T026 [P] [US3] Create [Entity] model in src/models/[entity].py
 - [ ] T027 [US3] Implement [Service] in src/services/[service].py
 - [ ] T028 [US3] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T0XX [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-[Add more user story phases as needed, following the same pattern]
+[Add more user story phases as needed, following the same pattern - include a **Commit** task at the end of each phase]
 
 ---
 
@@ -156,6 +161,19 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
 - [ ] TXXX Security hardening
 - [ ] TXXX Run quickstart.md validation
+- [ ] TXXX **Commit**: Stage and commit Polish phase changes with descriptive message
+
+---
+
+## Phase Final: Git Verification
+
+**Purpose**: Ensure all work is committed before marking feature complete
+
+- [ ] TFINAL **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [ ] TFINAL **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
+- [ ] TFINAL **Confirm Clean**: Verify working tree is clean (nothing to commit)
+
+**⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
 ---
 
@@ -246,6 +264,7 @@ With multiple developers:
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
-- Commit after each task or logical group
+- **Commit after each phase** - each phase ends with a commit task
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **IMPORTANT**: Always complete the "Phase Final: Git Verification" before marking feature complete
