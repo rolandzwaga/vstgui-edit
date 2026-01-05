@@ -6,6 +6,7 @@ import {
   calculateNewZoom,
   calculateZoomPanAdjustment,
   clampZoom,
+  formatZoomPercent,
   MAX_ZOOM,
   MIN_ZOOM,
   ZOOM_FACTOR,
@@ -212,5 +213,38 @@ describe('calculateZoomPanAdjustment', () => {
 
     expect(canvasXAfter).toBeCloseTo(canvasXBefore);
     expect(canvasYAfter).toBeCloseTo(canvasYBefore);
+  });
+});
+
+describe('formatZoomPercent', () => {
+  test('formats 1.0 as "100%"', () => {
+    expect(formatZoomPercent(1.0)).toBe('100%');
+  });
+
+  test('formats 0.5 as "50%"', () => {
+    expect(formatZoomPercent(0.5)).toBe('50%');
+  });
+
+  test('formats 2.0 as "200%"', () => {
+    expect(formatZoomPercent(2.0)).toBe('200%');
+  });
+
+  test('formats MIN_ZOOM (0.1) as "10%"', () => {
+    expect(formatZoomPercent(MIN_ZOOM)).toBe('10%');
+  });
+
+  test('formats MAX_ZOOM (5.0) as "500%"', () => {
+    expect(formatZoomPercent(MAX_ZOOM)).toBe('500%');
+  });
+
+  test('rounds to nearest integer percent', () => {
+    expect(formatZoomPercent(1.1)).toBe('110%');
+    expect(formatZoomPercent(1.15)).toBe('115%');
+    expect(formatZoomPercent(0.333)).toBe('33%');
+  });
+
+  test('handles fractional zoom levels correctly', () => {
+    expect(formatZoomPercent(0.75)).toBe('75%');
+    expect(formatZoomPercent(1.25)).toBe('125%');
   });
 });
