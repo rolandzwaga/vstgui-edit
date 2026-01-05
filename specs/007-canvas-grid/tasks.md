@@ -95,17 +95,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T026 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T027 [P] [US3] Write GridToolbar tests in `src/components/GridToolbar/__tests__/GridToolbar.spec.tsx` (displays current size, size dropdown with presets, calls setGridSize on change)
+- [x] T026 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T027 [P] [US3] Write GridToolbar tests in `src/components/GridToolbar/__tests__/GridToolbar.spec.tsx` (displays current size, size dropdown with presets, calls setGridSize on change)
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Create GridToolbar.module.css in `src/components/GridToolbar/GridToolbar.module.css` (toolbar styles following ZoomToolbar pattern)
-- [ ] T029 [US3] Implement GridToolbar component in `src/components/GridToolbar/GridToolbar.tsx` (visibility toggle button, size dropdown with GRID_SIZE_PRESETS, reads/writes gridStore)
-- [ ] T030 [US3] Create barrel export in `src/components/GridToolbar/index.ts`
-- [ ] T031 [US3] Run tests `npm test` and verify GridToolbar tests pass
-- [ ] T032 [US3] Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T033 [US3] **Commit**: Stage and commit US3 changes with message "feat(007-canvas-grid): add GridToolbar with size presets"
+- [x] T028 [US3] Create GridToolbar.module.css in `src/components/GridToolbar/GridToolbar.module.css` (toolbar styles following ZoomToolbar pattern)
+- [x] T029 [US3] Implement GridToolbar component in `src/components/GridToolbar/GridToolbar.tsx` (visibility toggle button, size dropdown with GRID_SIZE_PRESETS, reads/writes gridStore)
+- [x] T030 [US3] Create barrel export in `src/components/GridToolbar/index.ts`
+- [x] T031 [US3] Run tests `npm test` and verify GridToolbar tests pass
+- [x] T032 [US3] Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T033 [US3] **Commit**: Stage and commit US3 changes with message "feat(007-canvas-grid): add GridToolbar with size presets"
 
 **Checkpoint**: Grid size changes via toolbar dropdown
 
