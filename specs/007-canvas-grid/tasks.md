@@ -121,15 +121,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T034 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T035 [P] [US4] Write major line tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (major lines rendered every 5th interval, major lines use --color-grid-major)
+- [x] T034 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T035 [P] [US4] Write major line tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (major lines rendered every 5th interval, major lines use --color-grid-major)
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Update Grid component in `src/components/Canvas/Grid.tsx` to render major lines (add second pattern layer for major lines at MAJOR_LINE_INTERVAL, use --color-grid-major)
-- [ ] T037 [US4] Run tests `npm test` and verify major line tests pass
-- [ ] T038 [US4] Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T039 [US4] **Commit**: Stage and commit US4 changes with message "feat(007-canvas-grid): add major grid lines every 5th interval"
+- [x] T036 [US4] Update Grid component in `src/components/Canvas/Grid.tsx` to render major lines (add second pattern layer for major lines at MAJOR_LINE_INTERVAL, use --color-grid-major)
+- [x] T037 [US4] Run tests `npm test` and verify major line tests pass
+- [x] T038 [US4] Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T039 [US4] **Commit**: Stage and commit US4 changes with message "feat(007-canvas-grid): add major grid lines every 5th interval"
 
 **Checkpoint**: Major lines visually distinct every 50px (at 10px grid size)
 
@@ -145,17 +145,17 @@
 
 ### Tests for User Story 5
 
-- [ ] T040 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T041 [P] [US5] Write style tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (lines style renders lines, dots style renders circles, crosshairs style renders crosses)
-- [ ] T042 [P] [US5] Write style selector tests in `src/components/GridToolbar/__tests__/GridToolbar.spec.tsx` (style selector shows current style, calls setGridStyle on change)
+- [x] T040 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T041 [P] [US5] Write style tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (lines style renders lines, dots style renders circles, crosshairs style renders crosses)
+- [x] T042 [P] [US5] Write style selector tests in `src/components/GridToolbar/__tests__/GridToolbar.spec.tsx` (style selector shows current style, calls setGridStyle on change)
 
 ### Implementation for User Story 5
 
-- [ ] T043 [US5] Update Grid component in `src/components/Canvas/Grid.tsx` to support all styles (add pattern generators for dots and crosshairs, switch based on gridStore.style)
-- [ ] T044 [US5] Update GridToolbar in `src/components/GridToolbar/GridToolbar.tsx` to add style selector (dropdown or buttons for lines/dots/crosshairs)
-- [ ] T045 [US5] Run tests `npm test` and verify style tests pass
-- [ ] T046 [US5] Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T047 [US5] **Commit**: Stage and commit US5 changes with message "feat(007-canvas-grid): add grid style options (lines, dots, crosshairs)"
+- [x] T043 [US5] Update Grid component in `src/components/Canvas/Grid.tsx` to support all styles (add pattern generators for dots and crosshairs, switch based on gridStore.style)
+- [x] T044 [US5] Update GridToolbar in `src/components/GridToolbar/GridToolbar.tsx` to add style selector (dropdown or buttons for lines/dots/crosshairs)
+- [x] T045 [US5] Run tests `npm test` and verify style tests pass
+- [x] T046 [US5] Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T047 [US5] **Commit**: Stage and commit US5 changes with message "feat(007-canvas-grid): add grid style options (lines, dots, crosshairs)"
 
 **Checkpoint**: All three grid styles working with immediate visual feedback
 
@@ -169,18 +169,18 @@
 
 ### Tests for MainToolbar
 
-- [ ] T048 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T049 [P] Write MainToolbar tests in `src/components/MainToolbar/__tests__/MainToolbar.spec.tsx` (renders ZoomToolbar, renders GridToolbar, passes onFitToView to ZoomToolbar)
+- [x] T048 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T049 [P] Write MainToolbar tests in `src/components/MainToolbar/__tests__/MainToolbar.spec.tsx` (renders ZoomToolbar, renders GridToolbar, passes onFitToView to ZoomToolbar)
 
 ### Implementation for MainToolbar
 
-- [ ] T050 Create MainToolbar.module.css in `src/components/MainToolbar/MainToolbar.module.css` (flex container for toolbars)
-- [ ] T051 Implement MainToolbar in `src/components/MainToolbar/MainToolbar.tsx` (renders ZoomToolbar and GridToolbar side by side)
-- [ ] T052 Create barrel export in `src/components/MainToolbar/index.ts`
-- [ ] T053 Update App.tsx to use MainToolbar instead of ZoomToolbar directly
-- [ ] T054 Run tests `npm test` and verify MainToolbar tests pass
-- [ ] T055 Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T056 **Commit**: Stage and commit MainToolbar changes with message "feat(007-canvas-grid): add MainToolbar container"
+- [x] T050 Create MainToolbar.module.css in `src/components/MainToolbar/MainToolbar.module.css` (flex container for toolbars)
+- [x] T051 Implement MainToolbar in `src/components/MainToolbar/MainToolbar.tsx` (renders ZoomToolbar and GridToolbar side by side)
+- [x] T052 Create barrel export in `src/components/MainToolbar/index.ts`
+- [x] T053 Update App.tsx to use MainToolbar instead of ZoomToolbar directly
+- [x] T054 Run tests `npm test` and verify MainToolbar tests pass
+- [x] T055 Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T056 **Commit**: Stage and commit MainToolbar changes with message "feat(007-canvas-grid): add MainToolbar container"
 
 **Checkpoint**: Both toolbars visible and functional in unified container
 
@@ -190,14 +190,14 @@
 
 **Purpose**: Accessibility, performance verification, documentation
 
-- [ ] T057 Add ARIA labels to GridToolbar controls in `src/components/GridToolbar/GridToolbar.tsx` (aria-label for toggle, dropdowns)
-- [ ] T058 Verify keyboard navigation works for all GridToolbar controls (tab order, enter to activate)
-- [ ] T059 Run test coverage `npm run test:coverage` and verify 80%+ for new code
-- [ ] T060 Update CLAUDE.md with gridStore documentation (utility module section)
-- [ ] T061 Update CLAUDE.md Recent Changes with feature summary
-- [ ] T062 Run `npx biome check --write .` and `npx tsc --noEmit` final check
-- [ ] T063 Run all tests `npm test` and verify all pass
-- [ ] T064 **Commit**: Stage and commit Polish phase changes with message "feat(007-canvas-grid): add accessibility, update docs"
+- [x] T057 Add ARIA labels to GridToolbar controls in `src/components/GridToolbar/GridToolbar.tsx` (aria-label for toggle, dropdowns)
+- [x] T058 Verify keyboard navigation works for all GridToolbar controls (tab order, enter to activate)
+- [x] T059 Run test coverage `npm run test:coverage` and verify 80%+ for new code
+- [x] T060 Update CLAUDE.md with gridStore documentation (utility module section)
+- [x] T061 Update CLAUDE.md Recent Changes with feature summary
+- [x] T062 Run `npx biome check --write .` and `npx tsc --noEmit` final check
+- [x] T063 Run all tests `npm test` and verify all pass
+- [x] T064 **Commit**: Stage and commit Polish phase changes with message "feat(007-canvas-grid): add accessibility, update docs"
 
 ---
 

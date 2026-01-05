@@ -73,6 +73,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - N/A (in-memory state only) (005-canvas-zoom)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for component state, createMemo for derived values) (006-zoom-controls)
 - N/A (in-memory state via canvasStore) (006-zoom-controls)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies) (007-canvas-grid)
+- N/A (grid settings are session-only, in-memory via SolidJS signals) (007-canvas-grid)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -278,6 +280,56 @@ fitToView({ width: 800, height: 600 }, { width: 400, height: 300 });  // Fit and
 resetPan();           // Reset pan only
 resetZoom();          // Reset zoom only
 resetCanvas();        // Reset both pan and zoom
+```
+
+### Grid Store (`src/stores/gridStore.ts`)
+
+Global store for canvas grid overlay state management:
+
+- `gridStore` - Reactive store with visibility, size, and style
+- `toggleVisibility()` - Toggle grid visibility on/off
+- `setGridSize(size)` - Set grid size to a preset value
+- `setGridStyle(style)` - Set grid style (lines, dots, crosshairs)
+- `resetGrid()` - Reset all grid settings to defaults
+- `GRID_SIZE_PRESETS` - Available size presets: [5, 8, 10, 12, 16, 20]
+- `DEFAULT_GRID_SIZE` - Default grid size (10px)
+- `DEFAULT_GRID_STYLE` - Default grid style ('lines')
+- `MAJOR_LINE_INTERVAL` - Interval for major grid lines (5)
+
+```typescript
+import { gridStore, toggleVisibility, setGridSize, setGridStyle, resetGrid, GRID_SIZE_PRESETS, MAJOR_LINE_INTERVAL } from './stores/gridStore';
+
+// Access grid state
+console.log(gridStore.isVisible); // boolean (default: true)
+console.log(gridStore.size);      // GridSizePreset (default: 10)
+console.log(gridStore.style);     // GridStyle (default: 'lines')
+
+// Toggle visibility
+toggleVisibility();  // Toggle grid on/off (also: G key on canvas)
+
+// Change grid appearance
+setGridSize(20);           // Set to 20px spacing
+setGridStyle('dots');      // Options: 'lines', 'dots', 'crosshairs'
+
+// Reset to defaults
+resetGrid();  // Visibility: true, Size: 10, Style: 'lines'
+```
+
+### Grid Utilities (`src/domain/canvas/grid.ts`)
+
+Grid calculation utilities:
+
+- `isMajorLine(index)` - Check if line index is a major line
+- `calculateLineCount(dimension, gridSize)` - Calculate number of grid lines
+- `getPatternId(style, size)` - Generate unique SVG pattern ID
+- `isValidGridSize(size)` - Type guard for GridSizePreset
+
+```typescript
+import { isMajorLine, calculateLineCount, isValidGridSize } from './domain/canvas/grid';
+
+const isMajor = isMajorLine(5);  // true (every 5th line)
+const lines = calculateLineCount(500, 10);  // 50 lines
+const valid = isValidGridSize(10);  // true
 ```
 
 ### Zoom Utilities (`src/domain/canvas/zoom.ts`)
@@ -761,11 +813,18 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
-- 006-zoom-controls: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for component state, createMemo for derived values)
-- 005-canvas-zoom: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (createSignal for zoom state)
-- 004-canvas-pan: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 (createSignal for pan state)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Implemented 007-canvas-grid feature
+  - Grid component with SVG pattern-based rendering (lines, dots, crosshairs styles)
+  - gridStore for visibility, size, and style state management
+  - GridToolbar with visibility toggle, size presets, and style selector
+  - MainToolbar container combining ZoomToolbar and GridToolbar
+  - G key toggle for grid visibility (with keyboard filter for text inputs)
+  - Major grid lines every 5th interval with distinct color
+  - Theme-adaptive grid colors (light/dark mode via CSS custom properties)
+  - 537 passing tests (119 new + 418 existing)
 
 - 2026-01-05: Implemented 006-zoom-controls feature
   - ZoomToolbar component with +/- buttons, 100% reset, and Fit button
