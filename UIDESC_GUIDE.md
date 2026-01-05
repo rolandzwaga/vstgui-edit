@@ -1306,4 +1306,4 @@ project/
 
 ---
 
-*This guide is maintained as part of the VSGUI-Edit project. Last updated: 2026-01-05*
+*This guide is maintained as part of the VSTGUI-Edit project. Last updated: 2026-01-05*

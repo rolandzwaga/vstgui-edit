@@ -1,7 +1,7 @@
-# VSGUI-Edit Project Constitution
+# VSTGUI-Edit Project Constitution
 
-**Version**: 1.4.0
-**Purpose**: Define non-negotiable development principles, standards, and governance for the VSGUI-Edit project
+**Version**: 1.5.0
+**Purpose**: Define non-negotiable development principles, standards, and governance for the VSTGUI-Edit project
 
 ---
 
@@ -493,7 +493,74 @@ import type { Component, JSX } from 'solid-js';
 
 **Rationale**: Code duplication is major source of technical debt. Documentation prevents duplication and promotes reuse.
 
-### XXI. Honest Completion (Anti-Cheating) (NON-NEGOTIABLE)
+### XXI. Static Imports ONLY (NON-NEGOTIABLE)
+
+## ⛔️⛔️⛔️ STATIC IMPORTS ONLY - DYNAMIC IMPORTS ARE FORBIDDEN ⛔️⛔️⛔️
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ███████╗████████╗ █████╗ ████████╗██╗ ██████╗    ██╗███╗   ███╗██████╗    ║
+║   ██╔════╝╚══██╔══╝██╔══██╗╚══██╔══╝██║██╔════╝    ██║████╗ ████║██╔══██╗   ║
+║   ███████╗   ██║   ███████║   ██║   ██║██║         ██║██╔████╔██║██████╔╝   ║
+║   ╚════██║   ██║   ██╔══██║   ██║   ██║██║         ██║██║╚██╔╝██║██╔═══╝    ║
+║   ███████║   ██║   ██║  ██║   ██║   ██║╚██████╗    ██║██║ ╚═╝ ██║██║        ║
+║   ╚══════╝   ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝    ╚═╝╚═╝     ╚═╝╚═╝        ║
+║                                                                              ║
+║              🚫 DYNAMIC IMPORTS ARE ABSOLUTELY FORBIDDEN 🚫                  ║
+║                                                                              ║
+║  ALWAYS use static imports. Dynamic imports (import()) are BANNED except    ║
+║  in the ONLY acceptable case: vi.mock() with vi.importActual().             ║
+║                                                                              ║
+║  ❌ NEVER use: import() for lazy loading                                    ║
+║  ❌ NEVER use: import() for code splitting                                  ║
+║  ❌ NEVER use: import() for conditional imports                             ║
+║  ❌ NEVER use: await import() anywhere in application code                  ║
+║                                                                              ║
+║  ✅ ALWAYS use: import { x } from 'module' (static imports)                 ║
+║  ✅ ONLY exception: vi.importActual() inside vi.mock() in tests             ║
+║                                                                              ║
+║  VIOLATION = IMMEDIATE CODE REJECTION. NO EXCEPTIONS. ZERO TOLERANCE.       ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+**ABSOLUTE PROHIBITION**: All imports MUST be static `import` statements at the top of files. Dynamic `import()` calls are COMPLETELY FORBIDDEN in application code.
+
+### What is FORBIDDEN (will result in IMMEDIATE rejection):
+
+```typescript
+// ❌❌❌ ABSOLUTELY FORBIDDEN - NEVER WRITE THESE ❌❌❌
+const module = await import('./module');
+const { something } = await import('package');
+lazy(() => import('./Component'));
+import('./chunk').then(m => m.default);
+// ❌❌❌ END FORBIDDEN ❌❌❌
+```
+
+### What is REQUIRED:
+
+```typescript
+// ✅✅✅ ALWAYS USE THESE ✅✅✅
+import { something } from './module';
+import { Component } from './Component';
+import defaultExport from 'package';
+// ✅✅✅ END REQUIRED ✅✅✅
+```
+
+### ONLY Acceptable Exception:
+
+```typescript
+// ✅ ONLY in test files, inside vi.mock():
+vi.mock('./store', async () => {
+  const actual = await vi.importActual('./store');
+  return { ...actual, mockedFn: vi.fn() };
+});
+```
+
+**Rationale**: Dynamic imports add complexity, break static analysis, complicate debugging, and are unnecessary for this application's scope. Static imports provide better tree-shaking, clearer dependencies, and simpler mental models. The ONLY case where dynamic imports are acceptable is `vi.importActual()` in test mocks, which is a Vitest requirement.
+
+### XXII. Honest Completion (Anti-Cheating) (NON-NEGOTIABLE)
 
 **CRITICAL**: Features are only complete when ALL requirements are genuinely met.
 
@@ -658,6 +725,6 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.4.0
+**Version**: 1.5.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-05 (v1.4.0: Added Honest Completion anti-cheating principle with compliance table requirement)
+**Last Amended**: 2026-01-05 (v1.5.0: Added Static Imports ONLY principle - dynamic imports forbidden except vi.importActual)

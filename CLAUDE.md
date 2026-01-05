@@ -1,4 +1,4 @@
-# VSGUI-Edit Development Guidelines
+# VSTGUI-Edit Development Guidelines
 
 Auto-generated from speckit templates. Last updated: 2026-01-05
 
@@ -22,6 +22,36 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 ┃   SolidJS components run ONCE. Signals are getter functions: count()        ┃
 ┃   Props are reactive - DO NOT destructure them.                             ┃
 ┃   There are NO dependency arrays - tracking is automatic.                   ┃
+┃                                                                              ┃
+┃   VIOLATION = IMMEDIATE CODE REJECTION. NO EXCEPTIONS. ZERO TOLERANCE.      ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
+## ⛔️⛔️⛔️ CRITICAL: STATIC IMPORTS ONLY - DYNAMIC IMPORTS FORBIDDEN ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   ALWAYS USE STATIC IMPORTS. DYNAMIC IMPORTS ARE ABSOLUTELY FORBIDDEN.      ┃
+┃                                                                              ┃
+┃   ❌ NEVER use: import() for lazy loading                                   ┃
+┃   ❌ NEVER use: import() for code splitting                                 ┃
+┃   ❌ NEVER use: import() for conditional imports                            ┃
+┃   ❌ NEVER use: await import() anywhere in application code                 ┃
+┃                                                                              ┃
+┃   ✅ ALWAYS use: import { x } from 'module' (static imports at top)         ┃
+┃   ✅ ONLY exception: vi.importActual() inside vi.mock() in tests            ┃
+┃                                                                              ┃
+┃   FORBIDDEN:                                                                 ┃
+┃     const module = await import('./module');                                ┃
+┃     lazy(() => import('./Component'));                                      ┃
+┃                                                                              ┃
+┃   REQUIRED:                                                                  ┃
+┃     import { something } from './module';                                   ┃
+┃     import { Component } from './Component';                                ┃
 ┃                                                                              ┃
 ┃   VIOLATION = IMMEDIATE CODE REJECTION. NO EXCEPTIONS. ZERO TOLERANCE.      ┃
 ┃                                                                              ┃
@@ -54,7 +84,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 
 ## Project Overview
 
-VSGUI-Edit is a visual editor for VSTGUI UI description files (`.uidesc`). VSTGUI is a cross-platform UI framework commonly used in audio plugin development (VST, AU, AAX).
+VSTGUI-Edit is a visual editor for VSTGUI UI description files (`.uidesc`). VSTGUI is a cross-platform UI framework commonly used in audio plugin development (VST, AU, AAX).
 
 ### Domain Context
 
@@ -617,7 +647,7 @@ try {
 
 ```bash
 # Vite environment variables (prefix with VITE_)
-VITE_APP_TITLE=VSGUI-Edit
+VITE_APP_TITLE=VSTGUI-Edit
 VITE_DEBUG_MODE=false
 ```
 
