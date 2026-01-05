@@ -2,9 +2,39 @@
 
 Auto-generated from speckit templates. Last updated: 2026-01-05
 
+---
+
+## ⛔️⛔️⛔️ CRITICAL: SOLIDJS ONLY - REACT IS FORBIDDEN ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   THIS IS A SOLIDJS PROJECT. REACT IS ABSOLUTELY FORBIDDEN.                 ┃
+┃                                                                              ┃
+┃   ❌ NEVER use: useState, useEffect, useMemo, useCallback, useRef           ┃
+┃   ❌ NEVER import from 'react' or '@types/react'                            ┃
+┃   ❌ NEVER use React patterns, lifecycle methods, or virtual DOM concepts   ┃
+┃                                                                              ┃
+┃   ✅ ALWAYS use: createSignal, createEffect, createMemo, createStore        ┃
+┃   ✅ ALWAYS import from 'solid-js' and 'solid-js/store'                     ┃
+┃   ✅ ALWAYS use SolidJS fine-grained reactivity patterns                    ┃
+┃                                                                              ┃
+┃   SolidJS components run ONCE. Signals are getter functions: count()        ┃
+┃   Props are reactive - DO NOT destructure them.                             ┃
+┃   There are NO dependency arrays - tracking is automatic.                   ┃
+┃                                                                              ┃
+┃   VIOLATION = IMMEDIATE CODE REJECTION. NO EXCEPTIONS. ZERO TOLERANCE.      ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
 ## Active Technologies
 - TypeScript 5.9.x with strict mode + SolidJS 1.9.x (001-uidesc-upload)
 - In-memory SolidJS store for document state (001-uidesc-upload)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev) (002-uidesc-parsing)
+- In-memory SolidJS store (extends existing documentStore from 001-uidesc-upload) (002-uidesc-parsing)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -124,32 +154,85 @@ import styles from './Component.module.css';
 
 ### Document Store (`src/stores/documentStore.ts`)
 
-Global store for uploaded uidesc file content:
+Global store for uploaded uidesc file content with automatic parsing:
 
-- `documentStore` - Reactive store with `content`, `metadata`, `uploadState`, `error`
-- `loadFile(file: File)` - Read file and store raw string content
+- `documentStore` - Reactive store with upload and parse state
+- `loadFile(file: File)` - Read file, store content, and auto-parse
 - `reset()` - Clear content and return to idle state
 - `setDragging(isDragging: boolean)` - Update drag state
 
 ```typescript
 import { documentStore, loadFile, reset } from './stores/documentStore';
 
-// Access store state
+// Access upload state
 console.log(documentStore.content);
 console.log(documentStore.uploadState); // 'idle' | 'dragging' | 'loading' | 'success' | 'error'
 
-// Load a file
+// Access parse state (auto-populated after upload)
+console.log(documentStore.parseState); // 'idle' | 'parsing' | 'valid' | 'invalid'
+console.log(documentStore.document); // VSTGUIUIDescription | null
+console.log(documentStore.parseErrors); // ValidationError[] | null
+console.log(documentStore.detectedFormat); // 'json' | 'xml' | 'unknown' | null
+
+// Load a file (auto-parses on success)
 await loadFile(file);
 
 // Reset to initial state
 reset();
 ```
 
-### Domain Utilities (Future)
+### Parser Module (`src/domain/parser/`)
 
-- `parseUidesc(content: string)` - Parse uidesc content (XML or JSON) to data model
-- `serializeUidesc(model: UidescDocument)` - Serialize model back to XML/JSON
-- `validateUidesc(model: UidescDocument)` - Validate uidesc structure
+Parses and validates uidesc files in JSON or XML format:
+
+- `parseUidesc(content: string)` - Auto-detect format and parse content
+- `detectFormat(content: string)` - Detect 'json', 'xml', or 'unknown'
+- `validateUidesc(document: unknown)` - Validate against JSON schema with AJV
+- `parseJson(content: string)` - Parse and validate JSON content
+- `parseXml(content: string)` - Parse XML and convert to JSON structure
+- `xmlToJson(doc: Document)` - Convert XML DOM to JSON with path mapping
+
+```typescript
+import { parseUidesc, detectFormat, validateUidesc } from './domain/parser';
+
+// Parse any uidesc content (auto-detects format)
+const result = parseUidesc(content);
+if (result.success) {
+  console.log(result.document); // VSTGUIUIDescription
+  console.log(result.format); // 'json' | 'xml'
+} else {
+  console.log(result.errors); // ValidationError[]
+}
+
+// Detect format only
+const format = detectFormat(content); // 'json' | 'xml' | 'unknown'
+
+// Validate a parsed document
+const validation = validateUidesc(jsonObject);
+if (!validation.valid) {
+  console.log(validation.errors); // ValidationError[]
+}
+```
+
+### Parser Types (`src/types/parser.ts`)
+
+```typescript
+type FormatType = 'json' | 'xml' | 'unknown';
+type ParseState = 'idle' | 'parsing' | 'valid' | 'invalid';
+
+interface ValidationError {
+  type: 'syntax' | 'schema' | 'format';
+  message: string;
+  path?: string;      // JSON path (e.g., '/vstgui-ui-description/colors/Background')
+  xmlPath?: string;   // Original XML location for converted files
+  line?: number;
+  column?: number;
+}
+
+type ParseResult =
+  | { success: true; document: VSTGUIUIDescription; format: FormatType }
+  | { success: false; errors: ValidationError[]; format: FormatType };
+```
 
 ### File Utilities (Future)
 
@@ -424,9 +507,17 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 002-uidesc-parsing: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev)
 
 **[Track feature additions here]**
 
+- 2026-01-05: Implemented 002-uidesc-parsing feature
+  - Auto-detect JSON/XML format from file content
+  - JSON Schema validation with AJV (allErrors mode, strict)
+  - XML parsing with DOMParser and conversion to JSON
+  - Path mapping for XML error locations
+  - Auto-parse on successful file upload
+  - 149 passing tests (121 new + 28 existing)
 - 2026-01-05: Implemented 001-uidesc-upload feature
   - UploadZone component with drag-drop and file selector
   - documentStore for global state management

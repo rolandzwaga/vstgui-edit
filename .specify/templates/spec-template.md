@@ -113,3 +113,21 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+---
+
+## Implementation Completion Checklist
+
+<!--
+  This checklist should be verified at the END of implementing this feature spec.
+  The implementing agent MUST complete these items before marking the feature done.
+-->
+
+### Final Verification
+
+- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
+- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+
+**⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch.
