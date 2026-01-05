@@ -71,15 +71,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T020 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T021 [P] [US2] Write G key toggle tests in `src/components/Canvas/__tests__/Canvas.spec.tsx` (G key toggles grid, ignores G in text input, ignores G with Ctrl/Cmd/Alt modifiers)
+- [x] T020 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T021 [P] [US2] Write G key toggle tests in `src/components/Canvas/__tests__/Canvas.spec.tsx` (G key toggles grid, ignores G in text input, ignores G with Ctrl/Cmd/Alt modifiers)
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Update handleKeyDown in `src/components/Canvas/Canvas.tsx` to handle G key (call toggleVisibility from gridStore, apply existing keyboard filter logic)
-- [ ] T023 [US2] Run tests `npm test` and verify toggle tests pass
-- [ ] T024 [US2] Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T025 [US2] **Commit**: Stage and commit US2 changes with message "feat(007-canvas-grid): add G key toggle for grid visibility"
+- [x] T022 [US2] Update handleKeyDown in `src/components/Canvas/Canvas.tsx` to handle G key (call toggleVisibility from gridStore, apply existing keyboard filter logic)
+- [x] T023 [US2] Run tests `npm test` and verify toggle tests pass
+- [x] T024 [US2] Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T025 [US2] **Commit**: Stage and commit US2 changes with message "feat(007-canvas-grid): add G key toggle for grid visibility"
 
 **Checkpoint**: G key toggles grid on/off (filtered when in text input or with modifiers)
 
