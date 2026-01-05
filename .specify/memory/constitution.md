@@ -1,7 +1,40 @@
 # VSGUI-Edit Project Constitution
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for the VSGUI-Edit project
+
+---
+
+## ⛔️ CRITICAL: THIS IS A SOLIDJS PROJECT - NOT REACT ⛔️
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║   ██████╗ ██████╗ ██╗     ██╗██████╗      ██╗███████╗    ██████╗ ███╗   ██╗██╗  ██╗   ██╗║
+║  ██╔════╝██╔═══██╗██║     ██║██╔══██╗     ██║██╔════╝   ██╔═══██╗████╗  ██║██║  ╚██╗ ██╔╝║
+║  ╚█████╗ ██║   ██║██║     ██║██║  ██║     ██║███████╗   ██║   ██║██╔██╗ ██║██║   ╚████╔╝ ║
+║   ╚═══██╗██║   ██║██║     ██║██║  ██║██   ██║╚════██║   ██║   ██║██║╚██╗██║██║    ╚██╔╝  ║
+║  ██████╔╝╚██████╔╝███████╗██║██████╔╝╚█████╔╝███████║   ╚██████╔╝██║ ╚████║███████╗██║   ║
+║  ╚═════╝  ╚═════╝ ╚══════╝╚═╝╚═════╝  ╚════╝ ╚══════╝    ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝   ║
+║                                                                              ║
+║                     🚫 REACT IS ABSOLUTELY FORBIDDEN 🚫                      ║
+║                                                                              ║
+║  This project uses SolidJS EXCLUSIVELY. React concepts, patterns, hooks,    ║
+║  and imports are STRICTLY PROHIBITED. There are NO exceptions.              ║
+║                                                                              ║
+║  ❌ NO useState, useEffect, useMemo, useCallback, useRef                    ║
+║  ❌ NO import from 'react' or '@types/react'                                ║
+║  ❌ NO React component patterns or lifecycle methods                        ║
+║  ❌ NO virtual DOM concepts or reconciliation thinking                      ║
+║                                                                              ║
+║  ✅ USE createSignal, createEffect, createMemo, createResource              ║
+║  ✅ USE SolidJS fine-grained reactivity model                               ║
+║  ✅ USE solid-js imports ONLY                                               ║
+║                                                                              ║
+║  VIOLATION OF THIS RULE IS GROUNDS FOR IMMEDIATE CODE REJECTION             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
@@ -229,21 +262,66 @@ When researching implementations, accuracy is critical:
 
 **Rationale**: Uncontrolled dependency growth leads to version conflicts, security vulnerabilities, and maintenance burden.
 
-### XII. Framework-Specific Restrictions
+### XII. Framework-Specific Restrictions (ABSOLUTE - ZERO TOLERANCE)
 
-**STRICTLY FORBIDDEN**: This project uses SolidJS exclusively. React, Vue, Angular, or other framework code is absolutely prohibited.
+## ⛔️⛔️⛔️ THIS IS A SOLIDJS PROJECT - REACT IS FORBIDDEN ⛔️⛔️⛔️
 
-- **NEVER** use React hooks (useState, useEffect, useMemo, useCallback)
-- **ALWAYS** use SolidJS primitives (createSignal, createEffect, createMemo, createResource)
-- **NEVER** use React's JSX patterns (className vs class is fine - SolidJS supports both)
-- **NEVER** import from 'react' or '@types/react'
+**ABSOLUTE PROHIBITION**: This project uses SolidJS EXCLUSIVELY. React, Vue, Angular, or ANY other framework code is COMPLETELY AND UTTERLY FORBIDDEN. This is not a suggestion - it is an ABSOLUTE REQUIREMENT with ZERO EXCEPTIONS.
 
-**When Uncertain**:
-1. **STOP** if unsure
-2. Verify pattern is correct for SolidJS
-3. Ask user for clarification
+### What is FORBIDDEN (will result in IMMEDIATE rejection):
 
-**Rationale**: SolidJS and React have similar syntax but fundamentally different reactivity models. Mixing patterns causes runtime errors.
+| React Concept | SolidJS Equivalent | Notes |
+|---------------|-------------------|-------|
+| `useState` | `createSignal` | NEVER use useState |
+| `useEffect` | `createEffect` | NEVER use useEffect |
+| `useMemo` | `createMemo` | NEVER use useMemo |
+| `useCallback` | Not needed (no re-renders) | NEVER use useCallback |
+| `useRef` | `let ref` or variables | NEVER use useRef |
+| `useContext` | `useContext` (SolidJS version) | Import from solid-js ONLY |
+| `useReducer` | `createStore` | NEVER use useReducer |
+| `React.memo` | Not needed | NEVER use React.memo |
+| `forwardRef` | `ref` prop directly | NEVER use forwardRef |
+| Virtual DOM | Fine-grained reactivity | SolidJS has NO virtual DOM |
+
+### FORBIDDEN imports (will NEVER be accepted):
+```typescript
+// ❌❌❌ ABSOLUTELY FORBIDDEN - NEVER WRITE THESE ❌❌❌
+import React from 'react';
+import { useState, useEffect } from 'react';
+import type { FC, ReactNode } from 'react';
+// ❌❌❌ END FORBIDDEN ❌❌❌
+```
+
+### REQUIRED imports:
+```typescript
+// ✅✅✅ ALWAYS USE THESE ✅✅✅
+import { createSignal, createEffect, createMemo } from 'solid-js';
+import { createStore } from 'solid-js/store';
+import type { Component, JSX } from 'solid-js';
+// ✅✅✅ END REQUIRED ✅✅✅
+```
+
+### Key Differences You MUST Understand:
+
+1. **SolidJS components run ONCE** - not on every render like React
+2. **Signals are getter functions** - call `count()` not `count`
+3. **No dependency arrays** - SolidJS tracks dependencies automatically
+4. **Props are reactive** - destructuring props breaks reactivity
+5. **No virtual DOM** - direct DOM manipulation, surgical updates
+
+### When Writing Code:
+1. **STOP** before writing any hook-like code
+2. **ASK**: "Is this a React pattern or SolidJS pattern?"
+3. **VERIFY**: Check SolidJS documentation if uncertain
+4. **NEVER GUESS**: Ask user if you're not 100% sure
+
+### Consequences of Violation:
+- Code will be **IMMEDIATELY REJECTED**
+- PR will be **BLOCKED**
+- Offending code must be **COMPLETELY REWRITTEN**
+- This is **NON-NEGOTIABLE**
+
+**Rationale**: SolidJS and React have superficially similar syntax but FUNDAMENTALLY DIFFERENT execution models. React re-runs components on every state change; SolidJS runs them once. Mixing patterns causes subtle bugs, broken reactivity, and runtime errors. There is NO scenario where React code is acceptable in this project.
 
 ### XIII. Debugging Attempt Limit (NON-NEGOTIABLE)
 
@@ -517,6 +595,6 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-05
+**Last Amended**: 2026-01-05 (v1.1.0: Enhanced SolidJS-only requirements with zero-tolerance policy)

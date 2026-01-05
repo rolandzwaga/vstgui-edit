@@ -2,6 +2,34 @@
 
 Auto-generated from speckit templates. Last updated: 2026-01-05
 
+---
+
+## ⛔️⛔️⛔️ CRITICAL: SOLIDJS ONLY - REACT IS FORBIDDEN ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   THIS IS A SOLIDJS PROJECT. REACT IS ABSOLUTELY FORBIDDEN.                 ┃
+┃                                                                              ┃
+┃   ❌ NEVER use: useState, useEffect, useMemo, useCallback, useRef           ┃
+┃   ❌ NEVER import from 'react' or '@types/react'                            ┃
+┃   ❌ NEVER use React patterns, lifecycle methods, or virtual DOM concepts   ┃
+┃                                                                              ┃
+┃   ✅ ALWAYS use: createSignal, createEffect, createMemo, createStore        ┃
+┃   ✅ ALWAYS import from 'solid-js' and 'solid-js/store'                     ┃
+┃   ✅ ALWAYS use SolidJS fine-grained reactivity patterns                    ┃
+┃                                                                              ┃
+┃   SolidJS components run ONCE. Signals are getter functions: count()        ┃
+┃   Props are reactive - DO NOT destructure them.                             ┃
+┃   There are NO dependency arrays - tracking is automatic.                   ┃
+┃                                                                              ┃
+┃   VIOLATION = IMMEDIATE CODE REJECTION. NO EXCEPTIONS. ZERO TOLERANCE.      ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
 ## Active Technologies
 - TypeScript 5.9.x with strict mode + SolidJS 1.9.x (001-uidesc-upload)
 - In-memory SolidJS store for document state (001-uidesc-upload)
