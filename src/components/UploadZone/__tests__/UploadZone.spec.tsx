@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@solidjs/testing-library';
-import { UploadZone } from '../UploadZone';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMockUidescFile } from '../../../__tests__/helpers/fixtures';
 import { reset, documentStore } from '../../../stores/documentStore';
+import { UploadZone } from '../UploadZone';
 
 describe('UploadZone', () => {
   beforeEach(() => {
@@ -53,7 +54,7 @@ describe('UploadZone', () => {
       const dropZone = screen.getByRole('region');
 
       const content = '<?xml version="1.0"?><root/>';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
 
       fireEvent.drop(dropZone, {
         dataTransfer: {
@@ -73,7 +74,7 @@ describe('UploadZone', () => {
       const dropZone = screen.getByRole('region');
 
       const content = 'test content';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
 
       fireEvent.drop(dropZone, {
         dataTransfer: {
@@ -92,7 +93,7 @@ describe('UploadZone', () => {
       const dropZone = screen.getByRole('region');
 
       const content = 'test content';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
 
       // Drop file and check loading state
       fireEvent.drop(dropZone, {
@@ -113,7 +114,7 @@ describe('UploadZone', () => {
       const dropZone = screen.getByRole('region');
 
       const content = 'test content';
-      const file = new File([content], 'myfile.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content, 'myfile.uidesc');
 
       fireEvent.drop(dropZone, {
         dataTransfer: {
@@ -149,7 +150,7 @@ describe('UploadZone', () => {
 
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       const content = 'test content from file selector';
-      const file = new File([content], 'selected.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content, 'selected.uidesc');
 
       // Create a mock file list
       Object.defineProperty(fileInput, 'files', {
@@ -227,8 +228,8 @@ describe('UploadZone', () => {
       render(() => <UploadZone />);
       const dropZone = screen.getByRole('region');
 
-      const file1 = new File(['content1'], 'first.uidesc', { type: 'text/plain' });
-      const file2 = new File(['content2'], 'second.uidesc', { type: 'text/plain' });
+      const file1 = createMockUidescFile('content1', 'first.uidesc');
+      const file2 = createMockUidescFile('content2', 'second.uidesc');
 
       fireEvent.drop(dropZone, {
         dataTransfer: {
