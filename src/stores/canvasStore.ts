@@ -4,6 +4,7 @@
  * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
+import { calculateFitZoom, type Size } from '../domain/canvas/fitToView';
 import {
   calculateNewZoom,
   calculateZoomPanAdjustment,
@@ -160,4 +161,14 @@ export function applyZoom(
     setPanOffset(newPan);
     setZoomLevel(newZoom);
   }
+}
+
+/**
+ * Fit the template to the viewport with padding.
+ * Sets zoom and pan to center the template in the viewport.
+ */
+export function fitToView(viewportSize: Size, templateSize: Size): void {
+  const result = calculateFitZoom(templateSize, viewportSize);
+  setZoomLevel(result.zoom);
+  setPanOffset({ x: result.panX, y: result.panY });
 }

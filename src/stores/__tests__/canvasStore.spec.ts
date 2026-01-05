@@ -3,6 +3,7 @@ import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
   canvasStore,
   endPan,
+  fitToView,
   resetCanvas,
   resetPan,
   resetZoom,
@@ -380,6 +381,50 @@ describe('canvasStore', () => {
         zoomOut();
         zoomOut();
         expect(canvasStore.zoomLevel).toBe(0.1);
+      });
+    });
+  });
+
+  describe('fitToView', () => {
+    test('sets zoom and pan to fit template in viewport', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 1600x1200
+        // Expected zoom: ~0.45, centered pan
+        fitToView({ width: 800, height: 600 }, { width: 1600, height: 1200 });
+        expect(canvasStore.zoomLevel).toBeCloseTo(0.45, 2);
+        expect(canvasStore.panOffset.x).toBeCloseTo(40, 0);
+        expect(canvasStore.panOffset.y).toBeCloseTo(30, 0);
+      });
+    });
+
+    test('caps zoom at 1.0 for small templates', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 100x100 (small)
+        fitToView({ width: 800, height: 600 }, { width: 100, height: 100 });
+        expect(canvasStore.zoomLevel).toBe(1.0);
+      });
+    });
+
+    test('centers template in viewport', () => {
+      testInRoot(() => {
+        resetCanvas();
+        // Viewport: 800x600, Template: 400x300
+        // zoom = 1.0 (capped), center: (800-400)/2 = 200, (600-300)/2 = 150
+        fitToView({ width: 800, height: 600 }, { width: 400, height: 300 });
+        expect(canvasStore.panOffset.x).toBe(200);
+        expect(canvasStore.panOffset.y).toBe(150);
+      });
+    });
+
+    test('handles 0x0 template gracefully', () => {
+      testInRoot(() => {
+        resetCanvas();
+        fitToView({ width: 800, height: 600 }, { width: 0, height: 0 });
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        expect(canvasStore.panOffset.x).toBe(0);
+        expect(canvasStore.panOffset.y).toBe(0);
       });
     });
   });

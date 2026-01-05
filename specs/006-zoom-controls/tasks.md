@@ -147,44 +147,44 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T046 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T047 [US3] Create test file `src/domain/canvas/__tests__/fitToView.spec.ts`
-- [ ] T048 [P] [US3] Write test: calculateFitZoom returns zoom that fits template in viewport
-- [ ] T049 [P] [US3] Write test: calculateFitZoom includes 5% padding margin
-- [ ] T050 [P] [US3] Write test: calculateFitZoom caps zoom at 1.0 for small templates (FR-011)
-- [ ] T051 [P] [US3] Write test: calculateFitZoom handles edge case of 0x0 template dimensions
-- [ ] T052 [US3] Run tests to verify fit calculation tests fail (red phase)
+- [x] T046 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T047 [US3] Create test file `src/domain/canvas/__tests__/fitToView.spec.ts`
+- [x] T048 [P] [US3] Write test: calculateFitZoom returns zoom that fits template in viewport
+- [x] T049 [P] [US3] Write test: calculateFitZoom includes 5% padding margin
+- [x] T050 [P] [US3] Write test: calculateFitZoom caps zoom at 1.0 for small templates (FR-011)
+- [x] T051 [P] [US3] Write test: calculateFitZoom handles edge case of 0x0 template dimensions
+- [x] T052 [US3] Run tests to verify fit calculation tests fail (red phase)
 
 ### Implementation for User Story 3 - Fit Calculation
 
-- [ ] T053 [US3] Create `src/domain/canvas/fitToView.ts` with `calculateFitZoom(templateSize, viewportSize, padding)` function
-- [ ] T054 [US3] Run tests to verify fit calculation tests pass (green phase)
+- [x] T053 [US3] Create `src/domain/canvas/fitToView.ts` with `calculateFitZoom(templateSize, viewportSize, padding)` function
+- [x] T054 [US3] Run tests to verify fit calculation tests pass (green phase)
 
 ### Tests for User Story 3 - Store Action ⚠️
 
-- [ ] T055 [US3] Write test for `fitToView()` action in `src/stores/__tests__/canvasStore.spec.ts`
-- [ ] T056 [US3] Run tests to verify fitToView action test fails (red phase)
+- [x] T055 [US3] Write test for `fitToView()` action in `src/stores/__tests__/canvasStore.spec.ts`
+- [x] T056 [US3] Run tests to verify fitToView action test fails (red phase)
 
 ### Implementation for User Story 3 - Store Action
 
-- [ ] T057 [US3] Implement `fitToView(viewportSize, templateSize)` action in `src/stores/canvasStore.ts`
-- [ ] T058 [US3] Run tests to verify fitToView action test passes (green phase)
+- [x] T057 [US3] Implement `fitToView(viewportSize, templateSize)` action in `src/stores/canvasStore.ts`
+- [x] T058 [US3] Run tests to verify fitToView action test passes (green phase)
 
 ### Tests for User Story 3 - UI ⚠️
 
-- [ ] T059 [P] [US3] Write test: clicking Fit button triggers fitToView in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
-- [ ] T060 [P] [US3] Write test: F key triggers fitToView when canvas has focus in `src/components/Canvas/__tests__/Canvas.spec.tsx`
-- [ ] T061 [P] [US3] Write test: Fit button gracefully no-ops when no template loaded
-- [ ] T062 [US3] Run tests to verify UI tests fail (red phase)
+- [x] T059 [P] [US3] Write test: clicking Fit button triggers fitToView in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
+- [x] T060 [P] [US3] Write test: F key triggers fitToView when canvas has focus in `src/components/Canvas/__tests__/Canvas.spec.tsx`
+- [x] T061 [P] [US3] Write test: Fit button gracefully no-ops when no template loaded
+- [x] T062 [US3] Run tests to verify UI tests fail (red phase)
 
 ### Implementation for User Story 3 - UI
 
-- [ ] T063 [US3] Add Fit button to ZoomToolbar in `src/components/ZoomToolbar/ZoomToolbar.tsx`
-- [ ] T064 [US3] Add F key handler to Canvas keyboard handler in `src/components/Canvas/Canvas.tsx`
-- [ ] T065 [US3] Run tests to verify UI tests pass (green phase)
-- [ ] T066 [US3] Run `npx biome check --write .` to fix linting issues
-- [ ] T067 [US3] Run `npm test` to verify all tests pass
-- [ ] T068 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(006-zoom-controls): add fit-to-view with calculation and UI"
+- [x] T063 [US3] Add Fit button to ZoomToolbar in `src/components/ZoomToolbar/ZoomToolbar.tsx`
+- [x] T064 [US3] Add F key handler to Canvas keyboard handler in `src/components/Canvas/Canvas.tsx`
+- [x] T065 [US3] Run tests to verify UI tests pass (green phase)
+- [x] T066 [US3] Run `npx biome check --write .` to fix linting issues
+- [x] T067 [US3] Run `npm test` to verify all tests pass
+- [x] T068 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(006-zoom-controls): add fit-to-view with calculation and UI"
 
 **Checkpoint**: All user stories complete - full zoom control functionality
 

@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@solidjs/testing-library';
-import { canvasStore, resetPan, resetZoom, zoomIn, zoomOut } from '../../../stores/canvasStore';
+import {
+  canvasStore,
+  fitToView,
+  resetPan,
+  resetZoom,
+  zoomIn,
+  zoomOut,
+} from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
 
@@ -11,6 +18,7 @@ vi.mock('../../../stores/canvasStore', async () => {
     zoomIn: vi.fn((actual as { zoomIn: () => void }).zoomIn),
     zoomOut: vi.fn((actual as { zoomOut: () => void }).zoomOut),
     resetZoom: vi.fn((actual as { resetZoom: () => void }).resetZoom),
+    fitToView: vi.fn((actual as { fitToView: () => void }).fitToView),
   };
 });
 
@@ -848,6 +856,63 @@ describe('Canvas', () => {
       // Cmd+0 should not trigger our reset (browser zoom reset on Mac)
       fireEvent.keyDown(wrapper, { key: '0', metaKey: true });
       expect(resetZoom).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (US3 - Fit to View Keyboard Shortcut)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger fitToView when F key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'f' });
+
+      expect(fitToView).toHaveBeenCalled();
+    });
+
+    it('should trigger fitToView when uppercase F key pressed', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'F' });
+
+      expect(fitToView).toHaveBeenCalled();
+    });
+
+    it('should not trigger fitToView when modifier keys are held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl+F should not trigger fit (browser find)
+      fireEvent.keyDown(wrapper, { key: 'f', ctrlKey: true });
+      expect(fitToView).not.toHaveBeenCalled();
+
+      // Cmd+F should not trigger fit (browser find on Mac)
+      fireEvent.keyDown(wrapper, { key: 'f', metaKey: true });
+      expect(fitToView).not.toHaveBeenCalled();
     });
   });
 });

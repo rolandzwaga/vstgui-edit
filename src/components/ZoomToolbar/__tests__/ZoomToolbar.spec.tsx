@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  fitToView,
   resetCanvas,
   resetZoom,
   setZoom,
@@ -16,6 +17,7 @@ vi.mock('../../../stores/canvasStore', async () => {
     zoomIn: vi.fn(),
     zoomOut: vi.fn(),
     resetZoom: vi.fn(),
+    fitToView: vi.fn(),
   };
 });
 
@@ -96,6 +98,29 @@ describe('ZoomToolbar', () => {
       const button = screen.getByRole('button', { name: /reset.*100/i });
       fireEvent.click(button);
       expect(resetZoom).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('fit to view button (FR-004)', () => {
+    it('should have a Fit button', () => {
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /fit/i });
+      expect(button).toBeInTheDocument();
+    });
+
+    it('should call onFitToView callback when Fit button is clicked', () => {
+      const onFitToView = vi.fn();
+      render(() => <ZoomToolbar onFitToView={onFitToView} />);
+      const button = screen.getByRole('button', { name: /fit/i });
+      fireEvent.click(button);
+      expect(onFitToView).toHaveBeenCalledTimes(1);
+    });
+
+    it('should be safe to click Fit when no callback provided', () => {
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /fit/i });
+      // Should not throw
+      expect(() => fireEvent.click(button)).not.toThrow();
     });
   });
 });

@@ -6,6 +6,7 @@ import {
   updatePan,
   endPan,
   applyZoom,
+  fitToView,
   zoomIn,
   zoomOut,
   resetZoom,
@@ -145,6 +146,7 @@ export const Canvas: Component = () => {
    * + or = key: zoom in
    * - key: zoom out
    * 0 key: reset to 100%
+   * F key: fit to view
    * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
    */
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -159,7 +161,28 @@ export const Canvas: Component = () => {
       zoomOut();
     } else if (e.key === '0') {
       resetZoom();
+    } else if (e.key === 'f' || e.key === 'F') {
+      handleFitToView();
     }
+  };
+
+  /**
+   * Handle fit to view action.
+   * Gets the viewport size from the canvas container and template size from bounds.
+   */
+  const handleFitToView = () => {
+    const bounds = templateBounds();
+    if (!bounds) return;
+
+    // Use a reasonable default viewport size if we can't get the actual size
+    // In practice, this would come from the parent container
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    fitToView(
+      { width: viewportWidth, height: viewportHeight },
+      { width: bounds.width, height: bounds.height }
+    );
   };
 
   // Clean up listeners on component unmount
