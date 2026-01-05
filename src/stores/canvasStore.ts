@@ -4,7 +4,11 @@
  * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
-import { clampZoom } from '../domain/canvas/zoom';
+import {
+  clampZoom,
+  calculateNewZoom,
+  calculateZoomPanAdjustment,
+} from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
 
 // --- Signals for pan state ---
@@ -103,4 +107,33 @@ export function setZoom(level: number): void {
  */
 export function resetZoom(): void {
   setZoomLevel(1.0);
+}
+
+/**
+ * Apply zoom based on wheel delta, centered on cursor position.
+ * Adjusts both zoom level and pan offset to keep the point under cursor stationary.
+ */
+export function applyZoom(
+  cursorX: number,
+  cursorY: number,
+  wrapperRect: DOMRect,
+  deltaY: number
+): void {
+  const oldZoom = zoomLevel();
+  const newZoom = calculateNewZoom(oldZoom, deltaY);
+
+  // Only update if zoom actually changed (not clamped at limits)
+  if (newZoom !== oldZoom) {
+    const newPan = calculateZoomPanAdjustment(
+      cursorX,
+      cursorY,
+      wrapperRect,
+      panOffset(),
+      oldZoom,
+      newZoom
+    );
+
+    setPanOffset(newPan);
+    setZoomLevel(newZoom);
+  }
 }

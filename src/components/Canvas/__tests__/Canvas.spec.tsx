@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@solidjs/testing-library';
-import { canvasStore, resetPan } from '../../../stores/canvasStore';
+import { canvasStore, resetPan, resetZoom } from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
 
@@ -376,8 +376,8 @@ describe('Canvas', () => {
       fireEvent.mouseMove(document, { clientX: 200, clientY: 150 });
       fireEvent.mouseUp(document);
 
-      // Check transform is applied
-      expect(wrapper.style.transform).toBe('translate(100px, 50px)');
+      // Check transform is applied (includes scale from zoomLevel)
+      expect(wrapper.style.transform).toBe('translate(100px, 50px) scale(1)');
     });
 
     it('should initiate pan even when middle-clicking on a view element (edge case)', () => {
@@ -581,6 +581,122 @@ describe('Canvas', () => {
 
       // No grabbing class
       expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
+    });
+  });
+
+  describe('Given canvas with content (US1 - Wheel Zoom)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should increase zoomLevel when wheel scrolls up (deltaY < 0)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Scroll up (zoom in)
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+
+      expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
+    });
+
+    it('should decrease zoomLevel when wheel scrolls down (deltaY > 0)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Scroll down (zoom out)
+      fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150 });
+
+      expect(canvasStore.zoomLevel).toBeLessThan(1.0);
+    });
+
+    it('should prevent default browser zoom on wheel event', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      const event = new WheelEvent('wheel', {
+        deltaY: -100,
+        clientX: 200,
+        clientY: 150,
+        bubbles: true,
+        cancelable: true,
+      });
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+      wrapper.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+    });
+
+    it('should apply scale transform based on zoomLevel', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Zoom in
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+
+      // Transform should include scale
+      expect(wrapper.style.transform).toContain('scale(');
+    });
+
+    it('should handle zoom with cursor outside canvas bounds', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Zoom with cursor at extreme position
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 1000, clientY: 1000 });
+
+      // Should still zoom without error
+      expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
+    });
+
+    it('should handle zoom interaction with existing pan offset', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Pan first
+      fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
+      fireEvent.mouseMove(document, { clientX: 150, clientY: 120 });
+      fireEvent.mouseUp(document);
+
+      const panOffsetBeforeZoom = { ...canvasStore.panOffset };
+      expect(panOffsetBeforeZoom.x).toBe(50);
+      expect(panOffsetBeforeZoom.y).toBe(20);
+
+      // Now zoom - pan should be adjusted for cursor centering
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+
+      // Zoom should change
+      expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
+      // Pan should be adjusted (won't be the same as before)
+      // Just verify we can zoom after panning without error
+    });
+
+    it('should handle rapid wheel scrolling (multiple events)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Rapid zoom in - 5 consecutive wheel events
+      for (let i = 0; i < 5; i++) {
+        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+      }
+
+      // Zoom should be significantly greater than 1.0 (approximately 1.1^5 ≈ 1.61)
+      expect(canvasStore.zoomLevel).toBeGreaterThan(1.5);
     });
   });
 });
