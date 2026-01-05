@@ -403,6 +403,21 @@ A gradient is an array of color stops, each with:
 }
 ```
 
+#### XML Definition
+
+```xml
+<gradients>
+  <gradient name="ButtonNormal">
+    <color-stop rgba="#e0e0e0ff" start="0"/>
+    <color-stop rgba="#c0c0c0ff" start="1"/>
+  </gradient>
+  <gradient name="ButtonHighlighted">
+    <color-stop rgba="#c0c0c0ff" start="0"/>
+    <color-stop rgba="#a0a0a0ff" start="1"/>
+  </gradient>
+</gradients>
+```
+
 ### Control Tags
 
 Control tags map symbolic names to numeric parameter IDs, enabling UI controls to communicate with plugin parameters.
@@ -904,9 +919,9 @@ Linear slider control.
 | `draw-value` | boolean | Draw value fill |
 | `draw-value-from-center` | boolean | Fill from center |
 | `draw-value-inverted` | boolean | Invert fill direction |
-| `draw-frame-color` | color | Border color |
-| `draw-back-color` | color | Background color |
-| `draw-value-color` | color | Fill color |
+| `frame-color` | color | Border color |
+| `back-color` | color | Background color |
+| `value-color` | color | Fill color |
 
 ### Switch Classes
 
@@ -935,7 +950,7 @@ Multi-segment button bar.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `segment-names` | string | Comma-separated segment names |
-| `selection-mode` | enum | "Single", "Single-Toggle", "Multiple" |
+| `selection-mode` | enum | "kSingle", "kSingleToggle", "kMultiple" |
 | `style` | enum | "horizontal", "vertical", "horizontal-inverse", "vertical-inverse" |
 | `font` | string | Font reference |
 | `text-alignment` | enum | "left", "center", "right" |
@@ -962,6 +977,8 @@ Editable text field (inherits CParamDisplay).
 | `immediate-text-change` | boolean | Update on each keystroke |
 | `secure-style` | boolean | Password mask |
 | `style-doubleclick` | boolean | Select all on double-click |
+| `style-round-rect` | boolean | Rounded corners |
+| `round-rect-radius` | number | Corner radius |
 
 #### CSearchTextEdit
 
@@ -973,12 +990,21 @@ Search field with clear button.
 
 #### COptionMenu
 
-Dropdown/popup menu.
+Dropdown/popup menu (inherits CParamDisplay).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `menu-popup-style` | boolean | Popup menu style |
 | `menu-check-style` | boolean | Show checkmarks |
+| `font` | string | Font reference |
+| `font-color` | color | Text color |
+| `back-color` | color | Background color |
+| `frame-color` | color | Border color |
+| `frame-width` | number | Border thickness |
+| `style-round-rect` | boolean | Rounded corners |
+| `round-rect-radius` | number | Corner radius |
+| `text-alignment` | enum | "left", "center", "right" |
+| `text-inset` | point | Text padding "horizontal, vertical" |
 
 ### Other Classes
 
