@@ -160,6 +160,69 @@ describe('Grid', () => {
       expect(majorPattern).toHaveAttribute('width', '100');
       expect(majorPattern).toHaveAttribute('height', '100');
     });
+
+    test('major lines use majorLine class for lines style', () => {
+      render(() => <Grid width={100} height={100} />);
+      const majorPattern = screen.getByTestId('grid-pattern-major');
+      const lines = majorPattern.querySelectorAll('line');
+      // Major lines should have the majorLine class (uses --color-grid-major)
+      expect(lines.length).toBe(2);
+      for (const line of lines) {
+        expect(line.classList.toString()).toContain('majorLine');
+      }
+    });
+
+    test('major dots use majorDot class for dots style', () => {
+      setGridStyle('dots');
+      render(() => <Grid width={100} height={100} />);
+      const majorPattern = screen.getByTestId('grid-pattern-major');
+      const circles = majorPattern.querySelectorAll('circle');
+      // Major dots should have the majorDot class (uses --color-grid-major)
+      expect(circles.length).toBe(1);
+      expect(circles[0].classList.toString()).toContain('majorDot');
+    });
+
+    test('major crosshairs use majorLine class for crosshairs style', () => {
+      setGridStyle('crosshairs');
+      render(() => <Grid width={100} height={100} />);
+      const majorPattern = screen.getByTestId('grid-pattern-major');
+      const lines = majorPattern.querySelectorAll('line');
+      // Major crosshairs should have the majorLine class
+      expect(lines.length).toBe(2);
+      for (const line of lines) {
+        expect(line.classList.toString()).toContain('majorLine');
+      }
+    });
+
+    test('minor pattern uses minorLine class', () => {
+      render(() => <Grid width={100} height={100} />);
+      const minorPattern = screen.getByTestId('grid-pattern-minor');
+      const lines = minorPattern.querySelectorAll('line');
+      // Minor lines should have the minorLine class (uses --color-grid-minor)
+      expect(lines.length).toBe(2);
+      for (const line of lines) {
+        expect(line.classList.toString()).toContain('minorLine');
+      }
+    });
+
+    test('minor dots use dot class', () => {
+      setGridStyle('dots');
+      render(() => <Grid width={100} height={100} />);
+      const minorPattern = screen.getByTestId('grid-pattern-minor');
+      const circles = minorPattern.querySelectorAll('circle');
+      expect(circles.length).toBe(1);
+      expect(circles[0].classList.toString()).toContain('dot');
+    });
+
+    test('renders major rect overlay on top of minor', () => {
+      render(() => <Grid width={100} height={100} />);
+      const svg = screen.getByTestId('grid-svg');
+      const rects = svg.querySelectorAll('rect');
+      // First rect is minor, second is major (overlays)
+      expect(rects.length).toBe(2);
+      expect(rects[0]).toHaveAttribute('data-testid', 'grid-rect-minor');
+      expect(rects[1]).toHaveAttribute('data-testid', 'grid-rect-major');
+    });
   });
 
   describe('SVG structure', () => {
