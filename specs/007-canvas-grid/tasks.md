@@ -44,18 +44,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T012 [P] [US1] Write Grid component tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (renders when visible, hidden when not visible, renders behind views, uses correct grid size from store, uses theme colors)
+- [x] T011 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T012 [P] [US1] Write Grid component tests in `src/components/Canvas/__tests__/Grid.spec.tsx` (renders when visible, hidden when not visible, renders behind views, uses correct grid size from store, uses theme colors)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Create Grid.module.css in `src/components/Canvas/Grid.module.css` (grid container styles using design tokens)
-- [ ] T014 [US1] Implement Grid component in `src/components/Canvas/Grid.tsx` (SVG pattern for lines style, rect fill, reads from gridStore, theme-adaptive colors via CSS)
-- [ ] T015 [US1] Update Canvas component in `src/components/Canvas/Canvas.tsx` to include Grid component (render before template views, conditionally show based on documentStore.parseState)
-- [ ] T016 [US1] Export Grid from `src/components/Canvas/index.ts`
-- [ ] T017 [US1] Run tests `npm test` and verify Grid tests pass
-- [ ] T018 [US1] Run `npx biome check --write .` and `npx tsc --noEmit`
-- [ ] T019 [US1] **Commit**: Stage and commit US1 changes with message "feat(007-canvas-grid): add Grid component with SVG pattern rendering"
+- [x] T013 [US1] Create Grid.module.css in `src/components/Canvas/Grid.module.css` (grid container styles using design tokens)
+- [x] T014 [US1] Implement Grid component in `src/components/Canvas/Grid.tsx` (SVG pattern for lines style, rect fill, reads from gridStore, theme-adaptive colors via CSS)
+- [x] T015 [US1] Update Canvas component in `src/components/Canvas/Canvas.tsx` to include Grid component (render before template views, conditionally show based on documentStore.parseState)
+- [x] T016 [US1] Export Grid from `src/components/Canvas/index.ts`
+- [x] T017 [US1] Run tests `npm test` and verify Grid tests pass
+- [x] T018 [US1] Run `npx biome check --write .` and `npx tsc --noEmit`
+- [x] T019 [US1] **Commit**: Stage and commit US1 changes with message "feat(007-canvas-grid): add Grid component with SVG pattern rendering"
 
 **Checkpoint**: Grid visible on canvas with default 10px spacing, transforms with pan/zoom
 

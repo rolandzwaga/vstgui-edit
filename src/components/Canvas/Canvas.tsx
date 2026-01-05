@@ -1,20 +1,22 @@
 import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import {
+  applyZoom,
   canvasStore,
+  endPan,
+  fitToView,
+  resetZoom,
   startPan,
   updatePan,
-  endPan,
-  applyZoom,
-  fitToView,
   zoomIn,
   zoomOut,
-  resetZoom,
 } from '../../stores/canvasStore';
+import { toggleVisibility } from '../../stores/gridStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
+import { Grid } from './Grid';
 import { Legend } from './Legend';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
@@ -171,6 +173,8 @@ export const Canvas: Component = () => {
       resetZoom();
     } else if (e.key === 'f' || e.key === 'F') {
       handleFitToView();
+    } else if (e.key === 'g' || e.key === 'G') {
+      toggleVisibility();
     }
   };
 
@@ -221,6 +225,10 @@ export const Canvas: Component = () => {
             transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px) scale(${canvasStore.zoomLevel})`,
           }}
         >
+          {/* Grid renders behind template views */}
+          <Show when={templateBounds()}>
+            {(bounds) => <Grid width={bounds().width} height={bounds().height} />}
+          </Show>
           <svg
             class={styles.canvas}
             width={templateBounds()?.width ?? 100}
