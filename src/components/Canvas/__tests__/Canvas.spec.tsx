@@ -1,8 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@solidjs/testing-library';
-import { canvasStore, resetPan, resetZoom } from '../../../stores/canvasStore';
+import { canvasStore, resetPan, resetZoom, zoomIn, zoomOut } from '../../../stores/canvasStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
+
+vi.mock('../../../stores/canvasStore', async () => {
+  const actual = await vi.importActual('../../../stores/canvasStore');
+  return {
+    ...actual,
+    zoomIn: vi.fn((actual as { zoomIn: () => void }).zoomIn),
+    zoomOut: vi.fn((actual as { zoomOut: () => void }).zoomOut),
+  };
+});
 
 // Define mock store using vi.hoisted so it's available in vi.mock
 const mockDocumentStore = vi.hoisted(() => ({
@@ -721,6 +730,76 @@ describe('Canvas', () => {
 
       // Should be capped at MIN_ZOOM (0.1)
       expect(canvasStore.zoomLevel).toBe(0.1);
+    });
+  });
+
+  describe('Given canvas with content (US1 - Keyboard Zoom)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger zoomIn when + key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press + key
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '+' });
+
+      expect(zoomIn).toHaveBeenCalled();
+    });
+
+    it('should trigger zoomIn when = key pressed and canvas has focus (alternative key)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press = key (same physical key as + without Shift)
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '=' });
+
+      expect(zoomIn).toHaveBeenCalled();
+    });
+
+    it('should trigger zoomOut when - key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Focus the wrapper and press - key
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '-' });
+
+      expect(zoomOut).toHaveBeenCalled();
+    });
+
+    it('should not trigger zoom when modifier keys are held (prevents browser shortcuts conflict)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl++ should not trigger our zoom (browser zoom)
+      fireEvent.keyDown(wrapper, { key: '+', ctrlKey: true });
+      expect(zoomIn).not.toHaveBeenCalled();
+
+      // Cmd++ should not trigger our zoom (browser zoom on Mac)
+      fireEvent.keyDown(wrapper, { key: '+', metaKey: true });
+      expect(zoomIn).not.toHaveBeenCalled();
     });
   });
 });

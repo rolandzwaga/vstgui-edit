@@ -1,6 +1,14 @@
 import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
-import { canvasStore, startPan, updatePan, endPan, applyZoom } from '../../stores/canvasStore';
+import {
+  canvasStore,
+  startPan,
+  updatePan,
+  endPan,
+  applyZoom,
+  zoomIn,
+  zoomOut,
+} from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -131,6 +139,25 @@ export const Canvas: Component = () => {
     applyZoom(e.clientX, e.clientY, wrapper.getBoundingClientRect(), e.deltaY);
   };
 
+  /**
+   * Handle keyboard events for zoom shortcuts.
+   * + or = key: zoom in
+   * - key: zoom out
+   * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
+   */
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Ignore when modifier keys are held (browser shortcuts)
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+
+    if (e.key === '+' || e.key === '=') {
+      zoomIn();
+    } else if (e.key === '-') {
+      zoomOut();
+    }
+  };
+
   // Clean up listeners on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
@@ -149,8 +176,10 @@ export const Canvas: Component = () => {
             [styles.grabbing]: canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
+          tabIndex={0}
           onMouseDown={handleMouseDown}
           onWheel={handleWheel}
+          onKeyDown={handleKeyDown}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,

@@ -9,6 +9,8 @@ import {
   setZoom,
   startPan,
   updatePan,
+  zoomIn,
+  zoomOut,
 } from '../canvasStore';
 
 describe('canvasStore', () => {
@@ -295,6 +297,89 @@ describe('canvasStore', () => {
 
         expect(canvasStore.zoomLevel).toBe(1.0);
         expect(canvasStore.panOffset).toEqual({ x: 0, y: 0 });
+      });
+    });
+  });
+
+  describe('zoomIn', () => {
+    test('multiplies zoom by ZOOM_FACTOR (1.1)', () => {
+      testInRoot(() => {
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        zoomIn();
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.1);
+      });
+    });
+
+    test('accumulates multiple zoom in calls', () => {
+      testInRoot(() => {
+        resetZoom();
+        zoomIn();
+        zoomIn();
+        zoomIn();
+        // 1.0 * 1.1 * 1.1 * 1.1 = 1.331
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.331);
+      });
+    });
+
+    test('clamps at MAX_ZOOM (5.0)', () => {
+      testInRoot(() => {
+        setZoom(4.9);
+        zoomIn();
+        // 4.9 * 1.1 = 5.39 -> clamped to 5.0
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+
+    test('does not exceed MAX_ZOOM with repeated calls', () => {
+      testInRoot(() => {
+        setZoom(5.0);
+        zoomIn();
+        zoomIn();
+        zoomIn();
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+  });
+
+  describe('zoomOut', () => {
+    test('divides zoom by ZOOM_FACTOR (1.1)', () => {
+      testInRoot(() => {
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        zoomOut();
+        // 1.0 / 1.1 ≈ 0.909
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.0 / 1.1);
+      });
+    });
+
+    test('accumulates multiple zoom out calls', () => {
+      testInRoot(() => {
+        resetZoom();
+        zoomOut();
+        zoomOut();
+        zoomOut();
+        // 1.0 / 1.1 / 1.1 / 1.1 ≈ 0.751
+        expect(canvasStore.zoomLevel).toBeCloseTo(1.0 / 1.1 / 1.1 / 1.1);
+      });
+    });
+
+    test('clamps at MIN_ZOOM (0.1)', () => {
+      testInRoot(() => {
+        setZoom(0.105);
+        zoomOut();
+        // 0.105 / 1.1 ≈ 0.095 -> clamped to 0.1
+        expect(canvasStore.zoomLevel).toBe(0.1);
+      });
+    });
+
+    test('does not go below MIN_ZOOM with repeated calls', () => {
+      testInRoot(() => {
+        setZoom(0.1);
+        zoomOut();
+        zoomOut();
+        zoomOut();
+        expect(canvasStore.zoomLevel).toBe(0.1);
       });
     });
   });

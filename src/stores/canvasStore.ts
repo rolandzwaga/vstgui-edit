@@ -4,7 +4,12 @@
  * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
-import { calculateNewZoom, calculateZoomPanAdjustment, clampZoom } from '../domain/canvas/zoom';
+import {
+  calculateNewZoom,
+  calculateZoomPanAdjustment,
+  clampZoom,
+  ZOOM_FACTOR,
+} from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
 
 // --- Signals for pan state ---
@@ -103,6 +108,20 @@ export function setZoom(level: number): void {
  */
 export function resetZoom(): void {
   setZoomLevel(1.0);
+}
+
+/**
+ * Zoom in by one step (multiply by ZOOM_FACTOR).
+ */
+export function zoomIn(): void {
+  setZoomLevel(clampZoom(zoomLevel() * ZOOM_FACTOR));
+}
+
+/**
+ * Zoom out by one step (divide by ZOOM_FACTOR).
+ */
+export function zoomOut(): void {
+  setZoomLevel(clampZoom(zoomLevel() / ZOOM_FACTOR));
 }
 
 /**
