@@ -1,6 +1,6 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas } from './components/Canvas';
-import { ZoomToolbar } from './components/ZoomToolbar';
+import { MainToolbar } from './components/MainToolbar';
 import { documentStore } from './stores/documentStore';
 import { fitToView } from './stores/canvasStore';
 import './styles/tokens.css';
@@ -27,11 +27,11 @@ export default function App() {
   };
 
   return (
-    <main style={{ padding: '2rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}>
+    <main style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}>
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
         <div style={{ "min-height": '400px' }}>
-          <ZoomToolbar onFitToView={handleFitToView} />
+          <MainToolbar onFitToView={handleFitToView} />
           <Canvas />
         </div>
       ) : (
