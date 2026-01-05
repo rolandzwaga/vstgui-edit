@@ -10,6 +10,7 @@ vi.mock('../../../stores/canvasStore', async () => {
     ...actual,
     zoomIn: vi.fn((actual as { zoomIn: () => void }).zoomIn),
     zoomOut: vi.fn((actual as { zoomOut: () => void }).zoomOut),
+    resetZoom: vi.fn((actual as { resetZoom: () => void }).resetZoom),
   };
 });
 
@@ -800,6 +801,53 @@ describe('Canvas', () => {
       // Cmd++ should not trigger our zoom (browser zoom on Mac)
       fireEvent.keyDown(wrapper, { key: '+', metaKey: true });
       expect(zoomIn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (US2 - Reset Keyboard Shortcut)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger resetZoom when 0 key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: '0' });
+
+      expect(resetZoom).toHaveBeenCalled();
+    });
+
+    it('should not trigger resetZoom when modifier keys are held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+
+      // Ctrl+0 should not trigger our reset (browser zoom reset)
+      fireEvent.keyDown(wrapper, { key: '0', ctrlKey: true });
+      expect(resetZoom).not.toHaveBeenCalled();
+
+      // Cmd+0 should not trigger our reset (browser zoom reset on Mac)
+      fireEvent.keyDown(wrapper, { key: '0', metaKey: true });
+      expect(resetZoom).not.toHaveBeenCalled();
     });
   });
 });

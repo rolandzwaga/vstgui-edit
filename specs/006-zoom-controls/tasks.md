@@ -99,7 +99,7 @@
 - [x] T032 [US1] Run tests to verify keyboard tests pass (green phase)
 - [x] T033 [US1] Run `npx biome check --write .` to fix linting issues
 - [x] T034 [US1] Run `npm test` to verify all tests pass
-- [ ] T035 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(006-zoom-controls): add zoom display, +/- buttons, keyboard shortcuts"
+- [x] T035 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(006-zoom-controls): add zoom display, +/- buttons, keyboard shortcuts"
 
 **Checkpoint**: User Story 1 complete - zoom display and manual zoom functional
 
@@ -117,19 +117,19 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T036 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T037 [P] [US2] Write test: clicking 100% button resets zoom to 1.0 in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
-- [ ] T038 [P] [US2] Write test: 0 key triggers resetZoom when canvas has focus in `src/components/Canvas/__tests__/Canvas.spec.tsx`
-- [ ] T039 [US2] Run tests to verify reset tests fail (red phase)
+- [x] T036 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T037 [P] [US2] Write test: clicking 100% button resets zoom to 1.0 in `src/components/ZoomToolbar/__tests__/ZoomToolbar.spec.tsx`
+- [x] T038 [P] [US2] Write test: 0 key triggers resetZoom when canvas has focus in `src/components/Canvas/__tests__/Canvas.spec.tsx`
+- [x] T039 [US2] Run tests to verify reset tests fail (red phase)
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Add 100% button to ZoomToolbar that calls `resetZoom()` in `src/components/ZoomToolbar/ZoomToolbar.tsx`
-- [ ] T041 [US2] Add 0 key handler to Canvas keyboard handler in `src/components/Canvas/Canvas.tsx`
-- [ ] T042 [US2] Run tests to verify reset tests pass (green phase)
-- [ ] T043 [US2] Run `npx biome check --write .` to fix linting issues
-- [ ] T044 [US2] Run `npm test` to verify all tests pass
-- [ ] T045 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(006-zoom-controls): add 100% reset button and keyboard shortcut"
+- [x] T040 [US2] Add 100% button to ZoomToolbar that calls `resetZoom()` in `src/components/ZoomToolbar/ZoomToolbar.tsx`
+- [x] T041 [US2] Add 0 key handler to Canvas keyboard handler in `src/components/Canvas/Canvas.tsx`
+- [x] T042 [US2] Run tests to verify reset tests pass (green phase)
+- [x] T043 [US2] Run `npx biome check --write .` to fix linting issues
+- [x] T044 [US2] Run `npm test` to verify all tests pass
+- [x] T045 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(006-zoom-controls): add 100% reset button and keyboard shortcut"
 
 **Checkpoint**: User Stories 1 AND 2 complete - manual zoom and reset functional
 

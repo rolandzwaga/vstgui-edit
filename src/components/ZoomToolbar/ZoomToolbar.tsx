@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { canvasStore, zoomIn, zoomOut } from '../../stores/canvasStore';
+import { canvasStore, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { formatZoomPercent } from '../../domain/canvas/zoom';
 import styles from './ZoomToolbar.module.css';
 
@@ -10,6 +10,7 @@ import styles from './ZoomToolbar.module.css';
  * - Zoom percentage display (FR-001)
  * - Zoom in (+) button (FR-002)
  * - Zoom out (-) button (FR-003)
+ * - Reset to 100% button (FR-005)
  */
 export const ZoomToolbar: Component = () => {
   return (
@@ -23,7 +24,7 @@ export const ZoomToolbar: Component = () => {
         −
       </button>
 
-      <span class={styles.zoomLevel} aria-live="polite">
+      <span class={styles.zoomLevel} role="status" aria-live="polite">
         {formatZoomPercent(canvasStore.zoomLevel)}
       </span>
 
@@ -34,6 +35,15 @@ export const ZoomToolbar: Component = () => {
         aria-label="Zoom in"
       >
         +
+      </button>
+
+      <button
+        type="button"
+        class={styles.button}
+        onClick={() => resetZoom()}
+        aria-label="Reset zoom to 100%"
+      >
+        100%
       </button>
     </div>
   );

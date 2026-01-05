@@ -1,6 +1,12 @@
 import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { resetCanvas, setZoom, zoomIn, zoomOut } from '../../../stores/canvasStore';
+import {
+  resetCanvas,
+  resetZoom,
+  setZoom,
+  zoomIn,
+  zoomOut,
+} from '../../../stores/canvasStore';
 import { ZoomToolbar } from '../ZoomToolbar';
 
 vi.mock('../../../stores/canvasStore', async () => {
@@ -9,6 +15,7 @@ vi.mock('../../../stores/canvasStore', async () => {
     ...actual,
     zoomIn: vi.fn(),
     zoomOut: vi.fn(),
+    resetZoom: vi.fn(),
   };
 });
 
@@ -21,14 +28,17 @@ describe('ZoomToolbar', () => {
   describe('zoom level display (FR-001)', () => {
     it('should display current zoom level as percentage', () => {
       render(() => <ZoomToolbar />);
-      expect(screen.getByText('100%')).toBeInTheDocument();
+      // Use aria-live attribute to target the display span, not the 100% button
+      const display = screen.getByRole('status');
+      expect(display).toHaveTextContent('100%');
     });
 
     it('should update display when zoom level changes', () => {
       render(() => <ZoomToolbar />);
-      expect(screen.getByText('100%')).toBeInTheDocument();
+      const display = screen.getByRole('status');
+      expect(display).toHaveTextContent('100%');
       setZoom(1.5);
-      expect(screen.getByText('150%')).toBeInTheDocument();
+      expect(display).toHaveTextContent('150%');
     });
 
     it('should display MIN_ZOOM as 10%', () => {
@@ -71,6 +81,21 @@ describe('ZoomToolbar', () => {
       const button = screen.getByRole('button', { name: /zoom out/i });
       fireEvent.click(button);
       expect(zoomOut).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('reset to 100% button (FR-005)', () => {
+    it('should have a 100% reset button', () => {
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /reset.*100/i });
+      expect(button).toBeInTheDocument();
+    });
+
+    it('should call resetZoom when 100% button is clicked', () => {
+      render(() => <ZoomToolbar />);
+      const button = screen.getByRole('button', { name: /reset.*100/i });
+      fireEvent.click(button);
+      expect(resetZoom).toHaveBeenCalledTimes(1);
     });
   });
 });

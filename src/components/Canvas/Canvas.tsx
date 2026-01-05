@@ -8,6 +8,7 @@ import {
   applyZoom,
   zoomIn,
   zoomOut,
+  resetZoom,
 } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
@@ -143,6 +144,7 @@ export const Canvas: Component = () => {
    * Handle keyboard events for zoom shortcuts.
    * + or = key: zoom in
    * - key: zoom out
+   * 0 key: reset to 100%
    * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
    */
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -155,6 +157,8 @@ export const Canvas: Component = () => {
       zoomIn();
     } else if (e.key === '-') {
       zoomOut();
+    } else if (e.key === '0') {
+      resetZoom();
     }
   };
 
