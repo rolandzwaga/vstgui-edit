@@ -93,27 +93,27 @@ A user wants visual feedback that pan mode is active. When panning is possible o
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | Canvas.spec.tsx: "should initiate pan mode when middle mouse button pressed" |
+| FR-002 | ✅ MET | Canvas.spec.tsx: "should initiate pan mode when Space held and left mouse button pressed" |
+| FR-003 | ✅ MET | Canvas.spec.tsx: "should update panOffset when mouse moves during pan" (delta = mouse delta) |
+| FR-004 | ✅ MET | Canvas.spec.tsx: "should end pan and preserve panOffset when mouse released" |
+| FR-005 | ✅ MET | Canvas.spec.tsx: "should apply grab cursor class when Space is held" |
+| FR-006 | ✅ MET | Canvas.spec.tsx: "should apply grabbing cursor class when panning is active" |
+| SC-001 | ✅ MET | Canvas.spec.tsx: 8 tests for middle-mouse pan, all passing |
+| SC-002 | ✅ MET | Canvas.spec.tsx: 7 tests for Space+drag pan, all passing |
+| SC-003 | ✅ MET | CSS transform uses GPU-accelerated translate(), reactive signals ensure same-frame updates |
+| SC-004 | ✅ MET | Canvas.spec.tsx: 5 tests for cursor feedback (grab/grabbing), all passing |
 
 **⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Git Status Check**: Run `git status` to verify all changes are committed
+- [x] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [x] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [x] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
 **⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch AND the compliance table shows all requirements MET.

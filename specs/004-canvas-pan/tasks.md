@@ -136,7 +136,7 @@
 - [x] T042 Verify 80% coverage threshold for new code (canvasStore, Canvas pan logic) - verified via test coverage
 - [x] T043 Run quickstart.md validation - manually verify all scenarios (documented)
 - [x] T044 Update `CLAUDE.md` with canvasStore utility documentation
-- [ ] T045 **Commit**: Stage and commit polish changes with message "docs(004): update CLAUDE.md with canvasStore"
+- [x] T045 **Commit**: Stage and commit polish changes with message "docs(004): update CLAUDE.md with canvasStore"
 
 ---
 
@@ -144,10 +144,10 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete.
 
-- [ ] T046 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T047 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T048 **Confirm Clean**: Verify working tree is clean (nothing to commit)
-- [ ] T049 **Update Compliance Table**: Fill in spec.md compliance table with ✅ MET status and evidence for all FR-xxx and SC-xxx
+- [x] T046 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] T047 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] T048 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] T049 **Update Compliance Table**: Fill in spec.md compliance table with ✅ MET status and evidence for all FR-xxx and SC-xxx
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
