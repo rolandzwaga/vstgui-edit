@@ -4,6 +4,7 @@
  * Uses SolidJS signals for reactive state with fine-grained updates.
  */
 import { createSignal } from 'solid-js';
+import { clampZoom } from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
 
 // --- Signals for pan state ---
@@ -86,4 +87,20 @@ export function resetPan(): void {
   setPanOffset({ x: 0, y: 0 });
   setIsPanning(false);
   setPanStart(null);
+}
+
+// --- Zoom Actions ---
+
+/**
+ * Set the zoom level, clamped to valid range [MIN_ZOOM, MAX_ZOOM].
+ */
+export function setZoom(level: number): void {
+  setZoomLevel(clampZoom(level));
+}
+
+/**
+ * Reset zoom level to default (1.0 = 100%).
+ */
+export function resetZoom(): void {
+  setZoomLevel(1.0);
 }

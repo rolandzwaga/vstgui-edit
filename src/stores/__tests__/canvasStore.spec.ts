@@ -4,6 +4,8 @@ import {
   canvasStore,
   endPan,
   resetPan,
+  resetZoom,
+  setZoom,
   startPan,
   updatePan,
 } from '../canvasStore';
@@ -181,6 +183,71 @@ describe('canvasStore', () => {
         updatePan(230, 220);
         endPan();
         expect(canvasStore.panOffset).toEqual({ x: 80, y: 70 });
+      });
+    });
+  });
+
+  describe('zoomLevel initial state', () => {
+    test('zoomLevel is 1.0 by default', () => {
+      testInRoot(() => {
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+      });
+    });
+  });
+
+  describe('setZoom', () => {
+    test('sets zoomLevel to specified value', () => {
+      testInRoot(() => {
+        resetZoom();
+        setZoom(2.0);
+        expect(canvasStore.zoomLevel).toBe(2.0);
+      });
+    });
+
+    test('clamps value to MIN_ZOOM when below minimum', () => {
+      testInRoot(() => {
+        resetZoom();
+        setZoom(0.05);
+        expect(canvasStore.zoomLevel).toBe(0.1);
+      });
+    });
+
+    test('clamps value to MAX_ZOOM when above maximum', () => {
+      testInRoot(() => {
+        resetZoom();
+        setZoom(10.0);
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+
+    test('handles edge values correctly', () => {
+      testInRoot(() => {
+        resetZoom();
+        setZoom(0.1); // MIN_ZOOM
+        expect(canvasStore.zoomLevel).toBe(0.1);
+        setZoom(5.0); // MAX_ZOOM
+        expect(canvasStore.zoomLevel).toBe(5.0);
+      });
+    });
+  });
+
+  describe('resetZoom', () => {
+    test('resets zoomLevel to 1.0', () => {
+      testInRoot(() => {
+        setZoom(2.5);
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
+      });
+    });
+
+    test('works after multiple zoom changes', () => {
+      testInRoot(() => {
+        setZoom(0.5);
+        setZoom(3.0);
+        setZoom(1.5);
+        resetZoom();
+        expect(canvasStore.zoomLevel).toBe(1.0);
       });
     });
   });
