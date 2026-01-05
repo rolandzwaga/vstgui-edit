@@ -218,9 +218,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] T073 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T074 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T075 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] T073 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] T074 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] T075 **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
