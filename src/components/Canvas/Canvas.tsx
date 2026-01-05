@@ -1,5 +1,6 @@
-import { type Component, createMemo, For, Show } from 'solid-js';
+import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
+import { canvasStore, startPan, updatePan, endPan } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -81,6 +82,45 @@ export const Canvas: Component = () => {
    */
   const isEmpty = () => firstTemplate() === null;
 
+  /**
+   * Handle mouse down for pan initiation.
+   * Middle mouse button (button=1) starts panning.
+   */
+  const handleMouseDown = (e: MouseEvent) => {
+    // Middle mouse button = button 1
+    if (e.button === 1) {
+      e.preventDefault(); // Prevent browser auto-scroll
+      startPan(e.clientX, e.clientY);
+
+      // Add document-level listeners for drag
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+  };
+
+  /**
+   * Handle mouse move during pan gesture.
+   */
+  const handleMouseMove = (e: MouseEvent) => {
+    updatePan(e.clientX, e.clientY);
+  };
+
+  /**
+   * Handle mouse up to end pan gesture.
+   */
+  const handleMouseUp = () => {
+    endPan();
+    // Remove document-level listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  // Clean up listeners on component unmount
+  onCleanup(() => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  });
+
   return (
     <Show
       when={!isEmpty()}
@@ -90,9 +130,11 @@ export const Canvas: Component = () => {
         <div
           class={styles.canvasWrapper}
           data-testid="canvas-wrapper"
+          onMouseDown={handleMouseDown}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,
+            transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px)`,
           }}
         >
           <svg

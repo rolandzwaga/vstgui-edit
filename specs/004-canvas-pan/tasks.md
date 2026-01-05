@@ -29,12 +29,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T002 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T003 Add `PanState` interface to `src/types/canvas.ts` with panOffset, isPanning, panStart fields
-- [ ] T004 [P] Write tests for canvasStore in `src/stores/__tests__/canvasStore.spec.ts` covering startPan, updatePan, endPan, resetPan actions
-- [ ] T005 Create `src/stores/canvasStore.ts` with reactive store using createSignal for pan state management
-- [ ] T006 Run quality checks: `npx biome check --write . && npx tsc --noEmit && npm test`
-- [ ] T007 **Commit**: Stage and commit Phase 2 changes with message "feat(004): add canvasStore and PanState type"
+- [x] T002 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T003 Add `PanState` interface to `src/types/canvas.ts` with panOffset, isPanning, panStart fields
+- [x] T004 [P] Write tests for canvasStore in `src/stores/__tests__/canvasStore.spec.ts` covering startPan, updatePan, endPan, resetPan actions
+- [x] T005 Create `src/stores/canvasStore.ts` with reactive store using createSignal for pan state management
+- [x] T006 Run quality checks: `npx biome check --write . && npx tsc --noEmit && npm test`
+- [x] T007 **Commit**: Stage and commit Phase 2 changes with message "feat(004): add canvasStore and PanState type"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin.
 
@@ -51,20 +51,20 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T008 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T009 [US1] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: middle-mousedown (button=1) initiates pan mode
-- [ ] T010 [US1] Write test: mousemove during pan updates panOffset by delta
-- [ ] T011 [US1] Write test: mouseup ends pan and preserves panOffset
-- [ ] T012 [US1] Write test: canvas transform style reflects panOffset
-- [ ] T013 [US1] Write test: middle-click on view element still initiates pan (edge case)
+- [x] T008 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T009 [US1] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: middle-mousedown (button=1) initiates pan mode
+- [x] T010 [US1] Write test: mousemove during pan updates panOffset by delta
+- [x] T011 [US1] Write test: mouseup ends pan and preserves panOffset
+- [x] T012 [US1] Write test: canvas transform style reflects panOffset
+- [x] T013 [US1] Write test: middle-click on view element still initiates pan (edge case)
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Add pan event handlers to Canvas wrapper div in `src/components/Canvas/Canvas.tsx` for mousedown (button=1)
-- [ ] T015 [US1] Implement document-level mousemove/mouseup listeners during pan gesture
-- [ ] T016 [US1] Apply CSS transform `translate(x, y)` to canvas wrapper based on panOffset from store
-- [ ] T017 [US1] Prevent default browser auto-scroll on middle-click
-- [ ] T018 [US1] Run quality checks and verify all tests pass
+- [x] T014 [US1] Add pan event handlers to Canvas wrapper div in `src/components/Canvas/Canvas.tsx` for mousedown (button=1)
+- [x] T015 [US1] Implement document-level mousemove/mouseup listeners during pan gesture
+- [x] T016 [US1] Apply CSS transform `translate(x, y)` to canvas wrapper based on panOffset from store
+- [x] T017 [US1] Prevent default browser auto-scroll on middle-click
+- [x] T018 [US1] Run quality checks and verify all tests pass
 - [ ] T019 [US1] **Commit**: Stage and commit US1 changes with message "feat(004): implement middle-mouse pan navigation"
 
 **Checkpoint**: Middle-mouse pan fully functional. Can be tested independently.
