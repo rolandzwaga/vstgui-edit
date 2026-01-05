@@ -10,7 +10,7 @@ export default function App() {
 
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
-        <div style={{ border: '1px solid #ccc', "min-height": '400px' }}>
+        <div style={{ "min-height": '400px' }}>
           <Canvas />
         </div>
       ) : (

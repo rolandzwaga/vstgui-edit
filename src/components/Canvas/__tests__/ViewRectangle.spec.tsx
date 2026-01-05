@@ -9,7 +9,7 @@ const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView
   absoluteY: 100,
   width: 200,
   height: 80,
-  label: 'CTextButton',
+  className: 'CTextButton',
   category: 'control',
   zIndex: 0,
   ...overrides,
@@ -95,9 +95,13 @@ describe('ViewRectangle', () => {
     });
   });
 
-  describe('Given a view with a label (US3 - label rendering)', () => {
-    it('should render SVG text element with the label', () => {
-      const view = createMockView({ label: 'CTextButton' });
+  describe('Given a view with a title attribute (title rendering)', () => {
+    it('should render SVG text element with the title', () => {
+      const view = createMockView({
+        className: 'CTextLabel',
+        category: 'display',
+        title: 'Hello World',
+      });
 
       render(() => (
         <svg>
@@ -109,12 +113,12 @@ describe('ViewRectangle', () => {
       const text = group.querySelector('text');
 
       expect(text).toBeInTheDocument();
-      expect(text).toHaveTextContent('CTextButton');
+      expect(text).toHaveTextContent('Hello World');
     });
 
-    it('should render label for container views', () => {
+    it('should not render text when no title attribute', () => {
       const view = createMockView({
-        label: 'CViewContainer',
+        className: 'CViewContainer',
         category: 'container',
       });
 
@@ -127,13 +131,14 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const text = group.querySelector('text');
 
-      expect(text).toHaveTextContent('CViewContainer');
+      expect(text).toBeNull();
     });
 
-    it('should position label inside the view rectangle', () => {
+    it('should position title inside the view rectangle', () => {
       const view = createMockView({
         absoluteX: 100,
         absoluteY: 200,
+        title: 'Test Title',
       });
 
       render(() => (
@@ -145,15 +150,15 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const text = group.querySelector('text');
 
-      // Label should be positioned with some padding from the left edge
+      // Title should be positioned with some padding from the left edge
       const textX = Number(text?.getAttribute('x'));
       expect(textX).toBeGreaterThanOrEqual(100);
     });
   });
 
-  describe('Given a small view (US3 - label truncation)', () => {
-    it('should hide label when view width is under 60px', () => {
-      const view = createMockView({ width: 50 });
+  describe('Given a small view with title (title truncation)', () => {
+    it('should hide title when view width is under 40px', () => {
+      const view = createMockView({ width: 30, title: 'Hidden' });
 
       render(() => (
         <svg>
@@ -164,12 +169,11 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const text = group.querySelector('text');
 
-      // Text should not be rendered or should be hidden
       expect(text).toBeNull();
     });
 
-    it('should show label when view width is 60px or more', () => {
-      const view = createMockView({ width: 60 });
+    it('should show title when view width is 40px or more', () => {
+      const view = createMockView({ width: 40, title: 'Visible' });
 
       render(() => (
         <svg>
@@ -183,8 +187,8 @@ describe('ViewRectangle', () => {
       expect(text).toBeInTheDocument();
     });
 
-    it('should hide label when view height is under 20px', () => {
-      const view = createMockView({ width: 200, height: 15 });
+    it('should hide title when view height is under 16px', () => {
+      const view = createMockView({ width: 200, height: 12, title: 'Hidden' });
 
       render(() => (
         <svg>

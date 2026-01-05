@@ -50,14 +50,17 @@ export interface RenderableView {
   /** View height in pixels */
   height: number;
 
-  /** Display label: class name, or "ClassName [Custom]" for unknown classes */
-  label: string;
+  /** View class name for identification */
+  className: string;
 
   /** Category for styling purposes */
   category: ViewCategory;
 
   /** Render order (0 = bottom, higher = on top). Based on hierarchy traversal order. */
   zIndex: number;
+
+  /** Title text from uidesc (for CTextLabel display) */
+  title?: string;
 }
 
 /**

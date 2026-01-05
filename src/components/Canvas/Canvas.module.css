@@ -63,13 +63,60 @@
   stroke: var(--color-category-custom-stroke);
 }
 
-/* View label */
-.viewLabel {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
+/* View title text (for CTextLabel, etc.) */
+.viewTitle {
+  font-family: var(--font-family-base);
+  font-size: 10px;
   fill: var(--color-text-primary);
   pointer-events: none;
   user-select: none;
+}
+
+/* Legend container */
+.legend {
+  display: flex;
+  gap: 16px;
+  padding: 8px 12px;
+  background-color: var(--color-surface);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+/* Legend item */
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Legend color swatch */
+.legendSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.legendSwatch.container {
+  background-color: var(--color-category-container-fill);
+  border: 1px solid var(--color-category-container-stroke);
+}
+
+.legendSwatch.control {
+  background-color: var(--color-category-control-fill);
+  border: 1px solid var(--color-category-control-stroke);
+}
+
+.legendSwatch.display {
+  background-color: var(--color-category-display-fill);
+  border: 1px solid var(--color-category-display-stroke);
+}
+
+.legendSwatch.custom {
+  background-color: var(--color-category-custom-fill);
+  border: 1px solid var(--color-category-custom-stroke);
 }
 
 /* Template bounds indicator */

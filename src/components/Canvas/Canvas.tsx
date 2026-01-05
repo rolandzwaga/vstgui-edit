@@ -4,6 +4,7 @@ import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
+import { Legend } from './Legend';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import styles from './Canvas.module.css';
@@ -78,28 +79,31 @@ export const Canvas: Component = () => {
       when={!isEmpty()}
       fallback={<EmptyState />}
     >
-      <div
-        class={styles.canvasWrapper}
-        data-testid="canvas-wrapper"
-        style={{
-          width: `${templateBounds()?.width ?? 100}px`,
-          height: `${templateBounds()?.height ?? 100}px`,
-        }}
-      >
-        <svg
-          class={styles.canvas}
-          width={templateBounds()?.width ?? 100}
-          height={templateBounds()?.height ?? 100}
-          viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
-          data-testid="canvas"
+      <div>
+        <div
+          class={styles.canvasWrapper}
+          data-testid="canvas-wrapper"
+          style={{
+            width: `${templateBounds()?.width ?? 100}px`,
+            height: `${templateBounds()?.height ?? 100}px`,
+          }}
         >
-          <Show when={templateBounds()}>
-            {(bounds) => <TemplateBounds bounds={bounds()} />}
-          </Show>
-          <For each={renderableViews()}>
-            {(view) => <ViewRectangle view={view} />}
-          </For>
-        </svg>
+          <svg
+            class={styles.canvas}
+            width={templateBounds()?.width ?? 100}
+            height={templateBounds()?.height ?? 100}
+            viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
+            data-testid="canvas"
+          >
+            <Show when={templateBounds()}>
+              {(bounds) => <TemplateBounds bounds={bounds()} />}
+            </Show>
+            <For each={renderableViews()}>
+              {(view) => <ViewRectangle view={view} />}
+            </For>
+          </svg>
+        </div>
+        <Legend />
       </div>
     </Show>
   );

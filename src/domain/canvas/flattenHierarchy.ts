@@ -29,20 +29,27 @@ export function flattenHierarchy(root: ViewDefinition, rootId?: string): Rendera
     const size = parseSize(attributes.size);
     const className = attributes.class as string | undefined;
     const category = getViewCategory(className);
+    const title = attributes.title as string | undefined;
 
     const absoluteX = parentX + origin.x;
     const absoluteY = parentY + origin.y;
 
-    views.push({
+    const renderableView: RenderableView = {
       id: viewId,
       absoluteX,
       absoluteY,
       width: size.width,
       height: size.height,
-      label: className ?? 'Unknown',
+      className: className ?? 'Unknown',
       category,
       zIndex,
-    });
+    };
+
+    if (title) {
+      renderableView.title = title;
+    }
+
+    views.push(renderableView);
 
     let nextZIndex = zIndex + 1;
 

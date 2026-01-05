@@ -62,7 +62,7 @@ describe('flattenHierarchy', () => {
       expect(result[0].height).toBe(80);
     });
 
-    it('should use class name as label', () => {
+    it('should use class name as className field', () => {
       const view: ViewDefinition = {
         attributes: {
           class: 'CTextButton',
@@ -73,7 +73,36 @@ describe('flattenHierarchy', () => {
 
       const result = flattenHierarchy(view, 'root');
 
-      expect(result[0].label).toBe('CTextButton');
+      expect(result[0].className).toBe('CTextButton');
+    });
+
+    it('should extract title attribute when present', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextLabel',
+          origin: '0, 0',
+          size: '100, 30',
+          title: 'Hello World',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root');
+
+      expect(result[0].title).toBe('Hello World');
+    });
+
+    it('should not include title when attribute is missing', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CTextButton',
+          origin: '0, 0',
+          size: '100, 30',
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root');
+
+      expect(result[0].title).toBeUndefined();
     });
 
     it('should assign zIndex of 0 to root view', () => {
@@ -134,7 +163,7 @@ describe('flattenHierarchy', () => {
       expect(result[0].height).toBe(20);
     });
 
-    it('should use "Unknown" label when class is missing', () => {
+    it('should use "Unknown" className when class is missing', () => {
       const view: ViewDefinition = {
         attributes: {
           origin: '0, 0',
@@ -144,7 +173,7 @@ describe('flattenHierarchy', () => {
 
       const result = flattenHierarchy(view, 'root');
 
-      expect(result[0].label).toBe('Unknown');
+      expect(result[0].className).toBe('Unknown');
     });
   });
 

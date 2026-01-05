@@ -2,25 +2,28 @@ import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
 import styles from './Canvas.module.css';
 
-/** Minimum width in pixels to show label */
-const MIN_WIDTH_FOR_LABEL = 60;
-/** Minimum height in pixels to show label */
-const MIN_HEIGHT_FOR_LABEL = 20;
-/** Padding from left edge for label */
-const LABEL_PADDING_X = 4;
-/** Vertical offset for label (from top) */
-const LABEL_OFFSET_Y = 14;
+/** Minimum width in pixels to show title text */
+const MIN_WIDTH_FOR_TITLE = 40;
+/** Minimum height in pixels to show title text */
+const MIN_HEIGHT_FOR_TITLE = 16;
+/** Padding from left edge for title */
+const TITLE_PADDING_X = 4;
+/** Vertical offset for title (from top) */
+const TITLE_OFFSET_Y = 12;
 
 export interface ViewRectangleProps {
   view: RenderableView;
 }
 
 /**
- * Renders a single view as an SVG group containing a rectangle and label.
+ * Renders a single view as an SVG group containing a rectangle.
+ * For views with a title attribute (e.g., CTextLabel), displays the title text.
  */
 export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
-  const shouldShowLabel = () =>
-    props.view.width >= MIN_WIDTH_FOR_LABEL && props.view.height >= MIN_HEIGHT_FOR_LABEL;
+  const shouldShowTitle = () =>
+    props.view.title &&
+    props.view.width >= MIN_WIDTH_FOR_TITLE &&
+    props.view.height >= MIN_HEIGHT_FOR_TITLE;
 
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
@@ -31,13 +34,13 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         width={props.view.width}
         height={props.view.height}
       />
-      <Show when={shouldShowLabel()}>
+      <Show when={shouldShowTitle()}>
         <text
-          class={styles.viewLabel}
-          x={props.view.absoluteX + LABEL_PADDING_X}
-          y={props.view.absoluteY + LABEL_OFFSET_Y}
+          class={styles.viewTitle}
+          x={props.view.absoluteX + TITLE_PADDING_X}
+          y={props.view.absoluteY + TITLE_OFFSET_Y}
         >
-          {props.view.label}
+          {props.view.title}
         </text>
       </Show>
     </g>

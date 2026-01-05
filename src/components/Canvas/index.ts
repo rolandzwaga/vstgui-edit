@@ -6,5 +6,6 @@
 
 export { Canvas } from './Canvas';
 export { EmptyState } from './EmptyState';
+export { Legend } from './Legend';
 export { TemplateBounds } from './TemplateBounds';
 export { ViewRectangle } from './ViewRectangle';
