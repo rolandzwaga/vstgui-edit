@@ -186,16 +186,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T060 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T061 [P] [US5] Write tests for TemplateBounds component in src/components/Canvas/__tests__/TemplateBounds.spec.tsx
-- [ ] T062 [P] [US5] Write tests for template bounds rendering in Canvas in src/components/Canvas/__tests__/Canvas.spec.tsx
+- [x] T060 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T061 [P] [US5] Write tests for TemplateBounds component in src/components/Canvas/__tests__/TemplateBounds.spec.tsx
+- [x] T062 [P] [US5] Write tests for template bounds rendering in Canvas in src/components/Canvas/__tests__/Canvas.spec.tsx
 
 ### Implementation for User Story 5
 
-- [ ] T063 [US5] Implement TemplateBounds component in src/components/Canvas/TemplateBounds.tsx
-- [ ] T064 [US5] Add template bounds styles (dashed, thicker stroke) to src/components/Canvas/Canvas.module.css
-- [ ] T065 [US5] Integrate TemplateBounds into Canvas component in src/components/Canvas/Canvas.tsx
-- [ ] T066 [US5] **Commit**: Stage and commit US5 changes with message "feat(003): add template bounds indicator (US5)"
+- [x] T063 [US5] Implement TemplateBounds component in src/components/Canvas/TemplateBounds.tsx
+- [x] T064 [US5] Add template bounds styles (dashed, thicker stroke) to src/components/Canvas/Canvas.module.css
+- [x] T065 [US5] Integrate TemplateBounds into Canvas component in src/components/Canvas/Canvas.tsx
+- [x] T066 [US5] **Commit**: Stage and commit US5 changes with message "feat(003): add template bounds indicator (US5)"
 
 **Checkpoint**: Template bounds are clearly visible and distinguishable
 

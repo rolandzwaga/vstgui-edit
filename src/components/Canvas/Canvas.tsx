@@ -2,8 +2,9 @@ import { type Component, createMemo, For, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { parseSize } from '../../domain/canvas/coordinates';
-import type { RenderableView, TemplateBounds } from '../../types/canvas';
+import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
+import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import styles from './Canvas.module.css';
 
@@ -54,7 +55,7 @@ export const Canvas: Component = () => {
   /**
    * Gets the template bounds from the root view.
    */
-  const templateBounds = createMemo((): TemplateBounds | null => {
+  const templateBounds = createMemo((): TemplateBoundsType | null => {
     const template = firstTemplate();
     if (!template) return null;
 
@@ -82,6 +83,9 @@ export const Canvas: Component = () => {
         viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
         data-testid="canvas"
       >
+        <Show when={templateBounds()}>
+          {(bounds) => <TemplateBounds bounds={bounds()} />}
+        </Show>
         <For each={renderableViews()}>
           {(view) => <ViewRectangle view={view} />}
         </For>

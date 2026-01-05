@@ -6,4 +6,5 @@
 
 export { Canvas } from './Canvas';
 export { EmptyState } from './EmptyState';
+export { TemplateBounds } from './TemplateBounds';
 export { ViewRectangle } from './ViewRectangle';

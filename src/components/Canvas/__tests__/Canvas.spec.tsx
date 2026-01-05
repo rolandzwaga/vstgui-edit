@@ -168,8 +168,8 @@ describe('Canvas', () => {
 
       const canvas = screen.getByTestId('canvas');
       const rects = canvas.querySelectorAll('rect');
-      // Root + 2 children = 3 rectangles
-      expect(rects.length).toBe(3);
+      // Template bounds + Root + 2 children = 4 rectangles
+      expect(rects.length).toBe(4);
     });
 
     it('should render children after parents in DOM order', () => {
@@ -247,8 +247,8 @@ describe('Canvas', () => {
 
       const canvas = screen.getByTestId('canvas');
       const rects = canvas.querySelectorAll('rect');
-      // Root + panel + nestedButton = 3 rectangles
-      expect(rects.length).toBe(3);
+      // Template bounds + Root + panel + nestedButton = 4 rectangles
+      expect(rects.length).toBe(4);
 
       // Verify correct DOM order: MainView -> panel -> nestedButton
       const mainView = screen.getByTestId('view-MainView');
@@ -260,6 +260,56 @@ describe('Canvas', () => {
       ).toBeTruthy();
       expect(
         panelView.compareDocumentPosition(nestedButton) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+  });
+
+  describe('Given document with template (US5 - template bounds)', () => {
+    it('should render template bounds indicator', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <Canvas />);
+
+      expect(screen.getByTestId('template-bounds')).toBeInTheDocument();
+    });
+
+    it('should render template bounds before views (at bottom z-order)', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <Canvas />);
+
+      const templateBounds = screen.getByTestId('template-bounds');
+      const mainView = screen.getByTestId('view-MainView');
+
+      // Template bounds should appear before views in DOM order
+      expect(
+        templateBounds.compareDocumentPosition(mainView) & Node.DOCUMENT_POSITION_FOLLOWING
       ).toBeTruthy();
     });
   });
