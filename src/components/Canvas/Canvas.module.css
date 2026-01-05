@@ -1,0 +1,78 @@
+/**
+ * Canvas Component Styles
+ * Styles for the uidesc visual editor canvas
+ */
+
+/* Canvas container */
+.canvas {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-canvas-background);
+  display: block;
+}
+
+/* Empty state container */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  background-color: var(--color-canvas-background);
+}
+
+/* Empty state message */
+.emptyMessage {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* View rectangle - base styles */
+.viewRect {
+  stroke-width: 1;
+  fill-opacity: 0.1;
+}
+
+/* Container category */
+.container {
+  fill: var(--color-category-container-fill);
+  stroke: var(--color-category-container-stroke);
+}
+
+/* Control category */
+.control {
+  fill: var(--color-category-control-fill);
+  stroke: var(--color-category-control-stroke);
+}
+
+/* Display category */
+.display {
+  fill: var(--color-category-display-fill);
+  stroke: var(--color-category-display-stroke);
+}
+
+/* Custom/unknown category */
+.custom {
+  fill: var(--color-category-custom-fill);
+  stroke: var(--color-category-custom-stroke);
+}
+
+/* View label */
+.label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  fill: var(--color-text-primary);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Template bounds indicator */
+.templateBounds {
+  fill: none;
+  stroke: var(--color-template-bounds);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}

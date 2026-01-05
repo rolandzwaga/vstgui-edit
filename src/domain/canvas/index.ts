@@ -7,3 +7,6 @@
 
 // Coordinate parsing
 export { parsePoint, parseSize } from './coordinates';
+
+// Hierarchy flattening
+export { flattenHierarchy } from './flattenHierarchy';
