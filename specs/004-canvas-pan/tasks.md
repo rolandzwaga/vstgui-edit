@@ -96,7 +96,7 @@
 - [x] T029 [US2] Prevent default Space behavior (page scroll) when over canvas
 - [x] T030 [US2] Clean up keyboard listeners on component unmount using onCleanup
 - [x] T031 [US2] Run quality checks and verify all tests pass
-- [ ] T032 [US2] **Commit**: Stage and commit US2 changes with message "feat(004): implement Space+drag pan navigation"
+- [x] T032 [US2] **Commit**: Stage and commit US2 changes with message "feat(004): implement Space+drag pan navigation"
 
 **Checkpoint**: Both pan methods (middle-mouse and Space+drag) fully functional.
 
@@ -112,16 +112,16 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T033 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T034 [US3] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: spaceHeld applies grab cursor class
-- [ ] T035 [US3] Write test: isPanning applies grabbing cursor class
-- [ ] T036 [US3] Write test: cursor returns to default when pan ends
+- [x] T033 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T034 [US3] Write test in `src/components/Canvas/__tests__/Canvas.spec.tsx`: spaceHeld applies grab cursor class
+- [x] T035 [US3] Write test: isPanning applies grabbing cursor class
+- [x] T036 [US3] Write test: cursor returns to default when pan ends
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Add `.grab` and `.grabbing` cursor classes to `src/components/Canvas/Canvas.module.css`
-- [ ] T038 [US3] Apply cursor classes conditionally using classList on canvas wrapper in `src/components/Canvas/Canvas.tsx`
-- [ ] T039 [US3] Run quality checks and verify all tests pass
+- [x] T037 [US3] Add `.grab` and `.grabbing` cursor classes to `src/components/Canvas/Canvas.module.css`
+- [x] T038 [US3] Apply cursor classes conditionally using classList on canvas wrapper in `src/components/Canvas/Canvas.tsx`
+- [x] T039 [US3] Run quality checks and verify all tests pass
 - [ ] T040 [US3] **Commit**: Stage and commit US3 changes with message "feat(004): add pan cursor feedback (grab/grabbing)"
 
 **Checkpoint**: All pan functionality with visual feedback complete.

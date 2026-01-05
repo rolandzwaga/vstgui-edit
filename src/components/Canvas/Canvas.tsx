@@ -172,6 +172,10 @@ export const Canvas: Component = () => {
       <div>
         <div
           class={styles.canvasWrapper}
+          classList={{
+            [styles.grab]: spaceHeld() && !canvasStore.isPanning,
+            [styles.grabbing]: canvasStore.isPanning,
+          }}
           data-testid="canvas-wrapper"
           onMouseDown={handleMouseDown}
           style={{

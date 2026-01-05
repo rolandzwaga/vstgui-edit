@@ -562,4 +562,94 @@ describe('Canvas', () => {
       expect(canvasStore.panStart).toEqual({ x: 100, y: 100 });
     });
   });
+
+  describe('Given canvas with content (US3 - Cursor Feedback)', () => {
+    beforeEach(() => {
+      resetPan();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    // Helper to check if any class contains a substring (for CSS Module hashed names)
+    const hasClassContaining = (element: Element, substring: string) => {
+      return Array.from(element.classList).some((cls) => cls.includes(substring));
+    };
+
+    it('should apply grab cursor class when Space is held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Press Space key
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+
+      // Check for grab cursor class (CSS Module hashed name contains 'grab')
+      expect(hasClassContaining(wrapper, 'grab')).toBe(true);
+      expect(hasClassContaining(wrapper, 'grabbing')).toBe(false);
+    });
+
+    it('should apply grabbing cursor class when panning is active', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Start middle-mouse pan
+      fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
+
+      // Check for grabbing cursor class
+      expect(hasClassContaining(wrapper, 'grabbing')).toBe(true);
+    });
+
+    it('should apply grabbing cursor class during Space+drag pan', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Space+left-click to pan
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+
+      // Check for grabbing cursor class (should override grab)
+      expect(hasClassContaining(wrapper, 'grabbing')).toBe(true);
+    });
+
+    it('should return to default cursor when pan ends', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Start and end pan
+      fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(document);
+
+      // No grab or grabbing class (but may have base canvasWrapper class)
+      const classes = Array.from(wrapper.classList);
+      const hasCursorClass = classes.some(
+        (cls) => cls.includes('grab') && !cls.includes('Wrapper')
+      );
+      expect(hasCursorClass).toBe(false);
+    });
+
+    it('should return to grab cursor when Space+drag pan ends but Space still held', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Space held + pan
+      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
+      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseUp(document);
+
+      // Should have grab cursor (Space still held), not grabbing
+      expect(hasClassContaining(wrapper, 'grab')).toBe(true);
+      expect(hasClassContaining(wrapper, 'grabbing')).toBe(false);
+    });
+  });
 });
