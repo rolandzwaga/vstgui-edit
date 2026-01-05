@@ -8,6 +8,7 @@ import {
   zoomIn,
   zoomOut,
 } from '../../../stores/canvasStore';
+import { resetGrid, toggleVisibility } from '../../../stores/gridStore';
 import { Canvas } from '../Canvas';
 import styles from '../Canvas.module.css';
 
@@ -19,6 +20,14 @@ vi.mock('../../../stores/canvasStore', async () => {
     zoomOut: vi.fn((actual as { zoomOut: () => void }).zoomOut),
     resetZoom: vi.fn((actual as { resetZoom: () => void }).resetZoom),
     fitToView: vi.fn((actual as { fitToView: () => void }).fitToView),
+  };
+});
+
+vi.mock('../../../stores/gridStore', async () => {
+  const actual = await vi.importActual('../../../stores/gridStore');
+  return {
+    ...actual,
+    toggleVisibility: vi.fn((actual as { toggleVisibility: () => void }).toggleVisibility),
   };
 });
 
@@ -983,6 +992,111 @@ describe('Canvas', () => {
       // Zoom functions should not be called
       expect(zoomIn).not.toHaveBeenCalled();
       expect(zoomOut).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Given canvas with content (Grid Toggle - G Key)', () => {
+    beforeEach(() => {
+      resetPan();
+      resetZoom();
+      resetGrid();
+      vi.clearAllMocks();
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should trigger toggleVisibility when G key pressed and canvas has focus', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'g' });
+
+      expect(toggleVisibility).toHaveBeenCalled();
+    });
+
+    it('should trigger toggleVisibility when uppercase G key pressed', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'G' });
+
+      expect(toggleVisibility).toHaveBeenCalled();
+    });
+
+    it('should not trigger toggleVisibility when Ctrl+G is pressed', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'g', ctrlKey: true });
+
+      expect(toggleVisibility).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger toggleVisibility when Cmd+G is pressed (Mac)', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'g', metaKey: true });
+
+      expect(toggleVisibility).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger toggleVisibility when Alt+G is pressed', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      wrapper.focus();
+      fireEvent.keyDown(wrapper, { key: 'g', altKey: true });
+
+      expect(toggleVisibility).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger toggleVisibility when focus is in a text input', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <input type="text" data-testid="text-input" />
+        </div>
+      ));
+
+      const textInput = screen.getByTestId('text-input');
+      textInput.focus();
+
+      fireEvent.keyDown(textInput, { key: 'g', bubbles: true });
+
+      expect(toggleVisibility).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger toggleVisibility when focus is in a textarea', () => {
+      render(() => (
+        <div>
+          <Canvas />
+          <textarea data-testid="textarea" />
+        </div>
+      ));
+
+      const textarea = screen.getByTestId('textarea');
+      textarea.focus();
+
+      fireEvent.keyDown(textarea, { key: 'g', bubbles: true });
+
+      expect(toggleVisibility).not.toHaveBeenCalled();
     });
   });
 });
