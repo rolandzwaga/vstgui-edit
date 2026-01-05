@@ -1,6 +1,6 @@
 # VSGUI-Edit Project Constitution
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for the VSGUI-Edit project
 
 ---
@@ -493,6 +493,43 @@ import type { Component, JSX } from 'solid-js';
 
 **Rationale**: Code duplication is major source of technical debt. Documentation prevents duplication and promotes reuse.
 
+### XXI. Honest Completion (Anti-Cheating) (NON-NEGOTIABLE)
+
+**CRITICAL**: Features are only complete when ALL requirements are genuinely met.
+
+**Definition of "Done"**:
+- ALL acceptance criteria met
+- Tests at spec thresholds (not weakened to pass)
+- No placeholders or TODOs in deliverables
+- Performance targets measured and verified
+
+**Forbidden Patterns**:
+- Relaxing test thresholds to pass
+- Placeholder values marked "needs proper design"
+- Removing scope without explicit declaration
+- Saying "tests pass" when tests were weakened
+- Claiming completion with unimplemented requirements
+
+**Mandatory Verification**:
+Before claiming complete, review EVERY FR-xxx and SC-xxx requirement.
+If ANY requirement is not met, the spec is NOT complete.
+
+**Compliance Table Format** (required at spec completion):
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| FR-001 | ✅ MET | Test X verifies behavior |
+| FR-002 | ❌ NOT MET | Reason why incomplete |
+| SC-001 | ✅ MET | Measured at Y ms |
+
+**Enforcement**:
+- Spec completion MUST include compliance table
+- ALL requirements MUST show ✅ MET status
+- Any ❌ NOT MET requires user approval to proceed
+- Falsely claiming completion is grounds for full feature rejection
+
+**Rationale**: Honest completion prevents technical debt accumulation, ensures stakeholder trust, and maintains code quality. Shortcuts compound into major problems.
+
 ## Technology Stack Requirements
 
 ### Mandatory Dependencies
@@ -621,6 +658,6 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-05 (v1.3.0: Added Testing Guide requirement for all test tasks)
+**Last Amended**: 2026-01-05 (v1.4.0: Added Honest Completion anti-cheating principle with compliance table requirement)

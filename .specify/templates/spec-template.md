@@ -123,11 +123,30 @@
   The implementing agent MUST complete these items before marking the feature done.
 -->
 
+### Requirement Compliance Table (MANDATORY)
+
+<!--
+  Before marking this feature complete, fill out this compliance table.
+  EVERY FR-xxx and SC-xxx requirement MUST be verified.
+  ALL requirements MUST show ✅ MET status for completion.
+-->
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
+| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
+| SC-001 | ⬜ PENDING | [Measurement or test result] |
+
+**⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
+
 ### Final Verification
 
+- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
+- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
 - [ ] **Git Status Check**: Run `git status` to verify all changes are committed
 - [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
 - [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
 - [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
-**⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch.
+**⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch AND the compliance table shows all requirements MET.
