@@ -3,6 +3,7 @@ import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
   canvasStore,
   endPan,
+  resetCanvas,
   resetPan,
   resetZoom,
   setZoom,
@@ -248,6 +249,52 @@ describe('canvasStore', () => {
         setZoom(1.5);
         resetZoom();
         expect(canvasStore.zoomLevel).toBe(1.0);
+      });
+    });
+  });
+
+  describe('resetCanvas', () => {
+    test('resets both zoom and pan to initial values', () => {
+      testInRoot(() => {
+        // Start from clean state
+        resetCanvas();
+
+        // Set up non-default state
+        setZoom(2.5);
+        startPan(100, 100);
+        updatePan(200, 200);
+        endPan();
+
+        // Verify non-default state (delta: 200-100=100, 200-100=100)
+        expect(canvasStore.zoomLevel).toBe(2.5);
+        expect(canvasStore.panOffset).toEqual({ x: 100, y: 100 });
+
+        // Reset canvas
+        resetCanvas();
+
+        // Verify both zoom and pan are reset
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        expect(canvasStore.panOffset).toEqual({ x: 0, y: 0 });
+        expect(canvasStore.isPanning).toBe(false);
+        expect(canvasStore.panStart).toBeNull();
+      });
+    });
+
+    test('can be called multiple times safely', () => {
+      testInRoot(() => {
+        // Start from clean state
+        resetCanvas();
+
+        setZoom(3.0);
+        startPan(50, 50);
+        updatePan(100, 100);
+
+        resetCanvas();
+        resetCanvas();
+        resetCanvas();
+
+        expect(canvasStore.zoomLevel).toBe(1.0);
+        expect(canvasStore.panOffset).toEqual({ x: 0, y: 0 });
       });
     });
   });

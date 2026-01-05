@@ -110,6 +110,15 @@ export function resetZoom(): void {
 }
 
 /**
+ * Reset all canvas state (pan and zoom) to initial values.
+ * Call this when loading a new document.
+ */
+export function resetCanvas(): void {
+  resetPan();
+  resetZoom();
+}
+
+/**
  * Apply zoom based on wheel delta, centered on cursor position.
  * Adjusts both zoom level and pan offset to keep the point under cursor stationary.
  */
