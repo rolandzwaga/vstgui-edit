@@ -213,7 +213,7 @@
 - [x] T077 Run `npx tsc --noEmit` to verify no TypeScript errors
 - [x] T078 Run `npx biome check --write .` to fix any remaining lint issues
 - [x] T079 [P] Update CLAUDE.md with new ZoomToolbar component and fitToView utility documentation
-- [ ] T080 **Commit**: Stage and commit Polish phase changes with message "feat(006-zoom-controls): add disabled states, keyboard filter, documentation"
+- [x] T080 **Commit**: Stage and commit Polish phase changes with message "feat(006-zoom-controls): add disabled states, keyboard filter, documentation"
 
 ---
 
@@ -221,10 +221,10 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] T081 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T082 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T083 **Confirm Clean**: Verify working tree is clean (nothing to commit)
-- [ ] T084 **Update Compliance Table**: Fill out FR/SC compliance table in `specs/006-zoom-controls/spec.md`
+- [x] T081 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] T082 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] T083 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] T084 **Update Compliance Table**: Fill out FR/SC compliance table in `specs/006-zoom-controls/spec.md`
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed AND compliance table is complete.
 
