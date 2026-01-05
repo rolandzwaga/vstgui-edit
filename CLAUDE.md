@@ -35,6 +35,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - In-memory SolidJS store for document state (001-uidesc-upload)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev) (002-uidesc-parsing)
 - In-memory SolidJS store (extends existing documentStore from 001-uidesc-upload) (002-uidesc-parsing)
+- TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required) (003-canvas-rendering)
+- N/A (reads from existing documentStore) (003-canvas-rendering)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -50,9 +52,24 @@ VSGUI-Edit is a visual editor for VSTGUI UI description files (`.uidesc`). VSTGU
 
 ### Domain Context
 
-- **uidesc files**: XML-based UI descriptions defining views, controls, colors, fonts, bitmaps
+- **uidesc files**: JSON/XML UI descriptions defining views, controls, colors, fonts, bitmaps
 - **Target users**: Audio plugin developers
 - **Key operations**: Load, visualize, edit, and save uidesc files
+
+### Essential Domain Reference
+
+**CRITICAL**: Before working on any uidesc-related functionality, consult:
+
+- **[UIDESC_GUIDE.md](UIDESC_GUIDE.md)** - Comprehensive guide to the VSTGUI UIDescription format
+- **[vstgui-uidesc.schema.json](vstgui-uidesc.schema.json)** - JSON Schema for validation
+
+The UIDESC_GUIDE.md covers:
+- File format (JSON preferred, XML deprecated)
+- All resource definitions (colors, fonts, bitmaps, gradients, control-tags, variables)
+- Complete view hierarchy and all 30+ view classes
+- Attribute reference for every view type
+- VST3 integration and parameter binding
+- Best practices for uidesc file design
 
 ## Project Structure
 
@@ -430,20 +447,53 @@ VITE_APP_TITLE=VSGUI-Edit
 VITE_DEBUG_MODE=false
 ```
 
-## VSTGUI uidesc Schema
+## VSTGUI uidesc Format Reference
 
-Reference schema files in project root:
-- `vstgui-uidesc.schema.json` - JSON Schema for validation
-- `vstgui-uidesc.xsd` - XML Schema Definition
+> **Full documentation**: See [UIDESC_GUIDE.md](UIDESC_GUIDE.md) for comprehensive format reference.
 
-### Key uidesc Elements
+### Reference Files
 
-- **views**: UI view hierarchy (CViewContainer, CControl, etc.)
-- **colors**: Named color definitions
-- **fonts**: Named font definitions
-- **bitmaps**: Image resource references
-- **gradients**: Gradient definitions
-- **control-tags**: Control identifier mappings
+- `vstgui-uidesc.schema.json` - JSON Schema for validation (used by parser)
+- `UIDESC_GUIDE.md` - Complete format documentation
+
+### Document Structure (JSON)
+
+```json
+{
+  "vstgui-ui-description": {
+    "version": "1",
+    "colors": { /* named color definitions */ },
+    "fonts": { /* named font definitions */ },
+    "bitmaps": { /* image resource references */ },
+    "gradients": { /* gradient definitions */ },
+    "control-tags": { /* parameter ID mappings */ },
+    "variables": { /* reusable values */ },
+    "templates": { /* view definitions */ },
+    "custom": { /* editor metadata */ }
+  }
+}
+```
+
+### Key View Classes
+
+| Category | Classes |
+|----------|---------|
+| Containers | CViewContainer, CScrollView, CRowColumnView, UIViewSwitchContainer |
+| Buttons | COnOffButton, CTextButton, CKickButton, CCheckBox |
+| Knobs | CKnob, CAnimKnob |
+| Sliders | CSlider, CVerticalSwitch, CHorizontalSwitch |
+| Text | CTextLabel, CTextEdit, CParamDisplay |
+| Special | CVuMeter, COptionMenu, CGradientView, CXYPad |
+
+### Value Formats
+
+| Type | Format | Example |
+|------|--------|---------|
+| Color | Hex RGBA | `#FF5500FF` |
+| Point | "x, y" | `"10, 20"` |
+| Size | "w, h" | `"100, 50"` |
+| Boolean | String | `"true"` or `"false"` |
+| Autosize | Flags | `"left right top"` |
 
 ## Common Patterns
 
@@ -507,6 +557,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
 - 002-uidesc-parsing: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev)
 
 **[Track feature additions here]**
@@ -518,20 +569,25 @@ class SetPropertyCommand implements Command {
   - Path mapping for XML error locations
   - Auto-parse on successful file upload
   - 149 passing tests (121 new + 28 existing)
-- 2026-01-05: Implemented 001-uidesc-upload feature
   - UploadZone component with drag-drop and file selector
   - documentStore for global state management
   - Design tokens in `src/styles/tokens.css`
   - 28 passing tests
-- 2026-01-05: Initial project setup with constitution and CLAUDE.md
 
 ## Additional Resources
 
+### Project Documentation
+- [UIDESC_GUIDE.md](UIDESC_GUIDE.md) - **CRITICAL**: Complete VSTGUI UIDescription format reference
+- [vstgui-uidesc.schema.json](vstgui-uidesc.schema.json) - JSON Schema for validation
+
+### External Documentation
 - [SolidJS Documentation](https://www.solidjs.com/docs)
 - [SolidJS Router](https://docs.solidjs.com/solid-router)
 - [Vitest Documentation](https://vitest.dev/)
 - [Vite Documentation](https://vite.dev/)
-- [VSTGUI Documentation](https://steinbergmedia.github.io/vstgui/)
+- [VSTGUI Official Documentation](https://steinbergmedia.github.io/vst3_doc/vstgui/html/index.html)
+- [VSTGUI GitHub Repository](https://github.com/steinbergmedia/vstgui)
+- [VST3 Developer Portal](https://steinbergmedia.github.io/vst3_dev_portal/)
 
 ---
 
