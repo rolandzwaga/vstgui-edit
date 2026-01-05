@@ -38,11 +38,23 @@ export function xmlToJson(doc: Document): XmlToJsonResult {
     const tagName = child.tagName.toLowerCase();
 
     switch (tagName) {
+      // Individual color element (legacy format)
       case 'color':
         if (!uidesc.colors) uidesc.colors = {};
         processColor(child, uidesc.colors, pathMap);
         break;
 
+      // Colors container element
+      case 'colors':
+        if (!uidesc.colors) uidesc.colors = {};
+        for (const colorChild of Array.from(child.children)) {
+          if (colorChild.tagName.toLowerCase() === 'color') {
+            processColor(colorChild, uidesc.colors, pathMap);
+          }
+        }
+        break;
+
+      // Individual font element (legacy format)
       case 'font':
         if (!uidesc.fonts) uidesc.fonts = {};
         processFont(
@@ -52,6 +64,21 @@ export function xmlToJson(doc: Document): XmlToJsonResult {
         );
         break;
 
+      // Fonts container element
+      case 'fonts':
+        if (!uidesc.fonts) uidesc.fonts = {};
+        for (const fontChild of Array.from(child.children)) {
+          if (fontChild.tagName.toLowerCase() === 'font') {
+            processFont(
+              fontChild,
+              uidesc.fonts as unknown as Record<string, Record<string, string>>,
+              pathMap
+            );
+          }
+        }
+        break;
+
+      // Individual bitmap element (legacy format)
       case 'bitmap':
         if (!uidesc.bitmaps) uidesc.bitmaps = {};
         processBitmap(
@@ -61,9 +88,34 @@ export function xmlToJson(doc: Document): XmlToJsonResult {
         );
         break;
 
+      // Bitmaps container element
+      case 'bitmaps':
+        if (!uidesc.bitmaps) uidesc.bitmaps = {};
+        for (const bitmapChild of Array.from(child.children)) {
+          if (bitmapChild.tagName.toLowerCase() === 'bitmap') {
+            processBitmap(
+              bitmapChild,
+              uidesc.bitmaps as unknown as Record<string, Record<string, string>>,
+              pathMap
+            );
+          }
+        }
+        break;
+
+      // Individual gradient element (legacy format)
       case 'gradient':
         if (!uidesc.gradients) uidesc.gradients = {};
         processGradient(child, uidesc.gradients, pathMap);
+        break;
+
+      // Gradients container element
+      case 'gradients':
+        if (!uidesc.gradients) uidesc.gradients = {};
+        for (const gradientChild of Array.from(child.children)) {
+          if (gradientChild.tagName.toLowerCase() === 'gradient') {
+            processGradient(gradientChild, uidesc.gradients, pathMap);
+          }
+        }
         break;
 
       case 'control-tags':
@@ -71,14 +123,36 @@ export function xmlToJson(doc: Document): XmlToJsonResult {
         processControlTags(child, uidesc['control-tags'], pathMap);
         break;
 
+      // Individual variable element (legacy format)
       case 'variable':
         if (!uidesc.variables) uidesc.variables = {};
         processVariable(child, uidesc.variables, pathMap);
         break;
 
+      // Variables container element
+      case 'variables':
+        if (!uidesc.variables) uidesc.variables = {};
+        for (const varChild of Array.from(child.children)) {
+          if (varChild.tagName.toLowerCase() === 'variable') {
+            processVariable(varChild, uidesc.variables, pathMap);
+          }
+        }
+        break;
+
+      // Individual template element (legacy format)
       case 'template':
         if (!uidesc.templates) uidesc.templates = {};
         processTemplate(child, uidesc.templates, pathMap);
+        break;
+
+      // Templates container element
+      case 'templates':
+        if (!uidesc.templates) uidesc.templates = {};
+        for (const templateChild of Array.from(child.children)) {
+          if (templateChild.tagName.toLowerCase() === 'template') {
+            processTemplate(templateChild, uidesc.templates, pathMap);
+          }
+        }
         break;
     }
   }

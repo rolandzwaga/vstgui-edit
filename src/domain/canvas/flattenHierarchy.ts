@@ -67,7 +67,9 @@ function resolveFontSize(
   fontRef: string | undefined,
   fonts: FontsDefinition | undefined
 ): number | undefined {
-  if (!fontRef || !fonts?.[fontRef]) return undefined;
+  if (!fontRef || !fonts?.[fontRef]) {
+    return undefined;
+  }
 
   const fontDef = fonts[fontRef];
   const size = Number.parseFloat(fontDef.size);

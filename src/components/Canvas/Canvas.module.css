@@ -63,15 +63,6 @@
   stroke: var(--color-category-custom-stroke);
 }
 
-/* View title text (for CTextLabel, etc.) */
-.viewTitle {
-  font-family: var(--font-family-base);
-  font-size: 10px;
-  fill: var(--color-text-primary);
-  pointer-events: none;
-  user-select: none;
-}
-
 /* Legend container */
 .legend {
   display: flex;

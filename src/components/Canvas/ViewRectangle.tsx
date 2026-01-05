@@ -25,20 +25,6 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     return Math.min(fontSize + 2, props.view.height - 2);
   };
 
-  /**
-   * Builds inline styles for the title text based on resolved font properties.
-   */
-  const titleStyle = () => {
-    const style: Record<string, string> = {};
-    if (props.view.fontSize) {
-      style['font-size'] = `${props.view.fontSize}px`;
-    }
-    if (props.view.fontColor) {
-      style.fill = props.view.fontColor;
-    }
-    return style;
-  };
-
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
       <rect
@@ -50,10 +36,11 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
       />
       <Show when={props.view.title}>
         <text
-          class={styles.viewTitle}
           x={props.view.absoluteX + TITLE_PADDING_X}
           y={props.view.absoluteY + titleOffsetY()}
-          style={titleStyle()}
+          font-size={String(props.view.fontSize ?? 10)}
+          fill={props.view.fontColor ?? 'var(--color-text-primary)'}
+          pointer-events="none"
         >
           {props.view.title}
         </text>

@@ -154,6 +154,79 @@ describe('ViewRectangle', () => {
       const textX = Number(text?.getAttribute('x'));
       expect(textX).toBeGreaterThanOrEqual(100);
     });
+
+    it('should apply fontSize as SVG attribute when provided', () => {
+      const view = createMockView({
+        title: 'Test',
+        fontSize: 16,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toHaveAttribute('font-size', '16');
+    });
+
+    it('should use default fontSize of 10 when not provided', () => {
+      const view = createMockView({
+        title: 'Test',
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toHaveAttribute('font-size', '10');
+    });
+
+    it('should apply fontColor as fill attribute when provided', () => {
+      const view = createMockView({
+        title: 'Test',
+        fontColor: '#FF0000',
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toHaveAttribute('fill', '#FF0000');
+    });
+
+    it('should apply both fontSize and fontColor when both provided', () => {
+      const view = createMockView({
+        title: 'Test',
+        fontSize: 14,
+        fontColor: 'rgba(0, 0, 255, 0.50)',
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const text = group.querySelector('text');
+
+      expect(text).toHaveAttribute('font-size', '14');
+      expect(text).toHaveAttribute('fill', 'rgba(0, 0, 255, 0.50)');
+    });
   });
 
   describe('Given views with different categories (US4 - category coloring)', () => {
