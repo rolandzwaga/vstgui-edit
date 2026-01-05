@@ -1,6 +1,6 @@
 # VSGUI-Edit Project Constitution
 
-**Version**: 1.1.0
+**Version**: 1.3.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for the VSGUI-Edit project
 
 ---
@@ -152,6 +152,12 @@ Testing is comprehensive and mandatory:
 - **Coverage Threshold**: Minimum 80% code coverage for business logic
 - **Test Naming**: Use descriptive names (Given-When-Then format preferred)
 - **Test Location**: Co-located in a directory named `__tests__` with source files (e.g., `Component.tsx` and `__tests__\Component.spec.tsx`)
+
+**Testing Guide Requirement (MANDATORY)**:
+- **BEFORE writing any test**: Verify `specs/TESTING-GUIDE.md` is loaded in context
+- The testing guide contains SolidJS-specific patterns (microtask flushing, testInRoot, etc.)
+- Failure to follow guide patterns causes subtle test failures and flaky tests
+- Every task involving unit tests MUST include explicit verification step
 
 **Coverage Verification (MANDATORY)**:
 - **AFTER spec completion**: Run `npx vitest run --coverage`
@@ -436,7 +442,27 @@ import type { Component, JSX } from 'solid-js';
 
 **Rationale**: Failing tests indicate broken functionality. Every spec is delivered with clean, passing test suite.
 
-### XIX. Technical Overview Reference (NON-NEGOTIABLE)
+### XIX. Domain Knowledge - VSTGUI UIDescription Format (CRITICAL)
+
+**CRITICAL**: This project is a visual editor for VSTGUI `.uidesc` files. Understanding the uidesc format is ESSENTIAL.
+
+**Mandatory Reference**:
+- **BEFORE any uidesc-related work**: Consult `UIDESC_GUIDE.md`
+- **BEFORE parsing/validation changes**: Understand the complete schema
+- **BEFORE UI feature design**: Know the view hierarchy and attributes
+
+**Key Concepts to Understand**:
+1. **File Format**: JSON (preferred) and XML (deprecated) formats
+2. **Resource Definitions**: Colors, fonts, bitmaps, gradients, control-tags, variables
+3. **View Hierarchy**: CView → CViewContainer → Templates
+4. **Control Types**: All 30+ view classes and their specific attributes
+5. **VST3 Integration**: Control tags, parameter binding, automation
+
+**Schema File**: `vstgui-uidesc.schema.json` - JSON Schema for validation
+
+**Rationale**: This editor must correctly parse, validate, display, and edit uidesc files. Misunderstanding the format leads to data corruption and invalid output.
+
+### XX. Technical Overview Reference (NON-NEGOTIABLE)
 
 **CRITICAL**: ALWAYS consult technical documentation before creating specs/plans/tasks.
 
@@ -595,6 +621,6 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.3.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-05 (v1.1.0: Enhanced SolidJS-only requirements with zero-tolerance policy)
+**Last Amended**: 2026-01-05 (v1.3.0: Added Testing Guide requirement for all test tasks)

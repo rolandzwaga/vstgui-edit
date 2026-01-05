@@ -121,6 +121,22 @@
   --z-sticky: 200;
   --z-modal: 300;
   --z-tooltip: 400;
+
+  /* Canvas Category Colors */
+  --color-category-container-fill: rgba(59, 130, 246, 0.1);
+  --color-category-container-stroke: #3b82f6;
+  --color-category-control-fill: rgba(34, 197, 94, 0.1);
+  --color-category-control-stroke: #22c55e;
+  --color-category-display-fill: rgba(168, 85, 247, 0.1);
+  --color-category-display-stroke: #a855f7;
+  --color-category-custom-fill: rgba(107, 114, 128, 0.1);
+  --color-category-custom-stroke: #6b7280;
+
+  /* Template Bounds */
+  --color-template-bounds: #374151;
+
+  /* Canvas Background */
+  --color-canvas-background: #f9fafb;
 }
 
 /* Global Reset & Base Styles */

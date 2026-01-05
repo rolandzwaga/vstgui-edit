@@ -35,6 +35,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - In-memory SolidJS store for document state (001-uidesc-upload)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev) (002-uidesc-parsing)
 - In-memory SolidJS store (extends existing documentStore from 001-uidesc-upload) (002-uidesc-parsing)
+- TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required) (003-canvas-rendering)
+- N/A (reads from existing documentStore) (003-canvas-rendering)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -50,9 +52,24 @@ VSGUI-Edit is a visual editor for VSTGUI UI description files (`.uidesc`). VSTGU
 
 ### Domain Context
 
-- **uidesc files**: XML-based UI descriptions defining views, controls, colors, fonts, bitmaps
+- **uidesc files**: JSON/XML UI descriptions defining views, controls, colors, fonts, bitmaps
 - **Target users**: Audio plugin developers
 - **Key operations**: Load, visualize, edit, and save uidesc files
+
+### Essential Domain Reference
+
+**CRITICAL**: Before working on any uidesc-related functionality, consult:
+
+- **[UIDESC_GUIDE.md](UIDESC_GUIDE.md)** - Comprehensive guide to the VSTGUI UIDescription format
+- **[vstgui-uidesc.schema.json](vstgui-uidesc.schema.json)** - JSON Schema for validation
+
+The UIDESC_GUIDE.md covers:
+- File format (JSON preferred, XML deprecated)
+- All resource definitions (colors, fonts, bitmaps, gradients, control-tags, variables)
+- Complete view hierarchy and all 30+ view classes
+- Attribute reference for every view type
+- VST3 integration and parameter binding
+- Best practices for uidesc file design
 
 ## Project Structure
 
@@ -232,6 +249,88 @@ interface ValidationError {
 type ParseResult =
   | { success: true; document: VSTGUIUIDescription; format: FormatType }
   | { success: false; errors: ValidationError[]; format: FormatType };
+```
+
+### Canvas Domain Module (`src/domain/canvas/`)
+
+Renderer-agnostic utilities for transforming uidesc view data into renderable structures:
+
+- `parsePoint(origin: string | undefined)` - Parse "x, y" origin string to Point
+- `parseSize(size: string | undefined)` - Parse "w, h" size string to Size
+- `flattenHierarchy(root, rootId?)` - Flatten view tree to RenderableView array
+- `formatLabel(className, category?)` - Format view class name for display
+- `getViewCategory(className)` - Classify view by category (container/control/display/custom)
+
+```typescript
+import {
+  parsePoint,
+  parseSize,
+  flattenHierarchy,
+  formatLabel,
+  getViewCategory,
+} from './domain/canvas';
+
+// Parse coordinate strings
+const point = parsePoint('50, 100'); // { x: 50, y: 100 }
+const size = parseSize('200, 80');   // { width: 200, height: 80 }
+
+// Flatten view hierarchy for rendering
+const views = flattenHierarchy(templateView, 'MainView');
+// Returns: RenderableView[] with absoluteX, absoluteY, zIndex
+
+// Format labels with [Custom] indicator
+formatLabel('CTextButton', 'control');    // 'CTextButton'
+formatLabel('MyCustomView', 'custom');    // 'MyCustomView [Custom]'
+
+// Classify views by category
+getViewCategory('CViewContainer'); // 'container'
+getViewCategory('CTextButton');    // 'control'
+getViewCategory('CTextLabel');     // 'display'
+getViewCategory('UnknownClass');   // 'custom'
+```
+
+### Canvas Types (`src/types/canvas.ts`)
+
+```typescript
+type ViewCategory = 'container' | 'control' | 'display' | 'custom';
+
+interface Point { x: number; y: number; }
+interface Size { width: number; height: number; }
+
+interface RenderableView {
+  id: string;
+  absoluteX: number;
+  absoluteY: number;
+  width: number;
+  height: number;
+  label: string;
+  category: ViewCategory;
+  zIndex: number;
+}
+
+interface TemplateBounds { width: number; height: number; }
+```
+
+### Canvas Components (`src/components/Canvas/`)
+
+SVG-based canvas for rendering uidesc templates:
+
+- `Canvas` - Main canvas component, integrates with documentStore
+- `ViewRectangle` - Renders individual view as SVG rect with label
+- `TemplateBounds` - Renders template boundary indicator (dashed border)
+- `EmptyState` - Displays when no template is loaded
+
+```typescript
+import { Canvas, ViewRectangle, TemplateBounds, EmptyState } from './components/Canvas';
+
+// Canvas reads from documentStore and renders automatically
+<Canvas />
+
+// ViewRectangle for custom rendering
+<ViewRectangle view={renderableView} />
+
+// TemplateBounds for template border
+<TemplateBounds bounds={{ width: 400, height: 300 }} />
 ```
 
 ### File Utilities (Future)
@@ -430,20 +529,53 @@ VITE_APP_TITLE=VSGUI-Edit
 VITE_DEBUG_MODE=false
 ```
 
-## VSTGUI uidesc Schema
+## VSTGUI uidesc Format Reference
 
-Reference schema files in project root:
-- `vstgui-uidesc.schema.json` - JSON Schema for validation
-- `vstgui-uidesc.xsd` - XML Schema Definition
+> **Full documentation**: See [UIDESC_GUIDE.md](UIDESC_GUIDE.md) for comprehensive format reference.
 
-### Key uidesc Elements
+### Reference Files
 
-- **views**: UI view hierarchy (CViewContainer, CControl, etc.)
-- **colors**: Named color definitions
-- **fonts**: Named font definitions
-- **bitmaps**: Image resource references
-- **gradients**: Gradient definitions
-- **control-tags**: Control identifier mappings
+- `vstgui-uidesc.schema.json` - JSON Schema for validation (used by parser)
+- `UIDESC_GUIDE.md` - Complete format documentation
+
+### Document Structure (JSON)
+
+```json
+{
+  "vstgui-ui-description": {
+    "version": "1",
+    "colors": { /* named color definitions */ },
+    "fonts": { /* named font definitions */ },
+    "bitmaps": { /* image resource references */ },
+    "gradients": { /* gradient definitions */ },
+    "control-tags": { /* parameter ID mappings */ },
+    "variables": { /* reusable values */ },
+    "templates": { /* view definitions */ },
+    "custom": { /* editor metadata */ }
+  }
+}
+```
+
+### Key View Classes
+
+| Category | Classes |
+|----------|---------|
+| Containers | CViewContainer, CScrollView, CRowColumnView, UIViewSwitchContainer |
+| Buttons | COnOffButton, CTextButton, CKickButton, CCheckBox |
+| Knobs | CKnob, CAnimKnob |
+| Sliders | CSlider, CVerticalSwitch, CHorizontalSwitch |
+| Text | CTextLabel, CTextEdit, CParamDisplay |
+| Special | CVuMeter, COptionMenu, CGradientView, CXYPad |
+
+### Value Formats
+
+| Type | Format | Example |
+|------|--------|---------|
+| Color | Hex RGBA | `#FF5500FF` |
+| Point | "x, y" | `"10, 20"` |
+| Size | "w, h" | `"100, 50"` |
+| Boolean | String | `"true"` or `"false"` |
+| Autosize | Flags | `"left right top"` |
 
 ## Common Patterns
 
@@ -507,10 +639,19 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 003-canvas-rendering: Added TypeScript 5.9.3 with strict mode + SolidJS 1.9.10 (no additional dependencies required)
 - 002-uidesc-parsing: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, AJV 8.17.1 (already installed), json-schema-to-typescript (dev)
 
 **[Track feature additions here]**
 
+- 2026-01-05: Implemented 003-canvas-rendering feature
+  - Canvas component with SVG rendering for uidesc templates
+  - Recursive view hierarchy flattening with absolute position calculation
+  - View labels with class names and [Custom] indicator
+  - Category-based color coding (container/control/display/custom)
+  - Template bounds indicator with dashed border
+  - Z-ordering via DOM order (parents before children)
+  - 275 passing tests (108 new canvas tests + 167 existing)
 - 2026-01-05: Implemented 002-uidesc-parsing feature
   - Auto-detect JSON/XML format from file content
   - JSON Schema validation with AJV (allErrors mode, strict)
@@ -523,15 +664,21 @@ class SetPropertyCommand implements Command {
   - documentStore for global state management
   - Design tokens in `src/styles/tokens.css`
   - 28 passing tests
-- 2026-01-05: Initial project setup with constitution and CLAUDE.md
 
 ## Additional Resources
 
+### Project Documentation
+- [UIDESC_GUIDE.md](UIDESC_GUIDE.md) - **CRITICAL**: Complete VSTGUI UIDescription format reference
+- [vstgui-uidesc.schema.json](vstgui-uidesc.schema.json) - JSON Schema for validation
+
+### External Documentation
 - [SolidJS Documentation](https://www.solidjs.com/docs)
 - [SolidJS Router](https://docs.solidjs.com/solid-router)
 - [Vitest Documentation](https://vitest.dev/)
 - [Vite Documentation](https://vite.dev/)
-- [VSTGUI Documentation](https://steinbergmedia.github.io/vstgui/)
+- [VSTGUI Official Documentation](https://steinbergmedia.github.io/vst3_doc/vstgui/html/index.html)
+- [VSTGUI GitHub Repository](https://github.com/steinbergmedia/vstgui)
+- [VST3 Developer Portal](https://steinbergmedia.github.io/vst3_dev_portal/)
 
 ---
 

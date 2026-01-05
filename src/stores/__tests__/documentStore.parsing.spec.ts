@@ -1,12 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { createMockUidescFile } from '../../__tests__/helpers/fixtures';
 import { documentStore, loadFile, reset } from '../documentStore';
-
-/**
- * Creates a mock File object for testing
- */
-function createMockFile(content: string, name = 'test.uidesc'): File {
-  return new File([content], name, { type: 'text/plain' });
-}
 
 describe('documentStore parsing integration', () => {
   beforeEach(() => {
@@ -38,7 +32,7 @@ describe('documentStore parsing integration', () => {
           version: '1',
         },
       });
-      const file = createMockFile(validJson);
+      const file = createMockUidescFile(validJson);
 
       await loadFile(file);
 
@@ -56,7 +50,7 @@ describe('documentStore parsing integration', () => {
           unknownProperty: 'value',
         },
       });
-      const file = createMockFile(invalidJson);
+      const file = createMockUidescFile(invalidJson);
 
       await loadFile(file);
 
@@ -69,7 +63,7 @@ describe('documentStore parsing integration', () => {
 
     it('should set parseState to invalid for malformed JSON', async () => {
       const malformedJson = '{ invalid json }';
-      const file = createMockFile(malformedJson);
+      const file = createMockUidescFile(malformedJson);
 
       await loadFile(file);
 
@@ -81,7 +75,7 @@ describe('documentStore parsing integration', () => {
 
     it('should set parseState to invalid for unknown format', async () => {
       const unknownFormat = 'hello world';
-      const file = createMockFile(unknownFormat);
+      const file = createMockUidescFile(unknownFormat);
 
       await loadFile(file);
 
@@ -103,7 +97,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 
@@ -125,7 +119,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 
@@ -146,7 +140,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 
@@ -179,7 +173,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 
@@ -194,7 +188,7 @@ describe('documentStore parsing integration', () => {
       const validJson = JSON.stringify({
         'vstgui-ui-description': { version: '1' },
       });
-      const file = createMockFile(validJson);
+      const file = createMockUidescFile(validJson);
 
       await loadFile(file);
       expect(documentStore.parseState).toBe('valid');
@@ -219,7 +213,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 
@@ -236,7 +230,7 @@ describe('documentStore parsing integration', () => {
           },
         },
       });
-      const file = createMockFile(json);
+      const file = createMockUidescFile(json);
 
       await loadFile(file);
 

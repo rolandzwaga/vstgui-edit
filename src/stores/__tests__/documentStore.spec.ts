@@ -1,10 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  documentStore,
-  loadFile,
-  reset,
-  setDragging,
-} from '../documentStore';
+import { createMockUidescFile } from '../../__tests__/helpers/fixtures';
+import { documentStore, loadFile, reset, setDragging } from '../documentStore';
 
 describe('documentStore', () => {
   beforeEach(() => {
@@ -23,7 +19,7 @@ describe('documentStore', () => {
   describe('loadFile', () => {
     it('should read file and store raw string content', async () => {
       const content = '<?xml version="1.0"?><root/>';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
 
       await loadFile(file);
 
@@ -32,7 +28,7 @@ describe('documentStore', () => {
 
     it('should set metadata with filename, fileSize, and loadedAt', async () => {
       const content = 'test content';
-      const file = new File([content], 'myfile.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content, 'myfile.uidesc');
 
       await loadFile(file);
 
@@ -45,7 +41,7 @@ describe('documentStore', () => {
     it('should transition through loading → success states', async () => {
       const states: string[] = [];
       const content = 'test content';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
 
       // We'll track state changes by checking before and after
       expect(documentStore.uploadState).toBe('idle');
@@ -90,7 +86,7 @@ describe('documentStore', () => {
 
     it('should handle case-insensitive .uidesc extension', async () => {
       const content = 'test content';
-      const file = new File([content], 'Test.UIDESC', { type: 'text/plain' });
+      const file = createMockUidescFile(content, 'Test.UIDESC');
 
       await loadFile(file);
 
@@ -102,7 +98,7 @@ describe('documentStore', () => {
   describe('reset', () => {
     it('should clear content and return to idle', async () => {
       const content = 'test content';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
       await loadFile(file);
 
       expect(documentStore.content).not.toBeNull();
@@ -132,7 +128,7 @@ describe('documentStore', () => {
 
     it('should not change state from success when setDragging(false)', async () => {
       const content = 'test content';
-      const file = new File([content], 'test.uidesc', { type: 'text/plain' });
+      const file = createMockUidescFile(content);
       await loadFile(file);
 
       expect(documentStore.uploadState).toBe('success');
