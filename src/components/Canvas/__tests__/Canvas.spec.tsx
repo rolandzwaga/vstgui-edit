@@ -451,7 +451,7 @@ describe('Canvas', () => {
     });
   });
 
-  describe('Given canvas with content (US2 - Space+Drag Pan)', () => {
+  describe('Given canvas with content (US2 - Ctrl+Drag Pan)', () => {
     beforeEach(() => {
       resetPan();
       mockDocumentStore.document = {
@@ -470,54 +470,32 @@ describe('Canvas', () => {
       };
     });
 
-    it('should initiate pan mode when Space held and left mouse button pressed (button=0)', () => {
+    it('should initiate pan mode when Ctrl held and left mouse button pressed (button=0)', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Focus the canvas wrapper so it receives keyboard events
-      wrapper.focus();
-      // Press Space key
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      // Left-click while Space held
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      // Ctrl+left-click
+      fireEvent.mouseDown(wrapper, { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
 
       expect(canvasStore.isPanning).toBe(true);
       expect(canvasStore.panStart).toEqual({ x: 100, y: 100 });
     });
 
-    it('should update panOffset when dragging with Space held', () => {
+    it('should update panOffset when dragging with Ctrl held', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      wrapper.focus();
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseDown(wrapper, { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 150, clientY: 130 });
 
       expect(canvasStore.panOffset).toEqual({ x: 50, y: 30 });
     });
 
-    it('should end pan gesture when Space key released during pan', () => {
+    it('should end pan gesture when mouse released during Ctrl+drag', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      wrapper.focus();
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
-      fireEvent.mouseMove(document, { clientX: 150, clientY: 150 });
-      fireEvent.keyUp(document, { key: ' ', code: 'Space' });
-
-      expect(canvasStore.isPanning).toBe(false);
-      expect(canvasStore.panOffset).toEqual({ x: 50, y: 50 }); // Offset preserved
-    });
-
-    it('should end pan gesture when mouse released during Space+drag', () => {
-      render(() => <Canvas />);
-      const wrapper = screen.getByTestId('canvas-wrapper');
-
-      wrapper.focus();
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseDown(wrapper, { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
       fireEvent.mouseUp(document);
 
@@ -525,48 +503,26 @@ describe('Canvas', () => {
       expect(canvasStore.panOffset).toEqual({ x: 100, y: 100 }); // Offset preserved
     });
 
-    it('should NOT initiate pan when left-click without Space held', () => {
+    it('should NOT initiate pan when left-click without Ctrl held', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // No Space key pressed
+      // No Ctrl key pressed
       fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
 
       expect(canvasStore.isPanning).toBe(false);
     });
 
-    it('should prevent default Space behavior (page scroll) when Space pressed over canvas', () => {
+    it('should ignore Ctrl+drag if middle-mouse pan is already in progress', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Focus the canvas wrapper so it receives keyboard events
-      wrapper.focus();
-
-      const event = new KeyboardEvent('keydown', {
-        key: ' ',
-        code: 'Space',
-        bubbles: true,
-        cancelable: true,
-      });
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-
-      document.dispatchEvent(event);
-
-      expect(preventDefaultSpy).toHaveBeenCalled();
-    });
-
-    it('should ignore Space+drag if middle-mouse pan is already in progress', () => {
-      render(() => <Canvas />);
-      const wrapper = screen.getByTestId('canvas-wrapper');
-
-      wrapper.focus();
       // Start middle-mouse pan
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
       expect(canvasStore.isPanning).toBe(true);
 
-      // Now try Space+left-click while already panning
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 200, clientY: 200 });
+      // Now try Ctrl+left-click while already panning
+      fireEvent.mouseDown(wrapper, { button: 0, ctrlKey: true, clientX: 200, clientY: 200 });
 
       // Pan start should NOT change to the new position
       // (it was already panning from middle-mouse)
@@ -593,21 +549,7 @@ describe('Canvas', () => {
       };
     });
 
-    it('should apply grab cursor class when Space is held', () => {
-      render(() => <Canvas />);
-      const wrapper = screen.getByTestId('canvas-wrapper');
-
-      // Focus the canvas wrapper so it receives keyboard events
-      wrapper.focus();
-      // Press Space key
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-
-      // Check for grab cursor class using imported CSS Module styles
-      expect(wrapper.classList.contains(styles.grab)).toBe(true);
-      expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
-    });
-
-    it('should apply grabbing cursor class when panning is active', () => {
+    it('should apply grabbing cursor class when panning via middle-mouse', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
@@ -618,17 +560,14 @@ describe('Canvas', () => {
       expect(wrapper.classList.contains(styles.grabbing)).toBe(true);
     });
 
-    it('should apply grabbing cursor class during Space+drag pan', () => {
+    it('should apply grabbing cursor class during Ctrl+drag pan', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Focus so Space key is captured
-      wrapper.focus();
-      // Space+left-click to pan
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
+      // Ctrl+left-click to pan
+      fireEvent.mouseDown(wrapper, { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
 
-      // Check for grabbing cursor class (should override grab)
+      // Check for grabbing cursor class
       expect(wrapper.classList.contains(styles.grabbing)).toBe(true);
     });
 
@@ -640,24 +579,7 @@ describe('Canvas', () => {
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
       fireEvent.mouseUp(document);
 
-      // No grab or grabbing class
-      expect(wrapper.classList.contains(styles.grab)).toBe(false);
-      expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
-    });
-
-    it('should return to grab cursor when Space+drag pan ends but Space still held', () => {
-      render(() => <Canvas />);
-      const wrapper = screen.getByTestId('canvas-wrapper');
-
-      // Focus so Space key is captured
-      wrapper.focus();
-      // Space held + pan
-      fireEvent.keyDown(document, { key: ' ', code: 'Space' });
-      fireEvent.mouseDown(wrapper, { button: 0, clientX: 100, clientY: 100 });
-      fireEvent.mouseUp(document);
-
-      // Should have grab cursor (Space still held), not grabbing
-      expect(wrapper.classList.contains(styles.grab)).toBe(true);
+      // No grabbing class
       expect(wrapper.classList.contains(styles.grabbing)).toBe(false);
     });
   });

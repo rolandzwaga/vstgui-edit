@@ -1,4 +1,4 @@
-import { type Component, createMemo, createSignal, For, onCleanup, Show, onMount } from 'solid-js';
+import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import { canvasStore, startPan, updatePan, endPan } from '../../stores/canvasStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
@@ -83,19 +83,8 @@ export const Canvas: Component = () => {
   const isEmpty = () => firstTemplate() === null;
 
   /**
-   * Track whether Space key is held for Space+drag pan.
-   */
-  const [spaceHeld, setSpaceHeld] = createSignal(false);
-
-  /**
-   * Ref to canvas wrapper for focus checking.
-   * Space+drag only activates when canvas has focus.
-   */
-  let canvasWrapperRef: HTMLDivElement | undefined;
-
-  /**
    * Handle mouse down for pan initiation.
-   * Middle mouse button (button=1) or Space+left-click (button=0) starts panning.
+   * Middle mouse button (button=1) or Ctrl+left-click (button=0) starts panning.
    */
   const handleMouseDown = (e: MouseEvent) => {
     // Don't start new pan if already panning
@@ -104,8 +93,8 @@ export const Canvas: Component = () => {
     }
 
     // Middle mouse button = button 1
-    // Or Space held + left mouse button = button 0
-    if (e.button === 1 || (e.button === 0 && spaceHeld())) {
+    // Or Ctrl held + left mouse button = button 0
+    if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
       e.preventDefault(); // Prevent browser auto-scroll
       startPan(e.clientX, e.clientY);
 
@@ -132,47 +121,10 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
-  /**
-   * Handle keydown for Space key detection.
-   * Only captures Space when canvas wrapper has focus or contains active element.
-   */
-  const handleKeyDown = (e: KeyboardEvent) => {
-    // Only capture Space when canvas area has focus
-    if (!canvasWrapperRef?.contains(document.activeElement) && document.activeElement !== canvasWrapperRef) {
-      return;
-    }
-    if (e.code === 'Space' || e.key === ' ') {
-      e.preventDefault(); // Prevent page scroll
-      setSpaceHeld(true);
-    }
-  };
-
-  /**
-   * Handle keyup to detect Space release.
-   * Ends pan if Space released during panning.
-   */
-  const handleKeyUp = (e: KeyboardEvent) => {
-    if (e.code === 'Space' || e.key === ' ') {
-      setSpaceHeld(false);
-      // End pan if Space released during panning
-      if (canvasStore.isPanning) {
-        endPan();
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      }
-    }
-  };
-
-  // Add document-level keyboard listeners
-  document.addEventListener('keydown', handleKeyDown);
-  document.addEventListener('keyup', handleKeyUp);
-
   // Clean up listeners on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
-    document.removeEventListener('keydown', handleKeyDown);
-    document.removeEventListener('keyup', handleKeyUp);
   });
 
   return (
@@ -182,14 +134,11 @@ export const Canvas: Component = () => {
     >
       <div>
         <div
-          ref={canvasWrapperRef}
           class={styles.canvasWrapper}
           classList={{
-            [styles.grab]: spaceHeld() && !canvasStore.isPanning,
             [styles.grabbing]: canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
-          tabindex="0"
           onMouseDown={handleMouseDown}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
