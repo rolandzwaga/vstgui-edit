@@ -10,10 +10,15 @@ export { parsePoint, parseSize } from './coordinates';
 
 // Hierarchy flattening
 export { flattenHierarchy } from './flattenHierarchy';
-
+// Grid utilities
+export {
+  calculateLineCount,
+  getPatternId,
+  isMajorLine,
+  isValidGridSize,
+} from './grid';
 // Label formatting
 export { formatLabel } from './labelFormat';
-
 // View category classification
 export {
   CONTAINER_CLASSES,

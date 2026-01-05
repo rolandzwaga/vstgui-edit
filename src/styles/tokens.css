@@ -137,6 +137,18 @@
 
   /* Canvas Background */
   --color-canvas-background: #f9fafb;
+
+  /* Grid Colors - Light theme */
+  --color-grid-minor: rgba(0, 0, 0, 0.08);
+  --color-grid-major: rgba(0, 0, 0, 0.20);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Grid Colors - Dark theme */
+    --color-grid-minor: rgba(255, 255, 255, 0.08);
+    --color-grid-major: rgba(255, 255, 255, 0.20);
+  }
 }
 
 /* Global Reset & Base Styles */
