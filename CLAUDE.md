@@ -251,6 +251,88 @@ type ParseResult =
   | { success: false; errors: ValidationError[]; format: FormatType };
 ```
 
+### Canvas Domain Module (`src/domain/canvas/`)
+
+Renderer-agnostic utilities for transforming uidesc view data into renderable structures:
+
+- `parsePoint(origin: string | undefined)` - Parse "x, y" origin string to Point
+- `parseSize(size: string | undefined)` - Parse "w, h" size string to Size
+- `flattenHierarchy(root, rootId?)` - Flatten view tree to RenderableView array
+- `formatLabel(className, category?)` - Format view class name for display
+- `getViewCategory(className)` - Classify view by category (container/control/display/custom)
+
+```typescript
+import {
+  parsePoint,
+  parseSize,
+  flattenHierarchy,
+  formatLabel,
+  getViewCategory,
+} from './domain/canvas';
+
+// Parse coordinate strings
+const point = parsePoint('50, 100'); // { x: 50, y: 100 }
+const size = parseSize('200, 80');   // { width: 200, height: 80 }
+
+// Flatten view hierarchy for rendering
+const views = flattenHierarchy(templateView, 'MainView');
+// Returns: RenderableView[] with absoluteX, absoluteY, zIndex
+
+// Format labels with [Custom] indicator
+formatLabel('CTextButton', 'control');    // 'CTextButton'
+formatLabel('MyCustomView', 'custom');    // 'MyCustomView [Custom]'
+
+// Classify views by category
+getViewCategory('CViewContainer'); // 'container'
+getViewCategory('CTextButton');    // 'control'
+getViewCategory('CTextLabel');     // 'display'
+getViewCategory('UnknownClass');   // 'custom'
+```
+
+### Canvas Types (`src/types/canvas.ts`)
+
+```typescript
+type ViewCategory = 'container' | 'control' | 'display' | 'custom';
+
+interface Point { x: number; y: number; }
+interface Size { width: number; height: number; }
+
+interface RenderableView {
+  id: string;
+  absoluteX: number;
+  absoluteY: number;
+  width: number;
+  height: number;
+  label: string;
+  category: ViewCategory;
+  zIndex: number;
+}
+
+interface TemplateBounds { width: number; height: number; }
+```
+
+### Canvas Components (`src/components/Canvas/`)
+
+SVG-based canvas for rendering uidesc templates:
+
+- `Canvas` - Main canvas component, integrates with documentStore
+- `ViewRectangle` - Renders individual view as SVG rect with label
+- `TemplateBounds` - Renders template boundary indicator (dashed border)
+- `EmptyState` - Displays when no template is loaded
+
+```typescript
+import { Canvas, ViewRectangle, TemplateBounds, EmptyState } from './components/Canvas';
+
+// Canvas reads from documentStore and renders automatically
+<Canvas />
+
+// ViewRectangle for custom rendering
+<ViewRectangle view={renderableView} />
+
+// TemplateBounds for template border
+<TemplateBounds bounds={{ width: 400, height: 300 }} />
+```
+
 ### File Utilities (Future)
 
 - `readFile(path: string)` - Read file contents
@@ -562,6 +644,14 @@ class SetPropertyCommand implements Command {
 
 **[Track feature additions here]**
 
+- 2026-01-05: Implemented 003-canvas-rendering feature
+  - Canvas component with SVG rendering for uidesc templates
+  - Recursive view hierarchy flattening with absolute position calculation
+  - View labels with class names and [Custom] indicator
+  - Category-based color coding (container/control/display/custom)
+  - Template bounds indicator with dashed border
+  - Z-ordering via DOM order (parents before children)
+  - 275 passing tests (108 new canvas tests + 167 existing)
 - 2026-01-05: Implemented 002-uidesc-parsing feature
   - Auto-detect JSON/XML format from file content
   - JSON Schema validation with AJV (allErrors mode, strict)
@@ -569,6 +659,7 @@ class SetPropertyCommand implements Command {
   - Path mapping for XML error locations
   - Auto-parse on successful file upload
   - 149 passing tests (121 new + 28 existing)
+- 2026-01-05: Implemented 001-uidesc-upload feature
   - UploadZone component with drag-drop and file selector
   - documentStore for global state management
   - Design tokens in `src/styles/tokens.css`
