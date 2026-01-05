@@ -1,0 +1,522 @@
+# VSGUI-Edit Project Constitution
+
+**Version**: 1.0.0
+**Purpose**: Define non-negotiable development principles, standards, and governance for the VSGUI-Edit project
+
+---
+
+## Core Principles
+
+### I. Test-First Development (NON-NEGOTIABLE)
+
+**STRICTLY ENFORCED**: Every feature MUST begin with tests before any implementation code is written. No implementation code shall be written without a failing test first.
+
+**What Requires Tests** (must write test FIRST):
+- All functions, methods, and business logic
+- All components (with executable code)
+- All utilities and helpers
+- All state management (signals, stores, effects)
+- All services and API interactions
+- All hooks and composables
+
+**What Does NOT Require Tests**:
+- Pure type definitions (`type`, `interface` in type files)
+- Configuration files
+- Barrel exports (index files with only re-exports)
+
+**Test-First Workflow** (NO EXCEPTIONS):
+1. **RED**: Write failing test that describes desired behavior
+2. **GREEN**: Write MINIMUM code to pass test
+3. **REFACTOR**: Improve while keeping tests green
+4. **NEVER**: Write implementation before test exists
+
+**Enforcement**:
+- ANY file containing executable code MUST have corresponding `.spec.ts` or `.test.ts` file
+- Implementation commits without tests will be rejected in code review
+- "I'll add tests later" is NOT acceptable
+
+**Rationale**: Test-first development ensures that every behavior is explicitly defined and verified before implementation, reducing the risk of bugs. Tests written after implementation often miss edge cases and don't drive proper design.
+
+### II. Technology Stack (Non-negotiable)
+
+The following technology choices are mandatory and MUST NOT be substituted without a constitutional amendment:
+
+**Frontend Framework**: SolidJS 1.9.x
+- **Build Tool**: Vite 7.x with vite-plugin-solid
+- **Routing**: @solidjs/router 0.15.x
+- **Language**: TypeScript with strict mode enabled (`"strict": true`)
+- **Testing Framework**: Vitest 4.x with @solidjs/testing-library
+- **Code Quality Tools**: Biome (linting + formatting), Stylelint (CSS)
+- **Icons**: FontAwesome via solid-fontawesome
+- **UI Positioning**: @floating-ui/dom
+
+**Architectural Constraints**:
+- Use SolidJS reactive primitives: `createSignal`, `createEffect`, `createMemo`, `createStore`
+- Components are functions returning JSX (no class components)
+- Fine-grained reactivity - avoid unnecessary re-renders
+- Prefer signals over stores for simple state
+- Use stores for complex nested state
+
+**Rationale**: SolidJS provides excellent performance through fine-grained reactivity without virtual DOM overhead, making it ideal for GUI editing applications.
+
+### III. Security & Compliance First
+
+**CRITICAL**: All development MUST maintain secure coding practices.
+
+- Implement audit logging for sensitive data access and modification
+- NEVER log sensitive user information in application logs or console output
+- Validate and sanitize ALL user inputs before processing
+- Role-based access control (RBAC) enforced at both API and UI layers if applicable
+- Session management includes timeout and secure token handling
+- All data transmissions use HTTPS in production
+- No inline scripts or styles that bypass CSP
+
+**Rationale**: Security vulnerabilities can compromise user data and system integrity.
+
+### IV. Code Quality & Architecture
+
+All code MUST adhere to consistent quality standards:
+
+**Code Quality Enforcement (MANDATORY)**:
+- After completing EACH task, run quality checks:
+  1. `npx biome check --write .` - Lint and format code
+  2. `npx stylelint "**/*.css" --fix` - Lint CSS
+  3. `npx tsc --noEmit` - Verify type correctness
+- Review all output and manually fix ANY remaining issues
+- A task is NOT complete until all checks pass without errors or warnings
+- NEVER commit code with unresolved errors
+
+**Architectural Standards**:
+- Every feature begins as a standalone, testable module
+- Use type system to enforce business rules at compile time
+- Avoid `any` type assertions; prefer proper type narrowing
+- Keep functions pure and manage side-effects explicitly via `createEffect`
+- Minimize shared mutable state; prefer immutable data structures
+- Each module MUST have a single, well-defined responsibility
+
+**Rationale**: Consistent code quality prevents technical debt, reduces code review friction, and ensures maintainability.
+
+### V. GUI Editor Domain Requirements
+
+- **Visual Fidelity**: UI must accurately represent underlying data structures
+- **Undo/Redo**: All user actions that modify data MUST be undoable
+- **Real-time Feedback**: Visual changes reflect immediately upon user interaction
+- **Data Integrity**: Editing operations never corrupt underlying data
+- **Accessibility**: All interactive elements accessible via keyboard
+- **Responsive Layout**: UI adapts to different viewport sizes
+
+**Rationale**: GUI editors require precise control and immediate feedback for effective user experience.
+
+### VI. Testing Standards
+
+Testing is comprehensive and mandatory:
+
+- **Unit Tests**: Required for all business logic, utilities, and pure functions
+- **Integration Tests**: Required for workflow orchestration and cross-module interactions
+- **Component Tests**: Required for all UI components with user interactions
+- **Edge Case Testing**: Test error paths, boundary conditions, and edge cases
+- **Isolation**: Mock external dependencies; test modules in isolation
+- **Coverage Threshold**: Minimum 80% code coverage for business logic
+- **Test Naming**: Use descriptive names (Given-When-Then format preferred)
+- **Test Location**: Co-located in a directory named `__tests__` with source files (e.g., `Component.tsx` and `__tests__\Component.spec.tsx`)
+
+**Coverage Verification (MANDATORY)**:
+- **AFTER spec completion**: Run `npx vitest run --coverage`
+- **Analyze coverage**: Review and identify files below 80% threshold
+- **Implement missing tests**: Write additional tests to achieve 80%
+- **Exception process**: If coverage cannot be achieved:
+  1. **STOP IMMEDIATELY**
+  2. Document specific files/functions that cannot reach threshold
+  3. Provide detailed technical justification
+  4. Present findings to user and **WAIT for explicit approval**
+  5. Only proceed after approval or alternative approach
+- **NO EXCEPTIONS** for business logic without user approval
+
+**Test Organization**:
+```
+src/
+├── components/
+│   ├── Button/
+│   │   ├── Button.tsx
+│   │   └── __tests__/
+│   │       └── Button.spec.tsx
+├── utils/
+│   ├── helpers.ts
+│   └── __tests__/
+│       └── helpers.spec.ts
+```
+
+**Rationale**: Comprehensive testing catches bugs before production. Coverage verification ensures no critical code paths are left untested.
+
+### VII. Development Workflow
+
+All development MUST follow Test-First Development:
+
+1. **Red**: Write failing test (BEFORE ANY IMPLEMENTATION)
+2. **Green**: Write minimum code to make test pass
+3. **Refactor**: Improve code while keeping tests green
+4. **Quality Gate**: Run `npx biome check --write .` and `npx tsc --noEmit`
+5. **Fix Issues**: Resolve any errors
+6. **Commit**: Commit tests and implementation together after all checks pass
+7. **Review**: Ensure all tests pass before requesting code review
+
+**Test-First Enforcement**:
+- NEVER write implementation code before test exists
+- Each commit MUST show test written before implementation
+- Every PR MUST include tests for new functionality
+- Breaking changes MUST be discussed and approved
+
+**Rationale**: The Red-Green-Refactor cycle ensures disciplined development. Quality enforcement prevents technical debt accumulation.
+
+### VIII. Performance & User Experience
+
+- **Real-time Updates**: Optimize for 60fps during interactions
+- **Data Loading**: Lazy load and paginate large datasets
+- **Initial Load**: Target < 3 seconds for initial page load
+- **Interaction**: Target < 100ms response time for user interactions
+- **Perceived Performance**: Show loading states and optimistic updates
+- **Bundle Size**: Monitor and minimize bundle size; use code splitting
+
+**Rationale**: GUI editing requires responsive, smooth interactions for productive user experience.
+
+### IX. Accessibility & Usability
+
+Applications must serve diverse users:
+
+- Follow WCAG 2.1 AA standards for ALL UI components
+- Ensure keyboard navigation for all interactive elements
+- Provide clear, actionable error messages
+- Use semantic HTML elements appropriately
+- Include ARIA labels where semantic HTML is insufficient
+- Ensure color contrast ratios meet WCAG AA requirements (4.5:1)
+- Support screen readers and assistive technologies
+
+**Rationale**: Accessibility is both a legal requirement and moral obligation.
+
+### X. Research & Documentation Standards
+
+When researching implementations, accuracy is critical:
+
+- Use official SolidJS documentation: https://www.solidjs.com/docs
+- Use official Vitest documentation: https://vitest.dev/
+- Use official Vite documentation: https://vite.dev/
+- Verify API signatures and patterns against official documentation
+- Query documentation BEFORE writing unfamiliar code
+- Cross-reference implementation patterns with best practices
+- Document discrepancies between documentation and actual behavior
+
+**Rationale**: Outdated or incorrect library usage leads to bugs and technical debt.
+
+### XI. Dependency Management
+
+**CRITICAL**: Dependency changes affect stability, security, and maintainability.
+
+- **DO NOT** automatically install or modify package.json
+- **DO NOT** add dependencies without user consultation
+- When new dependency is required, **STOP** and discuss first
+- **DO NOT** continue until user approval is obtained
+- Document dependency requirements in planning phase
+- Justify every new dependency with use case and rationale
+- Consider alternatives using existing dependencies
+
+**Approval Process**:
+1. Identify need during planning
+2. Research alternatives
+3. Document requirement and justification
+4. Present options with pros/cons
+5. Wait for explicit approval
+6. Proceed only after approval
+
+**Rationale**: Uncontrolled dependency growth leads to version conflicts, security vulnerabilities, and maintenance burden.
+
+### XII. Framework-Specific Restrictions
+
+**STRICTLY FORBIDDEN**: This project uses SolidJS exclusively. React, Vue, Angular, or other framework code is absolutely prohibited.
+
+- **NEVER** use React hooks (useState, useEffect, useMemo, useCallback)
+- **ALWAYS** use SolidJS primitives (createSignal, createEffect, createMemo, createResource)
+- **NEVER** use React's JSX patterns (className vs class is fine - SolidJS supports both)
+- **NEVER** import from 'react' or '@types/react'
+
+**When Uncertain**:
+1. **STOP** if unsure
+2. Verify pattern is correct for SolidJS
+3. Ask user for clarification
+
+**Rationale**: SolidJS and React have similar syntax but fundamentally different reactivity models. Mixing patterns causes runtime errors.
+
+### XIII. Debugging Attempt Limit (NON-NEGOTIABLE)
+
+**CRITICAL**: Limited to **5 attempts** before requiring user consultation.
+
+**The 5-Attempt Rule**:
+1. **Attempt 1**: Initial diagnosis and first solution
+2. **Attempt 2**: Different approach based on new information
+3. **Attempt 3**: Research issue more deeply
+4. **Attempt 4**: Try fundamental approach or alternative
+5. **Attempt 5**: Document attempts and prepare questions
+
+**After 5 Failed Attempts**:
+- **STOP IMMEDIATELY**
+- **DOCUMENT** what was tried and why each failed
+- **ANALYZE** common patterns across failures
+- **FORMULATE** specific questions
+- **PRESENT** findings to user
+- **WAIT** for user response
+
+**Rationale**: After 5 attempts, problem likely requires different perspective or approach.
+
+### XIV. Concise Communication (NON-NEGOTIABLE)
+
+**CRITICAL**: Respect user's time with brief, technical communication.
+
+**Communication Rules**:
+- Keep responses SHORT and TO THE POINT
+- Assume senior-level technical knowledge
+- NO hand-holding explanations
+- NO verbose status updates
+- State what you did, not how or why (unless asked)
+- Use bullet points for multiple items
+- Omit unnecessary pleasantries
+
+**Good Examples**:
+- "Updated constitution v1.0.0. Added SolidJS-specific constraints."
+- "Fixed TypeScript errors in 3 files. Tests pass."
+
+**Bad Examples**:
+- "I've successfully updated the constitution! Let me walk you through..."
+- "Perfect! I'm so happy to report that all tests passed..."
+
+**Rationale**: Senior developers don't need explanations of basic operations.
+
+### XV. Styling Architecture
+
+**CSS Modules Approach**:
+- Use CSS files co-located with components (`Component.module.css`)
+- Import styles: `import styles from './Component.module.css'`
+- Reference classes: `class={styles.button}`
+- Centralized design tokens in `src/styles/` directory
+- Use CSS custom properties for theming
+
+**Stylelint Enforcement**:
+- All CSS must pass Stylelint checks
+- Use `stylelint-value-no-unknown-custom-properties` for custom property validation
+- No magic numbers - use design tokens
+
+**Rationale**: CSS Modules provide scoped styling without runtime overhead, ideal for SolidJS's compilation model.
+
+### XVI. Token Efficiency (NON-NEGOTIABLE)
+
+**CRITICAL**: Token usage is finite. NEVER generate redundant documentation.
+
+**Prohibited**:
+- **NEVER** generate test coverage reports in documentation
+- **NEVER** copy/paste command output into markdown
+- **NEVER** document metrics that can be obtained by running commands
+- **NEVER** duplicate machine-readable information
+
+**Required**:
+- **ALWAYS** run commands to view output
+- **ONLY** document INSIGHTS requiring human interpretation
+- **VERIFY** via command output, not documentation
+
+**Rationale**: Machine-readable output wastes tokens. Documentation should add insight, not duplicate tools.
+
+### XVII. Internationalization Standards
+
+**If i18n is Required** (confirm with user before implementing):
+- Use established SolidJS i18n solution
+- Translation keys follow dot notation: `section.subsection.key`
+- All user-facing strings require translation
+- Component tests verify translation key usage
+- Dictionaries organized by feature/section
+
+**Rationale**: i18n should be planned from the start but only implemented when explicitly required.
+
+### XVIII. Zero Failing Tests Policy (NON-NEGOTIABLE)
+
+**CRITICAL**: EVERY spec delivered with ALL tests passing. ANY failing test is IMMEDIATE problem.
+
+**Absolute Requirements**:
+- **ALL tests MUST pass** before spec is complete
+- **ALL tests MUST pass** before ANY commit
+- **ALL tests MUST pass** in CI/CD before merge
+- Failing test is YOUR responsibility to fix immediately
+- NO "pre-existing failing tests" - this is impossible
+
+**When Tests Fail**:
+1. **STOP** all other work
+2. **ANALYZE** the failure
+3. **FIX** test or code causing failure
+4. **VERIFY** all tests pass
+5. If unable to fix after 5 attempts, **CONSULT USER**
+
+**NO Excuses Accepted**:
+- "Those failures were already there" → IMPOSSIBLE. Fix them.
+- "That's not my code" → IRRELEVANT. Fix it.
+- "I'll fix it later" → NO. Fix it NOW.
+
+**Rationale**: Failing tests indicate broken functionality. Every spec is delivered with clean, passing test suite.
+
+### XIX. Technical Overview Reference (NON-NEGOTIABLE)
+
+**CRITICAL**: ALWAYS consult technical documentation before creating specs/plans/tasks.
+
+**Mandatory Consultation**:
+- **BEFORE spec**: Read CLAUDE.md to understand existing architecture
+- **BEFORE plan**: Check docs for existing modules/utilities to reuse
+- **BEFORE tasks**: Verify docs for implementation patterns
+- **AFTER completion**: UPDATE docs with new utilities/patterns
+
+**What to Check**:
+- Existing utilities and helpers
+- State management patterns (signals, stores)
+- Component patterns
+- Testing helpers
+- Styling patterns
+- Service patterns
+
+**Prevention of Duplication**:
+- Check if utility already exists before creating new one
+- Verify reusable components exist
+- Check for existing test helpers
+
+**Update Requirements After Completion**:
+- Add new utilities to CLAUDE.md
+- Add new patterns to CLAUDE.md
+- Update technology stack if changed
+- Document architectural decisions
+
+**Rationale**: Code duplication is major source of technical debt. Documentation prevents duplication and promotes reuse.
+
+## Technology Stack Requirements
+
+### Mandatory Dependencies
+
+**Production**:
+- `solid-js`: ^1.9.10 - Core reactive framework
+- `@solidjs/router`: ^0.15.4 - Client-side routing
+- `@floating-ui/dom`: ^1.7.4 - Tooltip and popover positioning
+- `@fortawesome/free-solid-svg-icons`: ^7.1.0 - Icon library
+- `solid-fontawesome`: ^0.2.1 - FontAwesome SolidJS bindings
+
+**Development**:
+- `typescript`: ^5.9.3 - Type system
+- `vite`: ^7.3.0 - Build tool and dev server
+- `vite-plugin-solid`: ^2.11.10 - SolidJS Vite plugin
+- `vitest`: ^4.0.16 - Testing framework
+- `@solidjs/testing-library`: ^0.8.10 - Component testing utilities
+- `@testing-library/user-event`: ^14.6.1 - User interaction simulation
+- `jsdom`: ^27.4.0 - DOM environment for tests
+- `@biomejs/biome`: ^2.3.11 - Linting and formatting
+- `stylelint`: ^16.26.1 - CSS linting
+- `stylelint-value-no-unknown-custom-properties`: ^6.1.0 - Custom property validation
+
+### Configuration
+
+**TypeScript** (`tsconfig.json`):
+- `"strict": true` - Strict mode required
+- `"jsx": "preserve"` - Let Vite handle JSX
+- `"jsxImportSource": "solid-js"` - SolidJS JSX
+
+**Biome** (`biome.json`):
+- Format and lint on save
+- Consistent code style across project
+
+**Stylelint** (`.stylelintrc`):
+- Validate custom properties
+- Enforce CSS best practices
+
+## Development Workflow
+
+### Feature Development Process
+
+1. **Technical Documentation Consultation**: Read CLAUDE.md
+2. **Specification**: Create feature spec using `/speckit.specify`
+3. **Planning**: Generate implementation plan using `/speckit.plan`
+4. **Clarification**: Use `/speckit.clarify` to resolve underspecified areas
+5. **Task Generation**: Generate tasks using `/speckit.tasks`
+6. **Test-First Implementation**: For each task:
+   - Write failing test(s) first
+   - Implement minimum code to pass
+   - Refactor while keeping tests green
+   - Run quality checks
+   - Fix all issues
+   - Commit atomically
+7. **Coverage Verification**: Verify 80% threshold after spec completion
+8. **All Tests Passing**: Ensure ALL tests pass before completion
+9. **Update Technical Docs**: Document new utilities/patterns in CLAUDE.md
+10. **Review**: Submit PR with all checks passing
+
+### Git Workflow
+
+- **Branch Naming**: `feature/description` or `fix/description`
+- **Commit Messages**: Conventional commits format
+- **Atomic Commits**: Each commit is complete working unit
+- **No Broken Commits**: Never commit failing tests or quality violations
+- **PR Requirements**: Include tests, pass CI, meet coverage requirements
+
+### Code Review Standards
+
+All code reviews MUST verify:
+- [ ] Tests written BEFORE implementation
+- [ ] Every file has corresponding `.spec.ts` or `.test.ts`
+- [ ] All tests passing (EVERY SINGLE TEST)
+- [ ] Coverage >= 80% for business logic
+- [ ] Quality checks pass without errors (`biome check`, `tsc --noEmit`)
+- [ ] No React patterns used (SolidJS only)
+- [ ] CLAUDE.md consulted and updated
+- [ ] No duplicate code
+- [ ] No unauthorized dependency changes
+
+## Governance
+
+### Constitutional Authority
+
+This constitution supersedes all other practices. When conflicts arise, this constitution takes precedence.
+
+### Amendment Process
+
+1. **Proposal**: Document change, rationale, impact, migration plan
+2. **Review**: Technical lead reviews
+3. **Approval**: Requires unanimous approval
+4. **Documentation**: Document with version bump
+5. **Migration**: Include migration guide for breaking changes
+
+### Versioning Policy
+
+Semantic versioning:
+- **MAJOR**: Backward-incompatible changes, principle removals
+- **MINOR**: New principles added or expanded
+- **PATCH**: Clarifications, wording improvements
+
+### Compliance Verification
+
+**Every Pull Request MUST**:
+- Verify adherence to all principles
+- Document exceptions with justification
+- Pass all automated checks
+- Include compliance verification
+
+**Quarterly Reviews**:
+- Constitution effectiveness review
+- Principle adherence audit
+- Technology stack assessment
+- Documentation accuracy audit
+
+### Exceptions
+
+Exceptions are **extremely rare** and require:
+1. Written justification
+2. Risk assessment and mitigation plan
+3. Approval from technical lead
+4. Time-bound exception with remediation plan
+5. Documentation in exceptions log
+
+**Note**: Security/compliance principles and Zero Failing Tests Policy have **NO exceptions**.
+
+---
+
+**Version**: 1.0.0
+**Ratified**: 2026-01-05
+**Last Amended**: 2026-01-05

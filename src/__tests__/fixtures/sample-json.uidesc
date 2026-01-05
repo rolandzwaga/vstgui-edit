@@ -1,0 +1,32 @@
+{
+  "vstgui-ui-description": {
+    "version": "1",
+    "colors": {
+      "background": "#2d2d2dff",
+      "text": "#ffffffff"
+    },
+    "fonts": {
+      "default": {
+        "font-name": "Arial",
+        "size": 12
+      }
+    },
+    "templates": {
+      "view": {
+        "class": "CViewContainer",
+        "size": "400, 300",
+        "background-color": "background",
+        "children": [
+          {
+            "class": "CTextLabel",
+            "origin": "10, 10",
+            "size": "380, 30",
+            "title": "Hello VSTGUI",
+            "font": "default",
+            "font-color": "text"
+          }
+        ]
+      }
+    }
+  }
+}

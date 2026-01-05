@@ -47,6 +47,9 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# Generated types
+src/types/uidesc.d.ts
+
 # Optional npm cache directory
 .npm
 

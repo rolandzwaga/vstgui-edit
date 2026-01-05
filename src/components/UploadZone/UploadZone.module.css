@@ -1,0 +1,162 @@
+@import '../../styles/tokens.css';
+
+.uploadZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: var(--spacing-8);
+  border: 2px dashed var(--upload-zone-border-idle);
+  border-radius: var(--radius-xl);
+  background-color: var(--upload-zone-bg-idle);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+  cursor: pointer;
+}
+
+.uploadZone:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* State: Dragging */
+.uploadZone[data-state='dragging'] {
+  border-color: var(--upload-zone-border-dragging);
+  background-color: var(--upload-zone-bg-dragging);
+  border-style: solid;
+}
+
+/* State: Loading */
+.uploadZone[data-state='loading'] {
+  border-color: var(--color-primary-400);
+  background-color: var(--color-primary-50);
+}
+
+/* State: Success */
+.uploadZone[data-state='success'] {
+  border-color: var(--upload-zone-border-success);
+  background-color: var(--upload-zone-bg-success);
+  border-style: solid;
+}
+
+/* State: Error */
+.uploadZone[data-state='error'] {
+  border-color: var(--upload-zone-border-error);
+  background-color: var(--upload-zone-bg-error);
+  border-style: solid;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--spacing-4);
+  color: var(--color-text-muted);
+}
+
+.uploadZone[data-state='dragging'] .icon {
+  color: var(--color-primary-500);
+}
+
+.uploadZone[data-state='success'] .icon {
+  color: var(--color-success-600);
+}
+
+.uploadZone[data-state='error'] .icon {
+  color: var(--color-error-600);
+}
+
+.title {
+  margin: 0 0 var(--spacing-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.filename {
+  margin: var(--spacing-2) 0 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-success-700);
+  font-family: var(--font-family-mono);
+}
+
+.button {
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-neutral-50);
+  background-color: var(--color-primary-600);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.button:hover {
+  background-color: var(--color-primary-700);
+}
+
+.button:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--spacing-4);
+  border: 3px solid var(--color-neutral-200);
+  border-top-color: var(--color-primary-500);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorMessage {
+  margin: var(--spacing-2) 0 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-error-700);
+  background-color: var(--color-error-100);
+  border-radius: var(--radius-md);
+}
+
+.dismissButton {
+  margin-top: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-error-700);
+  background-color: transparent;
+  border: 1px solid var(--color-error-500);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.dismissButton:hover {
+  background-color: var(--color-error-100);
+}
+
+.dismissButton:focus {
+  outline: 2px solid var(--color-error-500);
+  outline-offset: 2px;
+}
