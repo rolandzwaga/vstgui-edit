@@ -103,7 +103,7 @@
 - [x] T030 [US2] Add Shift+click handling to Canvas click handler (pass T027 tests)
 - [x] T031 [US2] Render multiple SelectionOverlays for multi-selected views
 - [x] T032 [US2] Handle click without Shift to clear multi-selection (FR-002)
-- [ ] T033 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(008-view-selection): implement multi-selection with shift+click"
+- [x] T033 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(008-view-selection): implement multi-selection with shift+click"
 
 **Checkpoint**: Multi-selection functional alongside single selection
 
@@ -117,17 +117,17 @@
 
 ### Tests for User Story 3
 
-- [ ] T034 [US3] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T035 [P] [US3] Write tests for Ctrl+A in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
-- [ ] T036 [P] [US3] Write tests for Escape key in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
-- [ ] T037 [P] [US3] Write tests for text input filter in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
+- [x] T034 [US3] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T035 [P] [US3] Write tests for Ctrl+A in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
+- [x] T036 [P] [US3] Write tests for Escape key in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
+- [x] T037 [P] [US3] Write tests for text input filter in `src/components/Canvas/__tests__/Canvas.keyboard.spec.tsx`
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Add selectAll action to selectionStore (takes renderableViews array)
-- [ ] T039 [US3] Add Ctrl+A keyboard handler to Canvas (FR-005, pass T035 tests)
-- [ ] T040 [US3] Add Escape keyboard handler to Canvas (FR-006, pass T036 tests)
-- [ ] T041 [US3] Add text input/textarea filter for keyboard shortcuts (FR-007, pass T037 tests)
+- [x] T038 [US3] Add selectAll action to selectionStore (takes renderableViews array)
+- [x] T039 [US3] Add Ctrl+A keyboard handler to Canvas (FR-005, pass T035 tests)
+- [x] T040 [US3] Add Escape keyboard handler to Canvas (FR-006, pass T036 tests)
+- [x] T041 [US3] Add text input/textarea filter for keyboard shortcuts (FR-007, pass T037 tests)
 - [ ] T042 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(008-view-selection): implement keyboard shortcuts"
 
 **Checkpoint**: Keyboard shortcuts functional

@@ -12,7 +12,7 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
-import { clearSelection, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
+import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
@@ -241,24 +241,40 @@ export const Canvas: Component = () => {
   };
 
   /**
-   * Handle keyboard events for zoom shortcuts.
+   * Handle keyboard events for zoom, selection, and grid shortcuts.
+   * Ctrl+A / Cmd+A: select all views (FR-005)
+   * Escape: deselect all views (FR-006)
    * + or = key: zoom in
    * - key: zoom out
    * 0 key: reset to 100%
    * F key: fit to view
-   * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
-   * Ignores when focus is in a text input/textarea (FR-013).
+   * G key: toggle grid
+   * Ignores when focus is in a text input/textarea (FR-007, FR-013).
    */
   const handleKeyDown = (e: KeyboardEvent) => {
-    // Ignore when modifier keys are held (browser shortcuts)
-    if (e.ctrlKey || e.metaKey || e.altKey) {
-      return;
-    }
-
-    // Ignore when focus is in a text input or textarea (FR-013)
+    // Ignore when focus is in a text input or textarea (FR-007, FR-013)
     const target = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if (tagName === 'input' || tagName === 'textarea') {
+      return;
+    }
+
+    // Handle Ctrl+A / Cmd+A: select all views (FR-005)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+      e.preventDefault(); // Prevent browser's select all
+      const views = renderableViews();
+      selectAll(views.map((v) => v.id));
+      return;
+    }
+
+    // Handle Escape: deselect all views (FR-006)
+    if (e.key === 'Escape') {
+      clearSelection();
+      return;
+    }
+
+    // For remaining shortcuts, ignore when modifier keys are held (browser shortcuts)
+    if (e.ctrlKey || e.metaKey || e.altKey) {
       return;
     }
 

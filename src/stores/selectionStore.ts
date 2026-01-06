@@ -62,6 +62,14 @@ export function toggleSelect(viewId: string): void {
 }
 
 /**
+ * Select all views from the provided list.
+ * Used for Ctrl+A keyboard shortcut (FR-005).
+ */
+export function selectAll(viewIds: string[]): void {
+  setSelectedIds(new Set(viewIds));
+}
+
+/**
  * Reset all selection state to initial values.
  * Used for testing and when loading new documents.
  */
