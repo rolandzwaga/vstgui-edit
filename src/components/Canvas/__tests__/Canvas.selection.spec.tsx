@@ -91,11 +91,10 @@ describe('Canvas Selection (US1)', () => {
 
       render(() => <Canvas />);
 
-      // Path-based ID: TestTemplate-view-1
       const view = screen.getByTestId('view-TestTemplate-view-1');
 
-      // Click on the view
-      fireEvent.click(view);
+      fireEvent.mouseDown(view, { button: 0 });
+      fireEvent.mouseUp(document);
 
       expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
     });
@@ -108,12 +107,12 @@ describe('Canvas Selection (US1)', () => {
 
       render(() => <Canvas />);
 
-      // Click first view (path-based ID: TestTemplate-view-1)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-1'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-1'), { button: 0 });
+      fireEvent.mouseUp(document);
       expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
 
-      // Click second view (path-based ID: TestTemplate-view-2)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-2'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-2'), { button: 0 });
+      fireEvent.mouseUp(document);
       expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
       expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
     });
@@ -125,10 +124,9 @@ describe('Canvas Selection (US1)', () => {
 
       render(() => <Canvas />);
 
-      // Click on the view (path-based ID: TestTemplate-view-1)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-1'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-1'), { button: 0 });
+      fireEvent.mouseUp(document);
 
-      // Selection overlay should appear
       expect(screen.getByTestId('selection-overlay-TestTemplate-view-1')).toBeInTheDocument();
     });
 
@@ -140,12 +138,60 @@ describe('Canvas Selection (US1)', () => {
 
       render(() => <Canvas />);
 
-      // Click first view only (path-based ID: TestTemplate-view-1)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-1'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-1'), { button: 0 });
+      fireEvent.mouseUp(document);
 
-      // Only first view should have selection overlay
       expect(screen.getByTestId('selection-overlay-TestTemplate-view-1')).toBeInTheDocument();
       expect(screen.queryByTestId('selection-overlay-TestTemplate-view-2')).not.toBeInTheDocument();
+    });
+
+    it('should deselect view when clicking on already selected view (toggle)', async () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+
+      // First click - select
+      fireEvent.mouseDown(view, { button: 0 });
+      fireEvent.mouseUp(document);
+      expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+
+      // Second click - deselect (toggle off)
+      fireEvent.mouseDown(view, { button: 0 });
+      fireEvent.mouseUp(document);
+      expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
+      expect(selectionStore.selectedIds.size).toBe(0);
+    });
+
+    it('should clear multi-selection when clicking on one of the selected views', async () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+        { id: 'view-2', x: 200, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const view2 = screen.getByTestId('view-TestTemplate-view-2');
+
+      // Select first view
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+
+      // Shift+click second view to add to selection
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
+
+      expect(selectionStore.selectedIds.size).toBe(2);
+
+      // Click on view1 (already selected) without Shift - should clear all
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+
+      expect(selectionStore.selectedIds.size).toBe(0);
     });
   });
 
@@ -158,12 +204,14 @@ describe('Canvas Selection (US1)', () => {
       render(() => <Canvas />);
 
       // First select a view (path-based ID: TestTemplate-view-1)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-1'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-1'), { button: 0 });
+      fireEvent.mouseUp(document);
       expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
 
       // Click on the canvas SVG (empty area)
       const canvas = screen.getByTestId('canvas');
-      fireEvent.click(canvas, { clientX: 300, clientY: 200 });
+      fireEvent.mouseDown(canvas, { button: 0, clientX: 300, clientY: 200 });
+      fireEvent.mouseUp(document);
 
       // Should be deselected
       expect(selectionStore.selectedIds.size).toBe(0);
@@ -177,11 +225,13 @@ describe('Canvas Selection (US1)', () => {
       render(() => <Canvas />);
 
       // First select a view (path-based ID: TestTemplate-view-1)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-view-1'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-view-1'), { button: 0 });
+      fireEvent.mouseUp(document);
 
       // Click on canvas background (which is template bounds)
       const canvas = screen.getByTestId('canvas');
-      fireEvent.click(canvas, { clientX: 10, clientY: 10 });
+      fireEvent.mouseDown(canvas, { button: 0, clientX: 10, clientY: 10 });
+      fireEvent.mouseUp(document);
 
       // Should be deselected since we clicked empty area
       expect(selectionStore.selectedIds.size).toBe(0);
@@ -204,7 +254,8 @@ describe('Canvas Selection (US1)', () => {
       render(() => <Canvas />);
 
       // Click on child view (path-based ID: TestTemplate-parent-child)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-parent-child'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-parent-child'), { button: 0 });
+      fireEvent.mouseUp(document);
 
       // Only child should be selected, not parent
       expect(selectionStore.selectedIds.has('TestTemplate-parent-child')).toBe(true);
@@ -226,7 +277,8 @@ describe('Canvas Selection (US1)', () => {
       render(() => <Canvas />);
 
       // Click on parent area (not child) (path-based ID: TestTemplate-parent)
-      fireEvent.click(screen.getByTestId('view-TestTemplate-parent'));
+      fireEvent.mouseDown(screen.getByTestId('view-TestTemplate-parent'), { button: 0 });
+      fireEvent.mouseUp(document);
 
       // Parent should be selected
       expect(selectionStore.selectedIds.has('TestTemplate-parent')).toBe(true);

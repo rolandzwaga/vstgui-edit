@@ -3,24 +3,23 @@ import { Canvas } from './components/Canvas';
 import { MainToolbar } from './components/MainToolbar';
 import { documentStore } from './stores/documentStore';
 import { fitToView } from './stores/canvasStore';
+import type { TemplateDefinition } from './types/uidesc';
 import './styles/tokens.css';
 
 export default function App() {
   const handleFitToView = () => {
-    // Get viewport size from window
-    const viewportWidth = window.innerWidth - 64; // Account for padding
-    const viewportHeight = window.innerHeight - 200; // Account for header/padding
+    const viewportWidth = window.innerWidth - 64;
+    const viewportHeight = window.innerHeight - 200;
 
-    // Get template size from document (first template)
     const doc = documentStore.document;
     const vstgui = doc?.['vstgui-ui-description'];
     const templates = vstgui?.templates;
     if (!templates) return;
 
-    const firstTemplate = Object.values(templates)[0];
+    const firstTemplate = Object.values(templates)[0] as TemplateDefinition | undefined;
     if (!firstTemplate?.attributes?.size) return;
 
-    const [width, height] = firstTemplate.attributes.size.split(',').map((s: string) => Number.parseInt(s.trim(), 10));
+    const [width, height] = firstTemplate.attributes.size.split(',').map((s) => Number.parseInt(s.trim(), 10));
     if (Number.isNaN(width) || Number.isNaN(height)) return;
 
     fitToView({ width: viewportWidth, height: viewportHeight }, { width, height });

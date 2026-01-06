@@ -147,3 +147,21 @@
 .grabbing {
   cursor: grabbing;
 }
+
+/* Marquee selection rectangle */
+.marqueeRect {
+  fill: var(--color-marquee-fill);
+  stroke: var(--color-marquee-stroke);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* Cursor during marquee drag */
+.marqueeCursor {
+  cursor: crosshair;
+}
+
+/* Prevent text selection during drag operations */
+.noSelect {
+  user-select: none;
+}

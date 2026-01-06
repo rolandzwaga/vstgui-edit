@@ -198,9 +198,8 @@ describe('xmlToJson', () => {
       `);
       const result = xmlToJson(doc);
 
-      const templates = result.json['vstgui-ui-description'].templates;
+      const templates = result.json['vstgui-ui-description'].templates as Record<string, { children?: Record<string, { children?: unknown }> }>;
       expect(templates?.MainView.children).toBeDefined();
-      // Check nested structure exists
       const firstChild = Object.values(templates?.MainView.children ?? {})[0];
       expect(firstChild?.children).toBeDefined();
     });

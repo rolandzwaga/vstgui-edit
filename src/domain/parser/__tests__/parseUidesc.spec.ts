@@ -143,11 +143,12 @@ describe('parseUidesc', () => {
         const desc = result.document['vstgui-ui-description'];
         expect(desc.colors?.Background).toBe('#1a1a1a');
         expect(desc.fonts?.MainFont['font-name']).toBe('Arial');
-        expect(desc.bitmaps?.Knob.path).toBe('images/knob.png');
+        const knobBitmap = desc.bitmaps?.Knob;
+        expect(typeof knobBitmap === 'object' && knobBitmap.path).toBe('images/knob.png');
         expect(desc.gradients?.Button).toHaveLength(2);
         expect(desc['control-tags']?.Volume).toBe('0');
         expect(desc.templates?.MainView.attributes.class).toBe('CViewContainer');
-        expect(desc.templates?.MainView.children?.Knob1.attributes.class).toBe('CAnimKnob');
+        expect(desc.templates?.MainView.children?.Knob1?.attributes.class).toBe('CAnimKnob');
       }
     });
   });
@@ -212,7 +213,8 @@ describe('parseUidesc', () => {
       const result = parseUidesc(content);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.document['vstgui-ui-description'].bitmaps?.Knob.path).toBe('images/knob.png');
+        const knobBitmap = result.document['vstgui-ui-description'].bitmaps?.Knob;
+        expect(typeof knobBitmap === 'object' && knobBitmap.path).toBe('images/knob.png');
       }
     });
 

@@ -1,4 +1,5 @@
-import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { type Component, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import type { TemplateDefinition } from '../../types/uidesc';
 import { documentStore } from '../../stores/documentStore';
 import {
   applyZoom,
@@ -12,9 +13,18 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
-import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
+import {
+  activateMarquee,
+  beginTracking,
+  cancelMarquee,
+  completeMarquee,
+  marqueeStore,
+  updateMarquee,
+} from '../../stores/marqueeStore';
+import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
+import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -22,6 +32,7 @@ import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
 import { Legend } from './Legend';
+import { MarqueeRectangle } from './MarqueeRectangle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
@@ -53,11 +64,11 @@ export const Canvas: Component = () => {
    * Gets the first template from the templates object.
    * Returns [templateName, templateView] tuple or null.
    */
-  const firstTemplate = createMemo(() => {
+  const firstTemplate = createMemo((): [string, TemplateDefinition] | null => {
     const t = templates();
     if (!t) return null;
 
-    const entries = Object.entries(t);
+    const entries = Object.entries(t) as [string, TemplateDefinition][];
     if (entries.length === 0) return null;
 
     return entries[0];
@@ -123,6 +134,8 @@ export const Canvas: Component = () => {
   const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
   let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
 
+
+
   /**
    * Gets the currently hovered view for tooltip display.
    */
@@ -180,69 +193,6 @@ export const Canvas: Component = () => {
   };
 
   /**
-   * Handle click on canvas for view selection (FR-001, FR-002, FR-003, FR-004).
-   * Uses DOM target first, then falls back to hit testing for coordinates.
-   * Shift+click toggles selection (add/remove from multi-selection).
-   */
-  const handleCanvasClick = (e: MouseEvent) => {
-    // Ignore if this was a pan gesture (ctrl+click or middle button)
-    if (e.ctrlKey || e.button !== 0) {
-      return;
-    }
-
-    const isShiftClick = e.shiftKey;
-
-    // First, try to get view ID from DOM target (most reliable for view clicks)
-    const targetViewId = getViewIdFromTarget(e.target);
-    if (targetViewId) {
-      if (isShiftClick) {
-        // Shift+click: toggle selection (FR-004)
-        toggleSelect(targetViewId);
-      } else {
-        // Regular click: select single view, clear others (FR-001, FR-002)
-        select(targetViewId);
-      }
-      return;
-    }
-
-    // If we didn't click on a view element, attempt hit testing
-    // If wrapperRef is available, try coordinate-based hit testing
-    if (wrapperRef) {
-      const wrapperRect = wrapperRef.getBoundingClientRect();
-
-      // Only use hit testing if we have valid bounds (not in JSDOM)
-      if (wrapperRect.width > 0 && wrapperRect.height > 0) {
-        // Convert mouse coordinates to canvas space
-        const canvasPoint = mouseToCanvas(
-          e.clientX,
-          e.clientY,
-          wrapperRect,
-          canvasStore.panOffset,
-          canvasStore.zoomLevel
-        );
-
-        // Hit test to find view under cursor
-        const views = renderableViews();
-        const hitViewId = hitTest(canvasPoint, views);
-
-        if (hitViewId) {
-          if (isShiftClick) {
-            // Shift+click: toggle selection (FR-004)
-            toggleSelect(hitViewId);
-          } else {
-            // Regular click: select single view (FR-001)
-            select(hitViewId);
-          }
-          return;
-        }
-      }
-    }
-
-    // No view was clicked - deselect all (FR-003)
-    clearSelection();
-  };
-
-  /**
    * Handle mouse down for pan initiation.
    * Middle mouse button (button=1) or Ctrl+left-click (button=0) starts panning.
    */
@@ -282,6 +232,112 @@ export const Canvas: Component = () => {
   };
 
   /**
+   * Handle mouse down on canvas SVG for marquee/selection tracking.
+   * Starts tracking on left-click; decision between click-select vs marquee is deferred to mouseup.
+   */
+  const handleSvgMouseDown = (e: MouseEvent) => {
+    if (e.button !== 0 || e.ctrlKey || canvasStore.isPanning) {
+      return;
+    }
+
+    if (!wrapperRef) return;
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    const targetViewId = getViewIdFromTarget(e.target);
+
+    beginTracking(canvasPoint, e.shiftKey, selectionStore.selectedIds, targetViewId);
+
+    document.addEventListener('mousemove', handleMarqueeMove);
+    document.addEventListener('mouseup', handleMarqueeUp);
+  };
+
+  /**
+   * Handle mouse move during marquee/selection tracking.
+   * Activates marquee mode once movement exceeds 5px threshold.
+   */
+  const handleMarqueeMove = (e: MouseEvent) => {
+    if (!wrapperRef) return;
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    updateMarquee(canvasPoint);
+
+    if (marqueeStore.isPending && !marqueeStore.isActive) {
+      const start = marqueeStore.startPoint;
+      if (start && isMinimumSize(start, canvasPoint)) {
+        activateMarquee();
+      }
+    }
+  };
+
+  /**
+   * Handle mouse up to complete marquee selection or click-select.
+   */
+  const handleMarqueeUp = () => {
+    document.removeEventListener('mousemove', handleMarqueeMove);
+    document.removeEventListener('mouseup', handleMarqueeUp);
+
+    const start = marqueeStore.startPoint;
+    const current = marqueeStore.currentPoint;
+
+    if (!start || !current) {
+      cancelMarquee();
+      return;
+    }
+
+    if (!marqueeStore.isActive) {
+      const targetViewId = marqueeStore.clickTarget;
+      if (targetViewId) {
+        if (marqueeStore.isAdditive) {
+          toggleSelect(targetViewId);
+        } else if (isSelected(targetViewId)) {
+          clearSelection();
+        } else {
+          select(targetViewId);
+        }
+      } else {
+        clearSelection();
+      }
+      completeMarquee();
+      return;
+    }
+
+    const marqueeRect = normalizeRect(start, current);
+    const views = renderableViews();
+    const intersectingIds = findIntersectingViews(marqueeRect, views);
+
+    if (marqueeStore.isAdditive) {
+      const merged = new Set([...marqueeStore.previousSelection, ...intersectingIds]);
+      selectAll([...merged]);
+    } else {
+      selectAll(intersectingIds);
+    }
+
+    completeMarquee();
+  };
+
+  createEffect(() => {
+    if (canvasStore.isPanning && (marqueeStore.isActive || marqueeStore.isPending)) {
+      cancelMarquee();
+      document.removeEventListener('mousemove', handleMarqueeMove);
+      document.removeEventListener('mouseup', handleMarqueeUp);
+    }
+  });
+
+  /**
    * Handle wheel event for zoom.
    * Prevents default browser zoom and applies cursor-centered zoom.
    */
@@ -318,8 +374,15 @@ export const Canvas: Component = () => {
       return;
     }
 
-    // Handle Escape: deselect all views (FR-006)
+    // Handle Escape: cancel marquee if active, otherwise deselect all (FR-006)
     if (e.key === 'Escape') {
+      if (marqueeStore.isActive) {
+        selectAll([...marqueeStore.previousSelection]);
+        cancelMarquee();
+        document.removeEventListener('mousemove', handleMarqueeMove);
+        document.removeEventListener('mouseup', handleMarqueeUp);
+        return;
+      }
       clearSelection();
       return;
     }
@@ -339,6 +402,19 @@ export const Canvas: Component = () => {
       handleFitToView();
     } else if (e.key === 'g' || e.key === 'G') {
       toggleVisibility();
+    }
+  };
+
+  /**
+   * Handle contextmenu (right-click) to cancel marquee selection.
+   */
+  const handleContextMenu = (e: MouseEvent) => {
+    if (marqueeStore.isActive) {
+      e.preventDefault();
+      selectAll([...marqueeStore.previousSelection]);
+      cancelMarquee();
+      document.removeEventListener('mousemove', handleMarqueeMove);
+      document.removeEventListener('mouseup', handleMarqueeUp);
     }
   };
 
@@ -365,6 +441,8 @@ export const Canvas: Component = () => {
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousemove', handleMarqueeMove);
+    document.removeEventListener('mouseup', handleMarqueeUp);
     if (tooltipTimer) {
       clearTimeout(tooltipTimer);
     }
@@ -381,6 +459,8 @@ export const Canvas: Component = () => {
           class={styles.canvasWrapper}
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
+            [styles.marqueeCursor]: marqueeStore.isActive,
+            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
@@ -389,6 +469,7 @@ export const Canvas: Component = () => {
           onMouseLeave={handleCanvasMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
+          onContextMenu={handleContextMenu}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,
@@ -405,7 +486,7 @@ export const Canvas: Component = () => {
             height={templateBounds()?.height ?? 100}
             viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
             data-testid="canvas"
-            onClick={handleCanvasClick}
+            onMouseDown={handleSvgMouseDown}
           >
             <Show when={templateBounds()}>
               {(bounds) => <TemplateBounds bounds={bounds()} />}
@@ -417,6 +498,10 @@ export const Canvas: Component = () => {
             <For each={selectedViews()}>
               {(view) => <SelectionOverlay view={view} />}
             </For>
+            {/* Marquee selection rectangle */}
+            <Show when={marqueeStore.isActive}>
+              <MarqueeRectangle />
+            </Show>
           </svg>
         </div>
         <Legend />

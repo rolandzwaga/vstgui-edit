@@ -20,6 +20,14 @@ export {
 } from './grid';
 // Label formatting
 export { formatLabel } from './labelFormat';
+// Marquee selection utilities
+export {
+  findIntersectingViews,
+  isMinimumSize,
+  MIN_MARQUEE_SIZE,
+  normalizeRect,
+  rectIntersect,
+} from './marquee';
 // View category classification
 export {
   CONTAINER_CLASSES,

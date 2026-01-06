@@ -66,7 +66,8 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       const view2 = viewRects[1];
 
       // Click first view to select it
-      fireEvent.click(view1);
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -74,7 +75,8 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       });
 
       // Shift+click second view to add to selection
-      fireEvent.click(view2, { shiftKey: true });
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(2);
@@ -99,16 +101,19 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       const view2 = viewRects[1];
 
       // Select first view
-      fireEvent.click(view1);
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
       // Add second view
-      fireEvent.click(view2, { shiftKey: true });
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(2);
       });
 
       // Shift+click view2 again to toggle it off
-      fireEvent.click(view2, { shiftKey: true });
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -133,15 +138,18 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       const view3 = viewRects[2];
 
       // Select first two views with Shift
-      fireEvent.click(view1);
-      fireEvent.click(view2, { shiftKey: true });
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(2);
       });
 
       // Click view3 without Shift - should clear multi-selection
-      fireEvent.click(view3);
+      fireEvent.mouseDown(view3, { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -167,7 +175,8 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       });
 
       // Shift+click should still select the view
-      fireEvent.click(view1, { shiftKey: true });
+      fireEvent.mouseDown(view1, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -191,8 +200,10 @@ describe('Canvas Multi-Selection (FR-004)', () => {
       const view2 = viewRects[1];
 
       // Select both views
-      fireEvent.click(view1);
-      fireEvent.click(view2, { shiftKey: true });
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       // Check that two selection overlays exist
       const selectionOverlays = canvas.querySelectorAll('[data-testid^="selection-overlay-"]');

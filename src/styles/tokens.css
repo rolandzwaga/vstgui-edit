@@ -156,6 +156,10 @@
   --color-parent-highlight-fill: rgba(0, 102, 204, 0.05);
   --color-parent-highlight-stroke: rgba(0, 102, 204, 0.3);
 
+  /* Marquee Selection Colors */
+  --color-marquee-fill: rgba(66, 153, 225, 0.15);
+  --color-marquee-stroke: #3182ce;
+
   /* Tooltip Colors */
   --color-tooltip-background: var(--color-neutral-800);
   --color-tooltip-text: var(--color-neutral-50);
