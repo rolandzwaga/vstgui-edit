@@ -1,4 +1,4 @@
-import { type Component, For, Show } from 'solid-js';
+import { type Component, createEffect, For, on, Show } from 'solid-js';
 import { FontAwesomeIcon } from 'solid-fontawesome';
 import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
@@ -13,10 +13,20 @@ export interface TreeNodeProps {
 }
 
 export const TreeNode: Component<TreeNodeProps> = (props) => {
+  let rowRef: HTMLDivElement | undefined;
+
   const indentPx = () => props.node.depth * INDENT_SIZE;
   const expanded = () => isExpanded(props.node.id);
   const selected = () => isSelected(props.node.id);
   const iconName = () => CATEGORY_ICON_NAMES[props.node.category];
+
+  createEffect(
+    on(selected, (isSelected, wasSelected) => {
+      if (isSelected && !wasSelected && rowRef?.scrollIntoView) {
+        rowRef.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    })
+  );
 
   const handleToggle = (e: MouseEvent) => {
     e.stopPropagation();
@@ -34,6 +44,7 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   return (
     <>
       <div
+        ref={rowRef}
         class={`${styles.row} ${selected() ? styles.selected : ''}`}
         data-testid={`tree-node-${props.node.id}`}
         role="treeitem"
