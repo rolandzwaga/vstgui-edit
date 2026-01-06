@@ -1,8 +1,7 @@
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { useCanvasData, useCanvasPan } from '../../hooks/canvas';
+import { useCanvasData, useCanvasPan, useCanvasZoom } from '../../hooks/canvas';
 import { useTooltip } from '../../hooks/useTooltip';
 import {
-  applyZoom,
   canvasStore,
   fitToView,
   resetZoom,
@@ -78,6 +77,7 @@ export const Canvas: Component = () => {
   } = useTooltip();
 
   const { handlePanMouseDown } = useCanvasPan();
+  const { handleWheel } = useCanvasZoom();
 
   let wrapperRef: HTMLDivElement | undefined;
 
@@ -367,15 +367,7 @@ export const Canvas: Component = () => {
     }
   });
 
-  /**
-   * Handle wheel event for zoom.
-   * Prevents default browser zoom and applies cursor-centered zoom.
-   */
-  const handleWheel = (e: WheelEvent) => {
-    e.preventDefault();
-    const wrapper = e.currentTarget as HTMLElement;
-    applyZoom(e.clientX, e.clientY, wrapper.getBoundingClientRect(), e.deltaY);
-  };
+
 
   /**
    * Handle keyboard events for zoom, selection, and grid shortcuts.
