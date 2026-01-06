@@ -36,11 +36,12 @@ import {
   startResize,
   updateResize,
 } from '../../stores/resizeStore';
-import { updateViewOrigin } from '../../stores/documentStore';
+import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
 import { applyDelta, applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
+import { createResizeOperation } from '../../domain/canvas/resize';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { CLICK_TOLERANCE, NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
@@ -184,6 +185,33 @@ export const Canvas: Component = () => {
   const handleResizeUp = () => {
     document.removeEventListener('mousemove', handleResizeMove);
     document.removeEventListener('mouseup', handleResizeUp);
+
+    if (resizeStore.isResizing && resizeStore.viewId) {
+      const viewId = resizeStore.viewId;
+      const originalOrigin = resizeStore.originalOrigin;
+      const originalSize = resizeStore.originalSize;
+      const newOrigin = resizeStore.newOrigin;
+      const newSize = resizeStore.newSize;
+
+      if (originalOrigin && originalSize) {
+        const sizeChanged =
+          newSize.width !== originalSize.width || newSize.height !== originalSize.height;
+        const originChanged =
+          newOrigin.x !== originalOrigin.x || newOrigin.y !== originalOrigin.y;
+
+        if (sizeChanged || originChanged) {
+          updateViewOrigin(viewId, newOrigin);
+          updateViewSize(viewId, newSize);
+
+          const operation = createResizeOperation(
+            { viewId, originalOrigin, originalSize, newOrigin, newSize },
+            updateViewOrigin,
+            updateViewSize
+          );
+          pushOperation(operation);
+        }
+      }
+    }
 
     endResize();
     resetResize();
