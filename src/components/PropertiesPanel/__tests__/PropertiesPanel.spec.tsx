@@ -112,6 +112,73 @@ describe('PropertiesPanel', () => {
     });
   });
 
+  describe('grouped attribute display', () => {
+    beforeEach(() => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+                'background-color': '#FF5500FF',
+                title: 'Main',
+                'mouse-enabled': 'true',
+                'custom-attr': 'custom-value',
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should display groups in priority order: Identity, Geometry, Appearance, Text, Behavior, Other', () => {
+      testInRoot(() => {
+        select('MainView');
+      });
+
+      render(() => <PropertiesPanel />);
+
+      const groups = screen.getAllByTestId('attribute-group');
+      const labels = groups.map((g) => {
+        const header = g.querySelector('[data-testid="group-header"]');
+        const labelSpan = header?.querySelector('span:last-child');
+        return labelSpan?.textContent?.trim();
+      });
+
+      expect(labels).toEqual(['Identity', 'Geometry', 'Appearance', 'Text', 'Behavior', 'Other']);
+    });
+
+    it('should not display empty groups', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CView',
+                origin: '0, 0',
+              },
+            },
+          },
+        },
+      };
+
+      testInRoot(() => {
+        select('MainView');
+      });
+
+      render(() => <PropertiesPanel />);
+
+      expect(screen.getByText('Identity')).toBeInTheDocument();
+      expect(screen.getByText('Geometry')).toBeInTheDocument();
+      expect(screen.queryByText('Appearance')).not.toBeInTheDocument();
+      expect(screen.queryByText('Text')).not.toBeInTheDocument();
+    });
+  });
+
   describe('selection change reactivity', () => {
     beforeEach(() => {
       mockDocumentStore.document = {
