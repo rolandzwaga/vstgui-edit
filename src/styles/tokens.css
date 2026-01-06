@@ -141,6 +141,25 @@
   /* Grid Colors - Light theme */
   --color-grid-minor: rgba(0, 0, 0, 0.08);
   --color-grid-major: rgba(0, 0, 0, 0.20);
+
+  /* Selection Colors */
+  --color-selection-stroke: #0066cc;
+  --color-selection-fill: rgba(0, 102, 204, 0.1);
+  --color-selection-handle-fill: #0066cc;
+  --color-selection-handle-stroke: #ffffff;
+
+  /* Hover Colors */
+  --color-hover-stroke: #666666;
+  --color-hover-fill: rgba(102, 102, 102, 0.05);
+
+  /* Parent Highlight Colors */
+  --color-parent-highlight-fill: rgba(0, 102, 204, 0.05);
+  --color-parent-highlight-stroke: rgba(0, 102, 204, 0.3);
+
+  /* Tooltip Colors */
+  --color-tooltip-background: var(--color-neutral-800);
+  --color-tooltip-text: var(--color-neutral-50);
+  --color-tooltip-border: var(--color-neutral-700);
 }
 
 @media (prefers-color-scheme: dark) {
