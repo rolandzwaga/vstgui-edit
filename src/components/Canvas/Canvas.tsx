@@ -21,9 +21,21 @@ import {
   marqueeStore,
   updateMarquee,
 } from '../../stores/marqueeStore';
+import {
+  cancelDrag,
+  dragStore,
+  endDrag,
+  resetDrag,
+  startDrag,
+  updateDrag,
+} from '../../stores/dragStore';
+import { updateViewOrigin } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
+import { applyDelta, applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
+import { pushOperation, redo, undo } from '../../stores/historyStore';
+import { CLICK_TOLERANCE, NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
@@ -36,6 +48,7 @@ import { MarqueeRectangle } from './MarqueeRectangle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
+import { DragPreview } from './DragPreview';
 import styles from './Canvas.module.css';
 
 /** Tooltip delay in milliseconds (SC-003) */
@@ -127,12 +140,12 @@ export const Canvas: Component = () => {
    */
   let wrapperRef: HTMLDivElement | undefined;
 
-  /**
-   * Tooltip state - tracks mouse position and show/hide state (FR-011, SC-003)
-   */
   const [showTooltip, setShowTooltip] = createSignal(false);
   const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
   let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
+  const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
 
 
 
@@ -231,10 +244,6 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
-  /**
-   * Handle mouse down on canvas SVG for marquee/selection tracking.
-   * Starts tracking on left-click; decision between click-select vs marquee is deferred to mouseup.
-   */
   const handleSvgMouseDown = (e: MouseEvent) => {
     if (e.button !== 0 || e.ctrlKey || canvasStore.isPanning) {
       return;
@@ -252,16 +261,103 @@ export const Canvas: Component = () => {
 
     const targetViewId = getViewIdFromTarget(e.target);
 
+    if (targetViewId && isSelected(targetViewId) && !e.shiftKey) {
+      setPendingDragStart({ x: e.clientX, y: e.clientY });
+      setPendingDragViewId(targetViewId);
+
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragUp);
+      return;
+    }
+
     beginTracking(canvasPoint, e.shiftKey, selectionStore.selectedIds, targetViewId);
 
     document.addEventListener('mousemove', handleMarqueeMove);
     document.addEventListener('mouseup', handleMarqueeUp);
   };
 
-  /**
-   * Handle mouse move during marquee/selection tracking.
-   * Activates marquee mode once movement exceeds 5px threshold.
-   */
+  const captureOriginsForSelectedViews = (): Record<string, { x: number; y: number }> => {
+    const views = renderableViews();
+    const selectedIds = selectionStore.selectedIds;
+    const origins: Record<string, { x: number; y: number }> = {};
+
+    for (const view of views) {
+      if (selectedIds.has(view.id)) {
+        origins[view.id] = { x: view.absoluteX, y: view.absoluteY };
+      }
+    }
+
+    return origins;
+  };
+
+  const handleDragMove = (e: MouseEvent) => {
+    if (!wrapperRef) return;
+    const start = pendingDragStart();
+
+    if (!start) return;
+
+    if (!dragStore.isDragging) {
+      const dx = Math.abs(e.clientX - start.x);
+      const dy = Math.abs(e.clientY - start.y);
+      const distance = Math.max(dx, dy);
+
+      if (distance >= CLICK_TOLERANCE) {
+        const wrapperRect = wrapperRef.getBoundingClientRect();
+        const canvasStart = mouseToCanvas(
+          start.x,
+          start.y,
+          wrapperRect,
+          canvasStore.panOffset,
+          canvasStore.zoomLevel
+        );
+
+        const origins = captureOriginsForSelectedViews();
+        startDrag(canvasStart, origins);
+      } else {
+        return;
+      }
+    }
+
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    updateDrag(canvasPoint, e.shiftKey);
+  };
+
+  const handleDragUp = () => {
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragUp);
+
+    if (dragStore.isDragging) {
+      const delta = dragStore.delta;
+      const origins = dragStore.originalOrigins;
+      const viewIds = Object.keys(origins);
+      const newOrigins = applyDeltaToAll(origins, delta);
+
+      for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
+        updateViewOrigin(viewId, newOrigin);
+      }
+
+      const operation = createMoveOperation(
+        { viewIds, originalOrigins: origins, newOrigins },
+        updateViewOrigin
+      );
+      pushOperation(operation);
+    } else {
+      clearSelection();
+    }
+
+    setPendingDragStart(null);
+    setPendingDragViewId(null);
+    resetDrag();
+  };
+
   const handleMarqueeMove = (e: MouseEvent) => {
     if (!wrapperRef) return;
     const wrapperRect = wrapperRef.getBoundingClientRect();
@@ -366,16 +462,45 @@ export const Canvas: Component = () => {
       return;
     }
 
-    // Handle Ctrl+A / Cmd+A: select all views (FR-005)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
-      e.preventDefault(); // Prevent browser's select all
+      e.preventDefault();
       const views = renderableViews();
       selectAll(views.map((v) => v.id));
       return;
     }
 
-    // Handle Escape: cancel marquee if active, otherwise deselect all (FR-006)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+      e.preventDefault();
+      redo();
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
+      e.preventDefault();
+      redo();
+      return;
+    }
+
     if (e.key === 'Escape') {
+      if (dragStore.isDragging) {
+        const origins = dragStore.originalOrigins;
+        for (const [viewId, origin] of Object.entries(origins)) {
+          updateViewOrigin(viewId, origin);
+        }
+        cancelDrag();
+        setPendingDragStart(null);
+        setPendingDragViewId(null);
+        document.removeEventListener('mousemove', handleDragMove);
+        document.removeEventListener('mouseup', handleDragUp);
+        return;
+      }
+
       if (marqueeStore.isActive) {
         selectAll([...marqueeStore.previousSelection]);
         cancelMarquee();
@@ -387,7 +512,56 @@ export const Canvas: Component = () => {
       return;
     }
 
-    // For remaining shortcuts, ignore when modifier keys are held (browser shortcuts)
+    if (e.key.startsWith('Arrow') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+
+      e.preventDefault();
+      const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
+      let delta = { x: 0, y: 0 };
+
+      switch (e.key) {
+        case 'ArrowRight':
+          delta = { x: distance, y: 0 };
+          break;
+        case 'ArrowLeft':
+          delta = { x: -distance, y: 0 };
+          break;
+        case 'ArrowDown':
+          delta = { x: 0, y: distance };
+          break;
+        case 'ArrowUp':
+          delta = { x: 0, y: -distance };
+          break;
+      }
+
+      const views = renderableViews();
+      const originalOrigins: Record<string, { x: number; y: number }> = {};
+      const newOrigins: Record<string, { x: number; y: number }> = {};
+      const viewIds: string[] = [];
+
+      for (const view of views) {
+        if (selectedIds.has(view.id)) {
+          viewIds.push(view.id);
+          originalOrigins[view.id] = { x: view.absoluteX, y: view.absoluteY };
+          newOrigins[view.id] = applyDelta({ x: view.absoluteX, y: view.absoluteY }, delta);
+        }
+      }
+
+      for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
+        updateViewOrigin(viewId, newOrigin);
+      }
+
+      const operation = createMoveOperation(
+        { viewIds, originalOrigins, newOrigins },
+        updateViewOrigin
+      );
+      pushOperation(operation);
+      return;
+    }
+
     if (e.ctrlKey || e.metaKey || e.altKey) {
       return;
     }
@@ -437,12 +611,13 @@ export const Canvas: Component = () => {
     );
   };
 
-  // Clean up listeners and timers on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     document.removeEventListener('mousemove', handleMarqueeMove);
     document.removeEventListener('mouseup', handleMarqueeUp);
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragUp);
     if (tooltipTimer) {
       clearTimeout(tooltipTimer);
     }
@@ -460,7 +635,8 @@ export const Canvas: Component = () => {
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
-            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning,
+            [styles.moveCursor]: dragStore.isDragging,
+            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
@@ -494,11 +670,10 @@ export const Canvas: Component = () => {
             <For each={renderableViews()}>
               {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
             </For>
-            {/* Selection overlays render on top of all views */}
             <For each={selectedViews()}>
               {(view) => <SelectionOverlay view={view} />}
             </For>
-            {/* Marquee selection rectangle */}
+            <DragPreview views={selectedViews()} />
             <Show when={marqueeStore.isActive}>
               <MarqueeRectangle />
             </Show>
