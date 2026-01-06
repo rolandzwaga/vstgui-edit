@@ -1,6 +1,6 @@
 # VSTGUI-Edit Development Guidelines
 
-Auto-generated from speckit templates. Last updated: 2026-01-05
+Auto-generated from speckit templates. Last updated: 2026-01-06
 
 ---
 
@@ -878,6 +878,91 @@ VITE_DEBUG_MODE=false
 | Boolean | String | `"true"` or `"false"` |
 | Autosize | Flags | `"left right top"` |
 
+## Common Pitfalls
+
+### Selection Tests Must Use mouseDown + mouseUp
+
+Selection is unified to the mouseup handler. Tests using `fireEvent.click()` will NOT work.
+
+```typescript
+// ❌ WRONG - click events don't trigger selection
+fireEvent.click(element);
+fireEvent.click(element, { shiftKey: true });
+
+// ✅ CORRECT - selection happens on mouseup
+fireEvent.mouseDown(element, { button: 0 });
+fireEvent.mouseUp(document);
+
+// ✅ CORRECT - Shift+click for multi-select
+fireEvent.mouseDown(element, { button: 0, shiftKey: true });
+fireEvent.mouseUp(document);
+```
+
+### Type Imports for uidesc Types
+
+Always import uidesc types from the correct location:
+
+```typescript
+// ✅ CORRECT
+import type { VSTGUIUIDescription, TemplateDefinition, ViewNode } from '../../types/uidesc';
+
+// ❌ WRONG - this file doesn't exist
+import type { ... } from '../../types/parser'; // Only has ParseResult, ValidationError
+```
+
+### BitmapDefinition is a Union Type
+
+Bitmaps can be either a string path or an object with `path` property:
+
+```typescript
+// ❌ WRONG - will fail typecheck
+const path = bitmaps?.MyBitmap.path;
+
+// ✅ CORRECT - narrow the type first
+const bitmap = bitmaps?.MyBitmap;
+const path = typeof bitmap === 'object' ? bitmap.path : bitmap;
+```
+
+### ViewNode.children Type
+
+Children is `Record<string, ViewNode> | undefined`, NOT an array:
+
+```typescript
+// ❌ WRONG
+view.children?.forEach(child => ...)
+
+// ✅ CORRECT
+Object.values(view.children ?? {}).forEach(child => ...)
+```
+
+---
+
+## Architecture Decisions
+
+### Selection Unified to MouseUp (2026-01-06)
+
+**Decision**: All selection (click, shift+click, marquee) is handled in `handleMarqueeUp`, not via onClick.
+
+**Why**: The browser fires click events AFTER mouseup. When marquee selection called `selectAll()` on mouseup, the subsequent click event would overwrite it by calling `select()` on the root template.
+
+**Implementation**: 
+- Removed `onClick` handler from Canvas SVG
+- All selection logic moved to `handleMarqueeUp`
+- Two-phase tracking: mousedown starts pending state, 5px movement activates marquee mode
+- If no movement (click), selection happens based on `clickTarget` captured at mousedown
+
+### Toggleable Single-Click Selection (2026-01-06)
+
+**Decision**: Clicking an already-selected view deselects it (toggle behavior).
+
+**Behavior**:
+- Click unselected view → select it, clear others
+- Click selected view → deselect it (clear selection)
+- Click selected view in multi-selection → clear entire selection
+- Shift+click → explicit toggle (add/remove from selection)
+
+---
+
 ## Common Patterns
 
 ### Pattern: Reactive Property Editing
@@ -944,6 +1029,20 @@ class SetPropertyCommand implements Command {
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Added toggleable single-click selection
+  - Click on selected view now deselects it (toggle off)
+  - Click on unselected view selects it (clears others)
+  - Multi-selection cleared when clicking any selected view without Shift
+
+- 2026-01-06: Fixed marquee selection race condition
+  - Unified all selection (click, shift+click, marquee) to mouseup handler
+  - Removed onClick handler that was overwriting marquee selection
+  - Added two-phase tracking: pending → active based on 5px movement threshold
+
+- 2026-01-06: Added src/types/uidesc.ts
+  - VSTGUIUIDescription, TemplateDefinition, ViewNode types
+  - Fixed TypeScript errors across codebase (typecheck now passes)
 
 - 2026-01-06: Implemented 009-marquee-selection feature
   - marqueeStore for marquee (rubber-band) selection state management
