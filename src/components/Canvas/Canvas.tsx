@@ -1,5 +1,6 @@
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 import { useCanvasData } from '../../hooks/canvas';
+import { useTooltip } from '../../hooks/useTooltip';
 import {
   applyZoom,
   canvasStore,
@@ -59,9 +60,6 @@ import { ResizePreview } from './ResizePreview';
 import { DimensionIndicator } from './DimensionIndicator';
 import styles from './Canvas.module.css';
 
-/** Tooltip delay in milliseconds (SC-003) */
-const TOOLTIP_DELAY_MS = 500;
-
 /**
  * Main canvas component that renders the uidesc template visualization.
  * Reads view hierarchy from documentStore and renders as SVG.
@@ -75,11 +73,14 @@ export const Canvas: Component = () => {
     isEmpty,
   } = useCanvasData();
 
-  let wrapperRef: HTMLDivElement | undefined;
+  const {
+    showTooltip,
+    tooltipPosition,
+    handleMouseMove: handleTooltipMouseMove,
+    handleMouseLeave: handleTooltipMouseLeave,
+  } = useTooltip();
 
-  const [showTooltip, setShowTooltip] = createSignal(false);
-  const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
-  let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
+  let wrapperRef: HTMLDivElement | undefined;
 
   const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
   const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
@@ -160,36 +161,7 @@ export const Canvas: Component = () => {
   };
 
 
-  /**
-   * Handle mouse move on canvas - track position for tooltip
-   */
-  const handleCanvasMouseMove = (e: MouseEvent) => {
-    setTooltipPosition({ x: e.clientX, y: e.clientY });
 
-    // Reset tooltip timer on mouse move
-    if (tooltipTimer) {
-      clearTimeout(tooltipTimer);
-      setShowTooltip(false);
-    }
-
-    // Start new tooltip delay timer if hovering a view
-    if (selectionStore.hoveredId) {
-      tooltipTimer = setTimeout(() => {
-        setShowTooltip(true);
-      }, TOOLTIP_DELAY_MS);
-    }
-  };
-
-  /**
-   * Handle mouse leave on canvas - hide tooltip
-   */
-  const handleCanvasMouseLeave = () => {
-    if (tooltipTimer) {
-      clearTimeout(tooltipTimer);
-      tooltipTimer = null;
-    }
-    setShowTooltip(false);
-  };
 
   /**
    * Find the view ID from a click target element by traversing up the DOM.
@@ -629,9 +601,6 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleDragUp);
     document.removeEventListener('mousemove', handleResizeMove);
     document.removeEventListener('mouseup', handleResizeUp);
-    if (tooltipTimer) {
-      clearTimeout(tooltipTimer);
-    }
   });
 
   return (
@@ -656,8 +625,8 @@ export const Canvas: Component = () => {
           data-testid="canvas-wrapper"
           tabIndex={0}
           onMouseDown={handleMouseDown}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseLeave={handleCanvasMouseLeave}
+          onMouseMove={handleTooltipMouseMove}
+          onMouseLeave={handleTooltipMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           onContextMenu={handleContextMenu}
