@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- N/A (extends existing documentStore for view size mutations) (013-view-resize)
 - In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
 - N/A (reads from existing documentStore and selectionStore) (011-properties-panel)
 - SolidJS 1.9.10, solid-js/store (already installed - no new dependencies) (011-properties-panel)
@@ -1284,6 +1285,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 013-view-resize: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 011-properties-panel: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 009-marquee-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies required)

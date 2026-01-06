@@ -19,6 +19,15 @@ export {
   NUDGE_DISTANCE,
   NUDGE_DISTANCE_FAST,
 } from './history';
+// Re-export resize types
+export type {
+  CreateResizeOperationFn,
+  ResizeBounds,
+  ResizeOperationData,
+  ResizeOptions,
+  ResizeState,
+} from './resize';
+export { MIN_VIEW_SIZE, RESIZE_CLICK_TOLERANCE } from './resize';
 // Re-export parser types for convenience
 export type { FormatType, ParseResult, ParseState, ValidationError } from './parser';
 
