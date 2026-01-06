@@ -34,6 +34,9 @@ export function rectIntersect(a: MarqueeRect, b: MarqueeRect): boolean {
 export function findIntersectingViews(marqueeRect: MarqueeRect, views: RenderableView[]): string[] {
   return views
     .filter(view => {
+      if (view.parentId === null) {
+        return false;
+      }
       const viewRect: MarqueeRect = {
         x: view.absoluteX,
         y: view.absoluteY,

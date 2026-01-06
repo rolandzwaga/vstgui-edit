@@ -220,7 +220,8 @@ describe('findIntersectingViews', () => {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    parentId: string | null = 'root'
   ): RenderableView => ({
     id,
     absoluteX: x,
@@ -230,7 +231,7 @@ describe('findIntersectingViews', () => {
     className: 'CView',
     category: 'display',
     zIndex: 0,
-    parentId: null,
+    parentId,
   });
 
   const views: RenderableView[] = [
@@ -299,14 +300,40 @@ describe('findIntersectingViews', () => {
   describe('Given nested views (parent and child)', () => {
     it('should return both parent and child when both intersect', () => {
       const nestedViews: RenderableView[] = [
-        createView('parent', 0, 0, 100, 100),
-        { ...createView('child', 20, 20, 30, 30), parentId: 'parent' },
+        createView('parent', 0, 0, 100, 100, 'root'),
+        createView('child', 20, 20, 30, 30, 'parent'),
       ];
       const marquee = { x: 10, y: 10, width: 50, height: 50 };
       const result = findIntersectingViews(marquee, nestedViews);
       expect(result).toContain('parent');
       expect(result).toContain('child');
       expect(result).toHaveLength(2);
+    });
+  });
+
+  describe('Given root template (parentId === null)', () => {
+    it('should exclude root template from selection', () => {
+      const viewsWithRoot: RenderableView[] = [
+        createView('root-template', 0, 0, 500, 500, null),
+        createView('child-1', 10, 10, 50, 50, 'root-template'),
+        createView('child-2', 100, 100, 50, 50, 'root-template'),
+      ];
+      const marquee = { x: 0, y: 0, width: 200, height: 200 };
+      const result = findIntersectingViews(marquee, viewsWithRoot);
+      expect(result).not.toContain('root-template');
+      expect(result).toContain('child-1');
+      expect(result).toContain('child-2');
+      expect(result).toHaveLength(2);
+    });
+
+    it('should return empty array when only root intersects', () => {
+      const viewsWithRoot: RenderableView[] = [
+        createView('root-template', 0, 0, 500, 500, null),
+        createView('child-1', 400, 400, 50, 50, 'root-template'),
+      ];
+      const marquee = { x: 10, y: 10, width: 50, height: 50 };
+      const result = findIntersectingViews(marquee, viewsWithRoot);
+      expect(result).toEqual([]);
     });
   });
 });

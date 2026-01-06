@@ -160,3 +160,8 @@
 .marqueeCursor {
   cursor: crosshair;
 }
+
+/* Prevent text selection during drag operations */
+.noSelect {
+  user-select: none;
+}

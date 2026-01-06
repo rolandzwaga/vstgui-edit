@@ -518,6 +518,7 @@ export const Canvas: Component = () => {
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
+            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}

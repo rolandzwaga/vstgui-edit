@@ -327,7 +327,7 @@ describe('Canvas Marquee Selection', () => {
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
         expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
-        expect(selectionStore.selectedIds.size).toBe(3);
+        expect(selectionStore.selectedIds.size).toBe(2);
       });
     });
 
@@ -369,7 +369,7 @@ describe('Canvas Marquee Selection', () => {
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
         expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
-        expect(selectionStore.selectedIds.size).toBe(2);
+        expect(selectionStore.selectedIds.size).toBe(1);
       });
     });
   });
@@ -517,6 +517,86 @@ describe('Canvas Marquee Selection', () => {
 
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+  });
+
+  describe('Text selection prevention', () => {
+    it('should apply noSelect class during pending state', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      expect(wrapper.classList.toString()).not.toContain('noSelect');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isPending).toBe(true);
+      });
+      expect(wrapper.classList.toString()).toContain('noSelect');
+    });
+
+    it('should apply noSelect class during active marquee', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 20, clientY: 20 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+      expect(wrapper.classList.toString()).toContain('noSelect');
+    });
+
+    it('should remove noSelect class after mouseup', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(marqueeStore.isPending).toBe(false);
+        expect(marqueeStore.isActive).toBe(false);
+      });
+      expect(wrapper.classList.toString()).not.toContain('noSelect');
+    });
+  });
+
+  describe('Root template exclusion', () => {
+    it('should not select root template when marquee covers entire canvas', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'child-1', x: 50, y: 50, width: 50, height: 50 },
+        { id: 'child-2', x: 150, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 0, clientY: 0, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 300, clientY: 300 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate')).toBe(false);
+        expect(selectionStore.selectedIds.has('TestTemplate-child-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('TestTemplate-child-2')).toBe(true);
       });
     });
   });
