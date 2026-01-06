@@ -3,9 +3,11 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
+import { applySnapToMove, getEffectiveThreshold } from '../../domain/canvas/snap';
 import { canvasStore } from '../../stores/canvasStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
+import { gridStore } from '../../stores/gridStore';
 import { pushOperation } from '../../stores/historyStore';
 import {
   activateMarquee,
@@ -231,7 +233,16 @@ export function useCanvasInteractions(
       const delta = dragStore.delta;
       const origins = dragStore.originalOrigins;
       const viewIds = Object.keys(origins);
-      const newOrigins = applyDeltaToAll(origins, delta);
+      let newOrigins = applyDeltaToAll(origins, delta);
+
+      if (gridStore.isSnapEnabled && gridStore.isVisible) {
+        const anchorId = viewIds[0];
+        if (anchorId) {
+          const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
+          const snapResult = applySnapToMove(newOrigins, anchorId, gridStore.size, threshold);
+          newOrigins = snapResult.snappedOrigins;
+        }
+      }
 
       for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
         updateViewOrigin(viewId, newOrigin);

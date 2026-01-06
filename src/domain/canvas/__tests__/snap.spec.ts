@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getEffectiveThreshold, snapEdges, snapPoint, snapToGrid } from '../snap';
+import { applySnapToMove, getEffectiveThreshold, snapEdges, snapPoint, snapToGrid } from '../snap';
 
 describe('getEffectiveThreshold', () => {
   test('returns threshold when less than half grid size', () => {
@@ -161,5 +161,97 @@ describe('snapEdges', () => {
     const result = snapEdges(bounds, 'sw', 10, 5);
     expect(result.left?.snapped).toBe(true);
     expect(result.bottom?.snapped).toBe(true);
+  });
+});
+
+describe('applySnapToMove', () => {
+  test('snaps anchor view and applies same delta to all views', () => {
+    const origins = {
+      anchor: { x: 23, y: 47 },
+      other: { x: 100, y: 150 },
+    };
+    const result = applySnapToMove(origins, 'anchor', 10, 5);
+
+    expect(result.snappedOrigins.anchor).toEqual({ x: 20, y: 50 });
+    expect(result.snappedOrigins.other).toEqual({ x: 97, y: 153 });
+    expect(result.snapDelta).toEqual({ x: -3, y: 3 });
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('returns original origins when no snap occurs', () => {
+    const origins = {
+      anchor: { x: 15, y: 15 },
+      other: { x: 100, y: 150 },
+    };
+    const result = applySnapToMove(origins, 'anchor', 10, 4);
+
+    expect(result.snappedOrigins.anchor).toEqual({ x: 15, y: 15 });
+    expect(result.snappedOrigins.other).toEqual({ x: 100, y: 150 });
+    expect(result.snapDelta).toEqual({ x: 0, y: 0 });
+    expect(result.didSnap).toBe(false);
+  });
+
+  test('snaps only x when y is outside threshold', () => {
+    const origins = {
+      anchor: { x: 23, y: 15 },
+    };
+    const result = applySnapToMove(origins, 'anchor', 10, 4);
+
+    expect(result.snappedOrigins.anchor).toEqual({ x: 20, y: 15 });
+    expect(result.snapDelta).toEqual({ x: -3, y: 0 });
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('handles single view case', () => {
+    const origins = {
+      single: { x: 48, y: 52 },
+    };
+    const result = applySnapToMove(origins, 'single', 10, 5);
+
+    expect(result.snappedOrigins.single).toEqual({ x: 50, y: 50 });
+    expect(result.snapDelta).toEqual({ x: 2, y: -2 });
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('preserves relative positions between views', () => {
+    const origins = {
+      anchor: { x: 22, y: 33 },
+      view2: { x: 72, y: 83 },
+      view3: { x: 122, y: 133 },
+    };
+    const result = applySnapToMove(origins, 'anchor', 10, 5);
+
+    const anchorDeltaX = result.snappedOrigins.anchor.x - origins.anchor.x;
+    const anchorDeltaY = result.snappedOrigins.anchor.y - origins.anchor.y;
+
+    const view2DeltaX = result.snappedOrigins.view2.x - origins.view2.x;
+    const view2DeltaY = result.snappedOrigins.view2.y - origins.view2.y;
+
+    const view3DeltaX = result.snappedOrigins.view3.x - origins.view3.x;
+    const view3DeltaY = result.snappedOrigins.view3.y - origins.view3.y;
+
+    expect(anchorDeltaX).toBe(view2DeltaX);
+    expect(anchorDeltaX).toBe(view3DeltaX);
+    expect(anchorDeltaY).toBe(view2DeltaY);
+    expect(anchorDeltaY).toBe(view3DeltaY);
+  });
+
+  test('returns empty result for empty origins', () => {
+    const origins = {};
+    const result = applySnapToMove(origins, 'nonexistent', 10, 5);
+
+    expect(result.snappedOrigins).toEqual({});
+    expect(result.snapDelta).toEqual({ x: 0, y: 0 });
+    expect(result.didSnap).toBe(false);
+  });
+
+  test('handles missing anchor by returning original origins', () => {
+    const origins = {
+      view1: { x: 23, y: 47 },
+    };
+    const result = applySnapToMove(origins, 'nonexistent', 10, 5);
+
+    expect(result.snappedOrigins).toEqual(origins);
+    expect(result.didSnap).toBe(false);
   });
 });

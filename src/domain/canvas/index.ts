@@ -50,6 +50,8 @@ export {
 } from './resize';
 // Snap-to-grid utilities
 export {
+  type ApplySnapToMoveResult,
+  applySnapToMove,
   getEffectiveThreshold,
   snapEdges,
   snapPoint,

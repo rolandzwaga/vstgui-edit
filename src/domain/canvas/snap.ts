@@ -79,3 +79,48 @@ export function snapEdges(
     bottom: affected.bottom ? snapToGrid(bottomEdge, gridSize, threshold) : null,
   };
 }
+
+export interface ApplySnapToMoveResult {
+  snappedOrigins: Record<string, Point>;
+  snapDelta: Point;
+  didSnap: boolean;
+}
+
+export function applySnapToMove(
+  origins: Record<string, Point>,
+  anchorId: string,
+  gridSize: number,
+  threshold: number
+): ApplySnapToMoveResult {
+  const anchor = origins[anchorId];
+
+  if (!anchor) {
+    return {
+      snappedOrigins: { ...origins },
+      snapDelta: { x: 0, y: 0 },
+      didSnap: false,
+    };
+  }
+
+  const snapResult = snapPoint(anchor, gridSize, threshold);
+  const snapDelta: Point = {
+    x: snapResult.x.snapped ? snapResult.x.snapDelta : 0,
+    y: snapResult.y.snapped ? snapResult.y.snapDelta : 0,
+  };
+
+  const didSnap = snapResult.x.snapped || snapResult.y.snapped;
+
+  const snappedOrigins: Record<string, Point> = {};
+  for (const [id, origin] of Object.entries(origins)) {
+    snappedOrigins[id] = {
+      x: origin.x + snapDelta.x,
+      y: origin.y + snapDelta.y,
+    };
+  }
+
+  return {
+    snappedOrigins,
+    snapDelta,
+    didSnap,
+  };
+}
