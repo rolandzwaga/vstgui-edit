@@ -3,9 +3,9 @@
  * Type definitions for view resize feature (013-view-resize)
  */
 
-import type { HandlePosition } from './selection';
 import type { Point, Size } from './canvas';
 import type { HistoryOperation } from './history';
+import type { HandlePosition } from './selection';
 
 /**
  * Minimum allowed view dimensions in pixels.

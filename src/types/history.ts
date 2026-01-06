@@ -11,7 +11,7 @@ import type { Point } from './canvas';
  */
 export interface HistoryOperation {
   /** Operation type for debugging/display */
-  type: 'move';
+  type: 'move' | 'resize';
   /** Human-readable description (e.g., "Move CTextButton") */
   description: string;
   /** Function to reverse this operation */

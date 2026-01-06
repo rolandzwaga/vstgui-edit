@@ -41,6 +41,13 @@ export {
   calculateDelta,
   formatOrigin,
 } from './move';
+// Resize utilities
+export {
+  calculateResizeBounds,
+  clampToMinimumSize,
+  createResizeOperation,
+  formatSize,
+} from './resize';
 // View category classification
 export {
   CONTAINER_CLASSES,
