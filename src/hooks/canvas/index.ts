@@ -1,5 +1,10 @@
 export { type UseCanvasDataResult, useCanvasData } from './useCanvasData';
 export {
+  type UseCanvasInteractionsOptions,
+  type UseCanvasInteractionsResult,
+  useCanvasInteractions,
+} from './useCanvasInteractions';
+export {
   type CancelCallbacks,
   type UseCanvasKeyboardOptions,
   type UseCanvasKeyboardResult,

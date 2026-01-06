@@ -1,41 +1,16 @@
-import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { useCanvasData, useCanvasPan, useCanvasZoom, useCanvasKeyboard } from '../../hooks/canvas';
+import { type Component, For, Show } from 'solid-js';
+import {
+  useCanvasData,
+  useCanvasPan,
+  useCanvasZoom,
+  useCanvasKeyboard,
+  useCanvasInteractions,
+} from '../../hooks/canvas';
 import { useTooltip } from '../../hooks/useTooltip';
 import { canvasStore } from '../../stores/canvasStore';
-import {
-  activateMarquee,
-  beginTracking,
-  cancelMarquee,
-  completeMarquee,
-  marqueeStore,
-  updateMarquee,
-} from '../../stores/marqueeStore';
-import {
-  cancelDrag,
-  dragStore,
-  endDrag,
-  resetDrag,
-  startDrag,
-  updateDrag,
-} from '../../stores/dragStore';
-import {
-  cancelResize,
-  endResize,
-  resetResize,
-  resizeStore,
-  startResize,
-  updateResize,
-} from '../../stores/resizeStore';
-import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
-import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
-import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
-import { createResizeOperation } from '../../domain/canvas/resize';
-import { pushOperation } from '../../stores/historyStore';
-import { CLICK_TOLERANCE } from '../../types/history';
-import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
-import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
-import type { RenderableView } from '../../types/canvas';
-import type { HandlePosition } from '../../types/selection';
+import { marqueeStore } from '../../stores/marqueeStore';
+import { dragStore } from '../../stores/dragStore';
+import { resizeStore } from '../../stores/resizeStore';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
@@ -49,18 +24,8 @@ import { ResizePreview } from './ResizePreview';
 import { DimensionIndicator } from './DimensionIndicator';
 import styles from './Canvas.module.css';
 
-/**
- * Main canvas component that renders the uidesc template visualization.
- * Reads view hierarchy from documentStore and renders as SVG.
- */
 export const Canvas: Component = () => {
-  const {
-    renderableViews,
-    templateBounds,
-    selectedViews,
-    hoveredView,
-    isEmpty,
-  } = useCanvasData();
+  const { renderableViews, templateBounds, selectedViews, hoveredView, isEmpty } = useCanvasData();
 
   const {
     showTooltip,
@@ -72,341 +37,17 @@ export const Canvas: Component = () => {
   const { handlePanMouseDown } = useCanvasPan();
   const { handleWheel } = useCanvasZoom();
 
-  let wrapperRef: HTMLDivElement | undefined;
-
-  const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
-  const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
-
-  const getHandlePosition = (handle: HandlePosition, view: RenderableView): { x: number; y: number } => {
-    const { absoluteX: x, absoluteY: y, width: w, height: h } = view;
-    switch (handle) {
-      case 'nw': return { x, y };
-      case 'n': return { x: x + w / 2, y };
-      case 'ne': return { x: x + w, y };
-      case 'w': return { x, y: y + h / 2 };
-      case 'e': return { x: x + w, y: y + h / 2 };
-      case 'sw': return { x, y: y + h };
-      case 's': return { x: x + w / 2, y: y + h };
-      case 'se': return { x: x + w, y: y + h };
-    }
-  };
-
-  const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
-    const point = getHandlePosition(handle, view);
-    const origin = { x: view.absoluteX, y: view.absoluteY };
-    const size = { width: view.width, height: view.height };
-
-    startResize(handle, view.id, point, origin, size);
-
-    document.addEventListener('mousemove', handleResizeMove);
-    document.addEventListener('mouseup', handleResizeUp);
-  };
-
-  const handleResizeMove = (e: MouseEvent) => {
-    if (!resizeStore.isResizing || !wrapperRef) return;
-
-    const wrapperRect = wrapperRef.getBoundingClientRect();
-    const canvasPoint = mouseToCanvas(
-      e.clientX,
-      e.clientY,
-      wrapperRect,
-      canvasStore.panOffset,
-      canvasStore.zoomLevel
-    );
-
-    updateResize(canvasPoint, e.shiftKey, e.altKey);
-  };
-
-  const handleResizeUp = () => {
-    document.removeEventListener('mousemove', handleResizeMove);
-    document.removeEventListener('mouseup', handleResizeUp);
-
-    if (resizeStore.isResizing && resizeStore.viewId) {
-      const viewId = resizeStore.viewId;
-      const originalOrigin = resizeStore.originalOrigin;
-      const originalSize = resizeStore.originalSize;
-      const newOrigin = resizeStore.newOrigin;
-      const newSize = resizeStore.newSize;
-
-      if (originalOrigin && originalSize) {
-        const sizeChanged =
-          newSize.width !== originalSize.width || newSize.height !== originalSize.height;
-        const originChanged =
-          newOrigin.x !== originalOrigin.x || newOrigin.y !== originalOrigin.y;
-
-        if (sizeChanged || originChanged) {
-          updateViewOrigin(viewId, newOrigin);
-          updateViewSize(viewId, newSize);
-
-          const operation = createResizeOperation(
-            { viewId, originalOrigin, originalSize, newOrigin, newSize },
-            updateViewOrigin,
-            updateViewSize
-          );
-          pushOperation(operation);
-        }
-      }
-    }
-
-    endResize();
-    resetResize();
-  };
-
-
-
-
-  /**
-   * Find the view ID from a click target element by traversing up the DOM.
-   * Looks for data-view-id attribute on the target or its ancestors.
-   */
-  const getViewIdFromTarget = (target: EventTarget | null): string | null => {
-    let element = target as Element | null;
-    while (element && element !== document.documentElement) {
-      const viewId = element.getAttribute?.('data-view-id');
-      if (viewId) {
-        return viewId;
-      }
-      element = element.parentElement;
-    }
-    return null;
-  };
-
-  const handleSvgMouseDown = (e: MouseEvent) => {
-    if (e.button !== 0 || e.ctrlKey || canvasStore.isPanning) {
-      return;
-    }
-
-    if (!wrapperRef) return;
-    const wrapperRect = wrapperRef.getBoundingClientRect();
-    const canvasPoint = mouseToCanvas(
-      e.clientX,
-      e.clientY,
-      wrapperRect,
-      canvasStore.panOffset,
-      canvasStore.zoomLevel
-    );
-
-    const targetViewId = getViewIdFromTarget(e.target);
-
-    if (targetViewId && isSelected(targetViewId) && !e.shiftKey) {
-      setPendingDragStart({ x: e.clientX, y: e.clientY });
-      setPendingDragViewId(targetViewId);
-
-      document.addEventListener('mousemove', handleDragMove);
-      document.addEventListener('mouseup', handleDragUp);
-      return;
-    }
-
-    beginTracking(canvasPoint, e.shiftKey, selectionStore.selectedIds, targetViewId);
-
-    document.addEventListener('mousemove', handleMarqueeMove);
-    document.addEventListener('mouseup', handleMarqueeUp);
-  };
-
-  const captureOriginsForSelectedViews = (): Record<string, { x: number; y: number }> => {
-    const views = renderableViews();
-    const selectedIds = selectionStore.selectedIds;
-    const origins: Record<string, { x: number; y: number }> = {};
-
-    for (const view of views) {
-      if (selectedIds.has(view.id)) {
-        origins[view.id] = { x: view.absoluteX, y: view.absoluteY };
-      }
-    }
-
-    return origins;
-  };
-
-  const handleDragMove = (e: MouseEvent) => {
-    if (!wrapperRef) return;
-    const start = pendingDragStart();
-
-    if (!start) return;
-
-    if (!dragStore.isDragging) {
-      const dx = Math.abs(e.clientX - start.x);
-      const dy = Math.abs(e.clientY - start.y);
-      const distance = Math.max(dx, dy);
-
-      if (distance >= CLICK_TOLERANCE) {
-        const wrapperRect = wrapperRef.getBoundingClientRect();
-        const canvasStart = mouseToCanvas(
-          start.x,
-          start.y,
-          wrapperRect,
-          canvasStore.panOffset,
-          canvasStore.zoomLevel
-        );
-
-        const origins = captureOriginsForSelectedViews();
-        startDrag(canvasStart, origins);
-      } else {
-        return;
-      }
-    }
-
-    const wrapperRect = wrapperRef.getBoundingClientRect();
-    const canvasPoint = mouseToCanvas(
-      e.clientX,
-      e.clientY,
-      wrapperRect,
-      canvasStore.panOffset,
-      canvasStore.zoomLevel
-    );
-
-    updateDrag(canvasPoint, e.shiftKey);
-  };
-
-  const handleDragUp = () => {
-    document.removeEventListener('mousemove', handleDragMove);
-    document.removeEventListener('mouseup', handleDragUp);
-
-    if (dragStore.isDragging) {
-      const delta = dragStore.delta;
-      const origins = dragStore.originalOrigins;
-      const viewIds = Object.keys(origins);
-      const newOrigins = applyDeltaToAll(origins, delta);
-
-      for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
-        updateViewOrigin(viewId, newOrigin);
-      }
-
-      const operation = createMoveOperation(
-        { viewIds, originalOrigins: origins, newOrigins },
-        updateViewOrigin
-      );
-      pushOperation(operation);
-    } else {
-      clearSelection();
-    }
-
-    setPendingDragStart(null);
-    setPendingDragViewId(null);
-    resetDrag();
-  };
-
-  const handleMarqueeMove = (e: MouseEvent) => {
-    if (!wrapperRef) return;
-    const wrapperRect = wrapperRef.getBoundingClientRect();
-    const canvasPoint = mouseToCanvas(
-      e.clientX,
-      e.clientY,
-      wrapperRect,
-      canvasStore.panOffset,
-      canvasStore.zoomLevel
-    );
-
-    updateMarquee(canvasPoint);
-
-    if (marqueeStore.isPending && !marqueeStore.isActive) {
-      const start = marqueeStore.startPoint;
-      if (start && isMinimumSize(start, canvasPoint)) {
-        activateMarquee();
-      }
-    }
-  };
-
-  /**
-   * Handle mouse up to complete marquee selection or click-select.
-   */
-  const handleMarqueeUp = () => {
-    document.removeEventListener('mousemove', handleMarqueeMove);
-    document.removeEventListener('mouseup', handleMarqueeUp);
-
-    const start = marqueeStore.startPoint;
-    const current = marqueeStore.currentPoint;
-
-    if (!start || !current) {
-      cancelMarquee();
-      return;
-    }
-
-    if (!marqueeStore.isActive) {
-      const targetViewId = marqueeStore.clickTarget;
-      if (targetViewId) {
-        if (marqueeStore.isAdditive) {
-          toggleSelect(targetViewId);
-        } else if (isSelected(targetViewId)) {
-          clearSelection();
-        } else {
-          select(targetViewId);
-        }
-      } else {
-        clearSelection();
-      }
-      completeMarquee();
-      return;
-    }
-
-    const marqueeRect = normalizeRect(start, current);
-    const views = renderableViews();
-    const intersectingIds = findIntersectingViews(marqueeRect, views);
-
-    if (marqueeStore.isAdditive) {
-      const merged = new Set([...marqueeStore.previousSelection, ...intersectingIds]);
-      selectAll([...merged]);
-    } else {
-      selectAll(intersectingIds);
-    }
-
-    completeMarquee();
-  };
-
-  createEffect(() => {
-    if (canvasStore.isPanning && (marqueeStore.isActive || marqueeStore.isPending)) {
-      cancelMarquee();
-      document.removeEventListener('mousemove', handleMarqueeMove);
-      document.removeEventListener('mouseup', handleMarqueeUp);
-    }
-  });
+  const { wrapperRef, handleSvgMouseDown, handleResizeStart, handleContextMenu, cancelCallbacks } =
+    useCanvasInteractions({ renderableViews });
 
   const { handleKeyDown } = useCanvasKeyboard({
     renderableViews,
     templateBounds,
-    cancelCallbacks: {
-      cancelResizeListeners: () => {
-        document.removeEventListener('mousemove', handleResizeMove);
-        document.removeEventListener('mouseup', handleResizeUp);
-      },
-      cancelDragListeners: () => {
-        document.removeEventListener('mousemove', handleDragMove);
-        document.removeEventListener('mouseup', handleDragUp);
-      },
-      cancelMarqueeListeners: () => {
-        document.removeEventListener('mousemove', handleMarqueeMove);
-        document.removeEventListener('mouseup', handleMarqueeUp);
-      },
-      clearPendingDrag: () => {
-        setPendingDragStart(null);
-        setPendingDragViewId(null);
-      },
-    },
-  });
-
-  const handleContextMenu = (e: MouseEvent) => {
-    if (marqueeStore.isActive) {
-      e.preventDefault();
-      selectAll([...marqueeStore.previousSelection]);
-      cancelMarquee();
-      document.removeEventListener('mousemove', handleMarqueeMove);
-      document.removeEventListener('mouseup', handleMarqueeUp);
-    }
-  };
-
-  onCleanup(() => {
-    document.removeEventListener('mousemove', handleMarqueeMove);
-    document.removeEventListener('mouseup', handleMarqueeUp);
-    document.removeEventListener('mousemove', handleDragMove);
-    document.removeEventListener('mouseup', handleDragUp);
-    document.removeEventListener('mousemove', handleResizeMove);
-    document.removeEventListener('mouseup', handleResizeUp);
+    cancelCallbacks,
   });
 
   return (
-    <Show
-      when={!isEmpty()}
-      fallback={<EmptyState />}
-    >
+    <Show when={!isEmpty()} fallback={<EmptyState />}>
       <div>
         <div
           ref={wrapperRef}
@@ -415,11 +56,24 @@ export const Canvas: Component = () => {
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
             [styles.moveCursor]: dragStore.isDragging,
-            [styles.resizeNwse]: resizeStore.isResizing && (resizeStore.activeHandle === 'nw' || resizeStore.activeHandle === 'se'),
-            [styles.resizeNesw]: resizeStore.isResizing && (resizeStore.activeHandle === 'ne' || resizeStore.activeHandle === 'sw'),
-            [styles.resizeNs]: resizeStore.isResizing && (resizeStore.activeHandle === 'n' || resizeStore.activeHandle === 's'),
-            [styles.resizeEw]: resizeStore.isResizing && (resizeStore.activeHandle === 'e' || resizeStore.activeHandle === 'w'),
-            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging || resizeStore.isResizing,
+            [styles.resizeNwse]:
+              resizeStore.isResizing &&
+              (resizeStore.activeHandle === 'nw' || resizeStore.activeHandle === 'se'),
+            [styles.resizeNesw]:
+              resizeStore.isResizing &&
+              (resizeStore.activeHandle === 'ne' || resizeStore.activeHandle === 'sw'),
+            [styles.resizeNs]:
+              resizeStore.isResizing &&
+              (resizeStore.activeHandle === 'n' || resizeStore.activeHandle === 's'),
+            [styles.resizeEw]:
+              resizeStore.isResizing &&
+              (resizeStore.activeHandle === 'e' || resizeStore.activeHandle === 'w'),
+            [styles.noSelect]:
+              marqueeStore.isPending ||
+              marqueeStore.isActive ||
+              canvasStore.isPanning ||
+              dragStore.isDragging ||
+              resizeStore.isResizing,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
@@ -435,7 +89,6 @@ export const Canvas: Component = () => {
             transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px) scale(${canvasStore.zoomLevel})`,
           }}
         >
-          {/* Grid renders behind template views */}
           <Show when={templateBounds()}>
             {(bounds) => <Grid width={bounds().width} height={bounds().height} />}
           </Show>
@@ -465,14 +118,9 @@ export const Canvas: Component = () => {
         </div>
         <Legend />
         <DimensionIndicator />
-        {/* Hover tooltip - renders when hovering and after delay (FR-011, SC-003) */}
         <Show when={showTooltip() && hoveredView()}>
           {(view) => (
-            <HoverTooltip
-              view={view()}
-              x={tooltipPosition().x}
-              y={tooltipPosition().y}
-            />
+            <HoverTooltip view={view()} x={tooltipPosition().x} y={tooltipPosition().y} />
           )}
         </Show>
       </div>
