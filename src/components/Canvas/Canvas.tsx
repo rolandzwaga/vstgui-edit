@@ -1,6 +1,5 @@
-import { type Component, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
-import type { TemplateDefinition } from '../../types/uidesc';
-import { documentStore } from '../../stores/documentStore';
+import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { useCanvasData } from '../../hooks/canvas';
 import {
   applyZoom,
   canvasStore,
@@ -39,16 +38,13 @@ import {
 } from '../../stores/resizeStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
-import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
-import { hitTest } from '../../domain/canvas/hitTest';
 import { applyDelta, applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { CLICK_TOLERANCE, NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
-import { parseSize } from '../../domain/canvas/coordinates';
-import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
+import type { RenderableView } from '../../types/canvas';
 import type { HandlePosition } from '../../types/selection';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
@@ -71,85 +67,14 @@ const TOOLTIP_DELAY_MS = 500;
  * Reads view hierarchy from documentStore and renders as SVG.
  */
 export const Canvas: Component = () => {
-  /**
-   * Gets the templates object from documentStore.
-   */
-  const templates = () => {
-    const doc = documentStore.document;
-    if (!doc) return null;
+  const {
+    renderableViews,
+    templateBounds,
+    selectedViews,
+    hoveredView,
+    isEmpty,
+  } = useCanvasData();
 
-    // Access vstgui-ui-description.templates
-    const vstgui = doc['vstgui-ui-description'];
-    if (!vstgui) return null;
-
-    return vstgui.templates ?? null;
-  };
-
-  /**
-   * Gets the first template from the templates object.
-   * Returns [templateName, templateView] tuple or null.
-   */
-  const firstTemplate = createMemo((): [string, TemplateDefinition] | null => {
-    const t = templates();
-    if (!t) return null;
-
-    const entries = Object.entries(t) as [string, TemplateDefinition][];
-    if (entries.length === 0) return null;
-
-    return entries[0];
-  });
-
-  /**
-   * Flattens the template hierarchy into renderable views.
-   * Passes fonts and colors from document for style resolution.
-   */
-  const renderableViews = createMemo((): RenderableView[] => {
-    const template = firstTemplate();
-    if (!template) return [];
-
-    const doc = documentStore.document;
-    const vstgui = doc?.['vstgui-ui-description'];
-
-    const [name, view] = template;
-    return flattenHierarchy(view, name, {
-      fonts: vstgui?.fonts,
-      colors: vstgui?.colors,
-    });
-  });
-
-  /**
-   * Gets the template bounds from the root view.
-   */
-  const templateBounds = createMemo((): TemplateBoundsType | null => {
-    const template = firstTemplate();
-    if (!template) return null;
-
-    const [, view] = template;
-    const size = parseSize(view.attributes.size);
-
-    return {
-      width: size.width,
-      height: size.height,
-    };
-  });
-
-  /**
-   * Whether to show the empty state.
-   */
-  const isEmpty = () => firstTemplate() === null;
-
-  /**
-   * Gets the selected views for rendering selection overlays.
-   */
-  const selectedViews = createMemo((): RenderableView[] => {
-    const views = renderableViews();
-    const selectedIds = selectionStore.selectedIds;
-    return views.filter((view) => selectedIds.has(view.id));
-  });
-
-  /**
-   * Reference to the canvas wrapper element for coordinate transforms.
-   */
   let wrapperRef: HTMLDivElement | undefined;
 
   const [showTooltip, setShowTooltip] = createSignal(false);
@@ -234,16 +159,6 @@ export const Canvas: Component = () => {
     resetResize();
   };
 
-
-
-  /**
-   * Gets the currently hovered view for tooltip display.
-   */
-  const hoveredView = createMemo((): RenderableView | null => {
-    const hoveredId = selectionStore.hoveredId;
-    if (!hoveredId) return null;
-    return renderableViews().find((v) => v.id === hoveredId) ?? null;
-  });
 
   /**
    * Handle mouse move on canvas - track position for tooltip
