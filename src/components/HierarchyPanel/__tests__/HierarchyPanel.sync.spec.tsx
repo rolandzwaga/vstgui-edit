@@ -1,0 +1,112 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { render, screen } from '@solidjs/testing-library';
+import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { select, resetSelection } from '../../../stores/selectionStore';
+import { resetHierarchy, isExpanded } from '../../../stores/hierarchyStore';
+import { HierarchyPanel } from '../HierarchyPanel';
+import { vi } from 'vitest';
+
+const mockDocumentStore = vi.hoisted(() => ({
+  document: null as unknown,
+}));
+
+vi.mock('../../../stores/documentStore', () => ({
+  documentStore: mockDocumentStore,
+}));
+
+describe('HierarchyPanel canvas-to-tree sync', () => {
+  beforeEach(() => {
+    mockDocumentStore.document = null;
+    testInRoot(() => {
+      resetSelection();
+      resetHierarchy();
+    });
+  });
+
+  describe('given canvas selection changes', () => {
+    it('should show selected state in tree', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: { class: 'CViewContainer', size: '400, 300' },
+            },
+          },
+        },
+      };
+
+      render(() => <HierarchyPanel />);
+
+      testInRoot(() => {
+        select('MainView');
+      });
+
+      const row = screen.getByTestId('tree-node-MainView');
+      expect(row.className).toContain('selected');
+    });
+
+    it('should auto-expand ancestors when selecting nested view', async () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: { class: 'CViewContainer', size: '400, 300' },
+              children: {
+                panel: {
+                  attributes: { class: 'CViewContainer' },
+                  children: {
+                    button: { attributes: { class: 'CTextButton' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <HierarchyPanel />);
+
+      testInRoot(() => {
+        resetHierarchy();
+        select('MainView-panel-button');
+      });
+
+      await Promise.resolve();
+
+      testInRoot(() => {
+        expect(isExpanded('MainView')).toBe(true);
+        expect(isExpanded('MainView-panel')).toBe(true);
+      });
+    });
+  });
+
+  describe('given multi-selection on canvas', () => {
+    it('should show all selected nodes in tree', () => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: { class: 'CViewContainer', size: '400, 300' },
+              children: {
+                button: { attributes: { class: 'CTextButton' } },
+                label: { attributes: { class: 'CTextLabel' } },
+              },
+            },
+          },
+        },
+      };
+
+      render(() => <HierarchyPanel />);
+
+      testInRoot(() => {
+        select('MainView-button');
+      });
+
+      const buttonRow = screen.getByTestId('tree-node-MainView-button');
+      expect(buttonRow.className).toContain('selected');
+    });
+  });
+});

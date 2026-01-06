@@ -1,5 +1,6 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas } from './components/Canvas';
+import { HierarchyPanel } from './components/HierarchyPanel';
 import { MainToolbar } from './components/MainToolbar';
 import { documentStore } from './stores/documentStore';
 import { fitToView } from './stores/canvasStore';
@@ -29,9 +30,12 @@ export default function App() {
     <main style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}>
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
-        <div style={{ "min-height": '400px' }}>
-          <MainToolbar onFitToView={handleFitToView} />
-          <Canvas />
+        <div style={{ display: 'flex', "min-height": '100vh' }}>
+          <HierarchyPanel />
+          <div style={{ flex: 1, "min-width": 0 }}>
+            <MainToolbar onFitToView={handleFitToView} />
+            <Canvas />
+          </div>
         </div>
       ) : (
         <>
