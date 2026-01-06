@@ -110,4 +110,20 @@ describe('AttributeGroup', () => {
       expect(onToggle).not.toHaveBeenCalled();
     });
   });
+
+  describe('chevron indicator', () => {
+    it('should show down chevron when expanded', () => {
+      render(() => <AttributeGroup group={createGroup()} isExpanded={true} />);
+
+      const indicator = screen.getByTestId('collapse-indicator');
+      expect(indicator).toHaveTextContent('▼');
+    });
+
+    it('should show right chevron when collapsed', () => {
+      render(() => <AttributeGroup group={createGroup()} isExpanded={false} />);
+
+      const indicator = screen.getByTestId('collapse-indicator');
+      expect(indicator).toHaveTextContent('▶');
+    });
+  });
 });
