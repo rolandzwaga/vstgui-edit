@@ -1,4 +1,4 @@
-import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { type Component, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import {
   applyZoom,
@@ -371,6 +371,15 @@ export const Canvas: Component = () => {
     completeMarquee();
   };
 
+  // FR-012: Cancel marquee if pan operation starts during drag
+  createEffect(() => {
+    if (canvasStore.isPanning && marqueeStore.isActive) {
+      cancelMarquee();
+      document.removeEventListener('mousemove', handleMarqueeMove);
+      document.removeEventListener('mouseup', handleMarqueeUp);
+    }
+  });
+
   /**
    * Handle wheel event for zoom.
    * Prevents default browser zoom and applies cursor-centered zoom.
@@ -493,6 +502,7 @@ export const Canvas: Component = () => {
           class={styles.canvasWrapper}
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
+            [styles.marqueeCursor]: marqueeStore.isActive,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}

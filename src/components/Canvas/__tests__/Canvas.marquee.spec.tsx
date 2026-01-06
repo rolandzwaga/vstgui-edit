@@ -405,5 +405,65 @@ describe('Canvas Marquee Selection', () => {
       const rect = screen.getByTestId('marquee-rect');
       expect(rect.classList.toString()).toContain('marqueeRect');
     });
+
+    it('should apply crosshair cursor during marquee (FR-013)', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Before marquee, no crosshair cursor class
+      expect(wrapper.classList.toString()).not.toContain('marqueeCursor');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+
+      // During marquee, crosshair cursor class should be applied
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+      expect(wrapper.classList.toString()).toContain('marqueeCursor');
+
+      // After mouseup, cursor class should be removed
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+      expect(wrapper.classList.toString()).not.toContain('marqueeCursor');
+    });
+  });
+
+  describe('FR-012: Pan conflict detection', () => {
+    it('should cancel marquee when pan starts', async () => {
+      // Import pan functions to simulate pan starting during marquee
+      const { startPan } = await import('../../../stores/canvasStore');
+
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      // Start marquee
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+
+      // Simulate pan starting (e.g., user presses space while dragging)
+      testInRoot(() => {
+        startPan(50, 50);
+      });
+
+      // Marquee should be cancelled
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
   });
 });
