@@ -57,6 +57,16 @@ export function useCanvasInteractions(
     wrapperRefValue = el;
   };
 
+  const handleGlobalMouseDown = (e: MouseEvent) => {
+    if (!wrapperRefValue) return;
+    if (wrapperRefValue.contains(e.target as Node)) return;
+    if (selectionStore.selectedIds.size > 0) {
+      clearSelection();
+    }
+  };
+
+  document.addEventListener('mousedown', handleGlobalMouseDown);
+
   const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(
     null
   );
@@ -375,6 +385,7 @@ export function useCanvasInteractions(
   };
 
   onCleanup(() => {
+    document.removeEventListener('mousedown', handleGlobalMouseDown);
     document.removeEventListener('mousemove', handleMarqueeMove);
     document.removeEventListener('mouseup', handleMarqueeUp);
     document.removeEventListener('mousemove', handleDragMove);
