@@ -23,14 +23,23 @@ export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
   };
 
   return (
-    <div class={styles.group} data-testid="attribute-group">
+    <div class={styles.group} data-testid="attribute-group" role="region" aria-label={props.group.label}>
       <div
         class={`${styles.header} ${isCollapsible() ? styles.clickable : ''}`}
         data-testid="group-header"
         onClick={handleHeaderClick}
+        role={isCollapsible() ? 'button' : undefined}
+        aria-expanded={isCollapsible() ? props.isExpanded : undefined}
+        tabIndex={isCollapsible() ? 0 : undefined}
+        onKeyDown={(e) => {
+          if (isCollapsible() && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            handleHeaderClick();
+          }
+        }}
       >
         <Show when={isCollapsible()}>
-          <span class={styles.chevron} data-testid="collapse-indicator">
+          <span class={styles.chevron} data-testid="collapse-indicator" aria-hidden="true">
             {props.isExpanded ? '▼' : '▶'}
           </span>
         </Show>

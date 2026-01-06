@@ -79,7 +79,7 @@ export const PropertiesPanel: Component = () => {
   };
 
   return (
-    <div class={styles.panel} data-testid="properties-panel">
+    <div class={styles.panel} data-testid="properties-panel" role="complementary" aria-label="Properties">
       <Show when={groupedAttributes()} fallback={<EmptyState />}>
         {(attrs) => (
           <>

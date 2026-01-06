@@ -420,6 +420,67 @@ if (isExpanded('node-1')) {
 resetHierarchy();
 ```
 
+### Properties Store (`src/stores/propertiesStore.ts`)
+
+Global store for properties panel group expand/collapse state:
+
+- `propertiesStore` - Reactive store with expandedGroups
+- `toggleGroup(groupId)` - Toggle expand/collapse for a group (no-op for identity)
+- `expandGroup(groupId)` - Expand a group (no-op if already expanded or identity)
+- `collapseGroup(groupId)` - Collapse a group (no-op if already collapsed or identity)
+- `isGroupExpanded(groupId)` - Check if a group is expanded (always true for identity)
+- `resetProperties()` - Reset all groups to default expanded state
+
+```typescript
+import { propertiesStore, toggleGroup, expandGroup, collapseGroup, isGroupExpanded, resetProperties } from './stores/propertiesStore';
+
+// Access expand state
+console.log(propertiesStore.expandedGroups); // Set<AttributeGroupId>
+
+// Toggle expand/collapse
+toggleGroup('geometry');  // Toggle (no-op for 'identity')
+
+// Expand/collapse specific groups
+expandGroup('appearance');  // Expand
+collapseGroup('behavior');  // Collapse
+
+// Check if expanded
+if (isGroupExpanded('text')) {
+  // Group is expanded
+}
+
+// Reset for testing (expands all except identity which is always shown)
+resetProperties();
+```
+
+### Properties Domain (`src/domain/properties/`)
+
+Utilities for attribute grouping and multi-selection merging:
+
+- `ATTRIBUTE_GROUP_MAP` - Map of attribute names to group categories
+- `getAttributeGroup(name)` - Get group ID for an attribute name
+- `groupAttributes(attrs)` - Group single view's attributes by category
+- `mergeSelections(viewAttrs, classNames)` - Merge attributes from multiple views
+
+```typescript
+import { ATTRIBUTE_GROUP_MAP, getAttributeGroup, groupAttributes, mergeSelections } from './domain/properties';
+
+// Get group for attribute
+const group = getAttributeGroup('origin'); // 'geometry'
+const group = getAttributeGroup('custom-attr'); // 'other'
+
+// Group single view's attributes
+const groups = groupAttributes({ class: 'CView', origin: '0, 0' });
+// Returns: AttributeGroup[] sorted by priority
+
+// Merge multi-selection attributes
+const result = mergeSelections(
+  [{ class: 'CView', origin: '0, 0' }, { class: 'CView', origin: '10, 10' }],
+  ['CView', 'CView']
+);
+// Returns: GroupedAttributes with shared values and 'Mixed' indicators
+```
+
 ### Hierarchy Utilities (`src/domain/hierarchy/buildTree.ts`)
 
 Utilities for building and traversing the view tree:
@@ -1093,6 +1154,18 @@ class SetPropertyCommand implements Command {
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Implemented 011-properties-panel feature
+  - PropertiesPanel component in right sidebar (280px width)
+  - Display attributes of selected view(s) grouped by category
+  - Groups: Identity (class), Geometry, Appearance, Text, Behavior, Other
+  - Multi-selection shows shared values or "Mixed" indicators
+  - Click-to-copy attribute values via Clipboard API
+  - Collapsible groups with expand/collapse state preservation
+  - propertiesStore for group expand/collapse state management
+  - Domain utilities: groupAttributes, mergeSelections, ATTRIBUTE_GROUP_MAP
+  - ARIA labels and keyboard navigation for accessibility
+  - 956 passing tests (52 new + 904 existing)
 
 - 2026-01-06: Added toggleable single-click selection
   - Click on selected view now deselects it (toggle off)
