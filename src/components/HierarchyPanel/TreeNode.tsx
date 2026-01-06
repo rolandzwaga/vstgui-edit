@@ -41,6 +41,28 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        select(props.node.id);
+        break;
+      case 'ArrowRight':
+        if (props.node.hasChildren && !expanded()) {
+          e.preventDefault();
+          toggleExpanded(props.node.id);
+        }
+        break;
+      case 'ArrowLeft':
+        if (props.node.hasChildren && expanded()) {
+          e.preventDefault();
+          toggleExpanded(props.node.id);
+        }
+        break;
+    }
+  };
+
   return (
     <>
       <div
@@ -48,10 +70,12 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
         class={`${styles.row} ${selected() ? styles.selected : ''}`}
         data-testid={`tree-node-${props.node.id}`}
         role="treeitem"
+        tabindex={0}
         aria-expanded={props.node.hasChildren ? (expanded() ? 'true' : 'false') : undefined}
         aria-selected={selected()}
         style={{ 'padding-left': `${indentPx()}px` }}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
       >
         <Show when={props.node.hasChildren}>
           <button

@@ -381,6 +381,67 @@ if (isSelected('view-1')) {
 resetSelection();
 ```
 
+### Hierarchy Store (`src/stores/hierarchyStore.ts`)
+
+Global store for hierarchy panel expand/collapse state:
+
+- `hierarchyStore` - Reactive store with expandedIds
+- `toggleExpanded(nodeId)` - Toggle expand/collapse for a node
+- `expandNode(nodeId)` - Expand a node (no-op if already expanded)
+- `collapseNode(nodeId)` - Collapse a node (no-op if already collapsed)
+- `expandAll(nodeIds)` - Expand multiple nodes at once
+- `isExpanded(nodeId)` - Check if a node is expanded
+- `resetHierarchy()` - Reset all state (collapse all nodes)
+
+```typescript
+import { hierarchyStore, toggleExpanded, expandNode, collapseNode, expandAll, isExpanded, resetHierarchy } from './stores/hierarchyStore';
+
+// Access expand state
+console.log(hierarchyStore.expandedIds); // Set<string>
+
+// Toggle expand/collapse
+toggleExpanded('node-1');  // Expand if collapsed, collapse if expanded
+
+// Expand/collapse specific nodes
+expandNode('node-1');      // Expand (no-op if already expanded)
+collapseNode('node-1');    // Collapse (no-op if already collapsed)
+
+// Expand all containers on initial load
+expandAll(['root', 'child-1', 'child-2']);
+
+// Check if expanded
+if (isExpanded('node-1')) {
+  // Node is expanded
+}
+
+// Reset for testing
+resetHierarchy();
+```
+
+### Hierarchy Utilities (`src/domain/hierarchy/buildTree.ts`)
+
+Utilities for building and traversing the view tree:
+
+- `buildTree(view, id, depth?)` - Transform ViewNode to TreeNode for rendering
+- `getContainerIds(tree)` - Get IDs of all nodes with children (for expandAll)
+- `getTreeAncestorIds(targetId, tree)` - Get ancestor IDs from root to target
+
+```typescript
+import { buildTree, getContainerIds, getTreeAncestorIds } from './domain/hierarchy';
+
+// Build tree from ViewNode (from uidesc document)
+const tree = buildTree(templateView, 'root');
+// Returns: TreeNode with id, label, category, hasChildren, depth, children[]
+
+// Get all container IDs for expanding all
+const containerIds = getContainerIds(tree);
+// Returns: ['root', 'container-1', 'container-2']
+
+// Get ancestors for auto-expand on selection
+const ancestors = getTreeAncestorIds('deep-child', tree);
+// Returns: ['root', 'parent-1'] - path from root to parent of target
+```
+
 ### Marquee Store (`src/stores/marqueeStore.ts`)
 
 Global store for marquee (rubber-band) selection state:

@@ -10,6 +10,20 @@
   background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
 }
 
+.row:focus {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: -2px;
+}
+
+.row:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: -2px;
+}
+
 .row.selected {
   background-color: var(--color-selection-bg, #0066cc20);
 }
