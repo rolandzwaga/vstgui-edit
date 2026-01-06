@@ -1,14 +1,7 @@
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { useCanvasData, useCanvasPan, useCanvasZoom } from '../../hooks/canvas';
+import { useCanvasData, useCanvasPan, useCanvasZoom, useCanvasKeyboard } from '../../hooks/canvas';
 import { useTooltip } from '../../hooks/useTooltip';
-import {
-  canvasStore,
-  fitToView,
-  resetZoom,
-  zoomIn,
-  zoomOut,
-} from '../../stores/canvasStore';
-import { toggleVisibility } from '../../stores/gridStore';
+import { canvasStore } from '../../stores/canvasStore';
 import {
   activateMarquee,
   beginTracking,
@@ -35,10 +28,10 @@ import {
 } from '../../stores/resizeStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
-import { applyDelta, applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
+import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
-import { pushOperation, redo, undo } from '../../stores/historyStore';
-import { CLICK_TOLERANCE, NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
+import { pushOperation } from '../../stores/historyStore';
+import { CLICK_TOLERANCE } from '../../types/history';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import type { RenderableView } from '../../types/canvas';
@@ -367,154 +360,29 @@ export const Canvas: Component = () => {
     }
   });
 
-
-
-  /**
-   * Handle keyboard events for zoom, selection, and grid shortcuts.
-   * Ctrl+A / Cmd+A: select all views (FR-005)
-   * Escape: deselect all views (FR-006)
-   * + or = key: zoom in
-   * - key: zoom out
-   * 0 key: reset to 100%
-   * F key: fit to view
-   * G key: toggle grid
-   * Ignores when focus is in a text input/textarea (FR-007, FR-013).
-   */
-  const handleKeyDown = (e: KeyboardEvent) => {
-    // Ignore when focus is in a text input or textarea (FR-007, FR-013)
-    const target = e.target as HTMLElement;
-    const tagName = target.tagName.toLowerCase();
-    if (tagName === 'input' || tagName === 'textarea') {
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
-      e.preventDefault();
-      const views = renderableViews();
-      selectAll(views.map((v) => v.id));
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-      e.preventDefault();
-      undo();
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-      e.preventDefault();
-      redo();
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
-      e.preventDefault();
-      redo();
-      return;
-    }
-
-    if (e.key === 'Escape') {
-      if (resizeStore.isResizing) {
-        cancelResize();
+  const { handleKeyDown } = useCanvasKeyboard({
+    renderableViews,
+    templateBounds,
+    cancelCallbacks: {
+      cancelResizeListeners: () => {
         document.removeEventListener('mousemove', handleResizeMove);
         document.removeEventListener('mouseup', handleResizeUp);
-        return;
-      }
-
-      if (dragStore.isDragging) {
-        const origins = dragStore.originalOrigins;
-        for (const [viewId, origin] of Object.entries(origins)) {
-          updateViewOrigin(viewId, origin);
-        }
-        cancelDrag();
-        setPendingDragStart(null);
-        setPendingDragViewId(null);
+      },
+      cancelDragListeners: () => {
         document.removeEventListener('mousemove', handleDragMove);
         document.removeEventListener('mouseup', handleDragUp);
-        return;
-      }
-
-      if (marqueeStore.isActive) {
-        selectAll([...marqueeStore.previousSelection]);
-        cancelMarquee();
+      },
+      cancelMarqueeListeners: () => {
         document.removeEventListener('mousemove', handleMarqueeMove);
         document.removeEventListener('mouseup', handleMarqueeUp);
-        return;
-      }
-      clearSelection();
-      return;
-    }
+      },
+      clearPendingDrag: () => {
+        setPendingDragStart(null);
+        setPendingDragViewId(null);
+      },
+    },
+  });
 
-    if (e.key.startsWith('Arrow') && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      const selectedIds = selectionStore.selectedIds;
-      if (selectedIds.size === 0) {
-        return;
-      }
-
-      e.preventDefault();
-      const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
-      let delta = { x: 0, y: 0 };
-
-      switch (e.key) {
-        case 'ArrowRight':
-          delta = { x: distance, y: 0 };
-          break;
-        case 'ArrowLeft':
-          delta = { x: -distance, y: 0 };
-          break;
-        case 'ArrowDown':
-          delta = { x: 0, y: distance };
-          break;
-        case 'ArrowUp':
-          delta = { x: 0, y: -distance };
-          break;
-      }
-
-      const views = renderableViews();
-      const originalOrigins: Record<string, { x: number; y: number }> = {};
-      const newOrigins: Record<string, { x: number; y: number }> = {};
-      const viewIds: string[] = [];
-
-      for (const view of views) {
-        if (selectedIds.has(view.id)) {
-          viewIds.push(view.id);
-          originalOrigins[view.id] = { x: view.absoluteX, y: view.absoluteY };
-          newOrigins[view.id] = applyDelta({ x: view.absoluteX, y: view.absoluteY }, delta);
-        }
-      }
-
-      for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
-        updateViewOrigin(viewId, newOrigin);
-      }
-
-      const operation = createMoveOperation(
-        { viewIds, originalOrigins, newOrigins },
-        updateViewOrigin
-      );
-      pushOperation(operation);
-      return;
-    }
-
-    if (e.ctrlKey || e.metaKey || e.altKey) {
-      return;
-    }
-
-    if (e.key === '+' || e.key === '=') {
-      zoomIn();
-    } else if (e.key === '-') {
-      zoomOut();
-    } else if (e.key === '0') {
-      resetZoom();
-    } else if (e.key === 'f' || e.key === 'F') {
-      handleFitToView();
-    } else if (e.key === 'g' || e.key === 'G') {
-      toggleVisibility();
-    }
-  };
-
-  /**
-   * Handle contextmenu (right-click) to cancel marquee selection.
-   */
   const handleContextMenu = (e: MouseEvent) => {
     if (marqueeStore.isActive) {
       e.preventDefault();
@@ -523,25 +391,6 @@ export const Canvas: Component = () => {
       document.removeEventListener('mousemove', handleMarqueeMove);
       document.removeEventListener('mouseup', handleMarqueeUp);
     }
-  };
-
-  /**
-   * Handle fit to view action.
-   * Gets the viewport size from the canvas container and template size from bounds.
-   */
-  const handleFitToView = () => {
-    const bounds = templateBounds();
-    if (!bounds) return;
-
-    // Use a reasonable default viewport size if we can't get the actual size
-    // In practice, this would come from the parent container
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    fitToView(
-      { width: viewportWidth, height: viewportHeight },
-      { width: bounds.width, height: bounds.height }
-    );
   };
 
   onCleanup(() => {
