@@ -75,6 +75,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - N/A (in-memory state via canvasStore) (006-zoom-controls)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies) (007-canvas-grid)
 - N/A (grid settings are session-only, in-memory via SolidJS signals) (007-canvas-grid)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips) (008-view-selection)
+- In-memory SolidJS store (selectionStore) (008-view-selection)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -330,6 +332,69 @@ import { isMajorLine, calculateLineCount, isValidGridSize } from './domain/canva
 const isMajor = isMajorLine(5);  // true (every 5th line)
 const lines = calculateLineCount(500, 10);  // 50 lines
 const valid = isValidGridSize(10);  // true
+```
+
+### Selection Store (`src/stores/selectionStore.ts`)
+
+Global store for view selection and hover state management:
+
+- `selectionStore` - Reactive store with selectedIds and hoveredId
+- `select(viewId)` - Select a single view, clearing previous selection
+- `clearSelection()` - Deselect all views
+- `toggleSelect(viewId)` - Add/remove view from multi-selection (Shift+click)
+- `selectAll(viewIds)` - Select all views (Ctrl+A)
+- `setHovered(viewId)` - Set hovered view for tooltip display
+- `isSelected(viewId)` - Check if a view is selected
+- `resetSelection()` - Reset all selection state
+
+```typescript
+import { selectionStore, select, clearSelection, toggleSelect, selectAll, setHovered, isSelected, resetSelection } from './stores/selectionStore';
+
+// Access selection state
+console.log(selectionStore.selectedIds); // Set<string>
+console.log(selectionStore.hoveredId);   // string | null
+
+// Single selection
+select('view-1');              // Select one view, clear others
+clearSelection();              // Deselect all
+
+// Multi-selection (Shift+click behavior)
+select('view-1');              // Select first
+toggleSelect('view-2');        // Add second
+toggleSelect('view-2');        // Remove second (toggle off)
+
+// Select all (Ctrl+A)
+selectAll(['view-1', 'view-2', 'view-3']);
+
+// Hover tracking (for tooltips)
+setHovered('view-1');          // Set hover
+setHovered(null);              // Clear hover
+
+// Check selection
+if (isSelected('view-1')) {
+  // View is selected
+}
+
+// Reset for testing
+resetSelection();
+```
+
+### Ancestor Utilities (`src/domain/canvas/ancestors.ts`)
+
+Utilities for traversing view hierarchy to find ancestors:
+
+- `getAncestorIds(viewId, allViews)` - Get all ancestor IDs from immediate parent to root
+- `isAncestorOfSelected(viewId, selectedIds, allViews)` - Check if view is ancestor of any selected view
+
+```typescript
+import { getAncestorIds, isAncestorOfSelected } from './domain/canvas/ancestors';
+
+// Get ancestors for parent highlighting
+const ancestors = getAncestorIds('leaf-view', allViews);
+// Returns: ['parent-view', 'root-view'] - ordered from immediate parent to root
+
+// Check if view should show parent highlight
+const shouldHighlight = isAncestorOfSelected('parent-view', selectedIds, allViews);
 ```
 
 ### Zoom Utilities (`src/domain/canvas/zoom.ts`)
@@ -813,8 +878,20 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Implemented 008-view-selection feature
+  - selectionStore for selection and hover state management
+  - Single click to select view with visual border and 8 resize handles
+  - Shift+click for multi-selection (toggle add/remove)
+  - Keyboard shortcuts: Ctrl+A (select all), Escape (deselect)
+  - Hover tooltip with class name and dimensions after 500ms delay
+  - Parent highlight when child is selected (dashed border)
+  - Cursor change on resize handles (nwse-resize, ns-resize, etc.)
+  - Hit testing for coordinate-based view selection
+  - 654 passing tests (120+ new + existing)
 
 - 2026-01-06: Implemented 007-canvas-grid feature
   - Grid component with SVG pattern-based rendering (lines, dots, crosshairs styles)

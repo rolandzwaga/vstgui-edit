@@ -12,6 +12,7 @@ const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView
   className: 'CTextButton',
   category: 'control',
   zIndex: 0,
+  parentId: null,
   ...overrides,
 });
 

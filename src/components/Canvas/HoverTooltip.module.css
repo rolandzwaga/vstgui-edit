@@ -1,0 +1,19 @@
+/**
+ * HoverTooltip Styles
+ *
+ * Tooltip styling for hover state feedback.
+ */
+
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-tooltip-bg, #1a1a2e);
+  color: var(--color-tooltip-text, #ffffff);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  white-space: nowrap;
+}

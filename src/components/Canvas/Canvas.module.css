@@ -64,6 +64,26 @@
   stroke: var(--color-category-custom-stroke);
 }
 
+/* Selected view styling */
+.selected {
+  stroke: var(--color-selection-stroke);
+  stroke-width: 2;
+}
+
+/* Hovered view styling (FR-010) */
+.hovered {
+  stroke: var(--color-hover-stroke);
+  stroke-width: 1.5;
+  fill-opacity: 0.2;
+}
+
+/* Parent of selected view styling (FR-012) */
+.parentOfSelected {
+  stroke: var(--color-parent-highlight-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 2;
+}
+
 /* Legend container */
 .legend {
   display: flex;

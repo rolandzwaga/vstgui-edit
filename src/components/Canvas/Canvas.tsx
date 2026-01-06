@@ -1,4 +1,4 @@
-import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
+import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import {
   applyZoom,
@@ -12,15 +12,23 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
+import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
+import { hitTest } from '../../domain/canvas/hitTest';
+import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
+import { HoverTooltip } from './HoverTooltip';
 import { Legend } from './Legend';
+import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import styles from './Canvas.module.css';
+
+/** Tooltip delay in milliseconds (SC-003) */
+const TOOLTIP_DELAY_MS = 500;
 
 /**
  * Main canvas component that renders the uidesc template visualization.
@@ -95,6 +103,146 @@ export const Canvas: Component = () => {
   const isEmpty = () => firstTemplate() === null;
 
   /**
+   * Gets the selected views for rendering selection overlays.
+   */
+  const selectedViews = createMemo((): RenderableView[] => {
+    const views = renderableViews();
+    const selectedIds = selectionStore.selectedIds;
+    return views.filter((view) => selectedIds.has(view.id));
+  });
+
+  /**
+   * Reference to the canvas wrapper element for coordinate transforms.
+   */
+  let wrapperRef: HTMLDivElement | undefined;
+
+  /**
+   * Tooltip state - tracks mouse position and show/hide state (FR-011, SC-003)
+   */
+  const [showTooltip, setShowTooltip] = createSignal(false);
+  const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
+  let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Gets the currently hovered view for tooltip display.
+   */
+  const hoveredView = createMemo((): RenderableView | null => {
+    const hoveredId = selectionStore.hoveredId;
+    if (!hoveredId) return null;
+    return renderableViews().find((v) => v.id === hoveredId) ?? null;
+  });
+
+  /**
+   * Handle mouse move on canvas - track position for tooltip
+   */
+  const handleCanvasMouseMove = (e: MouseEvent) => {
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+
+    // Reset tooltip timer on mouse move
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+      setShowTooltip(false);
+    }
+
+    // Start new tooltip delay timer if hovering a view
+    if (selectionStore.hoveredId) {
+      tooltipTimer = setTimeout(() => {
+        setShowTooltip(true);
+      }, TOOLTIP_DELAY_MS);
+    }
+  };
+
+  /**
+   * Handle mouse leave on canvas - hide tooltip
+   */
+  const handleCanvasMouseLeave = () => {
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+      tooltipTimer = null;
+    }
+    setShowTooltip(false);
+  };
+
+  /**
+   * Find the view ID from a click target element by traversing up the DOM.
+   * Looks for data-view-id attribute on the target or its ancestors.
+   */
+  const getViewIdFromTarget = (target: EventTarget | null): string | null => {
+    let element = target as Element | null;
+    while (element && element !== document.documentElement) {
+      const viewId = element.getAttribute?.('data-view-id');
+      if (viewId) {
+        return viewId;
+      }
+      element = element.parentElement;
+    }
+    return null;
+  };
+
+  /**
+   * Handle click on canvas for view selection (FR-001, FR-002, FR-003, FR-004).
+   * Uses DOM target first, then falls back to hit testing for coordinates.
+   * Shift+click toggles selection (add/remove from multi-selection).
+   */
+  const handleCanvasClick = (e: MouseEvent) => {
+    // Ignore if this was a pan gesture (ctrl+click or middle button)
+    if (e.ctrlKey || e.button !== 0) {
+      return;
+    }
+
+    const isShiftClick = e.shiftKey;
+
+    // First, try to get view ID from DOM target (most reliable for view clicks)
+    const targetViewId = getViewIdFromTarget(e.target);
+    if (targetViewId) {
+      if (isShiftClick) {
+        // Shift+click: toggle selection (FR-004)
+        toggleSelect(targetViewId);
+      } else {
+        // Regular click: select single view, clear others (FR-001, FR-002)
+        select(targetViewId);
+      }
+      return;
+    }
+
+    // If we didn't click on a view element, attempt hit testing
+    // If wrapperRef is available, try coordinate-based hit testing
+    if (wrapperRef) {
+      const wrapperRect = wrapperRef.getBoundingClientRect();
+
+      // Only use hit testing if we have valid bounds (not in JSDOM)
+      if (wrapperRect.width > 0 && wrapperRect.height > 0) {
+        // Convert mouse coordinates to canvas space
+        const canvasPoint = mouseToCanvas(
+          e.clientX,
+          e.clientY,
+          wrapperRect,
+          canvasStore.panOffset,
+          canvasStore.zoomLevel
+        );
+
+        // Hit test to find view under cursor
+        const views = renderableViews();
+        const hitViewId = hitTest(canvasPoint, views);
+
+        if (hitViewId) {
+          if (isShiftClick) {
+            // Shift+click: toggle selection (FR-004)
+            toggleSelect(hitViewId);
+          } else {
+            // Regular click: select single view (FR-001)
+            select(hitViewId);
+          }
+          return;
+        }
+      }
+    }
+
+    // No view was clicked - deselect all (FR-003)
+    clearSelection();
+  };
+
+  /**
    * Handle mouse down for pan initiation.
    * Middle mouse button (button=1) or Ctrl+left-click (button=0) starts panning.
    */
@@ -144,24 +292,40 @@ export const Canvas: Component = () => {
   };
 
   /**
-   * Handle keyboard events for zoom shortcuts.
+   * Handle keyboard events for zoom, selection, and grid shortcuts.
+   * Ctrl+A / Cmd+A: select all views (FR-005)
+   * Escape: deselect all views (FR-006)
    * + or = key: zoom in
    * - key: zoom out
    * 0 key: reset to 100%
    * F key: fit to view
-   * Ignores when modifier keys are held to avoid conflicts with browser shortcuts.
-   * Ignores when focus is in a text input/textarea (FR-013).
+   * G key: toggle grid
+   * Ignores when focus is in a text input/textarea (FR-007, FR-013).
    */
   const handleKeyDown = (e: KeyboardEvent) => {
-    // Ignore when modifier keys are held (browser shortcuts)
-    if (e.ctrlKey || e.metaKey || e.altKey) {
-      return;
-    }
-
-    // Ignore when focus is in a text input or textarea (FR-013)
+    // Ignore when focus is in a text input or textarea (FR-007, FR-013)
     const target = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if (tagName === 'input' || tagName === 'textarea') {
+      return;
+    }
+
+    // Handle Ctrl+A / Cmd+A: select all views (FR-005)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+      e.preventDefault(); // Prevent browser's select all
+      const views = renderableViews();
+      selectAll(views.map((v) => v.id));
+      return;
+    }
+
+    // Handle Escape: deselect all views (FR-006)
+    if (e.key === 'Escape') {
+      clearSelection();
+      return;
+    }
+
+    // For remaining shortcuts, ignore when modifier keys are held (browser shortcuts)
+    if (e.ctrlKey || e.metaKey || e.altKey) {
       return;
     }
 
@@ -197,10 +361,13 @@ export const Canvas: Component = () => {
     );
   };
 
-  // Clean up listeners on component unmount
+  // Clean up listeners and timers on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+    }
   });
 
   return (
@@ -210,6 +377,7 @@ export const Canvas: Component = () => {
     >
       <div>
         <div
+          ref={wrapperRef}
           class={styles.canvasWrapper}
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
@@ -217,6 +385,8 @@ export const Canvas: Component = () => {
           data-testid="canvas-wrapper"
           tabIndex={0}
           onMouseDown={handleMouseDown}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseLeave={handleCanvasMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           style={{
@@ -235,16 +405,31 @@ export const Canvas: Component = () => {
             height={templateBounds()?.height ?? 100}
             viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
             data-testid="canvas"
+            onClick={handleCanvasClick}
           >
             <Show when={templateBounds()}>
               {(bounds) => <TemplateBounds bounds={bounds()} />}
             </Show>
             <For each={renderableViews()}>
-              {(view) => <ViewRectangle view={view} />}
+              {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
+            </For>
+            {/* Selection overlays render on top of all views */}
+            <For each={selectedViews()}>
+              {(view) => <SelectionOverlay view={view} />}
             </For>
           </svg>
         </div>
         <Legend />
+        {/* Hover tooltip - renders when hovering and after delay (FR-011, SC-003) */}
+        <Show when={showTooltip() && hoveredView()}>
+          {(view) => (
+            <HoverTooltip
+              view={view()}
+              x={tooltipPosition().x}
+              y={tooltipPosition().y}
+            />
+          )}
+        </Show>
       </div>
     </Show>
   );
