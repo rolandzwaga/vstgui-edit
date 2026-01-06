@@ -144,6 +144,55 @@ describe('Canvas Selection (US1)', () => {
       expect(screen.getByTestId('selection-overlay-TestTemplate-view-1')).toBeInTheDocument();
       expect(screen.queryByTestId('selection-overlay-TestTemplate-view-2')).not.toBeInTheDocument();
     });
+
+    it('should deselect view when clicking on already selected view (toggle)', async () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+
+      // First click - select
+      fireEvent.mouseDown(view, { button: 0 });
+      fireEvent.mouseUp(document);
+      expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+
+      // Second click - deselect (toggle off)
+      fireEvent.mouseDown(view, { button: 0 });
+      fireEvent.mouseUp(document);
+      expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
+      expect(selectionStore.selectedIds.size).toBe(0);
+    });
+
+    it('should clear multi-selection when clicking on one of the selected views', async () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+        { id: 'view-2', x: 200, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const view2 = screen.getByTestId('view-TestTemplate-view-2');
+
+      // Select first view
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+
+      // Shift+click second view to add to selection
+      fireEvent.mouseDown(view2, { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
+
+      expect(selectionStore.selectedIds.size).toBe(2);
+
+      // Click on view1 (already selected) without Shift - should clear all
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
+
+      expect(selectionStore.selectedIds.size).toBe(0);
+    });
   });
 
   describe('Given click on empty canvas (FR-003)', () => {

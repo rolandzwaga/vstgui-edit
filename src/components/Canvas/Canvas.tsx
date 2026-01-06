@@ -20,7 +20,7 @@ import {
   marqueeStore,
   updateMarquee,
 } from '../../stores/marqueeStore';
-import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
+import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
@@ -302,6 +302,8 @@ export const Canvas: Component = () => {
       if (targetViewId) {
         if (marqueeStore.isAdditive) {
           toggleSelect(targetViewId);
+        } else if (isSelected(targetViewId)) {
+          clearSelection();
         } else {
           select(targetViewId);
         }
