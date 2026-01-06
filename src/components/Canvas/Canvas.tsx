@@ -60,6 +60,7 @@ import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import { DragPreview } from './DragPreview';
 import { ResizePreview } from './ResizePreview';
+import { DimensionIndicator } from './DimensionIndicator';
 import styles from './Canvas.module.css';
 
 /** Tooltip delay in milliseconds (SC-003) */
@@ -731,7 +732,11 @@ export const Canvas: Component = () => {
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
             [styles.moveCursor]: dragStore.isDragging,
-            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging,
+            [styles.resizeNwse]: resizeStore.isResizing && (resizeStore.activeHandle === 'nw' || resizeStore.activeHandle === 'se'),
+            [styles.resizeNesw]: resizeStore.isResizing && (resizeStore.activeHandle === 'ne' || resizeStore.activeHandle === 'sw'),
+            [styles.resizeNs]: resizeStore.isResizing && (resizeStore.activeHandle === 'n' || resizeStore.activeHandle === 's'),
+            [styles.resizeEw]: resizeStore.isResizing && (resizeStore.activeHandle === 'e' || resizeStore.activeHandle === 'w'),
+            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging || resizeStore.isResizing,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
@@ -776,6 +781,7 @@ export const Canvas: Component = () => {
           </svg>
         </div>
         <Legend />
+        <DimensionIndicator />
         {/* Hover tooltip - renders when hovering and after delay (FR-011, SC-003) */}
         <Show when={showTooltip() && hoveredView()}>
           {(view) => (
