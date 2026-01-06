@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
+  activateMarquee,
+  beginTracking,
   cancelMarquee,
   completeMarquee,
   marqueeStore,
   resetMarquee,
-  startMarquee,
   updateMarquee,
 } from '../marqueeStore';
 
@@ -46,40 +47,59 @@ describe('marqueeStore', () => {
         expect(marqueeStore.previousSelection.size).toBe(0);
       });
     });
+
+    it('should have isPending as false', () => {
+      testInRoot(() => {
+        expect(marqueeStore.isPending).toBe(false);
+      });
+    });
+
+    it('should have clickTarget as null', () => {
+      testInRoot(() => {
+        expect(marqueeStore.clickTarget).toBeNull();
+      });
+    });
   });
 
-  describe('startMarquee', () => {
-    it('should set isActive to true', () => {
+  describe('beginTracking', () => {
+    it('should set isPending to true', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, false, new Set());
-        expect(marqueeStore.isActive).toBe(true);
+        beginTracking({ x: 10, y: 20 }, false, new Set(), null);
+        expect(marqueeStore.isPending).toBe(true);
+      });
+    });
+
+    it('should keep isActive as false', () => {
+      testInRoot(() => {
+        beginTracking({ x: 10, y: 20 }, false, new Set(), null);
+        expect(marqueeStore.isActive).toBe(false);
       });
     });
 
     it('should set startPoint to provided coordinates', () => {
       testInRoot(() => {
-        startMarquee({ x: 100, y: 200 }, false, new Set());
+        beginTracking({ x: 100, y: 200 }, false, new Set(), null);
         expect(marqueeStore.startPoint).toEqual({ x: 100, y: 200 });
       });
     });
 
     it('should set currentPoint to same as startPoint initially', () => {
       testInRoot(() => {
-        startMarquee({ x: 50, y: 75 }, false, new Set());
+        beginTracking({ x: 50, y: 75 }, false, new Set(), null);
         expect(marqueeStore.currentPoint).toEqual({ x: 50, y: 75 });
       });
     });
 
     it('should set isAdditive to true when shift is held', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, true, new Set());
+        beginTracking({ x: 0, y: 0 }, true, new Set(), null);
         expect(marqueeStore.isAdditive).toBe(true);
       });
     });
 
     it('should set isAdditive to false when shift is not held', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
         expect(marqueeStore.isAdditive).toBe(false);
       });
     });
@@ -87,7 +107,7 @@ describe('marqueeStore', () => {
     it('should copy currentSelection to previousSelection', () => {
       testInRoot(() => {
         const selection = new Set(['view-1', 'view-2']);
-        startMarquee({ x: 0, y: 0 }, false, selection);
+        beginTracking({ x: 0, y: 0 }, false, selection, null);
         expect(marqueeStore.previousSelection.has('view-1')).toBe(true);
         expect(marqueeStore.previousSelection.has('view-2')).toBe(true);
         expect(marqueeStore.previousSelection.size).toBe(2);
@@ -97,7 +117,7 @@ describe('marqueeStore', () => {
     it('should store a copy of selection, not a reference', () => {
       testInRoot(() => {
         const selection = new Set(['view-1']);
-        startMarquee({ x: 0, y: 0 }, false, selection);
+        beginTracking({ x: 0, y: 0 }, false, selection, null);
 
         selection.add('view-2');
 
@@ -105,27 +125,69 @@ describe('marqueeStore', () => {
         expect(marqueeStore.previousSelection.size).toBe(1);
       });
     });
+
+    it('should set clickTarget when provided', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), 'view-1');
+        expect(marqueeStore.clickTarget).toBe('view-1');
+      });
+    });
+
+    it('should set clickTarget to null when not provided', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        expect(marqueeStore.clickTarget).toBeNull();
+      });
+    });
+  });
+
+  describe('activateMarquee', () => {
+    it('should set isActive to true when pending', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
+        expect(marqueeStore.isActive).toBe(true);
+      });
+    });
+
+    it('should set isPending to false when activating', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
+        expect(marqueeStore.isPending).toBe(false);
+      });
+    });
+
+    it('should do nothing when not pending', () => {
+      testInRoot(() => {
+        activateMarquee();
+        expect(marqueeStore.isActive).toBe(false);
+        expect(marqueeStore.isPending).toBe(false);
+      });
+    });
   });
 
   describe('updateMarquee', () => {
-    it('should update currentPoint when marquee is active', () => {
+    it('should update currentPoint when tracking is pending', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
         updateMarquee({ x: 100, y: 150 });
         expect(marqueeStore.currentPoint).toEqual({ x: 100, y: 150 });
       });
     });
 
-    it('should do nothing when marquee is inactive', () => {
+    it('should update currentPoint when marquee is active', () => {
       testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 100, y: 150 });
-        expect(marqueeStore.currentPoint).toBeNull();
+        expect(marqueeStore.currentPoint).toEqual({ x: 100, y: 150 });
       });
     });
 
     it('should not affect startPoint', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, false, new Set());
+        beginTracking({ x: 10, y: 20 }, false, new Set(), null);
         updateMarquee({ x: 100, y: 150 });
         expect(marqueeStore.startPoint).toEqual({ x: 10, y: 20 });
       });
@@ -133,7 +195,7 @@ describe('marqueeStore', () => {
 
     it('should allow multiple updates', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
         updateMarquee({ x: 50, y: 50 });
         updateMarquee({ x: 100, y: 100 });
         updateMarquee({ x: 200, y: 300 });
@@ -145,15 +207,24 @@ describe('marqueeStore', () => {
   describe('completeMarquee', () => {
     it('should reset isActive to false', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
         completeMarquee();
         expect(marqueeStore.isActive).toBe(false);
       });
     });
 
+    it('should reset isPending to false', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        completeMarquee();
+        expect(marqueeStore.isPending).toBe(false);
+      });
+    });
+
     it('should reset startPoint to null', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, false, new Set());
+        beginTracking({ x: 10, y: 20 }, false, new Set(), null);
         completeMarquee();
         expect(marqueeStore.startPoint).toBeNull();
       });
@@ -161,7 +232,7 @@ describe('marqueeStore', () => {
 
     it('should reset currentPoint to null', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
         updateMarquee({ x: 100, y: 100 });
         completeMarquee();
         expect(marqueeStore.currentPoint).toBeNull();
@@ -170,7 +241,7 @@ describe('marqueeStore', () => {
 
     it('should reset isAdditive to false', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, true, new Set());
+        beginTracking({ x: 0, y: 0 }, true, new Set(), null);
         completeMarquee();
         expect(marqueeStore.isAdditive).toBe(false);
       });
@@ -178,9 +249,17 @@ describe('marqueeStore', () => {
 
     it('should reset previousSelection to empty', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set(['view-1']));
+        beginTracking({ x: 0, y: 0 }, false, new Set(['view-1']), null);
         completeMarquee();
         expect(marqueeStore.previousSelection.size).toBe(0);
+      });
+    });
+
+    it('should reset clickTarget to null', () => {
+      testInRoot(() => {
+        beginTracking({ x: 0, y: 0 }, false, new Set(), 'view-1');
+        completeMarquee();
+        expect(marqueeStore.clickTarget).toBeNull();
       });
     });
   });
@@ -188,7 +267,8 @@ describe('marqueeStore', () => {
   describe('cancelMarquee', () => {
     it('should reset isActive to false', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
         cancelMarquee();
         expect(marqueeStore.isActive).toBe(false);
       });
@@ -196,15 +276,17 @@ describe('marqueeStore', () => {
 
     it('should reset all state to initial values', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, true, new Set(['view-1', 'view-2']));
+        beginTracking({ x: 10, y: 20 }, true, new Set(['view-1', 'view-2']), 'view-3');
         updateMarquee({ x: 100, y: 100 });
         cancelMarquee();
 
         expect(marqueeStore.isActive).toBe(false);
+        expect(marqueeStore.isPending).toBe(false);
         expect(marqueeStore.startPoint).toBeNull();
         expect(marqueeStore.currentPoint).toBeNull();
         expect(marqueeStore.isAdditive).toBe(false);
         expect(marqueeStore.previousSelection.size).toBe(0);
+        expect(marqueeStore.clickTarget).toBeNull();
       });
     });
   });
@@ -212,15 +294,17 @@ describe('marqueeStore', () => {
   describe('resetMarquee', () => {
     it('should reset all state to initial values', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, true, new Set(['view-1']));
+        beginTracking({ x: 10, y: 20 }, true, new Set(['view-1']), 'view-2');
         updateMarquee({ x: 100, y: 100 });
         resetMarquee();
 
         expect(marqueeStore.isActive).toBe(false);
+        expect(marqueeStore.isPending).toBe(false);
         expect(marqueeStore.startPoint).toBeNull();
         expect(marqueeStore.currentPoint).toBeNull();
         expect(marqueeStore.isAdditive).toBe(false);
         expect(marqueeStore.previousSelection.size).toBe(0);
+        expect(marqueeStore.clickTarget).toBeNull();
       });
     });
   });

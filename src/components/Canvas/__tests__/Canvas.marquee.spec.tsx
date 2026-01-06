@@ -65,7 +65,7 @@ describe('Canvas Marquee Selection', () => {
   });
 
   describe('Given mousedown on empty canvas space', () => {
-    it('should start marquee selection', () => {
+    it('should start tracking on mousedown', () => {
       mockDocumentStore.document = createMockDocument([
         { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
       ]);
@@ -76,11 +76,12 @@ describe('Canvas Marquee Selection', () => {
       fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
 
       testInRoot(() => {
-        expect(marqueeStore.isActive).toBe(true);
+        expect(marqueeStore.isPending).toBe(true);
+        expect(marqueeStore.isActive).toBe(false);
       });
     });
 
-    it('should show marquee rectangle during drag', () => {
+    it('should activate marquee after moving past threshold', () => {
       mockDocumentStore.document = createMockDocument([
         { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
       ]);
@@ -89,6 +90,7 @@ describe('Canvas Marquee Selection', () => {
       const canvas = screen.getByTestId('canvas');
 
       fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 20, clientY: 20 });
 
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(true);
@@ -99,7 +101,7 @@ describe('Canvas Marquee Selection', () => {
   });
 
   describe('Given mousedown on a view', () => {
-    it('should NOT start marquee selection', () => {
+    it('should start marquee when dragged past threshold', () => {
       mockDocumentStore.document = createMockDocument([
         { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
       ]);
@@ -108,13 +110,14 @@ describe('Canvas Marquee Selection', () => {
       const view = screen.getByTestId('view-TestTemplate-view-1');
 
       fireEvent.mouseDown(view, { clientX: 75, clientY: 75, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 85, clientY: 85 });
 
       testInRoot(() => {
-        expect(marqueeStore.isActive).toBe(false);
+        expect(marqueeStore.isActive).toBe(true);
       });
     });
 
-    it('should select the view instead', () => {
+    it('should select view on click (no drag)', () => {
       mockDocumentStore.document = createMockDocument([
         { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
       ]);
@@ -122,11 +125,67 @@ describe('Canvas Marquee Selection', () => {
       render(() => <Canvas />);
       const view = screen.getByTestId('view-TestTemplate-view-1');
 
-      fireEvent.click(view);
+      fireEvent.mouseDown(view, { clientX: 75, clientY: 75, button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
       });
+    });
+
+    it('should select view when drag is below threshold (<5px)', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+
+      fireEvent.mouseDown(view, { clientX: 75, clientY: 75, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 77, clientY: 77 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+    });
+  });
+
+  describe('Given marquee activation threshold', () => {
+    it('should NOT show marquee rectangle until 5px movement', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 12, clientY: 12 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+      expect(screen.queryByTestId('marquee-rect')).not.toBeInTheDocument();
+    });
+
+    it('should show marquee rectangle after 5px movement', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 20, clientY: 20 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+      expect(screen.getByTestId('marquee-rect')).toBeInTheDocument();
     });
   });
 
@@ -415,18 +474,16 @@ describe('Canvas Marquee Selection', () => {
       const canvas = screen.getByTestId('canvas');
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Before marquee, no crosshair cursor class
       expect(wrapper.classList.toString()).not.toContain('marqueeCursor');
 
       fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 20, clientY: 20 });
 
-      // During marquee, crosshair cursor class should be applied
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(true);
       });
       expect(wrapper.classList.toString()).toContain('marqueeCursor');
 
-      // After mouseup, cursor class should be removed
       fireEvent.mouseUp(document);
 
       testInRoot(() => {
@@ -438,7 +495,6 @@ describe('Canvas Marquee Selection', () => {
 
   describe('FR-012: Pan conflict detection', () => {
     it('should cancel marquee when pan starts', async () => {
-      // Import pan functions to simulate pan starting during marquee
       const { startPan } = await import('../../../stores/canvasStore');
 
       mockDocumentStore.document = createMockDocument([
@@ -448,19 +504,17 @@ describe('Canvas Marquee Selection', () => {
       render(() => <Canvas />);
       const canvas = screen.getByTestId('canvas');
 
-      // Start marquee
       fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 20, clientY: 20 });
 
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(true);
       });
 
-      // Simulate pan starting (e.g., user presses space while dragging)
       testInRoot(() => {
         startPan(50, 50);
       });
 
-      // Marquee should be cancelled
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(false);
       });

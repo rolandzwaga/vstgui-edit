@@ -2,14 +2,19 @@ import { createSignal } from 'solid-js';
 import type { CanvasPoint } from '../types/selection';
 
 const [isActive, setIsActive] = createSignal(false);
+const [isPending, setIsPending] = createSignal(false);
 const [startPoint, setStartPoint] = createSignal<CanvasPoint | null>(null);
 const [currentPoint, setCurrentPoint] = createSignal<CanvasPoint | null>(null);
 const [isAdditive, setIsAdditive] = createSignal(false);
 const [previousSelection, setPreviousSelection] = createSignal<Set<string>>(new Set());
+const [clickTarget, setClickTarget] = createSignal<string | null>(null);
 
 export const marqueeStore = {
   get isActive() {
     return isActive();
+  },
+  get isPending() {
+    return isPending();
   },
   get startPoint() {
     return startPoint();
@@ -23,24 +28,35 @@ export const marqueeStore = {
   get previousSelection() {
     return previousSelection();
   },
+  get clickTarget() {
+    return clickTarget();
+  },
 };
 
-export function startMarquee(
+export function beginTracking(
   point: CanvasPoint,
   additive: boolean,
-  currentSelection: Set<string>
+  currentSelection: Set<string>,
+  targetViewId: string | null
 ): void {
   setStartPoint(point);
   setCurrentPoint(point);
   setIsAdditive(additive);
   setPreviousSelection(new Set(currentSelection));
-  setIsActive(true);
+  setClickTarget(targetViewId);
+  setIsPending(true);
+  setIsActive(false);
+}
+
+export function activateMarquee(): void {
+  if (isPending()) {
+    setIsPending(false);
+    setIsActive(true);
+  }
 }
 
 export function updateMarquee(point: CanvasPoint): void {
-  if (isActive()) {
-    setCurrentPoint(point);
-  }
+  setCurrentPoint(point);
 }
 
 export function completeMarquee(): void {
@@ -53,8 +69,10 @@ export function cancelMarquee(): void {
 
 export function resetMarquee(): void {
   setIsActive(false);
+  setIsPending(false);
   setStartPoint(null);
   setCurrentPoint(null);
   setIsAdditive(false);
   setPreviousSelection(new Set());
+  setClickTarget(null);
 }

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@solidjs/testing-library';
 import { MarqueeRectangle } from '../MarqueeRectangle';
-import { resetMarquee, startMarquee, updateMarquee } from '../../../stores/marqueeStore';
+import { activateMarquee, beginTracking, resetMarquee, updateMarquee } from '../../../stores/marqueeStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
 describe('MarqueeRectangle', () => {
@@ -25,7 +25,8 @@ describe('MarqueeRectangle', () => {
   describe('Given marquee is active', () => {
     it('should render the rectangle', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 10 }, false, new Set());
+        beginTracking({ x: 10, y: 10 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 100, y: 100 });
       });
 
@@ -35,7 +36,8 @@ describe('MarqueeRectangle', () => {
 
     it('should use normalized coordinates for down-right drag', () => {
       testInRoot(() => {
-        startMarquee({ x: 10, y: 20 }, false, new Set());
+        beginTracking({ x: 10, y: 20 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 110, y: 120 });
       });
 
@@ -50,7 +52,8 @@ describe('MarqueeRectangle', () => {
 
     it('should use normalized coordinates for up-left drag', () => {
       testInRoot(() => {
-        startMarquee({ x: 110, y: 120 }, false, new Set());
+        beginTracking({ x: 110, y: 120 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 10, y: 20 });
       });
 
@@ -65,7 +68,8 @@ describe('MarqueeRectangle', () => {
 
     it('should apply the marqueeRect CSS class', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 50, y: 50 });
       });
 
@@ -77,7 +81,8 @@ describe('MarqueeRectangle', () => {
 
     it('should update when currentPoint changes', () => {
       testInRoot(() => {
-        startMarquee({ x: 0, y: 0 }, false, new Set());
+        beginTracking({ x: 0, y: 0 }, false, new Set(), null);
+        activateMarquee();
         updateMarquee({ x: 50, y: 50 });
       });
 

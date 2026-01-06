@@ -13,10 +13,11 @@ import {
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
 import {
+  activateMarquee,
+  beginTracking,
   cancelMarquee,
   completeMarquee,
   marqueeStore,
-  startMarquee,
   updateMarquee,
 } from '../../stores/marqueeStore';
 import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
@@ -291,16 +292,11 @@ export const Canvas: Component = () => {
   };
 
   /**
-   * Handle mouse down on canvas SVG for marquee selection.
-   * Starts marquee only on left-click on empty space (not on views, not panning).
+   * Handle mouse down on canvas SVG for marquee/selection tracking.
+   * Starts tracking on left-click; decision between click-select vs marquee is deferred to mouseup.
    */
   const handleSvgMouseDown = (e: MouseEvent) => {
     if (e.button !== 0 || e.ctrlKey || canvasStore.isPanning) {
-      return;
-    }
-
-    const targetViewId = getViewIdFromTarget(e.target);
-    if (targetViewId) {
       return;
     }
 
@@ -314,14 +310,17 @@ export const Canvas: Component = () => {
       canvasStore.zoomLevel
     );
 
-    startMarquee(canvasPoint, e.shiftKey, selectionStore.selectedIds);
+    const targetViewId = getViewIdFromTarget(e.target);
+
+    beginTracking(canvasPoint, e.shiftKey, selectionStore.selectedIds, targetViewId);
 
     document.addEventListener('mousemove', handleMarqueeMove);
     document.addEventListener('mouseup', handleMarqueeUp);
   };
 
   /**
-   * Handle mouse move during marquee selection.
+   * Handle mouse move during marquee/selection tracking.
+   * Activates marquee mode once movement exceeds 5px threshold.
    */
   const handleMarqueeMove = (e: MouseEvent) => {
     if (!wrapperRef) return;
@@ -333,11 +332,19 @@ export const Canvas: Component = () => {
       canvasStore.panOffset,
       canvasStore.zoomLevel
     );
+
     updateMarquee(canvasPoint);
+
+    if (marqueeStore.isPending && !marqueeStore.isActive) {
+      const start = marqueeStore.startPoint;
+      if (start && isMinimumSize(start, canvasPoint)) {
+        activateMarquee();
+      }
+    }
   };
 
   /**
-   * Handle mouse up to complete marquee selection.
+   * Handle mouse up to complete marquee selection or click-select.
    */
   const handleMarqueeUp = () => {
     document.removeEventListener('mousemove', handleMarqueeMove);
@@ -351,8 +358,17 @@ export const Canvas: Component = () => {
       return;
     }
 
-    if (!isMinimumSize(start, current)) {
-      clearSelection();
+    if (!marqueeStore.isActive) {
+      const targetViewId = marqueeStore.clickTarget;
+      if (targetViewId) {
+        if (marqueeStore.isAdditive) {
+          toggleSelect(targetViewId);
+        } else {
+          select(targetViewId);
+        }
+      } else {
+        clearSelection();
+      }
       completeMarquee();
       return;
     }
@@ -371,9 +387,8 @@ export const Canvas: Component = () => {
     completeMarquee();
   };
 
-  // FR-012: Cancel marquee if pan operation starts during drag
   createEffect(() => {
-    if (canvasStore.isPanning && marqueeStore.isActive) {
+    if (canvasStore.isPanning && (marqueeStore.isActive || marqueeStore.isPending)) {
       cancelMarquee();
       document.removeEventListener('mousemove', handleMarqueeMove);
       document.removeEventListener('mouseup', handleMarqueeUp);
