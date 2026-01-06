@@ -4,6 +4,38 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 
 ---
 
+## ⛔️⛔️⛔️ CRITICAL: SPECKIT SCRIPTS - USE BASH NOT POWERSHELL ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   THIS IS A LINUX ENVIRONMENT. POWERSHELL IS NOT AVAILABLE.                 ┃
+┃                                                                              ┃
+┃   When running speckit commands, ALWAYS use bash scripts:                   ┃
+┃                                                                              ┃
+┃   ❌ NEVER use: .specify/scripts/powershell/*.ps1                           ┃
+┃   ❌ NEVER use: pwsh command                                                 ┃
+┃                                                                              ┃
+┃   ✅ ALWAYS use: .specify/scripts/bash/*.sh                                 ┃
+┃                                                                              ┃
+┃   Script mappings:                                                           ┃
+┃     check-prerequisites.ps1  →  .specify/scripts/bash/check-prerequisites.sh┃
+┃     create-new-feature.ps1   →  .specify/scripts/bash/create-new-feature.sh ┃
+┃     setup-plan.ps1           →  .specify/scripts/bash/setup-plan.sh         ┃
+┃     update-agent-context.ps1 →  .specify/scripts/bash/update-agent-context.sh┃
+┃                                                                              ┃
+┃   Example usage:                                                             ┃
+┃     .specify/scripts/bash/check-prerequisites.sh --json --paths-only        ┃
+┃     .specify/scripts/bash/create-new-feature.sh --json --number 11 \        ┃
+┃       --short-name "my-feature" "Feature description"                       ┃
+┃                                                                              ┃
+┃   VIOLATION = SCRIPT WILL FAIL. NO EXCEPTIONS.                              ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
 ## ⛔️⛔️⛔️ CRITICAL: SOLIDJS ONLY - REACT IS FORBIDDEN ⛔️⛔️⛔️
 
 ```
