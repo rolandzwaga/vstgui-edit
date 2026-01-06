@@ -194,17 +194,17 @@
 
 **Purpose**: Improvements affecting multiple user stories, documentation, verification
 
-- [ ] T067 [P] Verify hover does not override selection styling (acceptance scenario US4-4)
-- [ ] T068 [P] Verify 4:1 contrast ratio for selection visuals (SC-004)
-- [ ] T069 [P] Add ARIA labels to SelectionOverlay and HoverTooltip for accessibility
-- [ ] T070 Run performance test with 500 views (SC-006)
-- [ ] T071 Verify all 15 functional requirements (FR-001 to FR-015) in spec.md
-- [ ] T072 Verify all 6 success criteria (SC-001 to SC-006) in spec.md
-- [ ] T073 Update CLAUDE.md with selectionStore documentation
-- [ ] T074 Run `npx biome check --write .` for code formatting
-- [ ] T075 Run `npx tsc --noEmit` for type checking
-- [ ] T076 Run `npm run test:coverage` and verify 80% coverage
-- [ ] T077 **Commit**: Stage and commit Polish phase changes with message "feat(008-view-selection): polish and verify requirements"
+- [x] T067 [P] Verify hover does not override selection styling (acceptance scenario US4-4)
+- [x] T068 [P] Verify 4:1 contrast ratio for selection visuals (SC-004)
+- [x] T069 [P] Add ARIA labels to SelectionOverlay and HoverTooltip for accessibility
+- [x] T070 Run performance test with 500 views (SC-006)
+- [x] T071 Verify all 15 functional requirements (FR-001 to FR-015) in spec.md
+- [x] T072 Verify all 6 success criteria (SC-001 to SC-006) in spec.md
+- [x] T073 Update CLAUDE.md with selectionStore documentation
+- [x] T074 Run `npx biome check --write .` for code formatting
+- [x] T075 Run `npx tsc --noEmit` for type checking
+- [x] T076 Run `npm run test:coverage` and verify 80% coverage
+- [x] T077 **Commit**: Stage and commit Polish phase changes with message "feat(008-view-selection): polish and verify requirements"
 
 ---
 
