@@ -27,3 +27,11 @@ export {
   DISPLAY_CLASSES,
   getViewCategory,
 } from './viewCategory';
+// Marquee selection utilities
+export {
+  findIntersectingViews,
+  isMinimumSize,
+  MIN_MARQUEE_SIZE,
+  normalizeRect,
+  rectIntersect,
+} from './marquee';
