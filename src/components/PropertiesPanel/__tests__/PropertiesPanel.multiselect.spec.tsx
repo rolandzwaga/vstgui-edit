@@ -64,7 +64,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should show class name with count for same class selection', () => {
       testInRoot(() => {
-        selectAll(['btn1', 'btn2', 'btn3']);
+        selectAll(['MainView-btn1', 'MainView-btn2', 'MainView-btn3']);
       });
 
       render(() => <PropertiesPanel />);
@@ -75,7 +75,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should show shared value when all views have same value', () => {
       testInRoot(() => {
-        selectAll(['btn1', 'btn2']);
+        selectAll(['MainView-btn1', 'MainView-btn2']);
       });
 
       render(() => <PropertiesPanel />);
@@ -86,7 +86,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should show Mixed indicator when values differ', () => {
       testInRoot(() => {
-        selectAll(['btn1', 'btn2', 'btn3']);
+        selectAll(['MainView-btn1', 'MainView-btn2', 'MainView-btn3']);
       });
 
       render(() => <PropertiesPanel />);
@@ -97,7 +97,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should mark differing values as non-copyable', () => {
       testInRoot(() => {
-        selectAll(['btn1', 'btn3']);
+        selectAll(['MainView-btn1', 'MainView-btn3']);
       });
 
       render(() => <PropertiesPanel />);
@@ -142,7 +142,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should show count only when classes differ', () => {
       testInRoot(() => {
-        selectAll(['button', 'label']);
+        selectAll(['MainView-button', 'MainView-label']);
       });
 
       render(() => <PropertiesPanel />);
@@ -152,7 +152,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should mark class attribute as Mixed', () => {
       testInRoot(() => {
-        selectAll(['button', 'label']);
+        selectAll(['MainView-button', 'MainView-label']);
       });
 
       render(() => <PropertiesPanel />);
@@ -193,7 +193,7 @@ describe('PropertiesPanel - Multi-selection', () => {
 
     it('should mark attribute as Mixed when only some views have it', () => {
       testInRoot(() => {
-        selectAll(['view1', 'view2']);
+        selectAll(['MainView-view1', 'MainView-view2']);
       });
 
       render(() => <PropertiesPanel />);

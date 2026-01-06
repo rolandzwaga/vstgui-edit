@@ -10,26 +10,31 @@ import { SelectionHeader } from './SelectionHeader';
 import { AttributeGroup } from './AttributeGroup';
 import styles from './PropertiesPanel.module.css';
 
-function findViewById(root: ViewNode, id: string, rootId: string): ViewNode | null {
-  if (rootId === id) {
+function findViewById(root: ViewNode, compositeId: string, rootId: string): ViewNode | null {
+  if (compositeId === rootId) {
     return root;
   }
 
-  if (!root.children) {
+  const prefix = `${rootId}-`;
+  if (!compositeId.startsWith(prefix)) {
     return null;
   }
 
-  for (const [childId, child] of Object.entries(root.children)) {
-    if (childId === id) {
-      return child;
+  const remainingPath = compositeId.slice(prefix.length);
+  const pathParts = remainingPath.split('-');
+
+  let current: ViewNode = root;
+  let currentPath = rootId;
+
+  for (const part of pathParts) {
+    if (!current.children?.[part]) {
+      return null;
     }
-    const found = findViewById(child, id, childId);
-    if (found) {
-      return found;
-    }
+    current = current.children[part];
+    currentPath = `${currentPath}-${part}`;
   }
 
-  return null;
+  return current;
 }
 
 export const PropertiesPanel: Component = () => {

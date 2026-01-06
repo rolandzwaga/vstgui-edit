@@ -68,7 +68,7 @@ describe('PropertiesPanel', () => {
 
     it('should show properties when view is selected', () => {
       testInRoot(() => {
-        select('button');
+        select('MainView-button');
       });
 
       render(() => <PropertiesPanel />);
@@ -79,7 +79,7 @@ describe('PropertiesPanel', () => {
 
     it('should display class name in header', () => {
       testInRoot(() => {
-        select('button');
+        select('MainView-button');
       });
 
       render(() => <PropertiesPanel />);
@@ -89,7 +89,7 @@ describe('PropertiesPanel', () => {
 
     it('should display attribute groups', () => {
       testInRoot(() => {
-        select('button');
+        select('MainView-button');
       });
 
       render(() => <PropertiesPanel />);
@@ -101,7 +101,7 @@ describe('PropertiesPanel', () => {
 
     it('should display attribute values', () => {
       testInRoot(() => {
-        select('button');
+        select('MainView-button');
       });
 
       render(() => <PropertiesPanel />);
@@ -203,14 +203,14 @@ describe('PropertiesPanel', () => {
 
     it('should update when selection changes', () => {
       testInRoot(() => {
-        select('view1');
+        select('MainView-view1');
       });
 
       render(() => <PropertiesPanel />);
       expect(screen.getByTestId('properties-header')).toHaveTextContent('CTextButton');
 
       testInRoot(() => {
-        select('view2');
+        select('MainView-view2');
       });
 
       expect(screen.getByTestId('properties-header')).toHaveTextContent('CTextLabel');
@@ -218,7 +218,7 @@ describe('PropertiesPanel', () => {
 
     it('should show empty state when selection is cleared', () => {
       testInRoot(() => {
-        select('view1');
+        select('MainView-view1');
       });
 
       render(() => <PropertiesPanel />);
@@ -229,6 +229,87 @@ describe('PropertiesPanel', () => {
       });
 
       expect(screen.getByTestId('properties-empty-state')).toBeInTheDocument();
+    });
+  });
+
+  describe('nested view selection with composite IDs', () => {
+    beforeEach(() => {
+      mockDocumentStore.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                origin: '0, 0',
+                size: '400, 300',
+              },
+              children: {
+                panel: {
+                  attributes: {
+                    class: 'CViewContainer',
+                    origin: '10, 10',
+                    size: '200, 150',
+                    'background-color': '#333333FF',
+                  },
+                  children: {
+                    button: {
+                      attributes: {
+                        class: 'CTextButton',
+                        origin: '5, 5',
+                        size: '80, 24',
+                        title: 'Nested Button',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    });
+
+    it('should show properties for child view using composite ID', () => {
+      // Canvas generates IDs like 'MainView-panel', not just 'panel'
+      testInRoot(() => {
+        select('MainView-panel');
+      });
+
+      render(() => <PropertiesPanel />);
+
+      expect(screen.queryByTestId('properties-empty-state')).not.toBeInTheDocument();
+      expect(screen.getByTestId('properties-header')).toHaveTextContent('CViewContainer');
+      expect(screen.getByText('10, 10')).toBeInTheDocument();
+      expect(screen.getByText('200, 150')).toBeInTheDocument();
+    });
+
+    it('should show properties for deeply nested grandchild using composite ID', () => {
+      // Canvas generates IDs like 'MainView-panel-button' for grandchildren
+      testInRoot(() => {
+        select('MainView-panel-button');
+      });
+
+      render(() => <PropertiesPanel />);
+
+      expect(screen.queryByTestId('properties-empty-state')).not.toBeInTheDocument();
+      expect(screen.getByTestId('properties-header')).toHaveTextContent('CTextButton');
+      expect(screen.getByText('Nested Button')).toBeInTheDocument();
+      expect(screen.getByText('5, 5')).toBeInTheDocument();
+      expect(screen.getByText('80, 24')).toBeInTheDocument();
+    });
+
+    it('should show properties for root template using template name as ID', () => {
+      testInRoot(() => {
+        select('MainView');
+      });
+
+      render(() => <PropertiesPanel />);
+
+      expect(screen.queryByTestId('properties-empty-state')).not.toBeInTheDocument();
+      expect(screen.getByTestId('properties-header')).toHaveTextContent('CViewContainer');
+      expect(screen.getByText('0, 0')).toBeInTheDocument();
+      expect(screen.getByText('400, 300')).toBeInTheDocument();
     });
   });
 });
