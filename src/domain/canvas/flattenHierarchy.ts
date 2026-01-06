@@ -100,7 +100,8 @@ export function flattenHierarchy(
     viewId: string,
     parentX: number,
     parentY: number,
-    zIndex: number
+    zIndex: number,
+    parentId: string | null
   ): number => {
     const { attributes, children } = view;
     const origin = parsePoint(attributes.origin);
@@ -123,6 +124,7 @@ export function flattenHierarchy(
       className: className ?? 'Unknown',
       category,
       zIndex,
+      parentId,
     };
 
     if (title) {
@@ -147,7 +149,7 @@ export function flattenHierarchy(
     // US2: Recursively process children
     if (children) {
       for (const [childKey, childView] of Object.entries(children)) {
-        nextZIndex = processView(childView, childKey, absoluteX, absoluteY, nextZIndex);
+        nextZIndex = processView(childView, childKey, absoluteX, absoluteY, nextZIndex, viewId);
       }
     }
 
@@ -155,7 +157,7 @@ export function flattenHierarchy(
   };
 
   const id = rootId ?? `view-${viewCounter++}`;
-  processView(root, id, 0, 0, 0);
+  processView(root, id, 0, 0, 0, null);
 
   return views;
 }

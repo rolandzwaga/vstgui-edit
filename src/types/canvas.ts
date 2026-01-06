@@ -59,6 +59,9 @@ export interface RenderableView {
   /** Render order (0 = bottom, higher = on top). Based on hierarchy traversal order. */
   zIndex: number;
 
+  /** Parent view ID for hierarchy tracking (null for root views) */
+  parentId: string | null;
+
   /** Title text from uidesc (for CTextLabel display) */
   title?: string;
 
