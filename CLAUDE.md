@@ -77,6 +77,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-05
 - N/A (grid settings are session-only, in-memory via SolidJS signals) (007-canvas-grid)
 - TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips) (008-view-selection)
 - In-memory SolidJS store (selectionStore) (008-view-selection)
+- TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies required) (009-marquee-selection)
+- N/A (marquee state is transient, in-memory via SolidJS signals) (009-marquee-selection)
 
 **[This section is auto-populated by speckit from feature plans]**
 
@@ -878,6 +880,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 009-marquee-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies required)
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
@@ -893,7 +896,6 @@ class SetPropertyCommand implements Command {
   - Hit testing for coordinate-based view selection
   - 654 passing tests (120+ new + existing)
 
-- 2026-01-06: Implemented 007-canvas-grid feature
   - Grid component with SVG pattern-based rendering (lines, dots, crosshairs styles)
   - gridStore for visibility, size, and style state management
   - GridToolbar with visibility toggle, size presets, and style selector
@@ -903,7 +905,6 @@ class SetPropertyCommand implements Command {
   - Theme-adaptive grid colors (light/dark mode via CSS custom properties)
   - 537 passing tests (119 new + 418 existing)
 
-- 2026-01-05: Implemented 006-zoom-controls feature
   - ZoomToolbar component with +/- buttons, 100% reset, and Fit button
   - Zoom percentage display with formatZoomPercent utility
   - Keyboard shortcuts: +/= (zoom in), - (zoom out), 0 (reset), F (fit)
