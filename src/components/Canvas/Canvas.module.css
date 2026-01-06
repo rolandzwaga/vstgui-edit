@@ -77,6 +77,13 @@
   fill-opacity: 0.2;
 }
 
+/* Parent of selected view styling (FR-012) */
+.parentOfSelected {
+  stroke: var(--color-parent-highlight-stroke);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 2;
+}
+
 /* Legend container */
 .legend {
   display: flex;

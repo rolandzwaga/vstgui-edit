@@ -172,19 +172,19 @@
 
 ### Tests for User Story 5
 
-- [ ] T057 [US5] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T058 [P] [US5] Write tests for getAncestorIds utility in `src/domain/canvas/__tests__/ancestors.spec.ts`
-- [ ] T059 [P] [US5] Write tests for parent highlighting in `src/components/Canvas/__tests__/ViewRectangle.parent.spec.tsx`
-- [ ] T060 [P] [US5] Write tests for handle cursor change in `src/components/Canvas/__tests__/SelectionOverlay.cursor.spec.tsx`
+- [x] T057 [US5] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T058 [P] [US5] Write tests for getAncestorIds utility in `src/domain/canvas/__tests__/ancestors.spec.ts`
+- [x] T059 [P] [US5] Write tests for parent highlighting in `src/components/Canvas/__tests__/ViewRectangle.parent.spec.tsx`
+- [x] T060 [P] [US5] Write tests for handle cursor change in `src/components/Canvas/__tests__/SelectionOverlay.cursor.spec.tsx`
 
 ### Implementation for User Story 5
 
-- [ ] T061 [US5] Create getAncestorIds utility in `src/domain/canvas/ancestors.ts` (pass T058 tests)
-- [ ] T062 [US5] Add parent highlight styling to ViewRectangle (FR-012, pass T059 tests)
-- [ ] T063 [US5] Update ViewRectangle styles for parent highlight state
-- [ ] T064 [US5] Add cursor change on SelectionOverlay handles (FR-014, pass T060 tests)
-- [ ] T065 [US5] Verify resize handles are visual only - no resize action (FR-015)
-- [ ] T066 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(008-view-selection): implement parent highlight and handle cursors"
+- [x] T061 [US5] Create getAncestorIds utility in `src/domain/canvas/ancestors.ts` (pass T058 tests)
+- [x] T062 [US5] Add parent highlight styling to ViewRectangle (FR-012, pass T059 tests)
+- [x] T063 [US5] Update ViewRectangle styles for parent highlight state
+- [x] T064 [US5] Add cursor change on SelectionOverlay handles (FR-014, pass T060 tests)
+- [x] T065 [US5] Verify resize handles are visual only - no resize action (FR-015)
+- [x] T066 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(008-view-selection): implement parent highlight and handle cursors"
 
 **Checkpoint**: All visual indicators complete
 

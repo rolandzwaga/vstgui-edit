@@ -1,6 +1,7 @@
 import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
 import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
+import { isAncestorOfSelected } from '../../domain/canvas/ancestors';
 import styles from './Canvas.module.css';
 
 /** Padding from left edge for title */
@@ -8,6 +9,8 @@ const TITLE_PADDING_X = 4;
 
 export interface ViewRectangleProps {
   view: RenderableView;
+  /** All views in the hierarchy for ancestor calculation */
+  allViews?: RenderableView[];
 }
 
 /**
@@ -33,12 +36,25 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   const isHovered = () => selectionStore.hoveredId === props.view.id;
 
   /**
-   * Builds the CSS class string based on category, selection, and hover state.
+   * Check if this view is an ancestor of any selected view (FR-012).
+   */
+  const isParentOfSelected = () => {
+    if (!props.allViews || props.allViews.length === 0) {
+      return false;
+    }
+    return isAncestorOfSelected(props.view.id, selectionStore.selectedIds, props.allViews);
+  };
+
+  /**
+   * Builds the CSS class string based on category, selection, hover, and parent state.
    */
   const rectClass = () => {
     const classes = [styles.viewRect, styles[props.view.category]];
     if (isSelected(props.view.id)) {
       classes.push(styles.selected);
+    } else if (isParentOfSelected()) {
+      // Parent highlight only when not selected itself
+      classes.push(styles.parentOfSelected);
     }
     if (isHovered() && !isSelected(props.view.id)) {
       classes.push(styles.hovered);

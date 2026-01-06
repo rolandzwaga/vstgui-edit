@@ -5,9 +5,10 @@
  * into renderable structures.
  */
 
+// Ancestor traversal
+export { getAncestorIds, isAncestorOfSelected } from './ancestors';
 // Coordinate parsing
 export { parsePoint, parseSize } from './coordinates';
-
 // Hierarchy flattening
 export { flattenHierarchy } from './flattenHierarchy';
 // Grid utilities

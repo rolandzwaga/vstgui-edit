@@ -411,7 +411,7 @@ export const Canvas: Component = () => {
               {(bounds) => <TemplateBounds bounds={bounds()} />}
             </Show>
             <For each={renderableViews()}>
-              {(view) => <ViewRectangle view={view} />}
+              {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
             </For>
             {/* Selection overlays render on top of all views */}
             <For each={selectedViews()}>
