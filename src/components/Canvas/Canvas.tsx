@@ -1,14 +1,11 @@
 import { type Component, createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-import { useCanvasData } from '../../hooks/canvas';
+import { useCanvasData, useCanvasPan } from '../../hooks/canvas';
 import { useTooltip } from '../../hooks/useTooltip';
 import {
   applyZoom,
   canvasStore,
-  endPan,
   fitToView,
   resetZoom,
-  startPan,
-  updatePan,
   zoomIn,
   zoomOut,
 } from '../../stores/canvasStore';
@@ -79,6 +76,8 @@ export const Canvas: Component = () => {
     handleMouseMove: handleTooltipMouseMove,
     handleMouseLeave: handleTooltipMouseLeave,
   } = useTooltip();
+
+  const { handlePanMouseDown } = useCanvasPan();
 
   let wrapperRef: HTMLDivElement | undefined;
 
@@ -177,45 +176,6 @@ export const Canvas: Component = () => {
       element = element.parentElement;
     }
     return null;
-  };
-
-  /**
-   * Handle mouse down for pan initiation.
-   * Middle mouse button (button=1) or Ctrl+left-click (button=0) starts panning.
-   */
-  const handleMouseDown = (e: MouseEvent) => {
-    // Don't start new pan if already panning
-    if (canvasStore.isPanning) {
-      return;
-    }
-
-    // Middle mouse button = button 1
-    // Or Ctrl held + left mouse button = button 0
-    if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
-      e.preventDefault(); // Prevent browser auto-scroll
-      startPan(e.clientX, e.clientY);
-
-      // Add document-level listeners for drag
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-  };
-
-  /**
-   * Handle mouse move during pan gesture.
-   */
-  const handleMouseMove = (e: MouseEvent) => {
-    updatePan(e.clientX, e.clientY);
-  };
-
-  /**
-   * Handle mouse up to end pan gesture.
-   */
-  const handleMouseUp = () => {
-    endPan();
-    // Remove document-level listeners
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
   };
 
   const handleSvgMouseDown = (e: MouseEvent) => {
@@ -593,8 +553,6 @@ export const Canvas: Component = () => {
   };
 
   onCleanup(() => {
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
     document.removeEventListener('mousemove', handleMarqueeMove);
     document.removeEventListener('mouseup', handleMarqueeUp);
     document.removeEventListener('mousemove', handleDragMove);
@@ -624,7 +582,7 @@ export const Canvas: Component = () => {
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
-          onMouseDown={handleMouseDown}
+          onMouseDown={handlePanMouseDown}
           onMouseMove={handleTooltipMouseMove}
           onMouseLeave={handleTooltipMouseLeave}
           onWheel={handleWheel}
