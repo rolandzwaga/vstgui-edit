@@ -408,8 +408,15 @@ export const Canvas: Component = () => {
       return;
     }
 
-    // Handle Escape: deselect all views (FR-006)
+    // Handle Escape: cancel marquee if active, otherwise deselect all (FR-006)
     if (e.key === 'Escape') {
+      if (marqueeStore.isActive) {
+        selectAll([...marqueeStore.previousSelection]);
+        cancelMarquee();
+        document.removeEventListener('mousemove', handleMarqueeMove);
+        document.removeEventListener('mouseup', handleMarqueeUp);
+        return;
+      }
       clearSelection();
       return;
     }
@@ -429,6 +436,19 @@ export const Canvas: Component = () => {
       handleFitToView();
     } else if (e.key === 'g' || e.key === 'G') {
       toggleVisibility();
+    }
+  };
+
+  /**
+   * Handle contextmenu (right-click) to cancel marquee selection.
+   */
+  const handleContextMenu = (e: MouseEvent) => {
+    if (marqueeStore.isActive) {
+      e.preventDefault();
+      selectAll([...marqueeStore.previousSelection]);
+      cancelMarquee();
+      document.removeEventListener('mousemove', handleMarqueeMove);
+      document.removeEventListener('mouseup', handleMarqueeUp);
     }
   };
 
@@ -481,6 +501,7 @@ export const Canvas: Component = () => {
           onMouseLeave={handleCanvasMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
+          onContextMenu={handleContextMenu}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,

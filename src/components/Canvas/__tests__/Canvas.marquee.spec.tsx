@@ -52,7 +52,7 @@ const createMockDocument = (
   };
 };
 
-describe('Canvas Marquee Selection (US1)', () => {
+describe('Canvas Marquee Selection', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
     resetCanvas();
@@ -240,6 +240,170 @@ describe('Canvas Marquee Selection (US1)', () => {
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(false);
       });
+    });
+  });
+
+  describe('US2: Shift+drag additive selection', () => {
+    it('should preserve existing selection with Shift+drag', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+        { id: 'view-2', x: 150, y: 50, width: 50, height: 50 },
+        { id: 'view-3', x: 50, y: 150, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.click(view1);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+
+      fireEvent.mouseDown(canvas, { clientX: 140, clientY: 40, button: 0, shiftKey: true });
+      fireEvent.mouseMove(document, { clientX: 210, clientY: 110 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
+        expect(selectionStore.selectedIds.size).toBe(2);
+      });
+    });
+
+    it('should set isAdditive when Shift is held', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0, shiftKey: true });
+
+      testInRoot(() => {
+        expect(marqueeStore.isAdditive).toBe(true);
+      });
+    });
+
+    it('should replace selection without Shift', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+        { id: 'view-2', x: 150, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.click(view1);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+
+      fireEvent.mouseDown(canvas, { clientX: 140, clientY: 40, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 210, clientY: 110 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
+        expect(selectionStore.selectedIds.size).toBe(1);
+      });
+    });
+  });
+
+  describe('US3: Marquee cancellation', () => {
+    it('should cancel marquee on Escape key', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 100, clientY: 100 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+
+      fireEvent.keyDown(wrapper, { key: 'Escape' });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+
+    it('should restore previous selection on Escape', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+        { id: 'view-2', x: 150, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.click(view1);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 100, clientY: 100 });
+
+      fireEvent.keyDown(wrapper, { key: 'Escape' });
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+    });
+
+    it('should cancel marquee on right-click (contextmenu)', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 100, clientY: 100 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+
+      fireEvent.contextMenu(wrapper);
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+  });
+
+  describe('US4: Visual feedback', () => {
+    it('should apply marqueeRect CSS class to rectangle', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 100, clientY: 100 });
+
+      const rect = screen.getByTestId('marquee-rect');
+      expect(rect.classList.toString()).toContain('marqueeRect');
     });
   });
 });
