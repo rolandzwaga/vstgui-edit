@@ -616,6 +616,85 @@ cancelDrag();
 resetDrag();
 ```
 
+### Resize Store (`src/stores/resizeStore.ts`)
+
+Global store for resize operation state (transient):
+
+- `resizeStore` - Reactive store with isResizing, activeHandle, viewId, startPoint, currentPoint, originalOrigin, originalSize, newOrigin, newSize
+- `startResize(handle, viewId, point, origin, size)` - Begin resize at canvas point with original view bounds
+- `updateResize(point, shiftHeld, altHeld)` - Update current point, apply aspect ratio (Shift) or center resize (Alt)
+- `endResize()` - End resize (keeps state for commit)
+- `cancelResize()` - Cancel and reset all state
+- `resetResize()` - Reset all state to initial values
+
+```typescript
+import { resizeStore, startResize, updateResize, endResize, cancelResize, resetResize } from './stores/resizeStore';
+
+// Access resize state
+console.log(resizeStore.isResizing);     // boolean
+console.log(resizeStore.activeHandle);   // HandlePosition | null ('nw', 'n', 'ne', etc.)
+console.log(resizeStore.viewId);         // string | null
+console.log(resizeStore.startPoint);     // Point | null
+console.log(resizeStore.currentPoint);   // Point | null
+console.log(resizeStore.originalOrigin); // Point | null
+console.log(resizeStore.originalSize);   // Size | null
+console.log(resizeStore.newOrigin);      // Point (computed during resize)
+console.log(resizeStore.newSize);        // Size (computed during resize)
+
+// Resize gesture flow
+startResize('se', 'view-1', { x: 200, y: 200 }, { x: 100, y: 100 }, { width: 100, height: 100 });
+updateResize({ x: 220, y: 220 }, false, false);  // Normal resize
+updateResize({ x: 240, y: 240 }, true, false);   // Shift: maintain aspect ratio
+updateResize({ x: 260, y: 260 }, false, true);   // Alt: resize from center
+updateResize({ x: 280, y: 280 }, true, true);    // Shift+Alt: both
+endResize();
+
+// Cancel resize (restores original size)
+cancelResize();
+
+// Reset for testing
+resetResize();
+```
+
+### Resize Utilities (`src/domain/canvas/resize.ts`)
+
+Utilities for calculating resize bounds with modifier key support:
+
+- `formatSize(size)` - Format size as "w, h" string for uidesc
+- `clampToMinimumSize(bounds, handle, minSize?)` - Clamp bounds to minimum 10x10
+- `calculateResizeBounds(handle, origin, size, delta, options?)` - Calculate new bounds
+- `createResizeOperation(data, updateOrigin, updateSize)` - Create HistoryOperation for resize
+
+```typescript
+import { formatSize, clampToMinimumSize, calculateResizeBounds, createResizeOperation } from './domain/canvas/resize';
+
+// Format for uidesc attribute
+const sizeStr = formatSize({ width: 200, height: 150 });
+// "200, 150"
+
+// Calculate resize bounds
+const bounds = calculateResizeBounds(
+  'se',                           // handle position
+  { x: 100, y: 100 },            // original origin
+  { width: 100, height: 100 },   // original size
+  { x: 20, y: 10 },              // delta from drag
+  { maintainAspectRatio: true, resizeFromCenter: false }
+);
+// bounds.origin: { x: 100, y: 100 }, bounds.size: { width: 120, height: 120 }
+
+// Clamp to minimum size
+const clamped = clampToMinimumSize(bounds, 'se');
+// Ensures width >= 10 and height >= 10
+
+// Create history operation
+const operation = createResizeOperation(
+  { viewId, originalOrigin, originalSize, newOrigin, newSize },
+  updateViewOrigin,
+  updateViewSize
+);
+pushOperation(operation);
+```
+
 ### Move Utilities (`src/domain/canvas/move.ts`)
 
 Utilities for calculating and applying move deltas:
@@ -1198,6 +1277,28 @@ Object.values(view.children ?? {}).forEach(child => ...)
 ---
 
 ## Architecture Decisions
+
+### View Resize Feature (2026-01-06)
+
+**Feature 013-view-resize**: Drag resize handles to resize selected views.
+
+**Functionality**:
+- 8 resize handles on selected views (corners and edges)
+- Drag any handle to resize the view
+- Shift key: maintain aspect ratio (corner handles only)
+- Alt key: resize from center (symmetric)
+- Shift+Alt: both aspect ratio and center resize
+- Escape key: cancel resize and restore original size
+- Full undo/redo support via historyStore
+
+**Components**:
+- `SelectionOverlay`: Renders handles with `onResizeStart` callback
+- `ResizePreview`: Semi-transparent ghost preview during resize
+- `resizeStore`: Transient state for resize operations
+
+**Tests**: 63 new tests for resize functionality
+
+---
 
 ### Selection Unified to MouseUp (2026-01-06)
 
