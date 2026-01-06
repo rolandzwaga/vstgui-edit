@@ -1,37 +1,21 @@
-/**
- * Grid Store - Grid overlay state management for canvas.
- *
- * Uses SolidJS signals for reactive state with fine-grained updates.
- */
 import { createSignal } from 'solid-js';
 import type { GridSizePreset, GridStyle } from '../types/grid';
+import { DEFAULT_SNAP_THRESHOLD } from '../types/snap';
 
-// --- Constants ---
-
-/** Valid grid size presets in pixels */
 export const GRID_SIZE_PRESETS: GridSizePreset[] = [5, 8, 10, 12, 16, 20];
-
-/** Default grid size (10px) */
 export const DEFAULT_GRID_SIZE: GridSizePreset = 10;
-
-/** Default grid style (lines) */
 export const DEFAULT_GRID_STYLE: GridStyle = 'lines';
-
-/** Major line interval (every 5th line) */
 export const MAJOR_LINE_INTERVAL = 5;
 
-// --- Signals ---
+const MIN_SNAP_THRESHOLD = 1;
+const MAX_SNAP_THRESHOLD = 20;
 
 const [isVisible, setIsVisible] = createSignal<boolean>(true);
 const [size, setSize] = createSignal<GridSizePreset>(DEFAULT_GRID_SIZE);
 const [style, setStyle] = createSignal<GridStyle>(DEFAULT_GRID_STYLE);
+const [isSnapEnabled, setIsSnapEnabled] = createSignal<boolean>(true);
+const [snapThreshold, setSnapThresholdSignal] = createSignal<number>(DEFAULT_SNAP_THRESHOLD);
 
-// --- Reactive store object ---
-
-/**
- * Reactive grid store exposing grid state.
- * Access values as getters (they are signals).
- */
 export const gridStore = {
   get isVisible() {
     return isVisible();
@@ -42,36 +26,39 @@ export const gridStore = {
   get style() {
     return style();
   },
+  get isSnapEnabled() {
+    return isSnapEnabled();
+  },
+  get snapThreshold() {
+    return snapThreshold();
+  },
 };
 
-// --- Actions ---
-
-/**
- * Toggle grid visibility.
- */
 export function toggleVisibility(): void {
   setIsVisible(current => !current);
 }
 
-/**
- * Set the grid size to a valid preset.
- */
 export function setGridSize(newSize: GridSizePreset): void {
   setSize(newSize);
 }
 
-/**
- * Set the grid visual style.
- */
 export function setGridStyle(newStyle: GridStyle): void {
   setStyle(newStyle);
 }
 
-/**
- * Reset all grid state to default values.
- */
+export function toggleSnap(): void {
+  setIsSnapEnabled(current => !current);
+}
+
+export function setSnapThreshold(threshold: number): void {
+  const clamped = Math.max(MIN_SNAP_THRESHOLD, Math.min(MAX_SNAP_THRESHOLD, threshold));
+  setSnapThresholdSignal(clamped);
+}
+
 export function resetGrid(): void {
   setIsVisible(true);
   setSize(DEFAULT_GRID_SIZE);
   setStyle(DEFAULT_GRID_STYLE);
+  setIsSnapEnabled(true);
+  setSnapThresholdSignal(DEFAULT_SNAP_THRESHOLD);
 }
