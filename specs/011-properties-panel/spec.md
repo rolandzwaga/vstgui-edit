@@ -153,35 +153,35 @@ As a user with limited screen space, I want to expand and collapse attribute gro
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | PropertiesPanel.spec.tsx - "should show properties when view is selected" |
+| FR-002 | ✅ MET | PropertiesPanel.spec.tsx - "should display attribute groups" |
+| FR-003 | ✅ MET | PropertiesPanel.spec.tsx - "should display class name in header" |
+| FR-004 | ✅ MET | PropertiesPanel.spec.tsx - "should display groups in priority order" |
+| FR-005 | ✅ MET | PropertiesPanel.spec.tsx - "should show empty state when no selection" |
+| FR-006 | ✅ MET | PropertiesPanel.multiselect.spec.tsx - "should show class name with count" |
+| FR-007 | ✅ MET | PropertiesPanel.multiselect.spec.tsx - "should show shared value when all views have same value" |
+| FR-008 | ✅ MET | PropertiesPanel.multiselect.spec.tsx - "should show Mixed indicator when values differ" |
+| FR-009 | ✅ MET | AttributeRow.copy.spec.tsx - "should call onCopy when copyable value is clicked" |
+| FR-010 | ✅ MET | AttributeRow.tsx - cursor: pointer styling on copyable values |
+| FR-011 | ✅ MET | AttributeGroup.spec.tsx - "should hide attributes when collapsed" |
+| FR-012 | ✅ MET | propertiesStore.spec.ts - state persists across operations |
+| FR-013 | ✅ MET | PropertiesPanel.tsx - reactively reads from selectionStore |
+| SC-001 | ✅ MET | All attributes visible in grouped panels within panel render |
+| SC-002 | ✅ MET | 6 distinct groups: Identity, Geometry, Appearance, Text, Behavior, Other |
+| SC-003 | ✅ MET | AttributeRow.copy.spec.tsx - onCopy called for all copyable values |
+| SC-004 | ✅ MET | PropertiesPanel.spec.tsx - "should update when selection changes" |
+| SC-005 | ✅ MET | mergeSelections.spec.ts - "large selection (50+ views)" under 100ms |
 
 **⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Git Status Check**: Run `git status` to verify all changes are committed
+- [x] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [x] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [x] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
 **⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch AND the compliance table shows all requirements MET.
