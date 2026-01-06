@@ -20,13 +20,6 @@ export {
 } from './grid';
 // Label formatting
 export { formatLabel } from './labelFormat';
-// View category classification
-export {
-  CONTAINER_CLASSES,
-  CONTROL_CLASSES,
-  DISPLAY_CLASSES,
-  getViewCategory,
-} from './viewCategory';
 // Marquee selection utilities
 export {
   findIntersectingViews,
@@ -35,3 +28,10 @@ export {
   normalizeRect,
   rectIntersect,
 } from './marquee';
+// View category classification
+export {
+  CONTAINER_CLASSES,
+  CONTROL_CLASSES,
+  DISPLAY_CLASSES,
+  getViewCategory,
+} from './viewCategory';

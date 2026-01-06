@@ -12,9 +12,17 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
+import {
+  cancelMarquee,
+  completeMarquee,
+  marqueeStore,
+  startMarquee,
+  updateMarquee,
+} from '../../stores/marqueeStore';
 import { clearSelection, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
+import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
@@ -22,6 +30,7 @@ import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
 import { Legend } from './Legend';
+import { MarqueeRectangle } from './MarqueeRectangle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
@@ -282,6 +291,87 @@ export const Canvas: Component = () => {
   };
 
   /**
+   * Handle mouse down on canvas SVG for marquee selection.
+   * Starts marquee only on left-click on empty space (not on views, not panning).
+   */
+  const handleSvgMouseDown = (e: MouseEvent) => {
+    if (e.button !== 0 || e.ctrlKey || canvasStore.isPanning) {
+      return;
+    }
+
+    const targetViewId = getViewIdFromTarget(e.target);
+    if (targetViewId) {
+      return;
+    }
+
+    if (!wrapperRef) return;
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    startMarquee(canvasPoint, e.shiftKey, selectionStore.selectedIds);
+
+    document.addEventListener('mousemove', handleMarqueeMove);
+    document.addEventListener('mouseup', handleMarqueeUp);
+  };
+
+  /**
+   * Handle mouse move during marquee selection.
+   */
+  const handleMarqueeMove = (e: MouseEvent) => {
+    if (!wrapperRef) return;
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+    updateMarquee(canvasPoint);
+  };
+
+  /**
+   * Handle mouse up to complete marquee selection.
+   */
+  const handleMarqueeUp = () => {
+    document.removeEventListener('mousemove', handleMarqueeMove);
+    document.removeEventListener('mouseup', handleMarqueeUp);
+
+    const start = marqueeStore.startPoint;
+    const current = marqueeStore.currentPoint;
+
+    if (!start || !current) {
+      cancelMarquee();
+      return;
+    }
+
+    if (!isMinimumSize(start, current)) {
+      clearSelection();
+      completeMarquee();
+      return;
+    }
+
+    const marqueeRect = normalizeRect(start, current);
+    const views = renderableViews();
+    const intersectingIds = findIntersectingViews(marqueeRect, views);
+
+    if (marqueeStore.isAdditive) {
+      const merged = new Set([...marqueeStore.previousSelection, ...intersectingIds]);
+      selectAll([...merged]);
+    } else {
+      selectAll(intersectingIds);
+    }
+
+    completeMarquee();
+  };
+
+  /**
    * Handle wheel event for zoom.
    * Prevents default browser zoom and applies cursor-centered zoom.
    */
@@ -365,6 +455,8 @@ export const Canvas: Component = () => {
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousemove', handleMarqueeMove);
+    document.removeEventListener('mouseup', handleMarqueeUp);
     if (tooltipTimer) {
       clearTimeout(tooltipTimer);
     }
@@ -406,6 +498,7 @@ export const Canvas: Component = () => {
             viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
             data-testid="canvas"
             onClick={handleCanvasClick}
+            onMouseDown={handleSvgMouseDown}
           >
             <Show when={templateBounds()}>
               {(bounds) => <TemplateBounds bounds={bounds()} />}
@@ -417,6 +510,10 @@ export const Canvas: Component = () => {
             <For each={selectedViews()}>
               {(view) => <SelectionOverlay view={view} />}
             </For>
+            {/* Marquee selection rectangle */}
+            <Show when={marqueeStore.isActive}>
+              <MarqueeRectangle />
+            </Show>
           </svg>
         </div>
         <Legend />

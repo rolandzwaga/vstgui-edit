@@ -1,0 +1,245 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
+import { Canvas } from '../Canvas';
+import { resetCanvas } from '../../../stores/canvasStore';
+import { resetSelection, selectionStore } from '../../../stores/selectionStore';
+import { marqueeStore, resetMarquee } from '../../../stores/marqueeStore';
+import { testInRoot } from '../../../__tests__/helpers/solidjs';
+
+const mockDocumentStore = vi.hoisted(() => ({
+  document: null as unknown,
+}));
+
+vi.mock('../../../stores/documentStore', () => ({
+  documentStore: mockDocumentStore,
+}));
+
+const createMockDocument = (
+  views: Array<{
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }>
+) => {
+  const children: Record<string, unknown> = {};
+
+  for (const view of views) {
+    children[view.id] = {
+      attributes: {
+        class: 'CViewContainer',
+        origin: `${view.x}, ${view.y}`,
+        size: `${view.width}, ${view.height}`,
+      },
+    };
+  }
+
+  return {
+    'vstgui-ui-description': {
+      version: '1.0',
+      templates: {
+        TestTemplate: {
+          attributes: {
+            class: 'CViewContainer',
+            origin: '0, 0',
+            size: '400, 300',
+          },
+          children,
+        },
+      },
+    },
+  };
+};
+
+describe('Canvas Marquee Selection (US1)', () => {
+  beforeEach(() => {
+    mockDocumentStore.document = null;
+    resetCanvas();
+    resetSelection();
+    resetMarquee();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  describe('Given mousedown on empty canvas space', () => {
+    it('should start marquee selection', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+    });
+
+    it('should show marquee rectangle during drag', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(true);
+      });
+
+      expect(screen.getByTestId('marquee-rect')).toBeInTheDocument();
+    });
+  });
+
+  describe('Given mousedown on a view', () => {
+    it('should NOT start marquee selection', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+
+      fireEvent.mouseDown(view, { clientX: 75, clientY: 75, button: 0 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+
+    it('should select the view instead', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+
+      fireEvent.click(view);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+    });
+  });
+
+  describe('Given mouseup after marquee drag', () => {
+    it('should select views that intersect the marquee', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+        { id: 'view-2', x: 150, y: 50, width: 50, height: 50 },
+        { id: 'view-3', x: 300, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 40, clientY: 40, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 210, clientY: 110 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-3')).toBe(false);
+      });
+    });
+
+    it('should end marquee state', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+  });
+
+  describe('Given marquee smaller than 5x5 pixels (FR-010)', () => {
+    it('should clear selection instead of selecting', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      testInRoot(() => {
+        selectionStore.selectedIds.add?.('TestTemplate-view-1');
+      });
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 12, clientY: 12 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.size).toBe(0);
+      });
+    });
+
+    it('should be treated as a click (deselect)', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0 });
+      fireEvent.mouseMove(document, { clientX: 13, clientY: 13 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.size).toBe(0);
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+  });
+
+  describe('Given middle mouse button or ctrl+click', () => {
+    it('should NOT start marquee (pan mode)', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 1 });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+
+    it('should NOT start marquee with ctrl+left click', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 200, y: 200, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(canvas, { clientX: 10, clientY: 10, button: 0, ctrlKey: true });
+
+      testInRoot(() => {
+        expect(marqueeStore.isActive).toBe(false);
+      });
+    });
+  });
+});
