@@ -248,7 +248,7 @@ describe('flattenHierarchy', () => {
       expect(result).toHaveLength(3);
     });
 
-    it('should use child key as id', () => {
+    it('should use path-based id for children', () => {
       const view: ViewDefinition = {
         attributes: {
           class: 'CViewContainer',
@@ -268,7 +268,8 @@ describe('flattenHierarchy', () => {
 
       const result = flattenHierarchy(view, 'root');
 
-      expect(result[1].id).toBe('myButton');
+      // Child ID is parent ID + child key for uniqueness
+      expect(result[1].id).toBe('root-myButton');
     });
   });
 
@@ -397,8 +398,8 @@ describe('flattenHierarchy', () => {
       const result = flattenHierarchy(view, 'root');
 
       expect(result[0].id).toBe('root');
-      expect(result[1].id).toBe('panel');
-      expect(result[2].id).toBe('button');
+      expect(result[1].id).toBe('root-panel');
+      expect(result[2].id).toBe('root-panel-button');
     });
 
     it('should ensure children have higher zIndex than parent', () => {
@@ -436,6 +437,108 @@ describe('flattenHierarchy', () => {
 
       expect(panelZIndex).toBeGreaterThan(rootZIndex);
       expect(buttonZIndex).toBeGreaterThan(panelZIndex);
+    });
+  });
+
+  describe('Given multiple containers with same-named children (unique IDs)', () => {
+    it('should generate unique IDs for children with same key in different parents', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CViewContainer',
+          origin: '0, 0',
+          size: '400, 300',
+        },
+        children: {
+          panelA: {
+            attributes: {
+              class: 'CViewContainer',
+              origin: '0, 0',
+              size: '200, 150',
+            },
+            children: {
+              button: {
+                attributes: {
+                  class: 'CTextButton',
+                  origin: '10, 10',
+                  size: '80, 30',
+                },
+              },
+            },
+          },
+          panelB: {
+            attributes: {
+              class: 'CViewContainer',
+              origin: '200, 0',
+              size: '200, 150',
+            },
+            children: {
+              button: {
+                attributes: {
+                  class: 'CTextButton',
+                  origin: '10, 10',
+                  size: '80, 30',
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root');
+
+      // Extract all IDs
+      const ids = result.map((v) => v.id);
+
+      // All IDs should be unique
+      const uniqueIds = new Set(ids);
+      expect(uniqueIds.size).toBe(ids.length);
+
+      // Should have 5 views: root, panelA, panelA/button, panelB, panelB/button
+      expect(result).toHaveLength(5);
+    });
+
+    it('should generate path-based IDs for nested children', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CViewContainer',
+          origin: '0, 0',
+          size: '400, 300',
+        },
+        children: {
+          panel: {
+            attributes: {
+              class: 'CViewContainer',
+              origin: '10, 10',
+              size: '200, 200',
+            },
+            children: {
+              button: {
+                attributes: {
+                  class: 'CTextButton',
+                  origin: '5, 5',
+                  size: '80, 30',
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root');
+
+      // Root ID should be 'root'
+      expect(result[0].id).toBe('root');
+
+      // Panel ID should include root path
+      expect(result[1].id).toContain('panel');
+
+      // Button ID should include both root and panel path
+      expect(result[2].id).toContain('button');
+
+      // All IDs should be unique
+      const ids = result.map((v) => v.id);
+      const uniqueIds = new Set(ids);
+      expect(uniqueIds.size).toBe(ids.length);
     });
   });
 

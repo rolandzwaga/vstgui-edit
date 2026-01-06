@@ -226,9 +226,9 @@ describe('Canvas', () => {
 
       render(() => <Canvas />);
 
-      // Verify parent appears before child in DOM
+      // Verify parent appears before child in DOM (path-based IDs)
       const parentView = screen.getByTestId('view-MainView');
-      const childView = screen.getByTestId('view-childButton');
+      const childView = screen.getByTestId('view-MainView-childButton');
 
       // Parent should come before child in document order
       expect(
@@ -277,10 +277,10 @@ describe('Canvas', () => {
       // Template bounds + Root + panel + nestedButton = 4 rectangles
       expect(rects.length).toBe(4);
 
-      // Verify correct DOM order: MainView -> panel -> nestedButton
+      // Verify correct DOM order: MainView -> panel -> nestedButton (path-based IDs)
       const mainView = screen.getByTestId('view-MainView');
-      const panelView = screen.getByTestId('view-panel');
-      const nestedButton = screen.getByTestId('view-nestedButton');
+      const panelView = screen.getByTestId('view-MainView-panel');
+      const nestedButton = screen.getByTestId('view-MainView-panel-nestedButton');
 
       expect(
         mainView.compareDocumentPosition(panelView) & Node.DOCUMENT_POSITION_FOLLOWING
@@ -431,9 +431,9 @@ describe('Canvas', () => {
       };
 
       render(() => <Canvas />);
-      const viewRect = screen.getByTestId('view-button');
+      const viewRect = screen.getByTestId('view-MainView-button');
 
-      // Middle-click on the view element
+      // Middle-click on the view element (path-based ID)
       fireEvent.mouseDown(viewRect, { button: 1, clientX: 75, clientY: 75 });
 
       expect(canvasStore.isPanning).toBe(true);

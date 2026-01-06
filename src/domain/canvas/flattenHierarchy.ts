@@ -149,7 +149,9 @@ export function flattenHierarchy(
     // US2: Recursively process children
     if (children) {
       for (const [childKey, childView] of Object.entries(children)) {
-        nextZIndex = processView(childView, childKey, absoluteX, absoluteY, nextZIndex, viewId);
+        // Generate unique child ID by combining parent ID with child key
+        const childId = `${viewId}-${childKey}`;
+        nextZIndex = processView(childView, childId, absoluteX, absoluteY, nextZIndex, viewId);
       }
     }
 
