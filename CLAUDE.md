@@ -381,6 +381,39 @@ if (isSelected('view-1')) {
 resetSelection();
 ```
 
+### Marquee Store (`src/stores/marqueeStore.ts`)
+
+Global store for marquee (rubber-band) selection state:
+
+- `marqueeStore` - Reactive store with active state, points, additive mode, and previous selection
+- `startMarquee(point, additive, currentSelection)` - Begin marquee at point, capture current selection
+- `updateMarquee(point)` - Update current point during drag (no-op if inactive)
+- `completeMarquee()` - End marquee and reset state
+- `cancelMarquee()` - Cancel marquee and reset state
+- `resetMarquee()` - Reset all state to initial values
+
+```typescript
+import { marqueeStore, startMarquee, updateMarquee, completeMarquee, cancelMarquee, resetMarquee } from './stores/marqueeStore';
+
+// Access marquee state
+console.log(marqueeStore.isActive);           // boolean
+console.log(marqueeStore.startPoint);         // CanvasPoint | null
+console.log(marqueeStore.currentPoint);       // CanvasPoint | null
+console.log(marqueeStore.isAdditive);         // boolean (Shift held)
+console.log(marqueeStore.previousSelection);  // Set<string> (for cancel restore)
+
+// Marquee gesture flow
+startMarquee({ x: 10, y: 10 }, false, selectionStore.selectedIds);  // Begin
+updateMarquee({ x: 100, y: 100 });  // Update during drag
+completeMarquee();                   // End and reset
+
+// Cancel (restore previous selection)
+cancelMarquee();
+
+// Reset for testing
+resetMarquee();
+```
+
 ### Ancestor Utilities (`src/domain/canvas/ancestors.ts`)
 
 Utilities for traversing view hierarchy to find ancestors:
@@ -397,6 +430,33 @@ const ancestors = getAncestorIds('leaf-view', allViews);
 
 // Check if view should show parent highlight
 const shouldHighlight = isAncestorOfSelected('parent-view', selectedIds, allViews);
+```
+
+### Marquee Utilities (`src/domain/canvas/marquee.ts`)
+
+Utilities for marquee (rubber-band) selection:
+
+- `MIN_MARQUEE_SIZE` - Minimum size threshold (5px)
+- `normalizeRect(start, current)` - Normalize drag points to positive-dimension rectangle
+- `isMinimumSize(start, current)` - Check if drag exceeds minimum threshold
+- `rectIntersect(a, b)` - Check if two rectangles intersect
+- `findIntersectingViews(marqueeRect, views)` - Get IDs of views that intersect marquee
+
+```typescript
+import { MIN_MARQUEE_SIZE, normalizeRect, isMinimumSize, rectIntersect, findIntersectingViews } from './domain/canvas/marquee';
+
+// Normalize any drag direction to positive rectangle
+const rect = normalizeRect({ x: 100, y: 100 }, { x: 50, y: 50 });
+// { x: 50, y: 50, width: 50, height: 50 }
+
+// Check if drag is large enough to be a marquee (not a click)
+const isMarquee = isMinimumSize(start, current);  // true if >= 5x5
+
+// Check rectangle intersection
+const intersects = rectIntersect(rectA, rectB);
+
+// Find views within marquee
+const selectedIds = findIntersectingViews(marqueeRect, renderableViews);
 ```
 
 ### Zoom Utilities (`src/domain/canvas/zoom.ts`)
@@ -884,6 +944,17 @@ class SetPropertyCommand implements Command {
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Implemented 009-marquee-selection feature
+  - marqueeStore for marquee (rubber-band) selection state management
+  - Click+drag on empty canvas draws selection rectangle
+  - Views intersecting marquee are selected on mouse release
+  - Shift+drag for additive selection (merge with existing)
+  - Escape key and right-click cancel marquee, restore previous selection
+  - Minimum 5x5 pixel threshold (smaller drags treated as clicks)
+  - Semi-transparent fill and solid stroke styling via design tokens
+  - MarqueeRectangle component with normalized coordinates
+  - Domain utilities: normalizeRect, isMinimumSize, rectIntersect, findIntersectingViews
 
 - 2026-01-06: Implemented 008-view-selection feature
   - selectionStore for selection and hover state management
