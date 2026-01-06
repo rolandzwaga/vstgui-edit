@@ -144,9 +144,8 @@ describe('documentStore parsing integration', () => {
 
       await loadFile(file);
 
-      expect(documentStore.document?.['vstgui-ui-description'].bitmaps?.Knob.path).toBe(
-        'images/knob.png'
-      );
+      const knobBitmap = documentStore.document?.['vstgui-ui-description'].bitmaps?.Knob;
+      expect(typeof knobBitmap === 'object' && knobBitmap.path).toBe('images/knob.png');
     });
 
     it('should preserve templates with nested views', async () => {
@@ -179,7 +178,7 @@ describe('documentStore parsing integration', () => {
 
       const templates = documentStore.document?.['vstgui-ui-description'].templates;
       expect(templates?.MainView.attributes.class).toBe('CViewContainer');
-      expect(templates?.MainView.children?.Button1.attributes.class).toBe('CTextButton');
+      expect(templates?.MainView.children?.Button1?.attributes.class).toBe('CTextButton');
     });
   });
 

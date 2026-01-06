@@ -73,6 +73,6 @@ export function resetMarquee(): void {
   setStartPoint(null);
   setCurrentPoint(null);
   setIsAdditive(false);
-  setPreviousSelection(new Set());
+  setPreviousSelection(new Set<string>());
   setClickTarget(null);
 }

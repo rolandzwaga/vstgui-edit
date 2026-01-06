@@ -67,9 +67,8 @@ describe('parseJson', () => {
       const result = parseJson(content);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.document['vstgui-ui-description'].bitmaps?.Background.path).toBe(
-          'images/bg.png'
-        );
+        const bitmap = result.document['vstgui-ui-description'].bitmaps?.Background;
+        expect(typeof bitmap === 'object' && bitmap.path).toBe('images/bg.png');
       }
     });
 

@@ -1,4 +1,5 @@
 import { type Component, createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import type { TemplateDefinition } from '../../types/uidesc';
 import { documentStore } from '../../stores/documentStore';
 import {
   applyZoom,
@@ -63,11 +64,11 @@ export const Canvas: Component = () => {
    * Gets the first template from the templates object.
    * Returns [templateName, templateView] tuple or null.
    */
-  const firstTemplate = createMemo(() => {
+  const firstTemplate = createMemo((): [string, TemplateDefinition] | null => {
     const t = templates();
     if (!t) return null;
 
-    const entries = Object.entries(t);
+    const entries = Object.entries(t) as [string, TemplateDefinition][];
     if (entries.length === 0) return null;
 
     return entries[0];

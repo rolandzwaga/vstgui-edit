@@ -164,12 +164,12 @@ describe('flattenHierarchy', () => {
     });
 
     it('should use "Unknown" className when class is missing', () => {
-      const view: ViewDefinition = {
+      const view = {
         attributes: {
           origin: '0, 0',
           size: '100, 100',
         },
-      };
+      } as ViewDefinition;
 
       const result = flattenHierarchy(view, 'root');
 
