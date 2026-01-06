@@ -1,7 +1,9 @@
 import { type Component, For, Show } from 'solid-js';
+import { FontAwesomeIcon } from 'solid-fontawesome';
 import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { isSelected, select, toggleSelect } from '../../stores/selectionStore';
+import { CATEGORY_ICON_NAMES } from './icons';
 import styles from './TreeNode.module.css';
 
 const INDENT_SIZE = 16;
@@ -14,6 +16,7 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   const indentPx = () => props.node.depth * INDENT_SIZE;
   const expanded = () => isExpanded(props.node.id);
   const selected = () => isSelected(props.node.id);
+  const iconName = () => CATEGORY_ICON_NAMES[props.node.category];
 
   const handleToggle = (e: MouseEvent) => {
     e.stopPropagation();
@@ -50,6 +53,13 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
             <span class={expanded() ? styles.chevronDown : styles.chevronRight}>▶</span>
           </button>
         </Show>
+        <span
+          class={`${styles.icon} ${styles[`icon${props.node.category.charAt(0).toUpperCase()}${props.node.category.slice(1)}`]}`}
+          data-testid={`icon-${props.node.id}`}
+          data-icon={iconName()}
+        >
+          <FontAwesomeIcon icon={iconName()} />
+        </span>
         <span class={styles.label}>{props.node.label}</span>
       </div>
       <Show when={props.node.hasChildren && expanded()}>

@@ -48,6 +48,32 @@
   transition: transform 0.15s ease;
 }
 
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+.iconContainer {
+  color: var(--color-category-container, #6b7280);
+}
+
+.iconControl {
+  color: var(--color-category-control, #3b82f6);
+}
+
+.iconDisplay {
+  color: var(--color-category-display, #10b981);
+}
+
+.iconCustom {
+  color: var(--color-category-custom, #8b5cf6);
+}
+
 .label {
   font-size: 13px;
   white-space: nowrap;
