@@ -9,6 +9,7 @@ import {
   resetSelection,
   select,
   selectionStore,
+  toggleSelect,
 } from '../selectionStore';
 
 describe('selectionStore', () => {
@@ -90,6 +91,57 @@ describe('selectionStore', () => {
       testInRoot(() => {
         select('view-1');
         expect(selectionStore.selectedIds.has('view-2')).toBe(false);
+      });
+    });
+  });
+
+  describe('toggleSelect (FR-004)', () => {
+    it('should add a view to selection when not selected', () => {
+      testInRoot(() => {
+        select('view-1');
+        toggleSelect('view-2');
+        expect(selectionStore.selectedIds.has('view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('view-2')).toBe(true);
+        expect(selectionStore.selectedIds.size).toBe(2);
+      });
+    });
+
+    it('should remove a view from selection when already selected', () => {
+      testInRoot(() => {
+        select('view-1');
+        toggleSelect('view-2');
+        toggleSelect('view-2'); // Toggle again should remove
+        expect(selectionStore.selectedIds.has('view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('view-2')).toBe(false);
+        expect(selectionStore.selectedIds.size).toBe(1);
+      });
+    });
+
+    it('should select a view when no selection exists', () => {
+      testInRoot(() => {
+        toggleSelect('view-1');
+        expect(selectionStore.selectedIds.has('view-1')).toBe(true);
+        expect(selectionStore.selectedIds.size).toBe(1);
+      });
+    });
+
+    it('should allow selecting multiple views', () => {
+      testInRoot(() => {
+        toggleSelect('view-1');
+        toggleSelect('view-2');
+        toggleSelect('view-3');
+        expect(selectionStore.selectedIds.size).toBe(3);
+        expect(selectionStore.selectedIds.has('view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('view-2')).toBe(true);
+        expect(selectionStore.selectedIds.has('view-3')).toBe(true);
+      });
+    });
+
+    it('should remove last selected view resulting in empty selection', () => {
+      testInRoot(() => {
+        toggleSelect('view-1');
+        toggleSelect('view-1'); // Remove it
+        expect(selectionStore.selectedIds.size).toBe(0);
       });
     });
   });

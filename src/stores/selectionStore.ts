@@ -45,6 +45,23 @@ export function clearSelection(): void {
 }
 
 /**
+ * Toggle selection of a view (add if not selected, remove if selected).
+ * Used for Shift+click multi-selection behavior (FR-004).
+ */
+export function toggleSelect(viewId: string): void {
+  const current = selectedIds();
+  const newSet = new Set(current);
+
+  if (newSet.has(viewId)) {
+    newSet.delete(viewId);
+  } else {
+    newSet.add(viewId);
+  }
+
+  setSelectedIds(newSet);
+}
+
+/**
  * Reset all selection state to initial values.
  * Used for testing and when loading new documents.
  */

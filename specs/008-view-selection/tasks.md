@@ -79,7 +79,7 @@
 - [x] T022 [US1] Render SelectionOverlay for selected views in Canvas
 - [x] T023 [US1] Handle click on empty canvas to deselect (FR-003)
 - [x] T024 [US1] Handle nested views - select topmost child (FR-013)
-- [ ] T025 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(008-view-selection): implement single click selection"
+- [x] T025 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(008-view-selection): implement single click selection"
 
 **Checkpoint**: Single click selection fully functional - MVP complete
 
@@ -93,16 +93,16 @@
 
 ### Tests for User Story 2
 
-- [ ] T026 [US2] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T027 [P] [US2] Write tests for Shift+click behavior in `src/components/Canvas/__tests__/Canvas.multiselect.spec.tsx`
-- [ ] T028 [P] [US2] Write tests for toggleSelect store action in `src/stores/__tests__/selectionStore.spec.ts` (extend existing)
+- [x] T026 [US2] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T027 [P] [US2] Write tests for Shift+click behavior in `src/components/Canvas/__tests__/Canvas.multiselect.spec.tsx`
+- [x] T028 [P] [US2] Write tests for toggleSelect store action in `src/stores/__tests__/selectionStore.spec.ts` (extend existing)
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Add toggleSelect action to selectionStore (pass T028 tests)
-- [ ] T030 [US2] Add Shift+click handling to Canvas click handler (pass T027 tests)
-- [ ] T031 [US2] Render multiple SelectionOverlays for multi-selected views
-- [ ] T032 [US2] Handle click without Shift to clear multi-selection (FR-002)
+- [x] T029 [US2] Add toggleSelect action to selectionStore (pass T028 tests)
+- [x] T030 [US2] Add Shift+click handling to Canvas click handler (pass T027 tests)
+- [x] T031 [US2] Render multiple SelectionOverlays for multi-selected views
+- [x] T032 [US2] Handle click without Shift to clear multi-selection (FR-002)
 - [ ] T033 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(008-view-selection): implement multi-selection with shift+click"
 
 **Checkpoint**: Multi-selection functional alongside single selection

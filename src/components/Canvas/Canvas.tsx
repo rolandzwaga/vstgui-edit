@@ -12,7 +12,7 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
-import { clearSelection, select, selectionStore } from '../../stores/selectionStore';
+import { clearSelection, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
@@ -129,8 +129,9 @@ export const Canvas: Component = () => {
   };
 
   /**
-   * Handle click on canvas for view selection (FR-001, FR-002, FR-003).
+   * Handle click on canvas for view selection (FR-001, FR-002, FR-003, FR-004).
    * Uses DOM target first, then falls back to hit testing for coordinates.
+   * Shift+click toggles selection (add/remove from multi-selection).
    */
   const handleCanvasClick = (e: MouseEvent) => {
     // Ignore if this was a pan gesture (ctrl+click or middle button)
@@ -138,11 +139,18 @@ export const Canvas: Component = () => {
       return;
     }
 
+    const isShiftClick = e.shiftKey;
+
     // First, try to get view ID from DOM target (most reliable for view clicks)
     const targetViewId = getViewIdFromTarget(e.target);
     if (targetViewId) {
-      // Select the clicked view (FR-001)
-      select(targetViewId);
+      if (isShiftClick) {
+        // Shift+click: toggle selection (FR-004)
+        toggleSelect(targetViewId);
+      } else {
+        // Regular click: select single view, clear others (FR-001, FR-002)
+        select(targetViewId);
+      }
       return;
     }
 
@@ -167,8 +175,13 @@ export const Canvas: Component = () => {
         const hitViewId = hitTest(canvasPoint, views);
 
         if (hitViewId) {
-          // Select the clicked view (FR-001)
-          select(hitViewId);
+          if (isShiftClick) {
+            // Shift+click: toggle selection (FR-004)
+            toggleSelect(hitViewId);
+          } else {
+            // Regular click: select single view (FR-001)
+            select(hitViewId);
+          }
           return;
         }
       }
