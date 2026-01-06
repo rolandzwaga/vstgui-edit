@@ -156,8 +156,22 @@ export const Canvas: Component = () => {
   const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
   const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
 
+  const getHandlePosition = (handle: HandlePosition, view: RenderableView): { x: number; y: number } => {
+    const { absoluteX: x, absoluteY: y, width: w, height: h } = view;
+    switch (handle) {
+      case 'nw': return { x, y };
+      case 'n': return { x: x + w / 2, y };
+      case 'ne': return { x: x + w, y };
+      case 'w': return { x, y: y + h / 2 };
+      case 'e': return { x: x + w, y: y + h / 2 };
+      case 'sw': return { x, y: y + h };
+      case 's': return { x: x + w / 2, y: y + h };
+      case 'se': return { x: x + w, y: y + h };
+    }
+  };
+
   const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
-    const point = { x: view.absoluteX, y: view.absoluteY };
+    const point = getHandlePosition(handle, view);
     const origin = { x: view.absoluteX, y: view.absoluteY };
     const size = { width: view.width, height: view.height };
 

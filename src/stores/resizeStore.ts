@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js';
+import { calculateResizeBounds, clampToMinimumSize } from '../domain/canvas/resize';
 import type { Point, Size } from '../types/canvas';
-import { MIN_VIEW_SIZE } from '../types/resize';
 import type { HandlePosition } from '../types/selection';
 
 const [isResizing, setIsResizing] = createSignal(false);
@@ -12,74 +12,6 @@ const [originalOrigin, setOriginalOrigin] = createSignal<Point | null>(null);
 const [originalSize, setOriginalSize] = createSignal<Size | null>(null);
 const [newOrigin, setNewOrigin] = createSignal<Point>({ x: 0, y: 0 });
 const [newSize, setNewSize] = createSignal<Size>({ width: 0, height: 0 });
-
-function calculateNewBoundsInternal(
-  handle: HandlePosition,
-  origin: Point,
-  size: Size,
-  delta: Point
-): { origin: Point; size: Size } {
-  let x = origin.x;
-  let y = origin.y;
-  let width = size.width;
-  let height = size.height;
-
-  switch (handle) {
-    case 'nw':
-      x += delta.x;
-      y += delta.y;
-      width -= delta.x;
-      height -= delta.y;
-      break;
-    case 'n':
-      y += delta.y;
-      height -= delta.y;
-      break;
-    case 'ne':
-      y += delta.y;
-      width += delta.x;
-      height -= delta.y;
-      break;
-    case 'e':
-      width += delta.x;
-      break;
-    case 'se':
-      width += delta.x;
-      height += delta.y;
-      break;
-    case 's':
-      height += delta.y;
-      break;
-    case 'sw':
-      x += delta.x;
-      width -= delta.x;
-      height += delta.y;
-      break;
-    case 'w':
-      x += delta.x;
-      width -= delta.x;
-      break;
-  }
-
-  if (width < MIN_VIEW_SIZE) {
-    if (handle === 'nw' || handle === 'w' || handle === 'sw') {
-      x = origin.x + size.width - MIN_VIEW_SIZE;
-    }
-    width = MIN_VIEW_SIZE;
-  }
-
-  if (height < MIN_VIEW_SIZE) {
-    if (handle === 'nw' || handle === 'n' || handle === 'ne') {
-      y = origin.y + size.height - MIN_VIEW_SIZE;
-    }
-    height = MIN_VIEW_SIZE;
-  }
-
-  return {
-    origin: { x, y },
-    size: { width, height },
-  };
-}
 
 export const resizeStore = {
   get isResizing() {
@@ -129,7 +61,7 @@ export function startResize(
   setNewSize({ ...size });
 }
 
-export function updateResize(point: Point, _shiftHeld: boolean, _altHeld: boolean): void {
+export function updateResize(point: Point, shiftHeld: boolean, altHeld: boolean): void {
   if (!isResizing()) {
     return;
   }
@@ -150,7 +82,12 @@ export function updateResize(point: Point, _shiftHeld: boolean, _altHeld: boolea
     y: point.y - start.y,
   };
 
-  const bounds = calculateNewBoundsInternal(handle, origin, size, delta);
+  const rawBounds = calculateResizeBounds(handle, origin, size, delta, {
+    maintainAspectRatio: shiftHeld,
+    resizeFromCenter: altHeld,
+  });
+
+  const bounds = clampToMinimumSize(rawBounds, handle);
 
   setNewOrigin(bounds.origin);
   setNewSize(bounds.size);
