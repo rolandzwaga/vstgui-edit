@@ -1,8 +1,9 @@
-import { type Component, createMemo, Show } from 'solid-js';
+import { type Component, createEffect, createMemo, Show } from 'solid-js';
 import type { TemplateDefinition } from '../../types/uidesc';
 import { documentStore } from '../../stores/documentStore';
-import { buildTree, getContainerIds } from '../../domain/hierarchy';
-import { expandAll } from '../../stores/hierarchyStore';
+import { buildTree, getContainerIds, getTreeAncestorIds } from '../../domain/hierarchy';
+import { expandAll, expandNode } from '../../stores/hierarchyStore';
+import { selectionStore } from '../../stores/selectionStore';
 import { TreeNode } from './TreeNode';
 import { EmptyState } from './EmptyState';
 import styles from './HierarchyPanel.module.css';
@@ -32,6 +33,20 @@ export const HierarchyPanel: Component = () => {
     expandAll(containerIds);
 
     return treeNode;
+  });
+
+  createEffect(() => {
+    const selectedIds = selectionStore.selectedIds;
+    const treeRoot = tree();
+
+    if (!treeRoot || selectedIds.size === 0) return;
+
+    for (const selectedId of selectedIds) {
+      const ancestors = getTreeAncestorIds(selectedId, treeRoot);
+      for (const ancestorId of ancestors) {
+        expandNode(ancestorId);
+      }
+    }
   });
 
   return (

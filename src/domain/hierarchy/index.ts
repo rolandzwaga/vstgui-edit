@@ -1,1 +1,1 @@
-export { buildTree, getContainerIds } from './buildTree';
+export { buildTree, getContainerIds, getTreeAncestorIds } from './buildTree';

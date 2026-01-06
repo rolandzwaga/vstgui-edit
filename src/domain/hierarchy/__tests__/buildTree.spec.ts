@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ViewNode } from '../../../types/uidesc';
-import { buildTree, getContainerIds } from '../buildTree';
+import { buildTree, getContainerIds, getTreeAncestorIds } from '../buildTree';
 
 describe('buildTree', () => {
   describe('given a root view with class attribute', () => {
@@ -290,6 +290,76 @@ describe('getContainerIds', () => {
       expect(result).toContain('root-level1');
       expect(result).toContain('root-level1-level2');
       expect(result).toHaveLength(3);
+    });
+  });
+});
+
+describe('getTreeAncestorIds', () => {
+  describe('given root node as target', () => {
+    it('should return empty array', () => {
+      const view: ViewNode = {
+        attributes: { class: 'CViewContainer' },
+      };
+      const tree = buildTree(view, 'root');
+
+      const result = getTreeAncestorIds('root', tree);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('given a direct child as target', () => {
+    it('should return root id', () => {
+      const view: ViewNode = {
+        attributes: { class: 'CViewContainer' },
+        children: {
+          button: { attributes: { class: 'CTextButton' } },
+        },
+      };
+      const tree = buildTree(view, 'root');
+
+      const result = getTreeAncestorIds('root-button', tree);
+
+      expect(result).toEqual(['root']);
+    });
+  });
+
+  describe('given a deeply nested target', () => {
+    it('should return all ancestors from root to parent', () => {
+      const view: ViewNode = {
+        attributes: { class: 'CViewContainer' },
+        children: {
+          panel: {
+            attributes: { class: 'CViewContainer' },
+            children: {
+              nested: {
+                attributes: { class: 'CViewContainer' },
+                children: {
+                  leaf: { attributes: { class: 'CTextLabel' } },
+                },
+              },
+            },
+          },
+        },
+      };
+      const tree = buildTree(view, 'MainView');
+
+      const result = getTreeAncestorIds('MainView-panel-nested-leaf', tree);
+
+      expect(result).toEqual(['MainView', 'MainView-panel', 'MainView-panel-nested']);
+    });
+  });
+
+  describe('given a non-existent target', () => {
+    it('should return empty array', () => {
+      const view: ViewNode = {
+        attributes: { class: 'CViewContainer' },
+      };
+      const tree = buildTree(view, 'root');
+
+      const result = getTreeAncestorIds('non-existent', tree);
+
+      expect(result).toEqual([]);
     });
   });
 });

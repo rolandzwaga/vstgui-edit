@@ -33,3 +33,25 @@ export function getContainerIds(tree: TreeNode): string[] {
   collect(tree);
   return ids;
 }
+
+export function getTreeAncestorIds(targetId: string, tree: TreeNode): string[] {
+  const ancestors: string[] = [];
+
+  function findPath(node: TreeNode, path: string[]): boolean {
+    if (node.id === targetId) {
+      ancestors.push(...path);
+      return true;
+    }
+
+    for (const child of node.children) {
+      if (findPath(child, [...path, node.id])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  findPath(tree, []);
+  return ancestors;
+}
