@@ -29,6 +29,13 @@ import {
   startDrag,
   updateDrag,
 } from '../../stores/dragStore';
+import {
+  endResize,
+  resetResize,
+  resizeStore,
+  startResize,
+  updateResize,
+} from '../../stores/resizeStore';
 import { updateViewOrigin } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
@@ -40,6 +47,7 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
+import type { HandlePosition } from '../../types/selection';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
@@ -146,6 +154,40 @@ export const Canvas: Component = () => {
 
   const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
   const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
+
+  const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
+    const point = { x: view.absoluteX, y: view.absoluteY };
+    const origin = { x: view.absoluteX, y: view.absoluteY };
+    const size = { width: view.width, height: view.height };
+
+    startResize(handle, view.id, point, origin, size);
+
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeUp);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!resizeStore.isResizing || !wrapperRef) return;
+
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    updateResize(canvasPoint, e.shiftKey, e.altKey);
+  };
+
+  const handleResizeUp = () => {
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeUp);
+
+    endResize();
+    resetResize();
+  };
 
 
 
@@ -618,6 +660,8 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMarqueeUp);
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragUp);
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeUp);
     if (tooltipTimer) {
       clearTimeout(tooltipTimer);
     }
@@ -671,7 +715,7 @@ export const Canvas: Component = () => {
               {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
             </For>
             <For each={selectedViews()}>
-              {(view) => <SelectionOverlay view={view} />}
+              {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}
             </For>
             <DragPreview views={selectedViews()} />
             <Show when={marqueeStore.isActive}>
