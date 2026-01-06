@@ -5,6 +5,20 @@
 import type { FormatType, ParseState, ValidationError } from './parser';
 import type { VSTGUIUIDescription } from './uidesc';
 
+// Re-export history types
+export type {
+  ConstraintAxis,
+  DragState,
+  HistoryOperation,
+  MoveOperationData,
+} from './history';
+export {
+  AXIS_LOCK_THRESHOLD,
+  CLICK_TOLERANCE,
+  HISTORY_STACK_LIMIT,
+  NUDGE_DISTANCE,
+  NUDGE_DISTANCE_FAST,
+} from './history';
 // Re-export parser types for convenience
 export type { FormatType, ParseResult, ParseState, ValidationError } from './parser';
 

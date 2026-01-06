@@ -1,0 +1,11 @@
+.previewGroup {
+  pointer-events: none;
+}
+
+.preview {
+  fill: var(--color-primary-500);
+  fill-opacity: 0.5;
+  stroke: var(--color-primary-600);
+  stroke-width: 1;
+  stroke-dasharray: 4 2;
+}

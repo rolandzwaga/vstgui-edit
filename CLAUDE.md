@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
 - N/A (reads from existing documentStore and selectionStore) (011-properties-panel)
 - SolidJS 1.9.10, solid-js/store (already installed - no new dependencies) (011-properties-panel)
 - TypeScript 5.9.x with strict mode + SolidJS 1.9.x (001-uidesc-upload)
@@ -536,6 +537,140 @@ cancelMarquee();
 
 // Reset for testing
 resetMarquee();
+```
+
+### History Store (`src/stores/historyStore.ts`)
+
+Global store for undo/redo history management:
+
+- `historyStore` - Reactive store with canUndo, canRedo, undoDescription, redoDescription
+- `pushOperation(op)` - Push operation to undo stack, clear redo stack
+- `undo()` - Pop from undo stack, execute undo, push to redo stack
+- `redo()` - Pop from redo stack, execute redo, push to undo stack
+- `clearHistory()` - Clear both stacks
+- `resetHistory()` - Alias for clearHistory (testing)
+- `HISTORY_STACK_LIMIT` - Maximum 100 operations (oldest dropped when exceeded)
+
+```typescript
+import { historyStore, pushOperation, undo, redo, clearHistory, resetHistory } from './stores/historyStore';
+import type { HistoryOperation } from './types/history';
+
+// Access history state
+console.log(historyStore.canUndo);         // boolean
+console.log(historyStore.canRedo);         // boolean
+console.log(historyStore.undoDescription); // string | null
+console.log(historyStore.redoDescription); // string | null
+
+// Push a move operation
+const op: HistoryOperation = {
+  type: 'move',
+  description: 'Move view',
+  timestamp: Date.now(),
+  undo: () => { /* restore original positions */ },
+  redo: () => { /* apply new positions */ },
+};
+pushOperation(op);
+
+// Undo/redo
+undo();  // Calls op.undo(), moves to redo stack
+redo();  // Calls op.redo(), moves back to undo stack
+
+// Clear all history
+clearHistory();
+```
+
+### Drag Store (`src/stores/dragStore.ts`)
+
+Global store for drag-to-move operation state (transient):
+
+- `dragStore` - Reactive store with isDragging, startPoint, currentPoint, originalOrigins, constrainedAxis, delta
+- `startDrag(point, origins)` - Begin drag at canvas point with original view origins
+- `updateDrag(point, shiftHeld)` - Update current point, detect axis constraint if Shift held
+- `endDrag()` - End drag (keeps state for commit)
+- `cancelDrag()` - Cancel and reset all state
+- `resetDrag()` - Reset all state to initial values
+
+```typescript
+import { dragStore, startDrag, updateDrag, endDrag, cancelDrag, resetDrag } from './stores/dragStore';
+
+// Access drag state
+console.log(dragStore.isDragging);       // boolean
+console.log(dragStore.startPoint);       // Point | null
+console.log(dragStore.currentPoint);     // Point | null
+console.log(dragStore.originalOrigins);  // Record<string, Point>
+console.log(dragStore.constrainedAxis);  // 'horizontal' | 'vertical' | null
+console.log(dragStore.delta);            // Point (computed: currentPoint - startPoint, constrained)
+
+// Drag gesture flow
+const origins = { 'view-1': { x: 50, y: 50 } };
+startDrag({ x: 100, y: 100 }, origins);  // Begin drag
+updateDrag({ x: 150, y: 120 }, false);   // Move (delta: {x: 50, y: 20})
+updateDrag({ x: 160, y: 125 }, true);    // Move with Shift (locks axis after 5px)
+endDrag();                               // End drag, commit position
+
+// Cancel drag (restores original positions)
+cancelDrag();
+
+// Reset for testing
+resetDrag();
+```
+
+### Move Utilities (`src/domain/canvas/move.ts`)
+
+Utilities for calculating and applying move deltas:
+
+- `calculateDelta(start, current)` - Calculate delta between two points
+- `applyDelta(origin, delta)` - Apply delta to a point
+- `applyDeltaToAll(origins, delta)` - Apply delta to multiple origins
+- `formatOrigin(point)` - Format point as "x, y" string for uidesc
+- `createMoveOperation(data, updateViewOrigin)` - Create HistoryOperation for move
+
+```typescript
+import { calculateDelta, applyDelta, applyDeltaToAll, formatOrigin, createMoveOperation } from './domain/canvas/move';
+
+// Calculate delta between start and current position
+const delta = calculateDelta({ x: 100, y: 100 }, { x: 150, y: 120 });
+// { x: 50, y: 20 }
+
+// Apply delta to single origin
+const newOrigin = applyDelta({ x: 50, y: 50 }, delta);
+// { x: 100, y: 70 }
+
+// Apply delta to multiple origins
+const newOrigins = applyDeltaToAll({ 'view-1': { x: 50, y: 50 } }, delta);
+// { 'view-1': { x: 100, y: 70 } }
+
+// Format for uidesc attribute
+const originStr = formatOrigin({ x: 100, y: 70 });
+// "100, 70"
+
+// Create history operation
+const operation = createMoveOperation(
+  { viewIds: ['view-1'], originalOrigins, newOrigins },
+  updateViewOrigin
+);
+pushOperation(operation);
+```
+
+### Constrain Axis Utilities (`src/domain/canvas/constrainAxis.ts`)
+
+Utilities for shift-constrained axis movement:
+
+- `AXIS_LOCK_THRESHOLD` - Minimum 5px movement before axis locks
+- `determineConstraintAxis(delta)` - Determine axis based on initial movement direction
+- `constrainDelta(delta, axis)` - Zero out perpendicular axis component
+
+```typescript
+import { AXIS_LOCK_THRESHOLD, determineConstraintAxis, constrainDelta } from './domain/canvas/constrainAxis';
+
+// Determine axis from initial movement
+const axis = determineConstraintAxis({ x: 10, y: 2 });  // 'horizontal'
+const axis = determineConstraintAxis({ x: 2, y: 10 });  // 'vertical'
+const axis = determineConstraintAxis({ x: 3, y: 2 });   // null (below threshold)
+
+// Apply constraint to delta
+const constrained = constrainDelta({ x: 50, y: 30 }, 'horizontal');
+// { x: 50, y: 0 }
 ```
 
 ### Ancestor Utilities (`src/domain/canvas/ancestors.ts`)
@@ -1149,11 +1284,28 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 011-properties-panel: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 009-marquee-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies required)
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-06: Implemented 012-view-move feature
+  - Drag selected views to move them on canvas
+  - Multi-view drag maintains relative positions
+  - Undo/Redo with Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z keyboard shortcuts
+  - historyStore for undo/redo stack management (max 100 operations)
+  - Arrow key nudge: 1px default, 10px with Shift held
+  - Shift-constrained movement: locks to horizontal/vertical axis after 5px
+  - Ghost preview during drag (50% opacity, dashed stroke)
+  - dragStore for transient drag operation state
+  - Domain utilities: move.ts, constrainAxis.ts
+  - DragPreview component for visual feedback
+  - Move cursor during drag operations (FR-013)
+  - Click tolerance (3px) prevents accidental micro-moves (FR-014)
+  - All nudge operations recorded in history (FR-015)
+  - 1105 passing tests (39 new + 1066 existing)
 
 - 2026-01-06: Implemented 011-properties-panel feature
   - PropertiesPanel component in right sidebar (280px width)

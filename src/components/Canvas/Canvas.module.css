@@ -161,6 +161,11 @@
   cursor: crosshair;
 }
 
+/* Cursor during move drag */
+.moveCursor {
+  cursor: move;
+}
+
 /* Prevent text selection during drag operations */
 .noSelect {
   user-select: none;

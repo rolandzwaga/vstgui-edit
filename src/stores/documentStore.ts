@@ -1,6 +1,9 @@
-import { createStore } from 'solid-js/store';
+import { createStore, produce } from 'solid-js/store';
+import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
+import type { Point } from '../types/canvas';
+import type { ViewNode, VSTGUIUIDescription } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
 
 const initialState: DocumentStoreState = {
@@ -149,7 +152,82 @@ export function setDragging(isDragging: boolean): void {
   }
 }
 
-/**
- * Exported store for reactive access
- */
 export const documentStore = store;
+
+export function setDocumentForTest(doc: VSTGUIUIDescription): void {
+  setStore({
+    document: doc,
+    parseState: 'valid',
+    parseErrors: null,
+    detectedFormat: 'json',
+  });
+}
+
+function findViewInTree(root: ViewNode, compositeId: string, rootId: string): ViewNode | null {
+  if (compositeId === rootId) {
+    return root;
+  }
+
+  const prefix = `${rootId}-`;
+  if (!compositeId.startsWith(prefix)) {
+    return null;
+  }
+
+  const remainingPath = compositeId.slice(prefix.length);
+  const pathParts = remainingPath.split('-');
+
+  let current: ViewNode = root;
+  for (const part of pathParts) {
+    if (!current.children?.[part]) {
+      return null;
+    }
+    current = current.children[part];
+  }
+
+  return current;
+}
+
+export function updateViewOrigin(viewId: string, newOrigin: Point): Point | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+
+  if (!view) {
+    return null;
+  }
+
+  const previousOrigin = parsePoint(view.attributes.origin);
+  const newOriginStr = formatOrigin(newOrigin);
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes.origin = newOriginStr;
+      }
+    })
+  );
+
+  return previousOrigin;
+}
