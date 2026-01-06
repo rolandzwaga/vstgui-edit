@@ -27,6 +27,8 @@ export const HoverTooltip: Component<HoverTooltipProps> = (props) => {
     <div
       data-testid="hover-tooltip"
       class={styles.tooltip}
+      role="tooltip"
+      aria-live="polite"
       style={{
         left: `${props.x + OFFSET_X}px`,
         top: `${props.y + OFFSET_Y}px`,

@@ -43,6 +43,8 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
     <g
       data-testid={`selection-overlay-${props.view.id}`}
       class={styles.selectionOverlay}
+      role="group"
+      aria-label={`Selected: ${props.view.className} (${props.view.width}×${props.view.height})`}
     >
       {/* Selection border */}
       <rect
@@ -52,9 +54,10 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
+        aria-hidden="true"
       />
 
-      {/* 8 resize handles */}
+      {/* 8 resize handles (visual only, aria-hidden) */}
       {HANDLE_POSITIONS_CONFIG.map((handle) => (
         <circle
           data-role="resize-handle"
@@ -64,6 +67,7 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
           cy={handle.getY(props.view.absoluteY, props.view.height)}
           r={handleRadius}
           style={{ cursor: HANDLE_CURSORS[handle.position] }}
+          aria-hidden="true"
         />
       ))}
     </g>
