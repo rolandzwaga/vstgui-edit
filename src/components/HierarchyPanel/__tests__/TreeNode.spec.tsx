@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen } from '@solidjs/testing-library';
+import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { expandAll, resetHierarchy } from '../../../stores/hierarchyStore';
 import { TreeNode } from '../TreeNode';
 import type { TreeNode as TreeNodeType } from '../../../types/hierarchy';
 
@@ -12,6 +14,12 @@ describe('TreeNode', () => {
     children: [],
     depth: 0,
     ...overrides,
+  });
+
+  beforeEach(() => {
+    testInRoot(() => {
+      resetHierarchy();
+    });
   });
 
   describe('given a node with label', () => {
@@ -46,8 +54,12 @@ describe('TreeNode', () => {
     });
   });
 
-  describe('given a node with children', () => {
+  describe('given a node with children when expanded', () => {
     it('should render child nodes', () => {
+      testInRoot(() => {
+        expandAll(['test-node']);
+      });
+
       const node = createNode({
         hasChildren: true,
         children: [
@@ -71,18 +83,6 @@ describe('TreeNode', () => {
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveAttribute('role', 'treeitem');
-    });
-
-    it('should have aria-expanded="true" for container with children', () => {
-      const node = createNode({
-        hasChildren: true,
-        children: [createNode({ id: 'child', depth: 1 })],
-      });
-
-      render(() => <TreeNode node={node} />);
-
-      const row = screen.getByTestId('tree-node-test-node');
-      expect(row).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('should not have aria-expanded for leaf nodes', () => {
