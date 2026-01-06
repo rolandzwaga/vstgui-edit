@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
 - N/A (reads from existing documentStore and selectionStore) (011-properties-panel)
 - SolidJS 1.9.10, solid-js/store (already installed - no new dependencies) (011-properties-panel)
 - TypeScript 5.9.x with strict mode + SolidJS 1.9.x (001-uidesc-upload)
@@ -1149,6 +1150,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 011-properties-panel: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 009-marquee-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10 + solid-js, solid-js/store (already installed - no new dependencies required)
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
