@@ -7,6 +7,12 @@
 
 // Ancestor traversal
 export { getAncestorIds, isAncestorOfSelected } from './ancestors';
+// Axis constraint utilities
+export {
+  AXIS_LOCK_THRESHOLD,
+  constrainDelta,
+  determineConstraintAxis,
+} from './constrainAxis';
 // Coordinate parsing
 export { parsePoint, parseSize } from './coordinates';
 // Hierarchy flattening
@@ -28,6 +34,13 @@ export {
   normalizeRect,
   rectIntersect,
 } from './marquee';
+// Move utilities
+export {
+  applyDelta,
+  applyDeltaToAll,
+  calculateDelta,
+  formatOrigin,
+} from './move';
 // View category classification
 export {
   CONTAINER_CLASSES,
