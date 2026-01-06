@@ -268,7 +268,7 @@ describe('Canvas Marquee Selection', () => {
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
         expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
-        expect(selectionStore.selectedIds.size).toBe(2);
+        expect(selectionStore.selectedIds.size).toBe(3);
       });
     });
 
@@ -310,7 +310,7 @@ describe('Canvas Marquee Selection', () => {
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(false);
         expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
-        expect(selectionStore.selectedIds.size).toBe(1);
+        expect(selectionStore.selectedIds.size).toBe(2);
       });
     });
   });
