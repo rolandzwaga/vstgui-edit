@@ -9,6 +9,7 @@ import {
   resetSelection,
   select,
   selectionStore,
+  setHovered,
   toggleSelect,
 } from '../selectionStore';
 
@@ -142,6 +143,48 @@ describe('selectionStore', () => {
         toggleSelect('view-1');
         toggleSelect('view-1'); // Remove it
         expect(selectionStore.selectedIds.size).toBe(0);
+      });
+    });
+  });
+
+  describe('setHovered (FR-010)', () => {
+    it('should set hovered view id', () => {
+      testInRoot(() => {
+        setHovered('view-1');
+        expect(selectionStore.hoveredId).toBe('view-1');
+      });
+    });
+
+    it('should update hovered view when changing', () => {
+      testInRoot(() => {
+        setHovered('view-1');
+        setHovered('view-2');
+        expect(selectionStore.hoveredId).toBe('view-2');
+      });
+    });
+
+    it('should clear hover when set to null', () => {
+      testInRoot(() => {
+        setHovered('view-1');
+        setHovered(null);
+        expect(selectionStore.hoveredId).toBeNull();
+      });
+    });
+
+    it('should be independent of selection state', () => {
+      testInRoot(() => {
+        select('view-1');
+        setHovered('view-2');
+        expect(selectionStore.selectedIds.has('view-1')).toBe(true);
+        expect(selectionStore.hoveredId).toBe('view-2');
+      });
+    });
+
+    it('should be cleared by resetSelection', () => {
+      testInRoot(() => {
+        setHovered('view-1');
+        resetSelection();
+        expect(selectionStore.hoveredId).toBeNull();
       });
     });
   });

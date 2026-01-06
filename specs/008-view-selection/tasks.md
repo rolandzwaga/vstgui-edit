@@ -128,7 +128,7 @@
 - [x] T039 [US3] Add Ctrl+A keyboard handler to Canvas (FR-005, pass T035 tests)
 - [x] T040 [US3] Add Escape keyboard handler to Canvas (FR-006, pass T036 tests)
 - [x] T041 [US3] Add text input/textarea filter for keyboard shortcuts (FR-007, pass T037 tests)
-- [ ] T042 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(008-view-selection): implement keyboard shortcuts"
+- [x] T042 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(008-view-selection): implement keyboard shortcuts"
 
 **Checkpoint**: Keyboard shortcuts functional
 
@@ -142,23 +142,23 @@
 
 ### Tests for User Story 4
 
-- [ ] T043 [US4] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T044 [P] [US4] Write tests for HoverTooltip in `src/components/Canvas/__tests__/HoverTooltip.spec.tsx`
-- [ ] T045 [P] [US4] Write tests for hover state in `src/stores/__tests__/selectionStore.spec.ts` (extend existing)
-- [ ] T046 [P] [US4] Write tests for ViewRectangle hover styling in `src/components/Canvas/__tests__/ViewRectangle.hover.spec.tsx`
+- [x] T043 [US4] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T044 [P] [US4] Write tests for HoverTooltip in `src/components/Canvas/__tests__/HoverTooltip.spec.tsx`
+- [x] T045 [P] [US4] Write tests for hover state in `src/stores/__tests__/selectionStore.spec.ts` (extend existing)
+- [x] T046 [P] [US4] Write tests for ViewRectangle hover styling in `src/components/Canvas/__tests__/ViewRectangle.hover.spec.tsx`
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Add hover state (hoveredId, showTooltip) to selectionStore (pass T045 tests)
-- [ ] T048 [US4] Create HoverTooltip component in `src/components/Canvas/HoverTooltip.tsx` (pass T044 tests)
-- [ ] T049 [US4] Add HoverTooltip styles in `src/components/Canvas/HoverTooltip.module.css`
-- [ ] T050 [US4] Add hover highlight to ViewRectangle (FR-010, pass T046 tests)
-- [ ] T051 [US4] Update ViewRectangle styles for hover state
-- [ ] T052 [US4] Add mouse enter/leave handlers to ViewRectangle for hover tracking
-- [ ] T053 [US4] Implement 500ms tooltip delay with timer (SC-003)
-- [ ] T054 [US4] Render HoverTooltip in Canvas when showTooltip is true
-- [ ] T055 [US4] Format tooltip content as "ClassName (W×H)" (FR-011)
-- [ ] T056 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(008-view-selection): implement hover feedback and tooltip"
+- [x] T047 [US4] Add hover state (hoveredId, showTooltip) to selectionStore (pass T045 tests)
+- [x] T048 [US4] Create HoverTooltip component in `src/components/Canvas/HoverTooltip.tsx` (pass T044 tests)
+- [x] T049 [US4] Add HoverTooltip styles in `src/components/Canvas/HoverTooltip.module.css`
+- [x] T050 [US4] Add hover highlight to ViewRectangle (FR-010, pass T046 tests)
+- [x] T051 [US4] Update ViewRectangle styles for hover state
+- [x] T052 [US4] Add mouse enter/leave handlers to ViewRectangle for hover tracking
+- [x] T053 [US4] Implement 500ms tooltip delay with timer (SC-003)
+- [x] T054 [US4] Render HoverTooltip in Canvas when showTooltip is true
+- [x] T055 [US4] Format tooltip content as "ClassName (W×H)" (FR-011)
+- [x] T056 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(008-view-selection): implement hover feedback and tooltip"
 
 **Checkpoint**: Hover states and tooltips functional
 

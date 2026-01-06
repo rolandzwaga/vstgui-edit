@@ -1,4 +1,4 @@
-import { type Component, createMemo, For, onCleanup, Show } from 'solid-js';
+import { type Component, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import { documentStore } from '../../stores/documentStore';
 import {
   applyZoom,
@@ -20,11 +20,15 @@ import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
+import { HoverTooltip } from './HoverTooltip';
 import { Legend } from './Legend';
 import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import styles from './Canvas.module.css';
+
+/** Tooltip delay in milliseconds (SC-003) */
+const TOOLTIP_DELAY_MS = 500;
 
 /**
  * Main canvas component that renders the uidesc template visualization.
@@ -111,6 +115,53 @@ export const Canvas: Component = () => {
    * Reference to the canvas wrapper element for coordinate transforms.
    */
   let wrapperRef: HTMLDivElement | undefined;
+
+  /**
+   * Tooltip state - tracks mouse position and show/hide state (FR-011, SC-003)
+   */
+  const [showTooltip, setShowTooltip] = createSignal(false);
+  const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
+  let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Gets the currently hovered view for tooltip display.
+   */
+  const hoveredView = createMemo((): RenderableView | null => {
+    const hoveredId = selectionStore.hoveredId;
+    if (!hoveredId) return null;
+    return renderableViews().find((v) => v.id === hoveredId) ?? null;
+  });
+
+  /**
+   * Handle mouse move on canvas - track position for tooltip
+   */
+  const handleCanvasMouseMove = (e: MouseEvent) => {
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+
+    // Reset tooltip timer on mouse move
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+      setShowTooltip(false);
+    }
+
+    // Start new tooltip delay timer if hovering a view
+    if (selectionStore.hoveredId) {
+      tooltipTimer = setTimeout(() => {
+        setShowTooltip(true);
+      }, TOOLTIP_DELAY_MS);
+    }
+  };
+
+  /**
+   * Handle mouse leave on canvas - hide tooltip
+   */
+  const handleCanvasMouseLeave = () => {
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+      tooltipTimer = null;
+    }
+    setShowTooltip(false);
+  };
 
   /**
    * Find the view ID from a click target element by traversing up the DOM.
@@ -310,10 +361,13 @@ export const Canvas: Component = () => {
     );
   };
 
-  // Clean up listeners on component unmount
+  // Clean up listeners and timers on component unmount
   onCleanup(() => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+    if (tooltipTimer) {
+      clearTimeout(tooltipTimer);
+    }
   });
 
   return (
@@ -331,6 +385,8 @@ export const Canvas: Component = () => {
           data-testid="canvas-wrapper"
           tabIndex={0}
           onMouseDown={handleMouseDown}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseLeave={handleCanvasMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           style={{
@@ -364,6 +420,16 @@ export const Canvas: Component = () => {
           </svg>
         </div>
         <Legend />
+        {/* Hover tooltip - renders when hovering and after delay (FR-011, SC-003) */}
+        <Show when={showTooltip() && hoveredView()}>
+          {(view) => (
+            <HoverTooltip
+              view={view()}
+              x={tooltipPosition().x}
+              y={tooltipPosition().y}
+            />
+          )}
+        </Show>
       </div>
     </Show>
   );

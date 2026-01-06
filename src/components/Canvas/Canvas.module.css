@@ -70,6 +70,13 @@
   stroke-width: 2;
 }
 
+/* Hovered view styling (FR-010) */
+.hovered {
+  stroke: var(--color-hover-stroke);
+  stroke-width: 1.5;
+  fill-opacity: 0.2;
+}
+
 /* Legend container */
 .legend {
   display: flex;

@@ -1,6 +1,6 @@
 import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
-import { isSelected } from '../../stores/selectionStore';
+import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
 import styles from './Canvas.module.css';
 
 /** Padding from left edge for title */
@@ -13,6 +13,7 @@ export interface ViewRectangleProps {
 /**
  * Renders a single view as an SVG group containing a rectangle.
  * For views with a title attribute (e.g., CTextLabel), displays the title text.
+ * Supports selection and hover states with visual feedback.
  */
 export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
@@ -27,24 +28,49 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   };
 
   /**
-   * Builds the CSS class string based on category and selection state.
+   * Check if this view is currently hovered.
+   */
+  const isHovered = () => selectionStore.hoveredId === props.view.id;
+
+  /**
+   * Builds the CSS class string based on category, selection, and hover state.
    */
   const rectClass = () => {
     const classes = [styles.viewRect, styles[props.view.category]];
     if (isSelected(props.view.id)) {
       classes.push(styles.selected);
     }
+    if (isHovered() && !isSelected(props.view.id)) {
+      classes.push(styles.hovered);
+    }
     return classes.join(' ');
+  };
+
+  /**
+   * Handle mouse enter - set hover state (FR-010)
+   */
+  const handleMouseEnter = () => {
+    setHovered(props.view.id);
+  };
+
+  /**
+   * Handle mouse leave - clear hover state
+   */
+  const handleMouseLeave = () => {
+    setHovered(null);
   };
 
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
       <rect
+        data-testid={`view-rect-${props.view.id}`}
         class={rectClass()}
         x={props.view.absoluteX}
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       />
       <Show when={props.view.title}>
         <text
