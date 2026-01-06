@@ -50,7 +50,7 @@
 - [x] T009 [P] Implement hitTest utility in `src/domain/canvas/hitTest.ts` (pass T006 tests)
 - [x] T010 [P] Implement mouseToCanvas utility in `src/domain/canvas/mouseToCanvas.ts` (pass T007 tests)
 - [x] T011 Add parentId tracking to flattenHierarchy in `src/domain/canvas/flattenHierarchy.ts`
-- [ ] T012 **Commit**: Stage and commit Phase 2 changes with message "feat(008-view-selection): add selection store and utilities"
+- [x] T012 **Commit**: Stage and commit Phase 2 changes with message "feat(008-view-selection): add selection store and utilities"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -64,21 +64,21 @@
 
 ### Tests for User Story 1
 
-- [ ] T013 [US1] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T014 [P] [US1] Write tests for SelectionOverlay in `src/components/Canvas/__tests__/SelectionOverlay.spec.tsx`
-- [ ] T015 [P] [US1] Write tests for Canvas click selection in `src/components/Canvas/__tests__/Canvas.selection.spec.tsx`
-- [ ] T016 [P] [US1] Write tests for ViewRectangle selection styling in `src/components/Canvas/__tests__/ViewRectangle.selection.spec.tsx`
+- [x] T013 [US1] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T014 [P] [US1] Write tests for SelectionOverlay in `src/components/Canvas/__tests__/SelectionOverlay.spec.tsx`
+- [x] T015 [P] [US1] Write tests for Canvas click selection in `src/components/Canvas/__tests__/Canvas.selection.spec.tsx`
+- [x] T016 [P] [US1] Write tests for ViewRectangle selection styling in `src/components/Canvas/__tests__/ViewRectangle.selection.spec.tsx`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Create SelectionOverlay component in `src/components/Canvas/SelectionOverlay.tsx` (pass T014 tests)
-- [ ] T018 [US1] Add SelectionOverlay styles in `src/components/Canvas/SelectionOverlay.module.css`
-- [ ] T019 [US1] Add click handler to Canvas in `src/components/Canvas/Canvas.tsx` for single selection (pass T015 tests)
-- [ ] T020 [US1] Add selection styling to ViewRectangle in `src/components/Canvas/ViewRectangle.tsx` (pass T016 tests)
-- [ ] T021 [US1] Update ViewRectangle styles in `src/components/Canvas/ViewRectangle.module.css` for selection state
-- [ ] T022 [US1] Render SelectionOverlay for selected views in Canvas
-- [ ] T023 [US1] Handle click on empty canvas to deselect (FR-003)
-- [ ] T024 [US1] Handle nested views - select topmost child (FR-013)
+- [x] T017 [US1] Create SelectionOverlay component in `src/components/Canvas/SelectionOverlay.tsx` (pass T014 tests)
+- [x] T018 [US1] Add SelectionOverlay styles in `src/components/Canvas/SelectionOverlay.module.css`
+- [x] T019 [US1] Add click handler to Canvas in `src/components/Canvas/Canvas.tsx` for single selection (pass T015 tests)
+- [x] T020 [US1] Add selection styling to ViewRectangle in `src/components/Canvas/ViewRectangle.tsx` (pass T016 tests)
+- [x] T021 [US1] Update ViewRectangle styles in `src/components/Canvas/Canvas.module.css` for selection state
+- [x] T022 [US1] Render SelectionOverlay for selected views in Canvas
+- [x] T023 [US1] Handle click on empty canvas to deselect (FR-003)
+- [x] T024 [US1] Handle nested views - select topmost child (FR-013)
 - [ ] T025 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(008-view-selection): implement single click selection"
 
 **Checkpoint**: Single click selection fully functional - MVP complete

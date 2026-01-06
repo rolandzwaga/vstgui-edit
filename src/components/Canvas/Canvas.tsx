@@ -12,12 +12,16 @@ import {
   zoomOut,
 } from '../../stores/canvasStore';
 import { toggleVisibility } from '../../stores/gridStore';
+import { clearSelection, select, selectionStore } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
+import { hitTest } from '../../domain/canvas/hitTest';
+import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { Legend } from './Legend';
+import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import styles from './Canvas.module.css';
@@ -93,6 +97,86 @@ export const Canvas: Component = () => {
    * Whether to show the empty state.
    */
   const isEmpty = () => firstTemplate() === null;
+
+  /**
+   * Gets the selected views for rendering selection overlays.
+   */
+  const selectedViews = createMemo((): RenderableView[] => {
+    const views = renderableViews();
+    const selectedIds = selectionStore.selectedIds;
+    return views.filter((view) => selectedIds.has(view.id));
+  });
+
+  /**
+   * Reference to the canvas wrapper element for coordinate transforms.
+   */
+  let wrapperRef: HTMLDivElement | undefined;
+
+  /**
+   * Find the view ID from a click target element by traversing up the DOM.
+   * Looks for data-view-id attribute on the target or its ancestors.
+   */
+  const getViewIdFromTarget = (target: EventTarget | null): string | null => {
+    let element = target as Element | null;
+    while (element && element !== document.documentElement) {
+      const viewId = element.getAttribute?.('data-view-id');
+      if (viewId) {
+        return viewId;
+      }
+      element = element.parentElement;
+    }
+    return null;
+  };
+
+  /**
+   * Handle click on canvas for view selection (FR-001, FR-002, FR-003).
+   * Uses DOM target first, then falls back to hit testing for coordinates.
+   */
+  const handleCanvasClick = (e: MouseEvent) => {
+    // Ignore if this was a pan gesture (ctrl+click or middle button)
+    if (e.ctrlKey || e.button !== 0) {
+      return;
+    }
+
+    // First, try to get view ID from DOM target (most reliable for view clicks)
+    const targetViewId = getViewIdFromTarget(e.target);
+    if (targetViewId) {
+      // Select the clicked view (FR-001)
+      select(targetViewId);
+      return;
+    }
+
+    // If we didn't click on a view element, attempt hit testing
+    // If wrapperRef is available, try coordinate-based hit testing
+    if (wrapperRef) {
+      const wrapperRect = wrapperRef.getBoundingClientRect();
+
+      // Only use hit testing if we have valid bounds (not in JSDOM)
+      if (wrapperRect.width > 0 && wrapperRect.height > 0) {
+        // Convert mouse coordinates to canvas space
+        const canvasPoint = mouseToCanvas(
+          e.clientX,
+          e.clientY,
+          wrapperRect,
+          canvasStore.panOffset,
+          canvasStore.zoomLevel
+        );
+
+        // Hit test to find view under cursor
+        const views = renderableViews();
+        const hitViewId = hitTest(canvasPoint, views);
+
+        if (hitViewId) {
+          // Select the clicked view (FR-001)
+          select(hitViewId);
+          return;
+        }
+      }
+    }
+
+    // No view was clicked - deselect all (FR-003)
+    clearSelection();
+  };
 
   /**
    * Handle mouse down for pan initiation.
@@ -210,6 +294,7 @@ export const Canvas: Component = () => {
     >
       <div>
         <div
+          ref={wrapperRef}
           class={styles.canvasWrapper}
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
@@ -235,12 +320,17 @@ export const Canvas: Component = () => {
             height={templateBounds()?.height ?? 100}
             viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
             data-testid="canvas"
+            onClick={handleCanvasClick}
           >
             <Show when={templateBounds()}>
               {(bounds) => <TemplateBounds bounds={bounds()} />}
             </Show>
             <For each={renderableViews()}>
               {(view) => <ViewRectangle view={view} />}
+            </For>
+            {/* Selection overlays render on top of all views */}
+            <For each={selectedViews()}>
+              {(view) => <SelectionOverlay view={view} />}
             </For>
           </svg>
         </div>

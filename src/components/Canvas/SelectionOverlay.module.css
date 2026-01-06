@@ -1,0 +1,26 @@
+/**
+ * SelectionOverlay Styles
+ * Visual styling for selection border and resize handles
+ */
+
+.selectionOverlay {
+  pointer-events: none;
+}
+
+.selectionBorder {
+  fill: var(--color-selection-fill);
+  stroke: var(--color-selection-stroke);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.resizeHandle {
+  fill: var(--color-selection-handle-fill);
+  stroke: var(--color-selection-handle-stroke);
+  stroke-width: 1;
+  pointer-events: auto;
+}
+
+.resizeHandle:hover {
+  fill: var(--color-selection-stroke);
+}

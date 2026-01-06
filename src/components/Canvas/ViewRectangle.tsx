@@ -1,5 +1,6 @@
 import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
+import { isSelected } from '../../stores/selectionStore';
 import styles from './Canvas.module.css';
 
 /** Padding from left edge for title */
@@ -25,10 +26,21 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     return Math.min(fontSize + 2, props.view.height - 2);
   };
 
+  /**
+   * Builds the CSS class string based on category and selection state.
+   */
+  const rectClass = () => {
+    const classes = [styles.viewRect, styles[props.view.category]];
+    if (isSelected(props.view.id)) {
+      classes.push(styles.selected);
+    }
+    return classes.join(' ');
+  };
+
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
       <rect
-        class={`${styles.viewRect} ${styles[props.view.category]}`}
+        class={rectClass()}
         x={props.view.absoluteX}
         y={props.view.absoluteY}
         width={props.view.width}

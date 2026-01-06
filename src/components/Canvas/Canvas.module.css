@@ -64,6 +64,12 @@
   stroke: var(--color-category-custom-stroke);
 }
 
+/* Selected view styling */
+.selected {
+  stroke: var(--color-selection-stroke);
+  stroke-width: 2;
+}
+
 /* Legend container */
 .legend {
   display: flex;
