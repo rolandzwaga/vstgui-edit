@@ -30,6 +30,7 @@ import {
   updateDrag,
 } from '../../stores/dragStore';
 import {
+  cancelResize,
   endResize,
   resetResize,
   resizeStore,
@@ -58,6 +59,7 @@ import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import { DragPreview } from './DragPreview';
+import { ResizePreview } from './ResizePreview';
 import styles from './Canvas.module.css';
 
 /** Tooltip delay in milliseconds (SC-003) */
@@ -572,6 +574,13 @@ export const Canvas: Component = () => {
     }
 
     if (e.key === 'Escape') {
+      if (resizeStore.isResizing) {
+        cancelResize();
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeUp);
+        return;
+      }
+
       if (dragStore.isDragging) {
         const origins = dragStore.originalOrigins;
         for (const [viewId, origin] of Object.entries(origins)) {
@@ -760,6 +769,7 @@ export const Canvas: Component = () => {
               {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}
             </For>
             <DragPreview views={selectedViews()} />
+            <ResizePreview />
             <Show when={marqueeStore.isActive}>
               <MarqueeRectangle />
             </Show>
