@@ -10,6 +10,14 @@
   background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
 }
 
+.row.selected {
+  background-color: var(--color-selection-bg, #0066cc20);
+}
+
+.row.selected:hover {
+  background-color: var(--color-selection-bg-hover, #0066cc30);
+}
+
 .toggle {
   display: flex;
   align-items: center;
