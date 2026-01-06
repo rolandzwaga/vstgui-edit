@@ -2,9 +2,29 @@ import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
-import type { Point } from '../types/canvas';
+import type { Point, Size } from '../types/canvas';
 import type { ViewNode, VSTGUIUIDescription } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
+
+function parseSizeRaw(size: string | undefined): Size {
+  if (!size) {
+    return { width: 0, height: 0 };
+  }
+  const parts = size.split(',');
+  if (parts.length !== 2) {
+    return { width: 0, height: 0 };
+  }
+  const width = Number.parseInt(parts[0].trim(), 10);
+  const height = Number.parseInt(parts[1].trim(), 10);
+  if (Number.isNaN(width) || Number.isNaN(height)) {
+    return { width: 0, height: 0 };
+  }
+  return { width, height };
+}
+
+function formatSize(size: Size): string {
+  return `${Math.round(size.width)}, ${Math.round(size.height)}`;
+}
 
 const initialState: DocumentStoreState = {
   // Upload state (from 001-uidesc-upload)
@@ -230,4 +250,49 @@ export function updateViewOrigin(viewId: string, newOrigin: Point): Point | null
   );
 
   return previousOrigin;
+}
+
+export function updateViewSize(viewId: string, newSize: Size): Size | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+
+  if (!view) {
+    return null;
+  }
+
+  const previousSize = parseSizeRaw(view.attributes.size);
+  const newSizeStr = formatSize(newSize);
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes.size = newSizeStr;
+      }
+    })
+  );
+
+  return previousSize;
 }

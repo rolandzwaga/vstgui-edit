@@ -3,7 +3,7 @@
  *
  * Renders a selection border and 8 resize handles around a selected view.
  * Handles are positioned at corners and edge midpoints.
- * This component is visual-only - resize functionality is not included.
+ * Resize functionality is triggered via onResizeStart callback.
  */
 import type { Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
@@ -12,6 +12,8 @@ import styles from './SelectionOverlay.module.css';
 
 export interface SelectionOverlayProps {
   view: RenderableView;
+  /** Callback when resize is initiated via handle mousedown */
+  onResizeStart?: (handle: HandlePosition, view: RenderableView) => void;
 }
 
 /**
@@ -57,7 +59,6 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
         aria-hidden="true"
       />
 
-      {/* 8 resize handles (visual only, aria-hidden) */}
       {HANDLE_POSITIONS_CONFIG.map((handle) => (
         <circle
           data-role="resize-handle"
@@ -68,6 +69,11 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
           r={handleRadius}
           style={{ cursor: HANDLE_CURSORS[handle.position] }}
           aria-hidden="true"
+          onMouseDown={(e: MouseEvent) => {
+            if (e.button !== 0) return;
+            e.stopPropagation();
+            props.onResizeStart?.(handle.position, props.view);
+          }}
         />
       ))}
     </g>

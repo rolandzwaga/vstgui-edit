@@ -21,6 +21,15 @@ export {
 } from './history';
 // Re-export parser types for convenience
 export type { FormatType, ParseResult, ParseState, ValidationError } from './parser';
+// Re-export resize types
+export type {
+  CreateResizeOperationFn,
+  ResizeBounds,
+  ResizeOperationData,
+  ResizeOptions,
+  ResizeState,
+} from './resize';
+export { MIN_VIEW_SIZE, RESIZE_CLICK_TOLERANCE } from './resize';
 
 /**
  * State machine for upload process

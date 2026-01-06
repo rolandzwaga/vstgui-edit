@@ -29,17 +29,27 @@ import {
   startDrag,
   updateDrag,
 } from '../../stores/dragStore';
-import { updateViewOrigin } from '../../stores/documentStore';
+import {
+  cancelResize,
+  endResize,
+  resetResize,
+  resizeStore,
+  startResize,
+  updateResize,
+} from '../../stores/resizeStore';
+import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { clearSelection, isSelected, select, selectAll, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
 import { hitTest } from '../../domain/canvas/hitTest';
 import { applyDelta, applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
+import { createResizeOperation } from '../../domain/canvas/resize';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { CLICK_TOLERANCE, NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domain/canvas/marquee';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { parseSize } from '../../domain/canvas/coordinates';
 import type { RenderableView, TemplateBounds as TemplateBoundsType } from '../../types/canvas';
+import type { HandlePosition } from '../../types/selection';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
@@ -49,6 +59,8 @@ import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
 import { ViewRectangle } from './ViewRectangle';
 import { DragPreview } from './DragPreview';
+import { ResizePreview } from './ResizePreview';
+import { DimensionIndicator } from './DimensionIndicator';
 import styles from './Canvas.module.css';
 
 /** Tooltip delay in milliseconds (SC-003) */
@@ -146,6 +158,81 @@ export const Canvas: Component = () => {
 
   const [pendingDragStart, setPendingDragStart] = createSignal<{ x: number; y: number } | null>(null);
   const [pendingDragViewId, setPendingDragViewId] = createSignal<string | null>(null);
+
+  const getHandlePosition = (handle: HandlePosition, view: RenderableView): { x: number; y: number } => {
+    const { absoluteX: x, absoluteY: y, width: w, height: h } = view;
+    switch (handle) {
+      case 'nw': return { x, y };
+      case 'n': return { x: x + w / 2, y };
+      case 'ne': return { x: x + w, y };
+      case 'w': return { x, y: y + h / 2 };
+      case 'e': return { x: x + w, y: y + h / 2 };
+      case 'sw': return { x, y: y + h };
+      case 's': return { x: x + w / 2, y: y + h };
+      case 'se': return { x: x + w, y: y + h };
+    }
+  };
+
+  const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
+    const point = getHandlePosition(handle, view);
+    const origin = { x: view.absoluteX, y: view.absoluteY };
+    const size = { width: view.width, height: view.height };
+
+    startResize(handle, view.id, point, origin, size);
+
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeUp);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (!resizeStore.isResizing || !wrapperRef) return;
+
+    const wrapperRect = wrapperRef.getBoundingClientRect();
+    const canvasPoint = mouseToCanvas(
+      e.clientX,
+      e.clientY,
+      wrapperRect,
+      canvasStore.panOffset,
+      canvasStore.zoomLevel
+    );
+
+    updateResize(canvasPoint, e.shiftKey, e.altKey);
+  };
+
+  const handleResizeUp = () => {
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeUp);
+
+    if (resizeStore.isResizing && resizeStore.viewId) {
+      const viewId = resizeStore.viewId;
+      const originalOrigin = resizeStore.originalOrigin;
+      const originalSize = resizeStore.originalSize;
+      const newOrigin = resizeStore.newOrigin;
+      const newSize = resizeStore.newSize;
+
+      if (originalOrigin && originalSize) {
+        const sizeChanged =
+          newSize.width !== originalSize.width || newSize.height !== originalSize.height;
+        const originChanged =
+          newOrigin.x !== originalOrigin.x || newOrigin.y !== originalOrigin.y;
+
+        if (sizeChanged || originChanged) {
+          updateViewOrigin(viewId, newOrigin);
+          updateViewSize(viewId, newSize);
+
+          const operation = createResizeOperation(
+            { viewId, originalOrigin, originalSize, newOrigin, newSize },
+            updateViewOrigin,
+            updateViewSize
+          );
+          pushOperation(operation);
+        }
+      }
+    }
+
+    endResize();
+    resetResize();
+  };
 
 
 
@@ -488,6 +575,13 @@ export const Canvas: Component = () => {
     }
 
     if (e.key === 'Escape') {
+      if (resizeStore.isResizing) {
+        cancelResize();
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeUp);
+        return;
+      }
+
       if (dragStore.isDragging) {
         const origins = dragStore.originalOrigins;
         for (const [viewId, origin] of Object.entries(origins)) {
@@ -618,6 +712,8 @@ export const Canvas: Component = () => {
     document.removeEventListener('mouseup', handleMarqueeUp);
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragUp);
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeUp);
     if (tooltipTimer) {
       clearTimeout(tooltipTimer);
     }
@@ -636,7 +732,11 @@ export const Canvas: Component = () => {
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
             [styles.moveCursor]: dragStore.isDragging,
-            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging,
+            [styles.resizeNwse]: resizeStore.isResizing && (resizeStore.activeHandle === 'nw' || resizeStore.activeHandle === 'se'),
+            [styles.resizeNesw]: resizeStore.isResizing && (resizeStore.activeHandle === 'ne' || resizeStore.activeHandle === 'sw'),
+            [styles.resizeNs]: resizeStore.isResizing && (resizeStore.activeHandle === 'n' || resizeStore.activeHandle === 's'),
+            [styles.resizeEw]: resizeStore.isResizing && (resizeStore.activeHandle === 'e' || resizeStore.activeHandle === 'w'),
+            [styles.noSelect]: marqueeStore.isPending || marqueeStore.isActive || canvasStore.isPanning || dragStore.isDragging || resizeStore.isResizing,
           }}
           data-testid="canvas-wrapper"
           tabIndex={0}
@@ -671,15 +771,17 @@ export const Canvas: Component = () => {
               {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
             </For>
             <For each={selectedViews()}>
-              {(view) => <SelectionOverlay view={view} />}
+              {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}
             </For>
             <DragPreview views={selectedViews()} />
+            <ResizePreview />
             <Show when={marqueeStore.isActive}>
               <MarqueeRectangle />
             </Show>
           </svg>
         </div>
         <Legend />
+        <DimensionIndicator />
         {/* Hover tooltip - renders when hovering and after delay (FR-011, SC-003) */}
         <Show when={showTooltip() && hoveredView()}>
           {(view) => (

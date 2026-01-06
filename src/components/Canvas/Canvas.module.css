@@ -170,3 +170,19 @@
 .noSelect {
   user-select: none;
 }
+
+.resizeNwse {
+  cursor: nwse-resize;
+}
+
+.resizeNesw {
+  cursor: nesw-resize;
+}
+
+.resizeNs {
+  cursor: ns-resize;
+}
+
+.resizeEw {
+  cursor: ew-resize;
+}
