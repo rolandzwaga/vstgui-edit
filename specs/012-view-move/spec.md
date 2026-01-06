@@ -167,9 +167,9 @@ As a user, I want to see a ghost preview of where views will land while dragging
 - [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
 - [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
 - [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [x] **Git Status Check**: Run `git status` to verify all changes are committed
+- [x] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [x] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
 - [x] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
 **⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch AND the compliance table shows all requirements MET.
