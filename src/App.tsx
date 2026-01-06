@@ -1,6 +1,7 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas } from './components/Canvas';
 import { HierarchyPanel } from './components/HierarchyPanel';
+import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 import { documentStore } from './stores/documentStore';
 import { fitToView } from './stores/canvasStore';
@@ -36,6 +37,7 @@ export default function App() {
             <MainToolbar onFitToView={handleFitToView} />
             <Canvas />
           </div>
+          <PropertiesPanel />
         </div>
       ) : (
         <>

@@ -1,0 +1,46 @@
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 12px;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.row:hover {
+  background: var(--color-bg-hover, rgba(0, 0, 0, 0.03));
+}
+
+.name {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--color-text-muted, #666);
+  min-width: 80px;
+}
+
+.value {
+  flex: 1;
+  font-size: 12px;
+  color: var(--color-text-primary, #333);
+  text-align: right;
+  word-break: break-all;
+}
+
+.copyable {
+  cursor: pointer;
+}
+
+.copyable:hover {
+  color: var(--color-primary, #0066cc);
+  text-decoration: underline;
+}
+
+.mixed {
+  font-style: italic;
+  color: var(--color-text-muted, #666);
+}
+
+.empty {
+  font-style: italic;
+  color: var(--color-text-muted, #999);
+}

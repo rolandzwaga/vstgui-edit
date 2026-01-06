@@ -1,4 +1,4 @@
-import type { AttributeGroupId, AttributeEntry, AttributeGroup } from '../../types/properties';
+import type { AttributeEntry, AttributeGroup, AttributeGroupId } from '../../types/properties';
 import { GROUP_LABELS, GROUP_PRIORITY } from '../../types/properties';
 
 export const ATTRIBUTE_GROUP_MAP: Record<string, AttributeGroupId> = {

@@ -1,0 +1,43 @@
+.group {
+  border-bottom: 1px solid var(--color-border-light, #eee);
+}
+
+.group:last-child {
+  border-bottom: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--color-bg-tertiary, #fafafa);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #555);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.clickable:hover {
+  background: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
+.chevron {
+  font-size: 10px;
+  width: 12px;
+  color: var(--color-text-muted, #888);
+}
+
+.label {
+  flex: 1;
+}
+
+.content {
+  padding: 4px 0;
+}

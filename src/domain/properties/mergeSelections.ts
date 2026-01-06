@@ -1,7 +1,7 @@
 import type {
-  AttributeGroupId,
   AttributeEntry,
   AttributeGroup,
+  AttributeGroupId,
   GroupedAttributes,
 } from '../../types/properties';
 import { GROUP_LABELS, GROUP_PRIORITY } from '../../types/properties';
