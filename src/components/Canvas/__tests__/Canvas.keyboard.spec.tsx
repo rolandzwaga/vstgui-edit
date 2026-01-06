@@ -93,7 +93,8 @@ describe('Canvas Keyboard Shortcuts', () => {
 
       // First select just one view
       const viewRects = canvas.querySelectorAll('[data-view-id]');
-      fireEvent.click(viewRects[0]);
+      fireEvent.mouseDown(viewRects[0], { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -149,7 +150,8 @@ describe('Canvas Keyboard Shortcuts', () => {
 
       // Select a view first
       const viewRects = canvas.querySelectorAll('[data-view-id]');
-      fireEvent.click(viewRects[0]);
+      fireEvent.mouseDown(viewRects[0], { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(1);
@@ -173,8 +175,10 @@ describe('Canvas Keyboard Shortcuts', () => {
 
       // Select multiple views with Shift+click
       const viewRects = canvas.querySelectorAll('[data-view-id]');
-      fireEvent.click(viewRects[0]);
-      fireEvent.click(viewRects[1], { shiftKey: true });
+      fireEvent.mouseDown(viewRects[0], { button: 0 });
+      fireEvent.mouseUp(document);
+      fireEvent.mouseDown(viewRects[1], { button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.size).toBe(2);

@@ -117,7 +117,7 @@ describe('Canvas Marquee Selection', () => {
       });
     });
 
-    it('should select view on click (no drag)', () => {
+    it('should select view on mouseup (no drag)', () => {
       mockDocumentStore.document = createMockDocument([
         { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
       ]);
@@ -149,6 +149,57 @@ describe('Canvas Marquee Selection', () => {
       testInRoot(() => {
         expect(marqueeStore.isActive).toBe(false);
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+    });
+
+    it('should toggle selection with Shift+mousedown/mouseup on view', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 100, height: 100 },
+        { id: 'view-2', x: 200, y: 50, width: 100, height: 100 },
+      ]);
+
+      render(() => <Canvas />);
+      const view1 = screen.getByTestId('view-TestTemplate-view-1');
+      const view2 = screen.getByTestId('view-TestTemplate-view-2');
+
+      fireEvent.mouseDown(view1, { clientX: 75, clientY: 75, button: 0 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+
+      fireEvent.mouseDown(view2, { clientX: 225, clientY: 75, button: 0, shiftKey: true });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+        expect(selectionStore.selectedIds.has('TestTemplate-view-2')).toBe(true);
+        expect(selectionStore.selectedIds.size).toBe(2);
+      });
+    });
+
+    it('should clear selection when mousedown/mouseup on empty space', () => {
+      mockDocumentStore.document = createMockDocument([
+        { id: 'view-1', x: 50, y: 50, width: 50, height: 50 },
+      ]);
+
+      render(() => <Canvas />);
+      const view = screen.getByTestId('view-TestTemplate-view-1');
+      const canvas = screen.getByTestId('canvas');
+
+      fireEvent.mouseDown(view, { clientX: 75, clientY: 75, button: 0 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+      });
+
+      fireEvent.mouseDown(canvas, { clientX: 200, clientY: 200, button: 0 });
+      fireEvent.mouseUp(document);
+
+      testInRoot(() => {
+        expect(selectionStore.selectedIds.size).toBe(0);
       });
     });
   });
@@ -314,7 +365,8 @@ describe('Canvas Marquee Selection', () => {
       const view1 = screen.getByTestId('view-TestTemplate-view-1');
       const canvas = screen.getByTestId('canvas');
 
-      fireEvent.click(view1);
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
@@ -356,7 +408,8 @@ describe('Canvas Marquee Selection', () => {
       const view1 = screen.getByTestId('view-TestTemplate-view-1');
       const canvas = screen.getByTestId('canvas');
 
-      fireEvent.click(view1);
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
@@ -409,7 +462,8 @@ describe('Canvas Marquee Selection', () => {
       const canvas = screen.getByTestId('canvas');
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      fireEvent.click(view1);
+      fireEvent.mouseDown(view1, { button: 0 });
+      fireEvent.mouseUp(document);
 
       testInRoot(() => {
         expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);

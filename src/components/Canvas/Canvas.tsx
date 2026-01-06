@@ -133,6 +133,8 @@ export const Canvas: Component = () => {
   const [tooltipPosition, setTooltipPosition] = createSignal({ x: 0, y: 0 });
   let tooltipTimer: ReturnType<typeof setTimeout> | null = null;
 
+
+
   /**
    * Gets the currently hovered view for tooltip display.
    */
@@ -187,69 +189,6 @@ export const Canvas: Component = () => {
       element = element.parentElement;
     }
     return null;
-  };
-
-  /**
-   * Handle click on canvas for view selection (FR-001, FR-002, FR-003, FR-004).
-   * Uses DOM target first, then falls back to hit testing for coordinates.
-   * Shift+click toggles selection (add/remove from multi-selection).
-   */
-  const handleCanvasClick = (e: MouseEvent) => {
-    // Ignore if this was a pan gesture (ctrl+click or middle button)
-    if (e.ctrlKey || e.button !== 0) {
-      return;
-    }
-
-    const isShiftClick = e.shiftKey;
-
-    // First, try to get view ID from DOM target (most reliable for view clicks)
-    const targetViewId = getViewIdFromTarget(e.target);
-    if (targetViewId) {
-      if (isShiftClick) {
-        // Shift+click: toggle selection (FR-004)
-        toggleSelect(targetViewId);
-      } else {
-        // Regular click: select single view, clear others (FR-001, FR-002)
-        select(targetViewId);
-      }
-      return;
-    }
-
-    // If we didn't click on a view element, attempt hit testing
-    // If wrapperRef is available, try coordinate-based hit testing
-    if (wrapperRef) {
-      const wrapperRect = wrapperRef.getBoundingClientRect();
-
-      // Only use hit testing if we have valid bounds (not in JSDOM)
-      if (wrapperRect.width > 0 && wrapperRect.height > 0) {
-        // Convert mouse coordinates to canvas space
-        const canvasPoint = mouseToCanvas(
-          e.clientX,
-          e.clientY,
-          wrapperRect,
-          canvasStore.panOffset,
-          canvasStore.zoomLevel
-        );
-
-        // Hit test to find view under cursor
-        const views = renderableViews();
-        const hitViewId = hitTest(canvasPoint, views);
-
-        if (hitViewId) {
-          if (isShiftClick) {
-            // Shift+click: toggle selection (FR-004)
-            toggleSelect(hitViewId);
-          } else {
-            // Regular click: select single view (FR-001)
-            select(hitViewId);
-          }
-          return;
-        }
-      }
-    }
-
-    // No view was clicked - deselect all (FR-003)
-    clearSelection();
   };
 
   /**
@@ -544,7 +483,6 @@ export const Canvas: Component = () => {
             height={templateBounds()?.height ?? 100}
             viewBox={`0 0 ${templateBounds()?.width ?? 100} ${templateBounds()?.height ?? 100}`}
             data-testid="canvas"
-            onClick={handleCanvasClick}
             onMouseDown={handleSvgMouseDown}
           >
             <Show when={templateBounds()}>
