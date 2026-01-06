@@ -186,8 +186,11 @@
 - [ ] T063 Run full test suite: `npm test -- --run`
 - [ ] T064 Run quality checks: `npx biome check --write . && npx tsc --noEmit`
 - [ ] T065 Verify all 15 FR requirements are met - update spec.md compliance table
-- [ ] T066 Verify all 5 SC requirements are met - update spec.md compliance table
-- [ ] T067 **Commit**: Stage and commit Polish phase changes with message "docs(012): update CLAUDE.md and complete compliance verification"
+- [ ] T066 [P] Verify SC-001: Measure drag response time is under 100ms (manual test or browser devtools)
+- [ ] T067 [P] Verify SC-004: Measure arrow key nudge response is under 16ms (single frame)
+- [ ] T068 [P] Verify SC-005: Confirm ghost preview updates at 60fps during drag (no visible lag)
+- [ ] T069 Verify SC-002 and SC-003 via undo tests (exact coordinate restoration, 100% reversibility)
+- [ ] T070 **Commit**: Stage and commit Polish phase changes with message "docs(012): update CLAUDE.md and complete compliance verification"
 
 ---
 
@@ -195,9 +198,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] T068 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T069 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T070 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [ ] T071 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [ ] T072 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [ ] T073 **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 

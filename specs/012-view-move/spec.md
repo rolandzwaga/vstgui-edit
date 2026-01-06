@@ -105,13 +105,13 @@ As a user, I want to see a ghost preview of where views will land while dragging
 - **FR-003**: System MUST move all selected views together when dragging, maintaining relative positions
 - **FR-004**: System MUST support Ctrl+Z to undo the last move operation
 - **FR-005**: System MUST support Ctrl+Y and Ctrl+Shift+Z to redo an undone move operation
-- **FR-006**: System MUST maintain a history stack of move operations for undo/redo
+- **FR-006**: System MUST maintain a history stack of move operations for undo/redo (maximum 100 operations; oldest dropped when exceeded)
 - **FR-007**: System MUST clear the redo stack when a new move operation is performed after undoing
 - **FR-008**: System MUST support arrow keys to nudge selected view(s) by 1 pixel
 - **FR-009**: System MUST support Shift+Arrow to nudge selected view(s) by 10 pixels
 - **FR-010**: System MUST constrain movement to horizontal or vertical axis when Shift is held during drag
 - **FR-011**: System MUST determine constraint axis based on initial drag direction (first 5+ pixels of movement)
-- **FR-012**: System MUST display a ghost preview of the view's target position during drag
+- **FR-012**: System MUST display a ghost preview of the view's target position during drag (50% opacity, dashed stroke)
 - **FR-013**: System MUST use the move cursor during drag operations
 - **FR-014**: System MUST NOT initiate a move if the drag distance is less than 3 pixels (click tolerance)
 - **FR-015**: Arrow key nudge operations MUST be recorded in history for undo/redo
