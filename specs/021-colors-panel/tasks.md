@@ -61,23 +61,23 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T016 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T017 [P] [US1] Create ColorSwatch component tests in `src/components/ColorsPanel/__tests__/ColorSwatch.spec.tsx`
-- [ ] T018 [P] [US1] Create ColorItem component tests in `src/components/ColorsPanel/__tests__/ColorItem.spec.tsx`
-- [ ] T019 [P] [US1] Create ColorsPanel component tests in `src/components/ColorsPanel/__tests__/ColorsPanel.spec.tsx`
-- [ ] T020 [P] [US1] Create EmptyState component tests in `src/components/ColorsPanel/__tests__/EmptyState.spec.tsx`
+- [x] T016 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T017 [P] [US1] Create ColorSwatch component tests in `src/components/ColorsPanel/__tests__/ColorSwatch.spec.tsx`
+- [x] T018 [P] [US1] Create ColorItem component tests in `src/components/ColorsPanel/__tests__/ColorItem.spec.tsx`
+- [x] T019 [P] [US1] Create ColorsPanel component tests in `src/components/ColorsPanel/__tests__/ColorsPanel.spec.tsx`
+- [x] T020 [P] [US1] Create EmptyState component tests in `src/components/ColorsPanel/__tests__/EmptyState.spec.tsx`
 
 ### Implementation for User Story 1
 
-- [ ] T021 [P] [US1] Implement ColorSwatch component (transparency checkerboard) in `src/components/ColorsPanel/ColorSwatch.tsx`
-- [ ] T022 [P] [US1] Create ColorSwatch styles in `src/components/ColorsPanel/ColorSwatch.module.css`
-- [ ] T023 [P] [US1] Implement EmptyState component in `src/components/ColorsPanel/EmptyState.tsx`
-- [ ] T024 [US1] Implement ColorItem component (name, value, swatch display) in `src/components/ColorsPanel/ColorItem.tsx`
-- [ ] T025 [US1] Create ColorItem styles in `src/components/ColorsPanel/ColorItem.module.css`
-- [ ] T026 [US1] Implement ColorsPanel component (header, list, empty state) in `src/components/ColorsPanel/ColorsPanel.tsx`
-- [ ] T027 [US1] Create ColorsPanel styles in `src/components/ColorsPanel/ColorsPanel.module.css`
-- [ ] T028 [US1] Create barrel export in `src/components/ColorsPanel/index.ts`
-- [ ] T029 [US1] Add ColorsPanel to sidebar layout in `src/components/Layout/Sidebar.tsx` or equivalent
+- [x] T021 [P] [US1] Implement ColorSwatch component (transparency checkerboard) in `src/components/ColorsPanel/ColorSwatch.tsx`
+- [x] T022 [P] [US1] Create ColorSwatch styles in `src/components/ColorsPanel/ColorSwatch.module.css`
+- [x] T023 [P] [US1] Implement EmptyState component in `src/components/ColorsPanel/EmptyState.tsx`
+- [x] T024 [US1] Implement ColorItem component (name, value, swatch display) in `src/components/ColorsPanel/ColorItem.tsx`
+- [x] T025 [US1] Create ColorItem styles in `src/components/ColorsPanel/ColorItem.module.css`
+- [x] T026 [US1] Implement ColorsPanel component (header, list, empty state) in `src/components/ColorsPanel/ColorsPanel.tsx`
+- [x] T027 [US1] Create ColorsPanel styles in `src/components/ColorsPanel/ColorsPanel.module.css`
+- [x] T028 [US1] Create barrel export in `src/components/ColorsPanel/index.ts`
+- [x] T029 [US1] Add ColorsPanel to sidebar layout in `src/App.tsx`
 - [ ] T030 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(021): implement colors panel display (US1)"
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
