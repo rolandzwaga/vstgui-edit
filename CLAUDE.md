@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- N/A (in-memory state via SolidJS signals) (015-smart-guides)
 - In-memory SolidJS signals (extends gridStore for snap state) (014-snap-to-grid)
 - N/A (extends existing documentStore for view size mutations) (013-view-resize)
 - In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
@@ -1440,6 +1441,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 015-smart-guides: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 014-snap-to-grid: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 013-view-resize: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
