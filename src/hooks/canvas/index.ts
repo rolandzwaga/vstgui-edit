@@ -1,5 +1,10 @@
 export { type UseCanvasDataResult, useCanvasData } from './useCanvasData';
 export {
+  type UseCanvasDropOptions,
+  type UseCanvasDropResult,
+  useCanvasDrop,
+} from './useCanvasDrop';
+export {
   type UseCanvasInteractionsOptions,
   type UseCanvasInteractionsResult,
   useCanvasInteractions,

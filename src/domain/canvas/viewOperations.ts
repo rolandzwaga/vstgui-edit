@@ -13,8 +13,10 @@ import {
   removeViews,
   restoreView,
 } from '../../stores/documentStore';
-import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
+import { clearSelection, select, selectAll, selectionStore } from '../../stores/selectionStore';
+import type { Point, RenderableView } from '../../types/canvas';
 import type { HistoryOperation } from '../../types/history';
+import type { ViewNode } from '../../types/uidesc';
 import type { SerializedView } from '../../types/views';
 import {
   applyOffsetToSerialized,
@@ -22,6 +24,8 @@ import {
   deserializeView,
   serializeView,
 } from '../views/serialization';
+import { isContainerClass } from '../views/viewClasses';
+import { getDefaultSize } from '../views/viewDefaults';
 
 const DUPLICATE_OFFSET = 10;
 const PASTE_OFFSET = 10;
@@ -194,4 +198,71 @@ export function createPasteOperation(pastedViewIds: string[]): HistoryOperation 
 
 export function canPaste(): boolean {
   return clipboardStore.hasContent;
+}
+
+export function findContainerAtPoint(
+  views: RenderableView[],
+  point: Point,
+  excludeIds: Set<string> = new Set()
+): RenderableView | null {
+  const containers = views.filter(v => isContainerClass(v.className) && !excludeIds.has(v.id));
+
+  containers.sort((a, b) => b.zIndex - a.zIndex);
+
+  for (const container of containers) {
+    const inBounds =
+      point.x >= container.absoluteX &&
+      point.x <= container.absoluteX + container.width &&
+      point.y >= container.absoluteY &&
+      point.y <= container.absoluteY + container.height;
+
+    if (inBounds) {
+      return container;
+    }
+  }
+
+  return null;
+}
+
+export interface CreateViewParams {
+  className: string;
+  parentId: string;
+  position: Point;
+}
+
+export function createNewView(params: CreateViewParams): string | null {
+  const { className, parentId, position } = params;
+  const defaultSize = getDefaultSize(className);
+
+  const viewNode: ViewNode = {
+    attributes: {
+      class: className,
+      origin: `${Math.round(position.x)}, ${Math.round(position.y)}`,
+      size: `${defaultSize.width}, ${defaultSize.height}`,
+    },
+  };
+
+  if (isContainerClass(className)) {
+    viewNode.children = {};
+  }
+
+  const newId = addView(parentId, viewNode);
+
+  if (newId) {
+    select(newId);
+  }
+
+  return newId;
+}
+
+export function createCreateOperation(createdViewId: string, className: string): HistoryOperation {
+  return {
+    type: 'create',
+    description: `Create ${className}`,
+    timestamp: Date.now(),
+    undo: () => {
+      removeView(createdViewId);
+    },
+    redo: () => {},
+  };
 }

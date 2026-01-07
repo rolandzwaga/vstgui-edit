@@ -2,11 +2,11 @@ import { createSignal } from 'solid-js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockContainer, createMockDocument, createMockRenderableView, createMockView } from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { canPaste } from '../../../domain/canvas/viewOperations';
 import { resetClipboard } from '../../../stores/clipboardStore';
 import { documentStore, reset as resetDocument, setDocumentForTest } from '../../../stores/documentStore';
 import { clearHistory, historyStore, undo } from '../../../stores/historyStore';
 import { resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
-import { canPaste } from '../../../domain/canvas/viewOperations';
 import { type CancelCallbacks, useCanvasKeyboard } from '../useCanvasKeyboard';
 
 describe('useCanvasKeyboard', () => {

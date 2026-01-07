@@ -1,6 +1,7 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { HierarchyPanel } from './components/HierarchyPanel';
+import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 import { documentStore } from './stores/documentStore';
@@ -33,7 +34,10 @@ export default function App() {
       {documentStore.parseState === 'valid' ? (
         <>
           <div style={{ display: 'flex', "min-height": '100vh' }}>
-            <HierarchyPanel />
+            <div style={{ display: 'flex', "flex-direction": 'column', width: '240px', "min-width": '200px', "max-width": '320px', "border-right": '1px solid var(--color-border, #e0e0e0)', "flex-shrink": 0 }}>
+              <HierarchyPanel />
+              <ViewPalette />
+            </div>
             <div style={{ flex: 1, "min-width": 0 }}>
               <MainToolbar onFitToView={handleFitToView} />
               <Canvas />

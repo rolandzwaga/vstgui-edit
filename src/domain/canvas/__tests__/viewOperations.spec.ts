@@ -1,19 +1,23 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createMockContainer, createMockDocument, createMockView } from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { resetClipboard } from '../../../stores/clipboardStore';
 import { documentStore, reset as resetDocument, setDocumentForTest } from '../../../stores/documentStore';
 import { clearHistory, historyStore, pushOperation, redo, undo } from '../../../stores/historyStore';
 import { clearSelection, resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
-import { resetClipboard } from '../../../stores/clipboardStore';
+import type { RenderableView } from '../../../types/canvas';
 import {
   canPaste,
   copySelectedViews,
+  createCreateOperation,
   createDeleteOperation,
   createDuplicateOperation,
+  createNewView,
   createPasteOperation,
   cutSelectedViews,
   deleteSelectedViews,
   duplicateSelectedViews,
+  findContainerAtPoint,
   pasteViews,
 } from '../viewOperations';
 
@@ -847,6 +851,281 @@ describe('viewOperations', () => {
 
         const templateAfter = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
         expect(Object.keys(templateAfter?.children ?? {}).length).toBe(1);
+      });
+    });
+  });
+
+  describe('findContainerAtPoint', () => {
+    function createTestView(overrides: Partial<RenderableView>): RenderableView {
+      return {
+        id: 'test',
+        absoluteX: 0,
+        absoluteY: 0,
+        relativeX: 0,
+        relativeY: 0,
+        width: 100,
+        height: 100,
+        className: 'CTextLabel',
+        category: 'display',
+        zIndex: 0,
+        parentId: null,
+        ...overrides,
+      };
+    }
+
+    it('should return null when no containers exist', () => {
+      const views = [
+        createTestView({ id: 'view1', className: 'CTextLabel' }),
+        createTestView({ id: 'view2', className: 'CSlider' }),
+      ];
+
+      const result = findContainerAtPoint(views, { x: 50, y: 50 });
+      expect(result).toBeNull();
+    });
+
+    it('should find container at point', () => {
+      const views = [
+        createTestView({
+          id: 'container1',
+          className: 'CViewContainer',
+          absoluteX: 0,
+          absoluteY: 0,
+          width: 200,
+          height: 200,
+          category: 'container',
+        }),
+      ];
+
+      const result = findContainerAtPoint(views, { x: 100, y: 100 });
+      expect(result?.id).toBe('container1');
+    });
+
+    it('should return null when point is outside all containers', () => {
+      const views = [
+        createTestView({
+          id: 'container1',
+          className: 'CViewContainer',
+          absoluteX: 0,
+          absoluteY: 0,
+          width: 100,
+          height: 100,
+          category: 'container',
+        }),
+      ];
+
+      const result = findContainerAtPoint(views, { x: 150, y: 150 });
+      expect(result).toBeNull();
+    });
+
+    it('should return topmost container when multiple overlap', () => {
+      const views = [
+        createTestView({
+          id: 'container1',
+          className: 'CViewContainer',
+          absoluteX: 0,
+          absoluteY: 0,
+          width: 200,
+          height: 200,
+          zIndex: 0,
+          category: 'container',
+        }),
+        createTestView({
+          id: 'container2',
+          className: 'CViewContainer',
+          absoluteX: 50,
+          absoluteY: 50,
+          width: 100,
+          height: 100,
+          zIndex: 1,
+          category: 'container',
+        }),
+      ];
+
+      const result = findContainerAtPoint(views, { x: 75, y: 75 });
+      expect(result?.id).toBe('container2');
+    });
+
+    it('should exclude specified container IDs', () => {
+      const views = [
+        createTestView({
+          id: 'container1',
+          className: 'CViewContainer',
+          absoluteX: 0,
+          absoluteY: 0,
+          width: 200,
+          height: 200,
+          zIndex: 1,
+          category: 'container',
+        }),
+        createTestView({
+          id: 'container2',
+          className: 'CViewContainer',
+          absoluteX: 0,
+          absoluteY: 0,
+          width: 200,
+          height: 200,
+          zIndex: 0,
+          category: 'container',
+        }),
+      ];
+
+      const result = findContainerAtPoint(views, { x: 100, y: 100 }, new Set(['container1']));
+      expect(result?.id).toBe('container2');
+    });
+  });
+
+  describe('createNewView', () => {
+    it('should create a view with default size', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const newId = createNewView({
+          className: 'CTextButton',
+          parentId: 'MainView',
+          position: { x: 100, y: 100 },
+        });
+
+        expect(newId).toBe('MainView-0');
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const newView = template?.children?.['0'];
+        expect(newView?.attributes.class).toBe('CTextButton');
+        expect(newView?.attributes.origin).toBe('100, 100');
+        expect(newView?.attributes.size).toBe('100, 30');
+      });
+    });
+
+    it('should select the new view after creation', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const newId = createNewView({
+          className: 'CSlider',
+          parentId: 'MainView',
+          position: { x: 50, y: 50 },
+        });
+
+        expect(selectionStore.selectedIds.has(newId!)).toBe(true);
+      });
+    });
+
+    it('should return null if parent does not exist', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const newId = createNewView({
+          className: 'CTextLabel',
+          parentId: 'NonExistent',
+          position: { x: 100, y: 100 },
+        });
+
+        expect(newId).toBeNull();
+      });
+    });
+
+    it('should create container with empty children', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        createNewView({
+          className: 'CViewContainer',
+          parentId: 'MainView',
+          position: { x: 100, y: 100 },
+        });
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const newView = template?.children?.['0'];
+        expect(newView?.children).toEqual({});
+      });
+    });
+  });
+
+  describe('createCreateOperation', () => {
+    it('should create a history operation for view creation', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const newId = createNewView({
+          className: 'CTextLabel',
+          parentId: 'MainView',
+          position: { x: 100, y: 100 },
+        });
+
+        const operation = createCreateOperation(newId!, 'CTextLabel');
+
+        expect(operation.type).toBe('create');
+        expect(operation.description).toBe('Create CTextLabel');
+        expect(typeof operation.undo).toBe('function');
+      });
+    });
+
+    it('should undo creation by removing the view', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const newId = createNewView({
+          className: 'CTextLabel',
+          parentId: 'MainView',
+          position: { x: 100, y: 100 },
+        });
+
+        const operation = createCreateOperation(newId!, 'CTextLabel');
+
+        const templateBefore = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateBefore?.children ?? {}).length).toBe(1);
+
+        operation.undo();
+
+        const templateAfter = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfter?.children ?? {}).length).toBe(0);
       });
     });
   });

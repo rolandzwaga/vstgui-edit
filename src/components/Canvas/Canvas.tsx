@@ -1,11 +1,13 @@
 import { type Component, For, Show } from 'solid-js';
 import {
   useCanvasData,
+  useCanvasDrop,
   useCanvasPan,
   useCanvasZoom,
   useCanvasKeyboard,
   useCanvasInteractions,
 } from '../../hooks/canvas';
+import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { useTooltip } from '../../hooks/useTooltip';
 import { canvasStore } from '../../stores/canvasStore';
 import { marqueeStore } from '../../stores/marqueeStore';
@@ -47,16 +49,35 @@ export const Canvas: Component = () => {
     cancelCallbacks,
   });
 
+  let wrapperElement: HTMLDivElement | undefined;
+
+  const getCanvasPoint = (clientX: number, clientY: number) => {
+    if (!wrapperElement) {
+      return { x: 0, y: 0 };
+    }
+    const rect = wrapperElement.getBoundingClientRect();
+    return mouseToCanvas(clientX, clientY, rect, canvasStore.panOffset, canvasStore.zoomLevel);
+  };
+
+  const { isDraggingOver, handleDragOver, handleDragLeave, handleDrop } = useCanvasDrop({
+    renderableViews,
+    getCanvasPoint,
+  });
+
   return (
     <Show when={!isEmpty()} fallback={<EmptyState />}>
       <div>
         <div
-          ref={wrapperRef}
+          ref={(el) => {
+            wrapperRef(el);
+            wrapperElement = el;
+          }}
           class={styles.canvasWrapper}
           classList={{
             [styles.grabbing]: canvasStore.isPanning,
             [styles.marqueeCursor]: marqueeStore.isActive,
             [styles.moveCursor]: dragStore.isDragging,
+            [styles.dropTarget]: isDraggingOver(),
             [styles.resizeNwse]:
               resizeStore.isResizing &&
               (resizeStore.activeHandle === 'nw' || resizeStore.activeHandle === 'se'),
@@ -84,6 +105,9 @@ export const Canvas: Component = () => {
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           onContextMenu={handleContextMenu}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           style={{
             width: `${templateBounds()?.width ?? 100}px`,
             height: `${templateBounds()?.height ?? 100}px`,
