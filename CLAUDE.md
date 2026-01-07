@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- In-memory SolidJS signals (extends gridStore for snap state) (014-snap-to-grid)
 - N/A (extends existing documentStore for view size mutations) (013-view-resize)
 - In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
 - N/A (reads from existing documentStore and selectionStore) (011-properties-panel)
@@ -292,35 +293,45 @@ resetCanvas();        // Reset both pan and zoom
 
 ### Grid Store (`src/stores/gridStore.ts`)
 
-Global store for canvas grid overlay state management:
+Global store for canvas grid overlay and snap-to-grid state management:
 
-- `gridStore` - Reactive store with visibility, size, and style
+- `gridStore` - Reactive store with visibility, size, style, and snap state
 - `toggleVisibility()` - Toggle grid visibility on/off
 - `setGridSize(size)` - Set grid size to a preset value
 - `setGridStyle(style)` - Set grid style (lines, dots, crosshairs)
-- `resetGrid()` - Reset all grid settings to defaults
+- `toggleSnap()` - Toggle snap-to-grid on/off
+- `setSnapThreshold(threshold)` - Set snap threshold (clamped 1-20px)
+- `resetGrid()` - Reset all grid and snap settings to defaults
 - `GRID_SIZE_PRESETS` - Available size presets: [5, 8, 10, 12, 16, 20]
 - `DEFAULT_GRID_SIZE` - Default grid size (10px)
 - `DEFAULT_GRID_STYLE` - Default grid style ('lines')
 - `MAJOR_LINE_INTERVAL` - Interval for major grid lines (5)
 
 ```typescript
-import { gridStore, toggleVisibility, setGridSize, setGridStyle, resetGrid, GRID_SIZE_PRESETS, MAJOR_LINE_INTERVAL } from './stores/gridStore';
+import { gridStore, toggleVisibility, setGridSize, setGridStyle, toggleSnap, setSnapThreshold, resetGrid, GRID_SIZE_PRESETS, MAJOR_LINE_INTERVAL } from './stores/gridStore';
 
 // Access grid state
-console.log(gridStore.isVisible); // boolean (default: true)
-console.log(gridStore.size);      // GridSizePreset (default: 10)
-console.log(gridStore.style);     // GridStyle (default: 'lines')
+console.log(gridStore.isVisible);     // boolean (default: true)
+console.log(gridStore.size);          // GridSizePreset (default: 10)
+console.log(gridStore.style);         // GridStyle (default: 'lines')
+console.log(gridStore.isSnapEnabled); // boolean (default: true)
+console.log(gridStore.snapThreshold); // number (default: 5)
 
 // Toggle visibility
 toggleVisibility();  // Toggle grid on/off (also: G key on canvas)
+
+// Toggle snap
+toggleSnap();  // Toggle snap on/off (also: Shift+G key on canvas)
 
 // Change grid appearance
 setGridSize(20);           // Set to 20px spacing
 setGridStyle('dots');      // Options: 'lines', 'dots', 'crosshairs'
 
+// Change snap threshold
+setSnapThreshold(8);  // Views within 8px of grid line will snap
+
 // Reset to defaults
-resetGrid();  // Visibility: true, Size: 10, Style: 'lines'
+resetGrid();  // Visibility: true, Size: 10, Style: 'lines', Snap: true, Threshold: 5
 ```
 
 ### Grid Utilities (`src/domain/canvas/grid.ts`)
@@ -339,6 +350,49 @@ const isMajor = isMajorLine(5);  // true (every 5th line)
 const lines = calculateLineCount(500, 10);  // 50 lines
 const valid = isValidGridSize(10);  // true
 ```
+
+### Snap Utilities (`src/domain/canvas/snap.ts`)
+
+Snap-to-grid calculation utilities for move and resize operations:
+
+- `getEffectiveThreshold(threshold, gridSize)` - Clamps threshold to gridSize/2
+- `snapToGrid(value, gridSize, threshold)` - Snaps coordinate to nearest grid line
+- `snapPoint(point, gridSize, threshold)` - Snaps 2D point (x, y independently)
+- `snapEdges(bounds, handle, gridSize, threshold)` - Snaps view edges during resize
+- `applySnapToMove(origins, anchorId, gridSize, threshold)` - Snaps multi-view move
+- `applySnapToResize(origin, size, handle, gridSize, threshold)` - Snaps resize bounds
+
+```typescript
+import { snapToGrid, snapPoint, applySnapToMove, applySnapToResize, getEffectiveThreshold } from './domain/canvas/snap';
+
+// Snap single coordinate
+const result = snapToGrid(23, 10, 5);
+// result: { snapped: true, value: 20, snapDelta: -3, gridLine: 20 }
+
+// Snap 2D point
+const pointResult = snapPoint({ x: 23, y: 47 }, 10, 5);
+// pointResult.point: { x: 20, y: 50 }
+
+// Snap multi-view move (anchor view snaps, others follow)
+const moveResult = applySnapToMove(
+  { anchor: { x: 23, y: 47 }, other: { x: 100, y: 150 } },
+  'anchor', 10, 5
+);
+// moveResult.snappedOrigins: { anchor: { x: 20, y: 50 }, other: { x: 97, y: 153 } }
+
+// Snap resize edges
+const resizeResult = applySnapToResize({ x: 50, y: 50 }, { width: 103, height: 78 }, 'se', 10, 5);
+// resizeResult: { origin: { x: 50, y: 50 }, size: { width: 100, height: 80 }, didSnap: true }
+
+// Get effective threshold (clamped to gridSize/2)
+const threshold = getEffectiveThreshold(10, 16);  // 8 (clamped)
+```
+
+**Snap Behavior**:
+- Snap only applies when `gridStore.isSnapEnabled` is true AND grid is visible
+- Alt key temporarily disables snap during drag/resize
+- Multi-view moves: anchor view snaps, all others maintain relative positions
+- Resize: edges being dragged snap, minimum view size (10px) takes precedence
 
 ### Selection Store (`src/stores/selectionStore.ts`)
 
@@ -1386,6 +1440,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 014-snap-to-grid: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 013-view-resize: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 011-properties-panel: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)

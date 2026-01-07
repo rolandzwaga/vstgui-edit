@@ -48,6 +48,18 @@ export {
   createResizeOperation,
   formatSize,
 } from './resize';
+// Snap-to-grid utilities
+export {
+  type ApplySnapToMoveResult,
+  type ApplySnapToResizeResult,
+  applySnapToMove,
+  applySnapToResize,
+  getEffectiveThreshold,
+  snapEdges,
+  snapPoint,
+  snapToGrid,
+  type ViewBounds,
+} from './snap';
 // View category classification
 export {
   CONTAINER_CLASSES,

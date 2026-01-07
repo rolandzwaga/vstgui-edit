@@ -3,9 +3,15 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
+import {
+  applySnapToMove,
+  applySnapToResize,
+  getEffectiveThreshold,
+} from '../../domain/canvas/snap';
 import { canvasStore } from '../../stores/canvasStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
+import { gridStore } from '../../stores/gridStore';
 import { pushOperation } from '../../stores/historyStore';
 import {
   activateMarquee,
@@ -112,7 +118,7 @@ export function useCanvasInteractions(
     updateResize(canvasPoint, e.shiftKey, e.altKey);
   };
 
-  const handleResizeUp = () => {
+  const handleResizeUp = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleResizeMove);
     document.removeEventListener('mouseup', handleResizeUp);
 
@@ -120,10 +126,25 @@ export function useCanvasInteractions(
       const viewId = resizeStore.viewId;
       const originalOrigin = resizeStore.originalOrigin;
       const originalSize = resizeStore.originalSize;
-      const newOrigin = resizeStore.newOrigin;
-      const newSize = resizeStore.newSize;
+      let newOrigin = resizeStore.newOrigin;
+      let newSize = resizeStore.newSize;
+      const handle = resizeStore.activeHandle;
 
-      if (originalOrigin && originalSize) {
+      if (originalOrigin && originalSize && handle) {
+        const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+        if (shouldSnap) {
+          const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
+          const snapResult = applySnapToResize(
+            newOrigin,
+            newSize,
+            handle,
+            gridStore.size,
+            threshold
+          );
+          newOrigin = snapResult.origin;
+          newSize = snapResult.size;
+        }
+
         const sizeChanged =
           newSize.width !== originalSize.width || newSize.height !== originalSize.height;
         const originChanged = newOrigin.x !== originalOrigin.x || newOrigin.y !== originalOrigin.y;
@@ -223,7 +244,7 @@ export function useCanvasInteractions(
     updateDrag(canvasPoint, e.shiftKey);
   };
 
-  const handleDragUp = () => {
+  const handleDragUp = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragUp);
 
@@ -231,7 +252,17 @@ export function useCanvasInteractions(
       const delta = dragStore.delta;
       const origins = dragStore.originalOrigins;
       const viewIds = Object.keys(origins);
-      const newOrigins = applyDeltaToAll(origins, delta);
+      let newOrigins = applyDeltaToAll(origins, delta);
+
+      const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+      if (shouldSnap) {
+        const anchorId = viewIds[0];
+        if (anchorId) {
+          const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
+          const snapResult = applySnapToMove(newOrigins, anchorId, gridStore.size, threshold);
+          newOrigins = snapResult.snappedOrigins;
+        }
+      }
 
       for (const [viewId, newOrigin] of Object.entries(newOrigins)) {
         updateViewOrigin(viewId, newOrigin);
