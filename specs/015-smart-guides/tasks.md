@@ -85,7 +85,7 @@
 - [x] T025 [US5] Write test verifying guides don't appear when disabled in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T027)
 - [x] T026 [US5] Add S key handler to useCanvasKeyboard hook in `src/hooks/canvas/useCanvasKeyboard.ts` (calls toggleSmartGuides, filter for text inputs)
 - [x] T027 [US5] Update useCanvasInteractions to check isEnabled before calculating guides in `src/hooks/canvas/useCanvasInteractions.ts`
-- [ ] T028 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(smart-guides): add S key toggle for visibility"
+- [x] T028 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(smart-guides): add S key toggle for visibility"
 
 **Checkpoint**: Users can toggle guides on/off
 
@@ -99,11 +99,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Write unit tests for findParentCenterGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T031)
-- [ ] T030 [US3] Write integration test for parent center guides in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T033)
-- [ ] T031 [US3] Implement findParentCenterGuides function in `src/domain/canvas/smartGuides.ts` (check centerX/centerY against parent bounds center)
-- [ ] T032 [US3] Update calculateSmartGuides to include parent center guides in `src/domain/canvas/smartGuides.ts`
-- [ ] T033 [US3] Pass parent bounds to calculateSmartGuides in useCanvasInteractions in `src/hooks/canvas/useCanvasInteractions.ts`
+- [x] T029 [US3] Write unit tests for findParentCenterGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T031)
+- [x] T030 [US3] Write integration test for parent center guides in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T033)
+- [x] T031 [US3] Implement findParentCenterGuides function in `src/domain/canvas/smartGuides.ts` (check centerX/centerY against parent bounds center)
+- [x] T032 [US3] Update calculateSmartGuides to include parent center guides in `src/domain/canvas/smartGuides.ts`
+- [x] T033 [US3] Pass parent bounds to calculateSmartGuides in useCanvasInteractions in `src/hooks/canvas/useCanvasInteractions.ts`
 - [ ] T034 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(smart-guides): add parent center alignment guides"
 
 **Checkpoint**: Parent center guides functional

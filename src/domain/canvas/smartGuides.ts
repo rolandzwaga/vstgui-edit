@@ -95,16 +95,49 @@ export function findCenterAlignments(dragged: ViewBounds, siblings: ViewBounds[]
   return guides;
 }
 
-export function calculateSmartGuides(dragged: ViewBounds, siblings: ViewBounds[]): SmartGuide[] {
-  const filteredSiblings = siblings.filter(s => s.id !== dragged.id);
-
-  if (filteredSiblings.length === 0) {
+export function findParentCenterGuides(
+  dragged: ViewBounds,
+  parent: ViewBounds | null | undefined
+): SmartGuide[] {
+  if (!parent) {
     return [];
   }
 
-  const edgeGuides = findEdgeAlignments(dragged, filteredSiblings);
-  const centerGuides = findCenterAlignments(dragged, filteredSiblings);
-  const allGuides = [...edgeGuides, ...centerGuides];
+  const guides: SmartGuide[] = [];
+
+  if (isWithinThreshold(dragged.centerX - parent.centerX)) {
+    guides.push(createGuide('vertical', parent.centerX, 'parent-center', [dragged.id, parent.id]));
+  }
+
+  if (isWithinThreshold(dragged.centerY - parent.centerY)) {
+    guides.push(
+      createGuide('horizontal', parent.centerY, 'parent-center', [dragged.id, parent.id])
+    );
+  }
+
+  return guides;
+}
+
+export function calculateSmartGuides(
+  dragged: ViewBounds,
+  siblings: ViewBounds[],
+  parentBounds?: ViewBounds | null
+): SmartGuide[] {
+  const filteredSiblings = siblings.filter(s => s.id !== dragged.id);
+  const allGuides: SmartGuide[] = [];
+
+  if (filteredSiblings.length > 0) {
+    allGuides.push(...findEdgeAlignments(dragged, filteredSiblings));
+    allGuides.push(...findCenterAlignments(dragged, filteredSiblings));
+  }
+
+  if (parentBounds) {
+    allGuides.push(...findParentCenterGuides(dragged, parentBounds));
+  }
+
+  if (allGuides.length === 0) {
+    return [];
+  }
 
   const uniqueGuides = new Map<string, SmartGuide>();
   for (const guide of allGuides) {

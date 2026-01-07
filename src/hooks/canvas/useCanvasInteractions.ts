@@ -266,7 +266,12 @@ export function useCanvasInteractions(
 
           const siblings = views.filter(v => !selectedIds.has(v.id)).map(getViewBounds);
 
-          const guides = calculateSmartGuides(draggedBounds, siblings);
+          const parentView = anchorView.parentId
+            ? views.find(v => v.id === anchorView.parentId)
+            : undefined;
+          const parentBounds = parentView ? getViewBounds(parentView) : undefined;
+
+          const guides = calculateSmartGuides(draggedBounds, siblings, parentBounds);
           setActiveGuides(guides);
         }
       }

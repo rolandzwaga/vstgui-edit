@@ -7,6 +7,7 @@ import {
   createGuide,
   findEdgeAlignments,
   findCenterAlignments,
+  findParentCenterGuides,
   calculateSmartGuides,
   GUIDE_THRESHOLD,
 } from '../smartGuides';
@@ -399,5 +400,81 @@ describe('calculateSmartGuides', () => {
     const dragged = createBounds({ id: 'dragged', left: 100 });
     const guides = calculateSmartGuides(dragged, [dragged]);
     expect(guides).toEqual([]);
+  });
+});
+
+describe('findParentCenterGuides', () => {
+  const createBounds = (overrides: Partial<ViewBounds> = {}): ViewBounds => ({
+    id: 'test-view',
+    left: 100,
+    right: 200,
+    top: 50,
+    bottom: 150,
+    centerX: 150,
+    centerY: 100,
+    ...overrides,
+  });
+
+  test('returns empty array when no parent provided', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const guides = findParentCenterGuides(dragged, undefined);
+    expect(guides).toEqual([]);
+  });
+
+  test('returns empty array when parent is null', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const guides = findParentCenterGuides(dragged, null);
+    expect(guides).toEqual([]);
+  });
+
+  test('finds vertical guide when centerX aligns with parent centerX', () => {
+    const parent = createBounds({ id: 'parent', centerX: 200 });
+    const dragged = createBounds({ id: 'dragged', centerX: 200 });
+    const guides = findParentCenterGuides(dragged, parent);
+    const vertical = guides.filter(g => g.orientation === 'vertical' && g.position === 200);
+    expect(vertical.length).toBeGreaterThan(0);
+    expect(vertical[0].type).toBe('parent-center');
+  });
+
+  test('finds horizontal guide when centerY aligns with parent centerY', () => {
+    const parent = createBounds({ id: 'parent', centerY: 150 });
+    const dragged = createBounds({ id: 'dragged', centerY: 150 });
+    const guides = findParentCenterGuides(dragged, parent);
+    const horizontal = guides.filter(g => g.orientation === 'horizontal' && g.position === 150);
+    expect(horizontal.length).toBeGreaterThan(0);
+    expect(horizontal[0].type).toBe('parent-center');
+  });
+
+  test('finds alignment within threshold', () => {
+    const parent = createBounds({ id: 'parent', centerX: 200 });
+    const dragged = createBounds({ id: 'dragged', centerX: 202 });
+    const guides = findParentCenterGuides(dragged, parent);
+    expect(guides.length).toBeGreaterThan(0);
+  });
+
+  test('does not find alignment beyond threshold', () => {
+    const parent = createBounds({ id: 'parent', centerX: 200 });
+    const dragged = createBounds({ id: 'dragged', centerX: 210 });
+    const guides = findParentCenterGuides(dragged, parent);
+    const centerXGuides = guides.filter(g => g.position === 200);
+    expect(centerXGuides.length).toBe(0);
+  });
+
+  test('includes both dragged and parent IDs in participatingViewIds', () => {
+    const parent = createBounds({ id: 'parent-view', centerX: 200 });
+    const dragged = createBounds({ id: 'dragged-view', centerX: 200 });
+    const guides = findParentCenterGuides(dragged, parent);
+    expect(guides[0].participatingViewIds).toContain('dragged-view');
+    expect(guides[0].participatingViewIds).toContain('parent-view');
+  });
+
+  test('finds both centerX and centerY alignments', () => {
+    const parent = createBounds({ id: 'parent', centerX: 200, centerY: 150 });
+    const dragged = createBounds({ id: 'dragged', centerX: 200, centerY: 150 });
+    const guides = findParentCenterGuides(dragged, parent);
+    const vertical = guides.filter(g => g.orientation === 'vertical');
+    const horizontal = guides.filter(g => g.orientation === 'horizontal');
+    expect(vertical.length).toBeGreaterThan(0);
+    expect(horizontal.length).toBeGreaterThan(0);
   });
 });

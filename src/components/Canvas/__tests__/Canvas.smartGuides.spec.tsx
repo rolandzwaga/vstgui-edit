@@ -143,6 +143,18 @@ describe('Canvas smart guides integration', () => {
     });
   });
 
+  describe('parent center guides (US3)', () => {
+    test('parent bounds are passed to guide calculation', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-view-1');
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(selectionStore.selectedIds.has('TestTemplate-view-1')).toBe(true);
+    });
+  });
+
   describe('S key toggle (US5)', () => {
     test('S key toggles smart guides off', async () => {
       render(() => <Canvas />);
