@@ -61,20 +61,21 @@ specs/015-smart-guides/
 src/
 ├── domain/
 │   └── canvas/
-│       └── smartGuides.ts         # NEW: Guide calculation utilities
+│       └── smartGuides.ts              # NEW: Guide calculation utilities
 ├── stores/
-│   └── smartGuidesStore.ts        # NEW: Smart guides state store
+│   └── smartGuidesStore.ts             # NEW: Smart guides state store
 ├── components/
 │   └── Canvas/
-│       └── SmartGuideLines.tsx    # NEW: SVG guide line rendering
+│       ├── SmartGuideLines.tsx         # NEW: SVG guide line rendering
+│       └── SmartGuideLines.module.css  # NEW: Spacing label styles
 ├── hooks/
 │   └── canvas/
-│       ├── useCanvasKeyboard.ts   # MODIFY: Add S key handler
-│       └── useCanvasInteractions.ts # MODIFY: Calculate guides during drag
+│       ├── useCanvasKeyboard.ts        # MODIFY: Add S key handler
+│       └── useCanvasInteractions.ts    # MODIFY: Calculate guides during drag
 ├── types/
-│   └── smartGuides.ts             # NEW: Smart guide type definitions
+│   └── smartGuides.ts                  # NEW: Smart guide type definitions
 └── styles/
-    └── tokens.css                 # MODIFY: Add guide color tokens
+    └── tokens.css                      # MODIFY: Add guide color tokens
 ```
 
 **Structure Decision**: Follows existing canvas domain pattern - calculation utilities in `domain/canvas/`, transient state in `stores/`, SVG rendering in `components/Canvas/`, keyboard handling in hooks.
