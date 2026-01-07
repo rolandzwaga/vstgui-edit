@@ -25,7 +25,7 @@
 - [ ] T002 [P] Create color validation utilities tests in `src/domain/colors/__tests__/validation.spec.ts`
 - [ ] T003 [P] Create color parsing utilities tests in `src/domain/colors/__tests__/parsing.spec.ts`
 - [ ] T004 [P] Create color formatting utilities tests in `src/domain/colors/__tests__/formatting.spec.ts`
-- [ ] T005 Implement color validation utilities in `src/domain/colors/validation.ts`
+- [ ] T005 Implement color validation utilities in `src/domain/colors/validation.ts` (FR-006, FR-007, FR-021-024 format preservation)
 - [ ] T006 [P] Implement color parsing utilities in `src/domain/colors/parsing.ts`
 - [ ] T007 [P] Implement color formatting utilities in `src/domain/colors/formatting.ts`
 - [ ] T008 Create barrel export in `src/domain/colors/index.ts`
@@ -213,7 +213,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T067 [P] Add ARIA labels and keyboard navigation for accessibility
-- [ ] T068 [P] Add predefined colors (~ prefix) display with read-only indicator
+- [ ] T068 [P] Add predefined colors (~ prefix) display with read-only indicator (FR-025)
 - [ ] T069 [P] Update CLAUDE.md with new ColorsPanel utilities and patterns
 - [ ] T070 Run `npm run test` to verify all tests pass
 - [ ] T071 **Commit**: Stage and commit Polish phase changes with message "feat(021): polish colors panel accessibility and predefined colors"
@@ -270,8 +270,8 @@
 - **User Story 1 (P1)**: Can start after Foundational - No dependencies on other stories
 - **User Story 2 (P1)**: Can start after US1 (needs ColorItem component) 
 - **User Story 3 (P1)**: Can start after US2 (extends ColorItem with edit mode)
-- **User Story 4 (P2)**: Depends on usage tracking from US5 (implement together)
-- **User Story 5 (P2)**: Can start after US1-US3 complete
+- **User Story 4 (P2)**: Can start after US1-US3 complete - implements usage.ts for delete confirmation
+- **User Story 5 (P2)**: Can start after US4 (reuses usage.ts, adds UI for viewing usages)
 - **User Story 6 (P2)**: Verification story - can start after all CRUD operations exist
 
 ### Within Each User Story

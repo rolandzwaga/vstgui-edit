@@ -50,8 +50,8 @@ As a UI designer, I want to modify existing colors, so that I can refine my colo
 
 **Acceptance Scenarios**:
 
-1. **Given** a color exists in the panel, **When** user clicks on the color name, **Then** the name becomes editable inline
-2. **Given** a color exists in the panel, **When** user clicks on the hex value, **Then** the hex value becomes editable inline with live swatch preview
+1. **Given** a color exists in the panel, **When** user double-clicks on the color name, **Then** the name becomes editable inline
+2. **Given** a color exists in the panel, **When** user double-clicks on the hex value, **Then** the hex value becomes editable inline with live swatch preview
 3. **Given** user edits a color name to a duplicate, **When** user tries to confirm, **Then** validation error is shown and name reverts
 4. **Given** user is editing a color, **When** user presses Escape, **Then** edits are cancelled and original values restored
 
@@ -115,9 +115,9 @@ As a UI designer, I want to undo and redo color changes, so that I can experimen
 - **Alpha channel handling**: User enters "#ff000080" (50% transparent red) - display swatch with transparency
 - **Empty color name**: User tries to save color without a name - show validation error
 - **Special characters in name**: User enters "Background Color" with space - allow (VSTGUI supports this)
-- **Very long color names**: User enters extremely long name - truncate display with tooltip, allow in data
-- **Case sensitivity**: "#FF0000" vs "#ff0000" - treat as equivalent (normalize on save)
-- **Predefined colors**: Handle `~ BlackCColor` format - display differently (read-only or special indicator)
+- **Very long color names**: User enters extremely long name - no storage limit, truncate display at ~30 characters with full name in tooltip
+- **Case sensitivity**: Color **names** are case-sensitive ("Background" ≠ "background"). Color **hex values** are case-insensitive ("#FF0000" = "#ff0000") - normalize to lowercase on save
+- **Predefined colors**: Handle `~ BlackCColor` format - display with read-only indicator (lock icon or muted styling), prevent editing/deletion. Show predefined colors in a separate section or with distinct visual treatment
 
 ## Requirements *(mandatory)*
 
@@ -167,6 +167,7 @@ As a UI designer, I want to undo and redo color changes, so that I can experimen
 - **FR-022**: System MUST support #RRGGBB format (standard 6-digit hex)
 - **FR-023**: System MUST support #RRGGBBAA format (8-digit hex with alpha)
 - **FR-024**: System MUST preserve the original format used in the uidesc file when possible
+- **FR-025**: System MUST display predefined colors (~ prefix) with read-only indicator and prevent modification
 
 ### Key Entities
 
@@ -228,6 +229,7 @@ As a UI designer, I want to undo and redo color changes, so that I can experimen
 | FR-022 | ⬜ PENDING | [Test or file that verifies this] |
 | FR-023 | ⬜ PENDING | [Test or file that verifies this] |
 | FR-024 | ⬜ PENDING | [Test or file that verifies this] |
+| FR-025 | ⬜ PENDING | [Test or file that verifies this] |
 | SC-001 | ⬜ PENDING | [Measurement or test result] |
 | SC-002 | ⬜ PENDING | [Measurement or test result] |
 | SC-003 | ⬜ PENDING | [Measurement or test result] |
