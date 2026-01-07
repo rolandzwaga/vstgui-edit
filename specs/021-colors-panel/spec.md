@@ -205,52 +205,52 @@ As a UI designer, I want to undo and redo color changes, so that I can experimen
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-014 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-016 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-017 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-018 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-019 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-020 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-021 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-022 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-023 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-024 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-025 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
-| SC-006 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | ColorsPanel.tsx added to App.tsx sidebar |
+| FR-002 | ✅ MET | ColorsPanel.spec.tsx - "should render color items" |
+| FR-003 | ✅ MET | ColorSwatch.tsx with checkerboard pattern |
+| FR-004 | ✅ MET | ColorSwatch.spec.tsx - "should show checkerboard for transparency" |
+| FR-005 | ✅ MET | AddColorButton.tsx, ColorsPanel.add.spec.tsx |
+| FR-006 | ✅ MET | ColorItem.validation.spec.tsx - "should show error for duplicate name" |
+| FR-007 | ✅ MET | validation.spec.ts - hex format tests |
+| FR-008 | ✅ MET | documentStore.colors.spec.ts - addColor tests |
+| FR-009 | ✅ MET | ColorItem.edit.spec.tsx - name editing tests |
+| FR-010 | ✅ MET | ColorItem.edit.spec.tsx - value editing tests |
+| FR-011 | ✅ MET | ColorItem.tsx previewColor() function |
+| FR-012 | ✅ MET | ColorItem.validation.spec.tsx tests |
+| FR-013 | ✅ MET | ColorItem.delete.spec.tsx - delete button tests |
+| FR-014 | ✅ MET | ColorsPanel.tsx - pendingDelete confirmation dialog |
+| FR-015 | ✅ MET | ColorsPanel.tsx - confirm-delete button |
+| FR-016 | ✅ MET | usage.spec.ts - findColorUsages tests |
+| FR-017 | ✅ MET | ColorItem.usage.spec.tsx - usage badge tests |
+| FR-018 | ✅ MET | ColorsPanel.tsx - usagePopover with view list |
+| FR-019 | ✅ MET | ColorsPanel.history.spec.tsx - pushOperation tests |
+| FR-020 | ✅ MET | historyOperations.ts - all CRUD operations |
+| FR-021 | ✅ MET | validation.spec.ts - "#f00" shorthand support |
+| FR-022 | ✅ MET | validation.spec.ts - "#RRGGBB" format support |
+| FR-023 | ✅ MET | validation.spec.ts - "#RRGGBBAA" format support |
+| FR-024 | ✅ MET | Values stored as-is in documentStore |
+| FR-025 | ✅ MET | ColorItem isReadOnly prop (predefined colors) |
+| SC-001 | ✅ MET | Synchronous memo update on document load |
+| SC-002 | ✅ MET | addColor updates store immediately |
+| SC-003 | ✅ MET | previewColor() reactive to input changes |
+| SC-004 | ✅ MET | usage.spec.ts - all view scanning tests pass |
+| SC-005 | ✅ MET | historyOperations.spec.ts - all undo/redo ops |
+| SC-006 | ✅ MET | validation.spec.ts - error message tests |
 
 **⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Quality Gate - CSS**: Run `npm run lint:css` - PASS (0 errors)
+- [x] **Quality Gate - Code**: Run `npm run check` - PASS (0 errors)
+- [x] **Quality Gate - Types**: Run `npm run typecheck` - PASS (0 errors)
+- [x] **Git Status Check**: Working tree clean
+- [x] **Commit Any Remaining Work**: All changes committed
+- [x] **Confirm Clean Working Tree**: `git status` shows "nothing to commit, working tree clean"
+- [x] **Update Documentation**: Domain utilities documented in code, AGENTS.md auto-generated
 
 **⚠️ CRITICAL**: The feature is NOT complete until:
 1. All quality gates pass (lint:css, check, typecheck) with zero errors/warnings
