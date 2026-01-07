@@ -75,7 +75,7 @@ export interface DropInfo {
   isValid: boolean;
 
   /** If invalid, reason why */
-  invalidReason?: 'self-drop' | 'circular' | 'non-container' | 'different-parents';
+  invalidReason?: 'self-drop' | 'circular' | 'non-container' | 'different-parents' | 'no-parent';
 }
 
 /**

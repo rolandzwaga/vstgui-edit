@@ -2,10 +2,9 @@ import { type Component, For, Show } from 'solid-js';
 import { FontAwesomeIcon } from 'solid-fontawesome';
 import {
   createMultiReorderOperation,
-  createMultiReparentOperation,
   getDropPosition,
 } from '../../domain/hierarchy';
-import { reparentView, reorderView } from '../../stores/documentStore';
+import { getParentId, reparentView, reorderView } from '../../stores/documentStore';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { pushOperation } from '../../stores/historyStore';
 import { isSelected, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
@@ -30,11 +29,9 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
 
   const isDragging = () => dragState.isDragging && dragState.draggedIds.includes(props.node.id);
   const isDropTarget = () => dragState.dropTargetId === props.node.id;
-  const isValidDropTarget = () => isDropTarget() && dragState.isValidDrop;
   const isInvalidDropTarget = () => isDropTarget() && !dragState.isValidDrop;
   const isDropBefore = () => isDropTarget() && dragState.dropPosition === 'before' && dragState.isValidDrop;
   const isDropAfter = () => isDropTarget() && dragState.dropPosition === 'after' && dragState.isValidDrop;
-  const isDropInside = () => isDropTarget() && dragState.dropPosition === 'inside' && dragState.isValidDrop;
 
   const handleToggle = (e: MouseEvent) => {
     e.stopPropagation();
@@ -120,49 +117,17 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     const targetId = props.node.id;
     const position = dragState.dropPosition;
     const draggedIds = [...dragState.draggedIds];
+    const targetParentId = getParentId(targetId);
 
-    if (position === 'inside') {
-      const multiOp = createMultiReparentOperation(draggedIds, targetId);
-      if (multiOp) {
-        const results: Array<{ viewId: string; oldParentId: string; oldIndex: number; oldOrigin: string; newOrigin: string }> = [];
+    if (!targetParentId || !position) {
+      dragActions.endDrag();
+      return;
+    }
 
-        for (const op of multiOp.operations) {
-          const result = reparentView(op.viewId, targetId, undefined, op.newOrigin);
-          if (result) {
-            results.push({
-              viewId: op.viewId,
-              oldParentId: op.oldParentId,
-              oldIndex: op.oldIndex,
-              oldOrigin: op.oldOrigin,
-              newOrigin: op.newOrigin,
-            });
-          }
-        }
+    const firstDraggedParentId = getParentId(draggedIds[0]);
+    const isSameParent = firstDraggedParentId === targetParentId;
 
-        if (results.length > 0) {
-          const capturedResults = [...results];
-          const capturedTargetId = targetId;
-          const count = results.length;
-
-          pushOperation({
-            type: 'reparent',
-            description: count === 1 ? 'Reparent view' : `Reparent ${count} views`,
-            timestamp: Date.now(),
-            undo: () => {
-              for (let i = capturedResults.length - 1; i >= 0; i--) {
-                const r = capturedResults[i];
-                reparentView(r.viewId, r.oldParentId, r.oldIndex, r.oldOrigin);
-              }
-            },
-            redo: () => {
-              for (const r of capturedResults) {
-                reparentView(r.viewId, capturedTargetId, undefined, r.newOrigin);
-              }
-            },
-          });
-        }
-      }
-    } else if (position === 'before' || position === 'after') {
+    if (isSameParent) {
       const multiOp = createMultiReorderOperation(draggedIds, targetId, position);
       if (multiOp) {
         const results: Array<{ viewId: string; oldIndex: number; newIndex: number }> = [];
@@ -200,6 +165,44 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
           });
         }
       }
+    } else {
+      const results: Array<{ viewId: string; oldParentId: string; oldIndex: number; oldOrigin: string; newOrigin: string }> = [];
+
+      for (const viewId of draggedIds) {
+        const result = reparentView(viewId, targetParentId);
+        if (result) {
+          results.push({
+            viewId,
+            oldParentId: result.oldParentId,
+            oldIndex: result.oldIndex,
+            oldOrigin: result.oldOrigin,
+            newOrigin: result.newOrigin,
+          });
+        }
+      }
+
+      if (results.length > 0) {
+        const capturedResults = [...results];
+        const capturedTargetParentId = targetParentId;
+        const count = results.length;
+
+        pushOperation({
+          type: 'reparent',
+          description: count === 1 ? 'Move view' : `Move ${count} views`,
+          timestamp: Date.now(),
+          undo: () => {
+            for (let i = capturedResults.length - 1; i >= 0; i--) {
+              const r = capturedResults[i];
+              reparentView(r.viewId, r.oldParentId, r.oldIndex, r.oldOrigin);
+            }
+          },
+          redo: () => {
+            for (const r of capturedResults) {
+              reparentView(r.viewId, capturedTargetParentId, undefined, r.newOrigin);
+            }
+          },
+        });
+      }
     }
 
     dragActions.endDrag();
@@ -209,7 +212,6 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     const classes = [styles.row];
     if (selected()) classes.push(styles.selected);
     if (isDragging()) classes.push(styles.dragging);
-    if (isDropInside()) classes.push(styles.dropTarget);
     if (isDropBefore()) classes.push(styles.dropBefore);
     if (isDropAfter()) classes.push(styles.dropAfter);
     if (isInvalidDropTarget()) classes.push(styles.dropInvalid);

@@ -5,7 +5,9 @@ import {
   createMockView,
 } from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
-import { reset, setDocumentForTest } from '../../../stores/documentStore';
+import { getView, reset, setDocumentForTest } from '../../../stores/documentStore';
+import type { VSTGUIUIDescription } from '../../../types/uidesc';
+import { parseUidesc } from '../../parser';
 import {
   calculateNewOrigin,
   createMultiReparentOperation,
@@ -385,6 +387,47 @@ describe('reparent domain logic', () => {
 
         const result = createMultiReparentOperation([], 'MainView-target');
         expect(result).toBeNull();
+      }));
+  });
+
+  describe('XML document validation', () => {
+    it('should validate reparent with XML-parsed document (view_N keys)', () =>
+      testInRoot(() => {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<vstgui-ui-description version="1">
+  <template name="MainView" class="CViewContainer" origin="0, 0" size="800, 600">
+    <view class="CTextLabel" origin="10, 10" size="100, 30" title="Label"/>
+    <view class="CViewContainer" origin="120, 10" size="200, 200">
+      <view class="CTextButton" origin="5, 5" size="50, 20" title="Button"/>
+    </view>
+  </template>
+</vstgui-ui-description>`;
+
+        const parseResult = parseUidesc(xml);
+        expect(parseResult.success).toBe(true);
+        if (!parseResult.success) return;
+
+        setDocumentForTest(parseResult.document);
+
+        const doc = parseResult.document as VSTGUIUIDescription;
+        const mainView = doc['vstgui-ui-description'].templates?.MainView;
+        const childKeys = mainView?.children ? Object.keys(mainView.children) : [];
+
+        expect(childKeys).toContain('view_0');
+        expect(childKeys).toContain('view_1');
+
+        const containerId = 'MainView-view_1';
+        const container = getView(containerId);
+        expect(container).not.toBeNull();
+        expect(container?.attributes.class).toBe('CViewContainer');
+
+        const labelId = 'MainView-view_0';
+        const label = getView(labelId);
+        expect(label).not.toBeNull();
+        expect(label?.attributes.class).toBe('CTextLabel');
+
+        const result = validateReparent(labelId, containerId);
+        expect(result.isValid).toBe(true);
       }));
   });
 });

@@ -125,7 +125,7 @@ describe('useHierarchyDrag', () => {
         expect(state.isValidDrop).toBe(false);
       }));
 
-    it('should set invalid drop target for non-container', () =>
+    it('should allow dropping next to non-container (inserts as sibling)', () =>
       testInRoot(() => {
         const doc = createMockDocument({
           templates: {
@@ -141,10 +141,10 @@ describe('useHierarchyDrag', () => {
 
         const [state, actions] = createHierarchyDragState();
         actions.startDrag(['MainView-container-child']);
-        actions.updateDropTarget('MainView-leaf', 'inside');
+        actions.updateDropTarget('MainView-leaf', 'before');
 
         expect(state.dropTargetId).toBe('MainView-leaf');
-        expect(state.isValidDrop).toBe(false);
+        expect(state.isValidDrop).toBe(true);
       }));
 
     it('should clear drop target when targetId is null', () =>

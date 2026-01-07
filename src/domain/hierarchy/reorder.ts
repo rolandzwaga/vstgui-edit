@@ -20,14 +20,32 @@ export function validateReorder(
   return { targetId, position, isValid: true };
 }
 
-export function getDropPosition(offsetY: number, elementHeight: number): DropPosition {
-  const thirdHeight = elementHeight / 3;
+export function validateDrop(
+  viewId: string,
+  targetId: string,
+  position: DropPosition | null
+): DropInfo {
+  const pos = position ?? 'after';
 
-  if (offsetY < thirdHeight) {
-    return 'before';
+  if (viewId === targetId) {
+    return { targetId, position: pos, isValid: false, invalidReason: 'self-drop' };
   }
-  if (offsetY < thirdHeight * 2) {
-    return 'inside';
+
+  const targetParentId = getParentId(targetId);
+  if (!targetParentId) {
+    return { targetId, position: pos, isValid: false, invalidReason: 'no-parent' };
+  }
+
+  if (targetId.startsWith(`${viewId}-`)) {
+    return { targetId, position: pos, isValid: false, invalidReason: 'circular' };
+  }
+
+  return { targetId, position: pos, isValid: true };
+}
+
+export function getDropPosition(offsetY: number, elementHeight: number): DropPosition {
+  if (offsetY < elementHeight / 2) {
+    return 'before';
   }
   return 'after';
 }

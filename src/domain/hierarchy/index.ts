@@ -15,6 +15,7 @@ export {
   createMultiReorderOperation,
   createReorderOperation,
   getDropPosition,
+  validateDrop,
   validateReorder,
 } from './reorder';
 export type { MultiReparentOperation } from './reparent';

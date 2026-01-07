@@ -107,31 +107,27 @@ describe('reorder domain logic', () => {
   });
 
   describe('getDropPosition', () => {
-    it('should return before when in top third of element', () => {
+    it('should return before when in top half of element', () => {
       const result = getDropPosition(5, 30);
       expect(result).toBe('before');
     });
 
-    it('should return inside when in middle third of element', () => {
-      const result = getDropPosition(15, 30);
-      expect(result).toBe('inside');
-    });
-
-    it('should return after when in bottom third of element', () => {
-      const result = getDropPosition(25, 30);
+    it('should return after when in bottom half of element', () => {
+      const result = getDropPosition(20, 30);
       expect(result).toBe('after');
     });
 
     it('should handle edge cases at boundaries', () => {
       expect(getDropPosition(0, 30)).toBe('before');
-      expect(getDropPosition(10, 30)).toBe('inside');
-      expect(getDropPosition(20, 30)).toBe('after');
+      expect(getDropPosition(14, 30)).toBe('before');
+      expect(getDropPosition(15, 30)).toBe('after');
       expect(getDropPosition(30, 30)).toBe('after');
     });
 
     it('should handle small heights', () => {
       expect(getDropPosition(0, 10)).toBe('before');
-      expect(getDropPosition(5, 10)).toBe('inside');
+      expect(getDropPosition(4, 10)).toBe('before');
+      expect(getDropPosition(5, 10)).toBe('after');
       expect(getDropPosition(9, 10)).toBe('after');
     });
   });

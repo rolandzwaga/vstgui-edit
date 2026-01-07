@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { PALETTE_CATEGORIES, VIEW_CLASSES } from '../domain/views/viewClasses';
 import type { PaletteCategoryId } from '../types/views';
 
@@ -9,13 +9,13 @@ const [expandedCategories, setExpandedCategories] = createSignal<Set<PaletteCate
 );
 const [searchQuery, setSearchQuerySignal] = createSignal('');
 
-const filteredClasses = createMemo(() => {
+function getFilteredClasses(): string[] {
   const query = searchQuery().toLowerCase().trim();
   if (!query) {
     return Object.keys(VIEW_CLASSES);
   }
   return Object.keys(VIEW_CLASSES).filter(className => className.toLowerCase().includes(query));
-});
+}
 
 export const paletteStore = {
   get expandedCategories() {
@@ -25,7 +25,7 @@ export const paletteStore = {
     return searchQuery();
   },
   get filteredClasses() {
-    return filteredClasses();
+    return getFilteredClasses();
   },
 };
 
