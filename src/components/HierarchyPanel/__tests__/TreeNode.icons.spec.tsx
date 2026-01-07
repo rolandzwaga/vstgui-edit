@@ -4,7 +4,15 @@ import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { resetHierarchy } from '../../../stores/hierarchyStore';
 import { resetSelection } from '../../../stores/selectionStore';
 import { TreeNode } from '../TreeNode';
+import { HierarchyDragProvider } from '../HierarchyDragContext';
 import type { TreeNode as TreeNodeType } from '../../../types/hierarchy';
+
+const renderTreeNode = (node: TreeNodeType) =>
+  render(() => (
+    <HierarchyDragProvider>
+      <TreeNode node={node} />
+    </HierarchyDragProvider>
+  ));
 
 describe('TreeNode icons', () => {
   const createNode = (overrides: Partial<TreeNodeType> = {}): TreeNodeType => ({
@@ -28,7 +36,7 @@ describe('TreeNode icons', () => {
     it('should render folder icon', () => {
       const node = createNode({ category: 'container' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const icon = screen.getByTestId('icon-test-node');
       expect(icon).toBeInTheDocument();
@@ -40,7 +48,7 @@ describe('TreeNode icons', () => {
     it('should render sliders icon', () => {
       const node = createNode({ category: 'control', label: 'CSlider' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const icon = screen.getByTestId('icon-test-node');
       expect(icon).toBeInTheDocument();
@@ -52,7 +60,7 @@ describe('TreeNode icons', () => {
     it('should render font icon', () => {
       const node = createNode({ category: 'display', label: 'CTextLabel' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const icon = screen.getByTestId('icon-test-node');
       expect(icon).toBeInTheDocument();
@@ -64,7 +72,7 @@ describe('TreeNode icons', () => {
     it('should render puzzle-piece icon', () => {
       const node = createNode({ category: 'custom', label: 'MyCustomView' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const icon = screen.getByTestId('icon-test-node');
       expect(icon).toBeInTheDocument();

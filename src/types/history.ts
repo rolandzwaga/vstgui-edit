@@ -10,7 +10,17 @@ import type { Point } from './canvas';
  * Generic interface that can support future operation types beyond 'move'.
  */
 export interface HistoryOperation {
-  type: 'move' | 'resize' | 'property-change' | 'delete' | 'create' | 'duplicate';
+  type:
+    | 'move'
+    | 'resize'
+    | 'property-change'
+    | 'delete'
+    | 'create'
+    | 'duplicate'
+    | 'reparent'
+    | 'reorder'
+    | 'group'
+    | 'ungroup';
   description: string;
   undo: () => void;
   redo: () => void;

@@ -94,3 +94,26 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.dragging {
+  opacity: 0.5;
+}
+
+.dropTarget {
+  background-color: var(--color-primary, #0066cc);
+  color: #fff;
+}
+
+.dropTarget:hover {
+  background-color: var(--color-primary, #0066cc);
+}
+
+.dropInvalid {
+  background-color: var(--color-error, #dc2626);
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.dropInvalid:hover {
+  background-color: var(--color-error, #dc2626);
+}

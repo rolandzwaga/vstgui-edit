@@ -3,7 +3,15 @@ import { render, screen } from '@solidjs/testing-library';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { expandAll, resetHierarchy } from '../../../stores/hierarchyStore';
 import { TreeNode } from '../TreeNode';
+import { HierarchyDragProvider } from '../HierarchyDragContext';
 import type { TreeNode as TreeNodeType } from '../../../types/hierarchy';
+
+const renderTreeNode = (node: TreeNodeType) =>
+  render(() => (
+    <HierarchyDragProvider>
+      <TreeNode node={node} />
+    </HierarchyDragProvider>
+  ));
 
 describe('TreeNode', () => {
   const createNode = (overrides: Partial<TreeNodeType> = {}): TreeNodeType => ({
@@ -26,7 +34,7 @@ describe('TreeNode', () => {
     it('should render the label text', () => {
       const node = createNode({ label: 'CTextButton' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.getByText('CTextButton')).toBeInTheDocument();
     });
@@ -36,7 +44,7 @@ describe('TreeNode', () => {
     it('should have no indentation', () => {
       const node = createNode({ depth: 0 });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveStyle({ paddingLeft: '0px' });
@@ -47,7 +55,7 @@ describe('TreeNode', () => {
     it('should have indentation based on depth', () => {
       const node = createNode({ depth: 2 });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveStyle({ paddingLeft: '32px' });
@@ -68,7 +76,7 @@ describe('TreeNode', () => {
         ],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.getByText('ChildOne')).toBeInTheDocument();
       expect(screen.getByText('ChildTwo')).toBeInTheDocument();
@@ -79,7 +87,7 @@ describe('TreeNode', () => {
     it('should have role="treeitem"', () => {
       const node = createNode();
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveAttribute('role', 'treeitem');
@@ -88,7 +96,7 @@ describe('TreeNode', () => {
     it('should not have aria-expanded for leaf nodes', () => {
       const node = createNode({ hasChildren: false });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).not.toHaveAttribute('aria-expanded');
