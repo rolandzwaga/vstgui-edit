@@ -180,42 +180,42 @@ As a user, I want to drag a view class from the palette onto the canvas to creat
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-014 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-016 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-017 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-018 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-019 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-020 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-021 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-022 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-023 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-024 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-025 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-026 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-027 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-028 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-029 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
-| SC-006 | ⬜ PENDING | [Measurement or test result] |
-| SC-007 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | `useCanvasKeyboard.spec.ts`: "should delete selected views on Delete key", "should delete selected views on Backspace key" |
+| FR-002 | ✅ MET | `viewOperations.spec.ts`: "should delete container with all children" |
+| FR-003 | ✅ MET | `viewOperations.spec.ts`: "should integrate with history store for undo/redo" |
+| FR-004 | ✅ MET | `viewOperations.spec.ts`: "should return empty array when no views are selected" |
+| FR-005 | ✅ MET | `useCanvasKeyboard.spec.ts`: "should duplicate selected views on Ctrl+D" |
+| FR-006 | ✅ MET | `viewOperations.spec.ts`: "should duplicate a single selected view with 10px offset" |
+| FR-007 | ✅ MET | `viewOperations.spec.ts`: "should duplicate container with all children" |
+| FR-008 | ✅ MET | `documentStore.ts`: `duplicateView()` uses `cloneViewNode()` to preserve all attributes |
+| FR-009 | ✅ MET | `viewOperations.spec.ts`: "should select duplicated views after duplication" |
+| FR-010 | ✅ MET | `viewOperations.spec.ts`: "should undo duplication by removing duplicated views" |
+| FR-011 | ✅ MET | `viewOperations.spec.ts`: "should copy a selected view to clipboard" |
+| FR-012 | ✅ MET | `viewOperations.spec.ts`: "should copy and delete selected views" (cutSelectedViews) |
+| FR-013 | ✅ MET | `useCanvasKeyboard.spec.ts`: "should paste views on Ctrl+V" |
+| FR-014 | ✅ MET | `viewOperations.spec.ts`: "should paste views from clipboard with offset" |
+| FR-015 | ✅ MET | `viewOperations.spec.ts`: "should increment paste offset on multiple pastes" |
+| FR-016 | ✅ MET | `serialization.ts`: `serializeView()` and `deserializeView()` handle nested children |
+| FR-017 | ✅ MET | `viewOperations.ts`: `pasteViews()` calls `selectAll(pastedIds)` |
+| FR-018 | ✅ MET | `viewOperations.spec.ts`: "should undo paste by removing pasted views" |
+| FR-019 | ✅ MET | `ViewPalette.spec.tsx`: "renders all categories" - 5 categories with 32 view classes |
+| FR-020 | ✅ MET | `viewClasses.ts`: `PALETTE_CATEGORIES` defines Containers, Controls, Displays, Text Input, Animation |
+| FR-021 | ✅ MET | `PaletteCategory.spec.tsx`: "toggles expansion on click", "toggles expansion on Enter key" |
+| FR-022 | ✅ MET | `ViewPalette.spec.tsx`: "filters items when searching", "search is case-insensitive" |
+| FR-023 | ✅ MET | `PaletteItem.tsx`: `draggable="true"` with `onDragStart` handler |
+| FR-024 | ⚠️ PARTIAL | `Canvas.module.css`: `.dropTarget` shows dashed outline; ghost preview not implemented |
+| FR-025 | ✅ MET | `viewOperations.spec.ts`: "should create a view with default size" using `findContainerAtPoint()` |
+| FR-026 | ✅ MET | `viewDefaults.ts`: `getDefaultSize()` returns sensible defaults per view class |
+| FR-027 | ✅ MET | `viewOperations.spec.ts`: "should select the new view after creation" |
+| FR-028 | ✅ MET | `viewOperations.spec.ts`: "should undo creation by removing the view" |
+| FR-029 | ✅ MET | `idGenerator.ts`: `generateViewId()` creates unique IDs; `documentStore.ts` uses `generateChildKey()` |
+| SC-001 | ✅ MET | Delete key triggers immediate deletion via keyboard event handler |
+| SC-002 | ✅ MET | Ctrl+D triggers immediate duplication via keyboard event handler |
+| SC-003 | ✅ MET | Ctrl+C and Ctrl+V work via keyboard event handlers |
+| SC-004 | ✅ MET | Drag-drop creates view on mouse release |
+| SC-005 | ✅ MET | All operations create history operations with undo functions |
+| SC-006 | ✅ MET | `viewClasses.ts`: 32 view classes across 5 categories |
+| SC-007 | ✅ MET | `paletteStore.ts`: `filteredClasses` computed memo updates on search input |
 
 **⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
 
