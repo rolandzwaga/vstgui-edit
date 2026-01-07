@@ -164,6 +164,11 @@
   --color-tooltip-background: var(--color-neutral-800);
   --color-tooltip-text: var(--color-neutral-50);
   --color-tooltip-border: var(--color-neutral-700);
+
+  /* Smart Guide Colors */
+  --color-smart-guide: #ff00ff;
+  --color-smart-guide-label-bg: rgba(255, 0, 255, 0.9);
+  --color-smart-guide-label-text: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
