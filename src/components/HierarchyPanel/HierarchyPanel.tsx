@@ -51,6 +51,9 @@ export const HierarchyPanel: Component = () => {
 
   return (
     <div class={styles.panel} data-testid="hierarchy-panel">
+      <div class={styles.header}>
+        <span class={styles.title}>Hierarchy</span>
+      </div>
       <Show when={tree()} fallback={<EmptyState />}>
         {(treeNode) => (
           <div role="tree" aria-label="View hierarchy" class={styles.tree}>

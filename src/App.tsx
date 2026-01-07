@@ -35,8 +35,8 @@ export default function App() {
         <>
           <div style={{ display: 'flex', "min-height": '100vh' }}>
             <div style={{ display: 'flex', "flex-direction": 'column', width: '240px', "min-width": '200px', "max-width": '320px', "border-right": '1px solid var(--color-border, #e0e0e0)', "flex-shrink": 0 }}>
-              <HierarchyPanel />
               <ViewPalette />
+              <HierarchyPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
               <MainToolbar onFitToView={handleFitToView} />
