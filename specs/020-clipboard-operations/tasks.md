@@ -146,19 +146,19 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T039 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T040 [P] [US5] Test: paste at mouse pointer centers view group at pointer position when pointer is inside container in `src/domain/canvas/__tests__/viewOperations.spec.ts`
-- [ ] T040b [P] [US5] Test: paste falls back to offset logic when pointer is outside container bounds in `src/domain/canvas/__tests__/viewOperations.spec.ts`
+- [x] T039 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T040 [P] [US5] Test: paste at mouse pointer centers view group at pointer position when pointer is inside container in `src/domain/canvas/__tests__/viewOperations.spec.ts`
+- [x] T040b [P] [US5] Test: paste falls back to offset logic when pointer is outside container bounds in `src/domain/canvas/__tests__/viewOperations.spec.ts`
 
 ### Implementation for User Story 5
 
-- [ ] T041 [US5] Add mouse pointer position tracking for paste operations in `src/stores/canvasStore.ts` or create `src/stores/pointerStore.ts`
-- [ ] T042 [US5] Update `pasteViews()` to accept optional pointer position parameter in `src/domain/canvas/viewOperations.ts`
-- [ ] T042b [US5] Add bounds check: only use pointer position if inside main container, otherwise use offset logic
-- [ ] T043 [US5] Wire mouse pointer position from keyboard handler to paste in `src/hooks/canvas/useCanvasKeyboard.ts`
+- [x] T041 [US5] Add mouse pointer position tracking (local signal in Canvas component - no global store needed)
+- [x] T042 [US5] Update `pasteViews()` to accept optional pointer position parameter in `src/domain/canvas/viewOperations.ts`
+- [x] T042b [US5] Add bounds check: only use pointer position if inside main container, otherwise use offset logic
+- [x] T043 [US5] Wire mouse pointer position from keyboard handler to paste in `src/hooks/canvas/useCanvasKeyboard.ts`
 - [ ] T044 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
 
-**Checkpoint**: Mouse pointer paste functional (P3 - can defer if needed)
+**Checkpoint**: Mouse pointer paste functional
 
 ---
 

@@ -1063,6 +1063,132 @@ describe('viewOperations', () => {
     });
   });
 
+  describe('pasteViews with pointer position (US5)', () => {
+    it('should paste at pointer position when pointer is inside template bounds', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 400, y: 300 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        const origin = pastedView?.attributes.origin?.split(', ').map(Number);
+        expect(origin?.[0]).toBe(375);
+        expect(origin?.[1]).toBe(290);
+      });
+    });
+
+    it('should fall back to offset paste when pointer is outside template bounds', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 900, y: 700 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        expect(pastedView?.attributes.origin).toBe('110, 110');
+      });
+    });
+
+    it('should fall back to offset paste when no pointer position provided', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pasted = pasteViews();
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        expect(pastedView?.attributes.origin).toBe('110, 110');
+      });
+    });
+
+    it('should center multiple views around pointer position', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+                '1': createMockView({ class: 'CTextButton', origin: '200, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        selectAll(['MainView-0', 'MainView-1']);
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 400, y: 300 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(2);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView1 = template?.children?.['2'];
+        const pastedView2 = template?.children?.['3'];
+
+        const origin1 = pastedView1?.attributes.origin?.split(', ').map(Number);
+        const origin2 = pastedView2?.attributes.origin?.split(', ').map(Number);
+
+        expect(origin1?.[0]).toBe(325);
+        expect(origin2?.[0]).toBe(425);
+        expect(origin1?.[1]).toBe(origin2?.[1]);
+      });
+    });
+  });
+
   describe('findContainerAtPoint', () => {
     function createTestView(overrides: Partial<RenderableView>): RenderableView {
       return {

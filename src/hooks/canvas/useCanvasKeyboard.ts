@@ -23,7 +23,7 @@ import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
-import type { RenderableView, TemplateBounds } from '../../types/canvas';
+import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 
 export interface CancelCallbacks {
@@ -37,6 +37,7 @@ export interface UseCanvasKeyboardOptions {
   renderableViews: Accessor<RenderableView[]>;
   templateBounds: Accessor<TemplateBounds | null>;
   cancelCallbacks: CancelCallbacks;
+  getMousePosition?: () => Point | null;
 }
 
 export interface UseCanvasKeyboardResult {
@@ -44,7 +45,7 @@ export interface UseCanvasKeyboardResult {
 }
 
 export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasKeyboardResult {
-  const { renderableViews, templateBounds, cancelCallbacks } = options;
+  const { renderableViews, templateBounds, cancelCallbacks, getMousePosition } = options;
 
   const handleFitToView = () => {
     const bounds = templateBounds();
@@ -123,7 +124,12 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
       e.preventDefault();
-      const pasted = pasteViews();
+      const bounds = templateBounds();
+      const pointerPosition = getMousePosition?.() ?? null;
+      const pasted = pasteViews({
+        pointerPosition: pointerPosition ?? undefined,
+        templateBounds: bounds ? { width: bounds.width, height: bounds.height } : undefined,
+      });
       if (pasted.length > 0) {
         const operation = createPasteOperation(pasted);
         pushOperation(operation);
