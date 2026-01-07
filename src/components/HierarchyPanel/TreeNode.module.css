@@ -117,3 +117,31 @@
 .dropInvalid:hover {
   background-color: var(--color-error, #dc2626);
 }
+
+.dropBefore {
+  position: relative;
+}
+
+.dropBefore::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-primary, #0066cc);
+}
+
+.dropAfter {
+  position: relative;
+}
+
+.dropAfter::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-primary, #0066cc);
+}

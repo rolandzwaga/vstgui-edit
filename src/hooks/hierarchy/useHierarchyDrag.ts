@@ -1,4 +1,5 @@
 import { createStore } from 'solid-js/store';
+import { validateReorder } from '../../domain/hierarchy/reorder';
 import { validateReparent } from '../../domain/hierarchy/reparent';
 import type { DropPosition, HierarchyDragState } from '../../types/hierarchy';
 
@@ -42,10 +43,18 @@ export function createHierarchyDragState(): [HierarchyDragState, HierarchyDragAc
 
     let isValid = true;
     for (const draggedId of state.draggedIds) {
-      const validation = validateReparent(draggedId, targetId);
-      if (!validation.isValid) {
-        isValid = false;
-        break;
+      if (position === 'inside') {
+        const validation = validateReparent(draggedId, targetId);
+        if (!validation.isValid) {
+          isValid = false;
+          break;
+        }
+      } else if (position === 'before' || position === 'after') {
+        const validation = validateReorder(draggedId, targetId, position);
+        if (!validation.isValid) {
+          isValid = false;
+          break;
+        }
       }
     }
 

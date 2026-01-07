@@ -3,8 +3,9 @@ import { FontAwesomeIcon } from 'solid-fontawesome';
 import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { isSelected, select, toggleSelect, selectionStore } from '../../stores/selectionStore';
-import { reparentView, getView } from '../../stores/documentStore';
+import { reparentView, reorderView } from '../../stores/documentStore';
 import { createReparentOperation } from '../../domain/hierarchy/reparent';
+import { createReorderOperation, getDropPosition } from '../../domain/hierarchy/reorder';
 import { pushOperation } from '../../stores/historyStore';
 import { useHierarchyDragContext } from './HierarchyDragContext';
 import { CATEGORY_ICON_NAMES } from './icons';
@@ -28,6 +29,9 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   const isDropTarget = () => dragState.dropTargetId === props.node.id;
   const isValidDropTarget = () => isDropTarget() && dragState.isValidDrop;
   const isInvalidDropTarget = () => isDropTarget() && !dragState.isValidDrop;
+  const isDropBefore = () => isDropTarget() && dragState.dropPosition === 'before' && dragState.isValidDrop;
+  const isDropAfter = () => isDropTarget() && dragState.dropPosition === 'after' && dragState.isValidDrop;
+  const isDropInside = () => isDropTarget() && dragState.dropPosition === 'inside' && dragState.isValidDrop;
 
   const handleToggle = (e: MouseEvent) => {
     e.stopPropagation();
@@ -82,10 +86,17 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
+
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const offsetY = e.clientY - rect.top;
+    const position = getDropPosition(offsetY, rect.height);
+
+    dragActions.updateDropTarget(props.node.id, position);
+
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = dragState.isValidDrop ? 'move' : 'none';
     }
-    dragActions.updateDropTarget(props.node.id, 'inside');
   };
 
   const handleDragLeave = () => {
@@ -104,36 +115,59 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     }
 
     const targetId = props.node.id;
+    const position = dragState.dropPosition;
 
     for (const draggedId of dragState.draggedIds) {
-      const operation = createReparentOperation(draggedId, targetId);
-      if (operation) {
-        const result = reparentView(draggedId, targetId, undefined, operation.newOrigin);
-        if (result) {
-          const capturedOp = { ...operation };
-          const capturedResult = { ...result };
+      if (position === 'inside') {
+        const operation = createReparentOperation(draggedId, targetId);
+        if (operation) {
+          const result = reparentView(draggedId, targetId, undefined, operation.newOrigin);
+          if (result) {
+            const capturedOp = { ...operation };
+            const capturedResult = { ...result };
 
-          pushOperation({
-            type: 'reparent',
-            description: `Reparent view`,
-            timestamp: Date.now(),
-            undo: () => {
-              reparentView(
-                capturedResult.viewId,
-                capturedOp.oldParentId,
-                capturedOp.oldIndex,
-                capturedOp.oldOrigin
-              );
-            },
-            redo: () => {
-              reparentView(
-                capturedOp.viewId,
-                capturedOp.newParentId,
-                undefined,
-                capturedOp.newOrigin
-              );
-            },
-          });
+            pushOperation({
+              type: 'reparent',
+              description: 'Reparent view',
+              timestamp: Date.now(),
+              undo: () => {
+                reparentView(
+                  capturedResult.viewId,
+                  capturedOp.oldParentId,
+                  capturedOp.oldIndex,
+                  capturedOp.oldOrigin
+                );
+              },
+              redo: () => {
+                reparentView(
+                  capturedOp.viewId,
+                  capturedOp.newParentId,
+                  undefined,
+                  capturedOp.newOrigin
+                );
+              },
+            });
+          }
+        }
+      } else if (position === 'before' || position === 'after') {
+        const operation = createReorderOperation(draggedId, targetId, position);
+        if (operation) {
+          const result = reorderView(draggedId, operation.newIndex);
+          if (result) {
+            const capturedOp = { ...operation };
+
+            pushOperation({
+              type: 'reorder',
+              description: 'Reorder view',
+              timestamp: Date.now(),
+              undo: () => {
+                reorderView(capturedOp.viewId, capturedOp.oldIndex);
+              },
+              redo: () => {
+                reorderView(capturedOp.viewId, capturedOp.newIndex);
+              },
+            });
+          }
         }
       }
     }
@@ -145,7 +179,9 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     const classes = [styles.row];
     if (selected()) classes.push(styles.selected);
     if (isDragging()) classes.push(styles.dragging);
-    if (isValidDropTarget()) classes.push(styles.dropTarget);
+    if (isDropInside()) classes.push(styles.dropTarget);
+    if (isDropBefore()) classes.push(styles.dropBefore);
+    if (isDropAfter()) classes.push(styles.dropAfter);
     if (isInvalidDropTarget()) classes.push(styles.dropInvalid);
     return classes.join(' ');
   };
