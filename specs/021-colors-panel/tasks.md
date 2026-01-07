@@ -1,0 +1,362 @@
+# Tasks: Colors Panel
+
+**Input**: Design documents from `/specs/021-colors-panel/`
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, quickstart.md
+
+**Tests**: REQUIRED per Constitution (Test-First Development principle)
+
+**Testing Guide**: Every task involving unit/component tests MUST include verification that `specs/TESTING-GUIDE.md` is loaded in context BEFORE writing tests.
+
+**Organization**: Tasks grouped by user story to enable independent implementation and testing.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
+
+---
+
+## Phase 1: Setup (Shared Infrastructure)
+
+**Purpose**: Create domain utilities and extend stores
+
+- [ ] T001 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T002 [P] Create color validation utilities tests in `src/domain/colors/__tests__/validation.spec.ts`
+- [ ] T003 [P] Create color parsing utilities tests in `src/domain/colors/__tests__/parsing.spec.ts`
+- [ ] T004 [P] Create color formatting utilities tests in `src/domain/colors/__tests__/formatting.spec.ts`
+- [ ] T005 Implement color validation utilities in `src/domain/colors/validation.ts`
+- [ ] T006 [P] Implement color parsing utilities in `src/domain/colors/parsing.ts`
+- [ ] T007 [P] Implement color formatting utilities in `src/domain/colors/formatting.ts`
+- [ ] T008 Create barrel export in `src/domain/colors/index.ts`
+- [ ] T009 **Commit**: Stage and commit Phase 1 changes with message "feat(021): add color domain utilities"
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Extend documentStore with color mutations, integrate with historyStore
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T010 Create tests for documentStore color methods in `src/stores/__tests__/documentStore.colors.spec.ts`
+- [ ] T011 Extend documentStore with `addColor`, `updateColorName`, `updateColorValue`, `deleteColor`, `getColors` methods in `src/stores/documentStore.ts`
+- [ ] T012 Create tests for color history operations in `src/domain/colors/__tests__/historyOperations.spec.ts`
+- [ ] T013 Implement color history operations (add/edit/delete) in `src/domain/colors/historyOperations.ts`
+- [ ] T014 Add design tokens for ColorsPanel in `src/styles/tokens.css`
+- [ ] T015 **Commit**: Stage and commit Phase 2 changes with message "feat(021): extend documentStore with color mutations"
+
+**Checkpoint**: Foundation ready - user story implementation can now begin
+
+---
+
+## Phase 3: User Story 1 - View Colors List (Priority: P1) 🎯 MVP
+
+**Goal**: Display all colors from uidesc in a sidebar panel with name, hex value, and preview swatch
+
+**Independent Test**: Load a uidesc file with colors → verify all colors appear in Colors panel with correct swatches
+
+### Tests for User Story 1 ⚠️
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T016 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T017 [P] [US1] Create ColorSwatch component tests in `src/components/ColorsPanel/__tests__/ColorSwatch.spec.tsx`
+- [ ] T018 [P] [US1] Create ColorItem component tests in `src/components/ColorsPanel/__tests__/ColorItem.spec.tsx`
+- [ ] T019 [P] [US1] Create ColorsPanel component tests in `src/components/ColorsPanel/__tests__/ColorsPanel.spec.tsx`
+- [ ] T020 [P] [US1] Create EmptyState component tests in `src/components/ColorsPanel/__tests__/EmptyState.spec.tsx`
+
+### Implementation for User Story 1
+
+- [ ] T021 [P] [US1] Implement ColorSwatch component (transparency checkerboard) in `src/components/ColorsPanel/ColorSwatch.tsx`
+- [ ] T022 [P] [US1] Create ColorSwatch styles in `src/components/ColorsPanel/ColorSwatch.module.css`
+- [ ] T023 [P] [US1] Implement EmptyState component in `src/components/ColorsPanel/EmptyState.tsx`
+- [ ] T024 [US1] Implement ColorItem component (name, value, swatch display) in `src/components/ColorsPanel/ColorItem.tsx`
+- [ ] T025 [US1] Create ColorItem styles in `src/components/ColorsPanel/ColorItem.module.css`
+- [ ] T026 [US1] Implement ColorsPanel component (header, list, empty state) in `src/components/ColorsPanel/ColorsPanel.tsx`
+- [ ] T027 [US1] Create ColorsPanel styles in `src/components/ColorsPanel/ColorsPanel.module.css`
+- [ ] T028 [US1] Create barrel export in `src/components/ColorsPanel/index.ts`
+- [ ] T029 [US1] Add ColorsPanel to sidebar layout in `src/components/Layout/Sidebar.tsx` or equivalent
+- [ ] T030 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(021): implement colors panel display (US1)"
+
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 4: User Story 2 - Add New Color (Priority: P1)
+
+**Goal**: Add new colors to the palette with name/value validation
+
+**Independent Test**: Click "Add Color" → enter name and hex → verify color appears in panel and uidesc
+
+### Tests for User Story 2 ⚠️
+
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T031 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T032 [P] [US2] Create AddColorButton component tests in `src/components/ColorsPanel/__tests__/AddColorButton.spec.tsx`
+- [ ] T033 [P] [US2] Create add color integration tests in `src/components/ColorsPanel/__tests__/ColorsPanel.add.spec.tsx`
+
+### Implementation for User Story 2
+
+- [ ] T034 [US2] Implement AddColorButton component in `src/components/ColorsPanel/AddColorButton.tsx`
+- [ ] T035 [US2] Add "Add Color" functionality to ColorsPanel (unique name generation, default value) in `src/components/ColorsPanel/ColorsPanel.tsx`
+- [ ] T036 [US2] Integrate add operation with historyStore for undo support
+- [ ] T037 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(021): implement add color functionality (US2)"
+
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+---
+
+## Phase 5: User Story 3 - Edit Existing Color (Priority: P1)
+
+**Goal**: Inline editing of color name and value with live swatch preview
+
+**Independent Test**: Double-click color → edit name/value → verify changes persist and swatch updates live
+
+### Tests for User Story 3 ⚠️
+
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T038 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T039 [P] [US3] Create edit color tests in `src/components/ColorsPanel/__tests__/ColorItem.edit.spec.tsx`
+- [ ] T040 [P] [US3] Create edit validation tests in `src/components/ColorsPanel/__tests__/ColorItem.validation.spec.tsx`
+
+### Implementation for User Story 3
+
+- [ ] T041 [US3] Add inline edit mode to ColorItem (click-to-edit name, click-to-edit value) in `src/components/ColorsPanel/ColorItem.tsx`
+- [ ] T042 [US3] Add live swatch preview during hex value editing
+- [ ] T043 [US3] Add validation feedback (red border for invalid, error message)
+- [ ] T044 [US3] Add keyboard support (Enter=confirm, Escape=cancel, Tab=next field)
+- [ ] T045 [US3] Integrate edit operations with historyStore for undo support
+- [ ] T046 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(021): implement edit color functionality (US3)"
+
+**Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
+
+---
+
+## Phase 6: User Story 4 - Delete Color (Priority: P2)
+
+**Goal**: Delete colors with usage check and confirmation dialog
+
+**Independent Test**: Select color → delete → verify removed (with confirmation if in use)
+
+### Tests for User Story 4 ⚠️
+
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T047 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T048 [P] [US4] Create color usage tracking tests in `src/domain/colors/__tests__/usage.spec.ts`
+- [ ] T049 [P] [US4] Create delete color tests in `src/components/ColorsPanel/__tests__/ColorItem.delete.spec.tsx`
+
+### Implementation for User Story 4
+
+- [ ] T050 [US4] Implement color usage tracking utility in `src/domain/colors/usage.ts`
+- [ ] T051 [US4] Add delete button/context menu to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
+- [ ] T052 [US4] Create DeleteConfirmDialog component for used colors in `src/components/ColorsPanel/DeleteConfirmDialog.tsx`
+- [ ] T053 [US4] Integrate delete with usage check and confirmation flow
+- [ ] T054 [US4] Integrate delete operation with historyStore for undo support
+- [ ] T055 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(021): implement delete color with usage check (US4)"
+
+**Checkpoint**: At this point, all P1 and P2 (US4) stories should work
+
+---
+
+## Phase 7: User Story 5 - View Color Usage (Priority: P2)
+
+**Goal**: Display which views reference each color
+
+**Independent Test**: Hover/click on color with usages → verify usage list shows correct views
+
+### Tests for User Story 5 ⚠️
+
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T056 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T057 [P] [US5] Create usage badge tests in `src/components/ColorsPanel/__tests__/ColorItem.usage.spec.tsx`
+
+### Implementation for User Story 5
+
+- [ ] T058 [US5] Add usage count badge to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
+- [ ] T059 [US5] Create UsagePopover component to display referencing views in `src/components/ColorsPanel/UsagePopover.tsx`
+- [ ] T060 [US5] Wire up usage popover to badge click/hover
+- [ ] T061 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(021): implement color usage tracking (US5)"
+
+---
+
+## Phase 8: User Story 6 - Undo/Redo Color Operations (Priority: P2)
+
+**Goal**: All color operations undoable/redoable via Ctrl+Z, Ctrl+Shift+Z
+
+**Independent Test**: Add color → Ctrl+Z → verify removed → Ctrl+Shift+Z → verify restored
+
+### Tests for User Story 6 ⚠️
+
+> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+
+- [ ] T062 [US6] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T063 [P] [US6] Create undo/redo integration tests in `src/components/ColorsPanel/__tests__/ColorsPanel.history.spec.tsx`
+
+### Implementation for User Story 6
+
+- [ ] T064 [US6] Verify all operations (add/edit/delete) create proper history entries
+- [ ] T065 [US6] Test keyboard shortcuts (Ctrl+Z, Ctrl+Shift+Z, Ctrl+Y) work for color operations
+- [ ] T066 [US6] **Commit**: Stage and commit User Story 6 changes with message "feat(021): verify color undo/redo integration (US6)"
+
+**Checkpoint**: All user stories (US1-US6) should now be fully functional
+
+---
+
+## Phase 9: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T067 [P] Add ARIA labels and keyboard navigation for accessibility
+- [ ] T068 [P] Add predefined colors (~ prefix) display with read-only indicator
+- [ ] T069 [P] Update CLAUDE.md with new ColorsPanel utilities and patterns
+- [ ] T070 Run `npm run test` to verify all tests pass
+- [ ] T071 **Commit**: Stage and commit Polish phase changes with message "feat(021): polish colors panel accessibility and predefined colors"
+
+---
+
+## Phase Final-1: Quality Gates (MANDATORY)
+
+**Purpose**: Verify code quality before marking feature complete
+
+**⚠️ CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
+
+- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
+- [ ] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings  
+- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
+- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+
+**If Quality Gates Fail**:
+1. STOP - do not proceed to Git Verification
+2. FIX all reported errors and warnings
+3. RE-RUN the failing command(s)
+4. REPEAT until all three commands pass cleanly
+
+---
+
+## Phase Final: Git Verification
+
+**Purpose**: Ensure all work is committed before marking feature complete
+
+- [ ] TFINAL-1 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [ ] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit
+- [ ] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [ ] TFINAL-4 **Update spec.md compliance table**: Fill in all FR-xxx and SC-xxx with ✅ MET status and evidence
+
+**⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3-8)**: All depend on Foundational phase completion
+  - US1-US3 (P1): Can proceed sequentially after Foundational
+  - US4-US6 (P2): Can start after US1-US3 complete
+- **Polish (Phase 9)**: Depends on all user stories being complete
+- **Quality Gates**: Depends on Polish phase
+- **Git Verification**: Depends on Quality Gates passing
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational - No dependencies on other stories
+- **User Story 2 (P1)**: Can start after US1 (needs ColorItem component) 
+- **User Story 3 (P1)**: Can start after US2 (extends ColorItem with edit mode)
+- **User Story 4 (P2)**: Depends on usage tracking from US5 (implement together)
+- **User Story 5 (P2)**: Can start after US1-US3 complete
+- **User Story 6 (P2)**: Verification story - can start after all CRUD operations exist
+
+### Within Each User Story
+
+- **Verify Testing Guide first** - Read `specs/TESTING-GUIDE.md` before any test task
+- Tests MUST be written and FAIL before implementation
+- Components before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- T002, T003, T004 (domain utility tests) - different files
+- T005, T006, T007 (domain utility implementations) - different files
+- T017, T018, T019, T020 (US1 component tests) - different files
+- T021, T022, T023 (ColorSwatch, EmptyState) - independent components
+
+---
+
+## Parallel Example: Phase 1
+
+```bash
+# Launch all domain utility tests together:
+Task: "Create color validation utilities tests in src/domain/colors/__tests__/validation.spec.ts"
+Task: "Create color parsing utilities tests in src/domain/colors/__tests__/parsing.spec.ts"
+Task: "Create color formatting utilities tests in src/domain/colors/__tests__/formatting.spec.ts"
+
+# After tests written, implement in parallel:
+Task: "Implement color validation utilities in src/domain/colors/validation.ts"
+Task: "Implement color parsing utilities in src/domain/colors/parsing.ts"
+Task: "Implement color formatting utilities in src/domain/colors/formatting.ts"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Stories 1-3)
+
+1. Complete Phase 1: Setup (domain utilities)
+2. Complete Phase 2: Foundational (store extension)
+3. Complete Phase 3: User Story 1 (view colors)
+4. Complete Phase 4: User Story 2 (add color)
+5. Complete Phase 5: User Story 3 (edit color)
+6. **STOP and VALIDATE**: Test US1-3 independently → MVP complete!
+
+### Full Feature
+
+1. Complete MVP (US1-3)
+2. Add Phase 6: User Story 4 (delete with confirmation)
+3. Add Phase 7: User Story 5 (usage tracking)
+4. Add Phase 8: User Story 6 (undo/redo verification)
+5. Complete Phase 9: Polish
+6. Pass Quality Gates
+7. Git Verification
+
+---
+
+## Summary
+
+| Phase | Task Count | Description |
+|-------|------------|-------------|
+| Phase 1 | 9 | Setup domain utilities |
+| Phase 2 | 6 | Foundational store extension |
+| Phase 3 (US1) | 15 | View colors list |
+| Phase 4 (US2) | 7 | Add new color |
+| Phase 5 (US3) | 9 | Edit existing color |
+| Phase 6 (US4) | 9 | Delete color |
+| Phase 7 (US5) | 6 | View color usage |
+| Phase 8 (US6) | 5 | Undo/redo verification |
+| Phase 9 | 5 | Polish |
+| Quality Gates | 4 | Required checks |
+| Git Verification | 4 | Final commit |
+| **Total** | **79** | |
+
+**MVP Scope**: Phases 1-5 (US1-US3) = 46 tasks
+**Full Scope**: All phases = 79 tasks
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- **Testing Guide**: Always read `specs/TESTING-GUIDE.md` before writing tests
+- Verify tests fail before implementing
+- **Commit after each phase** - each phase ends with a commit task
+- Stop at any checkpoint to validate story independently
