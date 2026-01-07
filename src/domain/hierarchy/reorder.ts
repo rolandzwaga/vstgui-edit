@@ -84,3 +84,69 @@ export function createReorderOperation(
     newIndex,
   };
 }
+
+export interface MultiReorderOperation {
+  operations: ReorderOperation[];
+  parentId: string;
+}
+
+export function createMultiReorderOperation(
+  viewIds: string[],
+  targetId: string,
+  position: DropPosition
+): MultiReorderOperation | null {
+  if (viewIds.length === 0 || position === 'inside') return null;
+
+  const parentId = getParentId(viewIds[0]);
+  if (!parentId) return null;
+
+  for (const viewId of viewIds) {
+    const viewParentId = getParentId(viewId);
+    if (viewParentId !== parentId) return null;
+  }
+
+  const targetParentId = getParentId(targetId);
+  if (targetParentId !== parentId) return null;
+
+  const siblings = getChildIds(parentId);
+  const targetIndex = siblings.indexOf(targetId);
+  if (targetIndex === -1) return null;
+
+  const sortedViewIds = [...viewIds].sort((a, b) => {
+    const indexA = siblings.indexOf(a);
+    const indexB = siblings.indexOf(b);
+    return indexA - indexB;
+  });
+
+  const operations: ReorderOperation[] = [];
+  const oldIndices = sortedViewIds.map(id => siblings.indexOf(id));
+
+  let insertionPoint: number;
+  if (position === 'before') {
+    insertionPoint = targetIndex;
+  } else {
+    insertionPoint = targetIndex + 1;
+  }
+
+  const selectedBefore = oldIndices.filter(i => i < insertionPoint).length;
+  const adjustedInsertionPoint = insertionPoint - selectedBefore;
+
+  for (let i = 0; i < sortedViewIds.length; i++) {
+    const viewId = sortedViewIds[i];
+    const oldIndex = oldIndices[i];
+    const newIndex = Math.min(adjustedInsertionPoint + i, siblings.length - 1);
+
+    if (oldIndex !== newIndex) {
+      operations.push({
+        viewId,
+        parentId,
+        oldIndex,
+        newIndex,
+      });
+    }
+  }
+
+  if (operations.length === 0) return null;
+
+  return { operations, parentId };
+}

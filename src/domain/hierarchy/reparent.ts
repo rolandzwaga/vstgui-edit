@@ -137,3 +137,25 @@ export function createReparentOperation(
     newOrigin,
   };
 }
+
+export interface MultiReparentOperation {
+  operations: ReparentOperation[];
+  targetId: string;
+}
+
+export function createMultiReparentOperation(
+  viewIds: string[],
+  targetId: string
+): MultiReparentOperation | null {
+  if (viewIds.length === 0) return null;
+
+  const operations: ReparentOperation[] = [];
+
+  for (const viewId of viewIds) {
+    const operation = createReparentOperation(viewId, targetId);
+    if (!operation) return null;
+    operations.push(operation);
+  }
+
+  return { operations, targetId };
+}

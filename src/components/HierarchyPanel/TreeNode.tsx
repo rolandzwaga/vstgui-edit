@@ -1,12 +1,15 @@
 import { type Component, For, Show } from 'solid-js';
 import { FontAwesomeIcon } from 'solid-fontawesome';
-import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
-import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
-import { isSelected, select, toggleSelect, selectionStore } from '../../stores/selectionStore';
+import {
+  createMultiReorderOperation,
+  createMultiReparentOperation,
+  getDropPosition,
+} from '../../domain/hierarchy';
 import { reparentView, reorderView } from '../../stores/documentStore';
-import { createReparentOperation } from '../../domain/hierarchy/reparent';
-import { createReorderOperation, getDropPosition } from '../../domain/hierarchy/reorder';
+import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { pushOperation } from '../../stores/historyStore';
+import { isSelected, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
+import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { useHierarchyDragContext } from './HierarchyDragContext';
 import { CATEGORY_ICON_NAMES } from './icons';
 import styles from './TreeNode.module.css';
@@ -116,58 +119,85 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
 
     const targetId = props.node.id;
     const position = dragState.dropPosition;
+    const draggedIds = [...dragState.draggedIds];
 
-    for (const draggedId of dragState.draggedIds) {
-      if (position === 'inside') {
-        const operation = createReparentOperation(draggedId, targetId);
-        if (operation) {
-          const result = reparentView(draggedId, targetId, undefined, operation.newOrigin);
+    if (position === 'inside') {
+      const multiOp = createMultiReparentOperation(draggedIds, targetId);
+      if (multiOp) {
+        const results: Array<{ viewId: string; oldParentId: string; oldIndex: number; oldOrigin: string; newOrigin: string }> = [];
+
+        for (const op of multiOp.operations) {
+          const result = reparentView(op.viewId, targetId, undefined, op.newOrigin);
           if (result) {
-            const capturedOp = { ...operation };
-            const capturedResult = { ...result };
-
-            pushOperation({
-              type: 'reparent',
-              description: 'Reparent view',
-              timestamp: Date.now(),
-              undo: () => {
-                reparentView(
-                  capturedResult.viewId,
-                  capturedOp.oldParentId,
-                  capturedOp.oldIndex,
-                  capturedOp.oldOrigin
-                );
-              },
-              redo: () => {
-                reparentView(
-                  capturedOp.viewId,
-                  capturedOp.newParentId,
-                  undefined,
-                  capturedOp.newOrigin
-                );
-              },
+            results.push({
+              viewId: op.viewId,
+              oldParentId: op.oldParentId,
+              oldIndex: op.oldIndex,
+              oldOrigin: op.oldOrigin,
+              newOrigin: op.newOrigin,
             });
           }
         }
-      } else if (position === 'before' || position === 'after') {
-        const operation = createReorderOperation(draggedId, targetId, position);
-        if (operation) {
-          const result = reorderView(draggedId, operation.newIndex);
-          if (result) {
-            const capturedOp = { ...operation };
 
-            pushOperation({
-              type: 'reorder',
-              description: 'Reorder view',
-              timestamp: Date.now(),
-              undo: () => {
-                reorderView(capturedOp.viewId, capturedOp.oldIndex);
-              },
-              redo: () => {
-                reorderView(capturedOp.viewId, capturedOp.newIndex);
-              },
+        if (results.length > 0) {
+          const capturedResults = [...results];
+          const capturedTargetId = targetId;
+          const count = results.length;
+
+          pushOperation({
+            type: 'reparent',
+            description: count === 1 ? 'Reparent view' : `Reparent ${count} views`,
+            timestamp: Date.now(),
+            undo: () => {
+              for (let i = capturedResults.length - 1; i >= 0; i--) {
+                const r = capturedResults[i];
+                reparentView(r.viewId, r.oldParentId, r.oldIndex, r.oldOrigin);
+              }
+            },
+            redo: () => {
+              for (const r of capturedResults) {
+                reparentView(r.viewId, capturedTargetId, undefined, r.newOrigin);
+              }
+            },
+          });
+        }
+      }
+    } else if (position === 'before' || position === 'after') {
+      const multiOp = createMultiReorderOperation(draggedIds, targetId, position);
+      if (multiOp) {
+        const results: Array<{ viewId: string; oldIndex: number; newIndex: number }> = [];
+
+        for (const op of multiOp.operations) {
+          const result = reorderView(op.viewId, op.newIndex);
+          if (result) {
+            results.push({
+              viewId: op.viewId,
+              oldIndex: op.oldIndex,
+              newIndex: result.newIndex,
             });
           }
+        }
+
+        if (results.length > 0) {
+          const capturedResults = [...results];
+          const count = results.length;
+
+          pushOperation({
+            type: 'reorder',
+            description: count === 1 ? 'Reorder view' : `Reorder ${count} views`,
+            timestamp: Date.now(),
+            undo: () => {
+              for (let i = capturedResults.length - 1; i >= 0; i--) {
+                const r = capturedResults[i];
+                reorderView(r.viewId, r.oldIndex);
+              }
+            },
+            redo: () => {
+              for (const r of capturedResults) {
+                reorderView(r.viewId, r.newIndex);
+              }
+            },
+          });
         }
       }
     }

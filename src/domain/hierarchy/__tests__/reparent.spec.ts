@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createMockContainer, createMockDocument, createMockView } from '../../../__tests__/helpers/fixtures';
+import {
+  createMockContainer,
+  createMockDocument,
+  createMockView,
+} from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { reset, setDocumentForTest } from '../../../stores/documentStore';
 import {
   calculateNewOrigin,
+  createMultiReparentOperation,
   createReparentOperation,
   isDescendantOf,
   validateReparent,
@@ -318,6 +323,68 @@ describe('reparent domain logic', () => {
 
         const result = createReparentOperation('MainView-container-second', 'MainView-target');
         expect(result?.oldIndex).toBe(1);
+      }));
+  });
+
+  describe('createMultiReparentOperation', () => {
+    it('should create operations for multiple views', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              source: createMockContainer({ origin: '0, 0' }, {
+                a: createMockView({ origin: '10, 10' }),
+                b: createMockView({ origin: '20, 20' }),
+              }),
+              target: createMockContainer({ origin: '100, 100' }),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReparentOperation(
+          ['MainView-source-a', 'MainView-source-b'],
+          'MainView-target'
+        );
+
+        expect(result).not.toBeNull();
+        expect(result?.operations.length).toBe(2);
+        expect(result?.operations[0].viewId).toBe('MainView-source-a');
+        expect(result?.operations[1].viewId).toBe('MainView-source-b');
+        expect(result?.targetId).toBe('MainView-target');
+      }));
+
+    it('should return null if any view fails validation', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              source: createMockContainer({}, {
+                a: createMockView(),
+              }),
+              target: createMockView({ class: 'CTextLabel' }),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReparentOperation(['MainView-source-a'], 'MainView-target');
+        expect(result).toBeNull();
+      }));
+
+    it('should return null for empty view list', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              target: createMockContainer(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReparentOperation([], 'MainView-target');
+        expect(result).toBeNull();
       }));
   });
 });

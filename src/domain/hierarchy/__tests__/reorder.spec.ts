@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createMockContainer, createMockDocument, createMockView } from '../../../__tests__/helpers/fixtures';
+import {
+  createMockContainer,
+  createMockDocument,
+  createMockView,
+} from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { reset, setDocumentForTest } from '../../../stores/documentStore';
 import {
+  createMultiReorderOperation,
   createReorderOperation,
   getDropPosition,
   validateReorder,
@@ -262,6 +267,129 @@ describe('reorder domain logic', () => {
         setDocumentForTest(doc);
 
         const result = createReorderOperation('MainView-a', 'MainView-b', 'inside');
+        expect(result).toBeNull();
+      }));
+  });
+
+  describe('createMultiReorderOperation', () => {
+    it('should create operations for multiple views moving before target', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              a: createMockView(),
+              b: createMockView(),
+              c: createMockView(),
+              d: createMockView(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation(
+          ['MainView-c', 'MainView-d'],
+          'MainView-a',
+          'before'
+        );
+
+        expect(result).not.toBeNull();
+        expect(result?.operations.length).toBe(2);
+        expect(result?.parentId).toBe('MainView');
+      }));
+
+    it('should create operations for multiple views moving after target', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              a: createMockView(),
+              b: createMockView(),
+              c: createMockView(),
+              d: createMockView(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation(
+          ['MainView-a', 'MainView-b'],
+          'MainView-d',
+          'after'
+        );
+
+        expect(result).not.toBeNull();
+        expect(result?.operations.length).toBe(2);
+      }));
+
+    it('should return null for views from different parents', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              container1: createMockContainer({}, {
+                a: createMockView(),
+              }),
+              container2: createMockContainer({}, {
+                b: createMockView(),
+              }),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation(
+          ['MainView-container1-a', 'MainView-container2-b'],
+          'MainView-container1-a',
+          'before'
+        );
+
+        expect(result).toBeNull();
+      }));
+
+    it('should return null for inside position', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              a: createMockView(),
+              b: createMockView(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation(['MainView-a'], 'MainView-b', 'inside');
+        expect(result).toBeNull();
+      }));
+
+    it('should return null for empty view list', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              a: createMockView(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation([], 'MainView-a', 'before');
+        expect(result).toBeNull();
+      }));
+
+    it('should return null when no actual reordering occurs', () =>
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({}, {
+              a: createMockView(),
+              b: createMockView(),
+            }),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = createMultiReorderOperation(['MainView-a'], 'MainView-a', 'before');
         expect(result).toBeNull();
       }));
   });
