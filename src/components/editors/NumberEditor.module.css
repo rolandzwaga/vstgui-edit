@@ -1,0 +1,64 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: stretch;
+}
+
+.numberInput {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  border-radius: 0;
+  -moz-appearance: textfield;
+}
+
+.numberInput::-webkit-outer-spin-button,
+.numberInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.spinButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.spinButton:first-child {
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+}
+
+.spinButton:last-child {
+  border-radius: 0 4px 4px 0;
+  border-left: none;
+}
+
+.spinButton:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.spinButton:active:not(:disabled) {
+  background: var(--color-bg-active);
+}
+
+.spinButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

@@ -1,0 +1,132 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-alpha);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicator {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+.dropdown {
+  position: fixed;
+  z-index: 1000;
+  min-width: 180px;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hexSection {
+  padding: 8px;
+}
+
+.hexInput {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.hexInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.hexInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.hexError {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--color-error);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.colorList {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.colorOption {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.colorOption:hover,
+.colorOption.highlighted {
+  background: var(--color-bg-secondary);
+}
+
+.colorOption[aria-selected="true"] {
+  background: var(--color-primary-alpha);
+  font-weight: 500;
+}
+
+.colorOption[aria-selected="true"].highlighted {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary, #fff);
+}

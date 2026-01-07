@@ -77,6 +77,27 @@ export const PropertiesPanel: Component = () => {
     return mergeSelections(viewAttributes, classNames);
   });
 
+  const documentColors = createMemo(() => {
+    const doc = documentStore.document;
+    if (!doc) return [];
+    const colors = doc['vstgui-ui-description'].colors;
+    return colors ? Object.keys(colors) : [];
+  });
+
+  const documentFonts = createMemo(() => {
+    const doc = documentStore.document;
+    if (!doc) return [];
+    const fonts = doc['vstgui-ui-description'].fonts;
+    return fonts ? Object.keys(fonts) : [];
+  });
+
+  const documentBitmaps = createMemo(() => {
+    const doc = documentStore.document;
+    if (!doc) return [];
+    const bitmaps = doc['vstgui-ui-description'].bitmaps;
+    return bitmaps ? Object.keys(bitmaps) : [];
+  });
+
   const handleCopy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -135,6 +156,9 @@ export const PropertiesPanel: Component = () => {
                     onValueChange={handleValueChange}
                     onValueCommit={handleValueCommit}
                     editable={true}
+                    documentColors={documentColors()}
+                    documentFonts={documentFonts()}
+                    documentBitmaps={documentBitmaps()}
                   />
                 )}
               </For>

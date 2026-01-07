@@ -2,10 +2,15 @@ import type { Component } from 'solid-js';
 import { createSignal, createMemo, Show, Switch, Match } from 'solid-js';
 import type { AttributeEntry } from '../../types/properties';
 import { getAttributeConfig } from '../../domain/properties/attributeTypes';
-import { validatePoint, validateSize } from '../../domain/properties/validation';
+import { validatePoint, validateSize, validateNumber } from '../../domain/properties/validation';
 import { TextEditor } from '../editors/TextEditor';
 import { PointEditor } from '../editors/PointEditor';
 import { BooleanEditor } from '../editors/BooleanEditor';
+import { NumberEditor } from '../editors/NumberEditor';
+import { EnumEditor } from '../editors/EnumEditor';
+import { ColorPicker } from '../editors/ColorPicker';
+import { FontPicker } from '../editors/FontPicker';
+import { BitmapPicker } from '../editors/BitmapPicker';
 import styles from './AttributeRow.module.css';
 
 export interface AttributeRowProps {
@@ -14,6 +19,9 @@ export interface AttributeRowProps {
   onValueChange?: (name: string, newValue: string) => void;
   onValueCommit?: (name: string, newValue: string, originalValue: string) => void;
   editable?: boolean;
+  documentColors?: string[];
+  documentFonts?: string[];
+  documentBitmaps?: string[];
 }
 
 export const AttributeRow: Component<AttributeRowProps> = (props) => {
@@ -27,14 +35,24 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isTextType = () => editorType() === 'text';
   const isPointType = () => editorType() === 'point';
   const isBooleanType = () => editorType() === 'boolean';
+  const isNumberType = () => editorType() === 'number';
+  const isEnumType = () => editorType() === 'enum';
+  const isColorType = () => editorType() === 'color';
+  const isFontType = () => editorType() === 'font';
+  const isBitmapType = () => editorType() === 'bitmap';
   const canEdit = () => props.editable && !isReadonly() && !props.entry.isMixed;
-  const canInlineEdit = () => isTextType() || isPointType();
+  const canInlineEdit = () => isTextType() || isPointType() || isNumberType();
 
   const validationError = createMemo(() => {
     if (!isEditing()) return null;
     if (isPointType()) {
       const isSizeAttr = props.entry.name === 'size' || props.entry.name === 'min-size' || props.entry.name === 'max-size';
       const result = isSizeAttr ? validateSize(editValue()) : validatePoint(editValue());
+      return result.valid ? null : result.error ?? null;
+    }
+    if (isNumberType()) {
+      const cfg = config();
+      const result = validateNumber(editValue(), cfg.min, cfg.max);
       return result.valid ? null : result.error ?? null;
     }
     return null;
@@ -77,6 +95,30 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
     props.onValueCommit?.(props.entry.name, newValue, currentValue);
   };
 
+  const handleEnumChange = (newValue: string) => {
+    const currentValue = props.entry.value ?? '';
+    props.onValueChange?.(props.entry.name, newValue);
+    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+  };
+
+  const handleColorChange = (newValue: string) => {
+    const currentValue = props.entry.value ?? '';
+    props.onValueChange?.(props.entry.name, newValue);
+    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+  };
+
+  const handleFontChange = (newValue: string) => {
+    const currentValue = props.entry.value ?? '';
+    props.onValueChange?.(props.entry.name, newValue);
+    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+  };
+
+  const handleBitmapChange = (newValue: string) => {
+    const currentValue = props.entry.value ?? '';
+    props.onValueChange?.(props.entry.name, newValue);
+    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+  };
+
   const handleCancel = () => {
     setEditValue(originalValue());
     props.onValueChange?.(props.entry.name, originalValue());
@@ -115,6 +157,54 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
             disabled={!props.editable}
           />
         </Match>
+        <Match when={isEnumType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <EnumEditor
+              value={props.entry.value ?? ''}
+              options={config().options ?? []}
+              onChange={handleEnumChange}
+              onCommit={() => {}}
+              onCancel={() => {}}
+              disabled={!props.editable}
+            />
+          </div>
+        </Match>
+        <Match when={isColorType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <ColorPicker
+              value={props.entry.value ?? ''}
+              documentColors={props.documentColors ?? []}
+              onChange={handleColorChange}
+              onCommit={() => {}}
+              onCancel={() => {}}
+              disabled={!props.editable}
+            />
+          </div>
+        </Match>
+        <Match when={isFontType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <FontPicker
+              value={props.entry.value ?? ''}
+              documentFonts={props.documentFonts ?? []}
+              onChange={handleFontChange}
+              onCommit={() => {}}
+              onCancel={() => {}}
+              disabled={!props.editable}
+            />
+          </div>
+        </Match>
+        <Match when={isBitmapType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <BitmapPicker
+              value={props.entry.value ?? ''}
+              documentBitmaps={props.documentBitmaps ?? []}
+              onChange={handleBitmapChange}
+              onCommit={() => {}}
+              onCancel={() => {}}
+              disabled={!props.editable}
+            />
+          </div>
+        </Match>
         <Match when={isEditing() && isTextType()}>
           <div class={styles.editorContainer}>
             <TextEditor
@@ -133,6 +223,20 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onCommit={handleCommit}
               onCancel={handleCancel}
               error={validationError()}
+            />
+          </div>
+        </Match>
+        <Match when={isEditing() && isNumberType()}>
+          <div class={styles.editorContainer}>
+            <NumberEditor
+              value={editValue()}
+              onChange={handleChange}
+              onCommit={handleCommit}
+              onCancel={handleCancel}
+              error={validationError()}
+              min={config().min}
+              max={config().max}
+              step={config().step}
             />
           </div>
         </Match>

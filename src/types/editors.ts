@@ -102,6 +102,30 @@ export interface ResourcePickerProps extends EditorProps {
 }
 
 /**
+ * Props for ColorPicker component.
+ */
+export interface ColorPickerProps extends EditorProps {
+  /** Available color names from document colors */
+  documentColors: string[];
+}
+
+/**
+ * Props for FontPicker component.
+ */
+export interface FontPickerProps extends EditorProps {
+  /** Available font names from document fonts */
+  documentFonts: string[];
+}
+
+/**
+ * Props for BitmapPicker component.
+ */
+export interface BitmapPickerProps extends EditorProps {
+  /** Available bitmap names from document bitmaps */
+  documentBitmaps: string[];
+}
+
+/**
  * Internal state for tracking an edit session.
  */
 export interface EditorState {

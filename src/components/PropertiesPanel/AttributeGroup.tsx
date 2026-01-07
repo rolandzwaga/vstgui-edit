@@ -12,6 +12,9 @@ export interface AttributeGroupProps {
   onValueChange?: (name: string, newValue: string) => void;
   onValueCommit?: (name: string, newValue: string, originalValue: string) => void;
   editable?: boolean;
+  documentColors?: string[];
+  documentFonts?: string[];
+  documentBitmaps?: string[];
 }
 
 export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
@@ -58,6 +61,9 @@ export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
                 onValueChange={props.onValueChange}
                 onValueCommit={props.onValueCommit}
                 editable={props.editable}
+                documentColors={props.documentColors}
+                documentFonts={props.documentFonts}
+                documentBitmaps={props.documentBitmaps}
               />
             )}
           </For>
