@@ -4,7 +4,7 @@ import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { documentStore, reset as resetDocument, setDocumentForTest } from '../../../stores/documentStore';
 import { clearHistory, historyStore, pushOperation, redo, undo } from '../../../stores/historyStore';
 import { clearSelection, resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
-import { createDeleteOperation, deleteSelectedViews } from '../viewOperations';
+import { createDeleteOperation, createDuplicateOperation, deleteSelectedViews, duplicateSelectedViews } from '../viewOperations';
 
 describe('viewOperations', () => {
   beforeEach(() => {
@@ -323,6 +323,250 @@ describe('viewOperations', () => {
         const operation = createDeleteOperation(removed);
 
         expect(operation.description).toBe('Delete 2 views');
+      });
+    });
+  });
+
+  describe('duplicateSelectedViews', () => {
+    it('should return empty array when no views are selected', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const result = duplicateSelectedViews();
+        expect(result).toEqual([]);
+      });
+    });
+
+    it('should duplicate a single selected view with 10px offset', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const result = duplicateSelectedViews();
+
+        expect(result).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const newView = template?.children?.['1'];
+        expect(newView?.attributes.class).toBe('CTextLabel');
+        expect(newView?.attributes.origin).toBe('110, 110');
+        expect(newView?.attributes.size).toBe('50, 20');
+      });
+    });
+
+    it('should duplicate multiple selected views', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '50, 50' }),
+                '1': createMockView({ class: 'CTextButton', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const result = duplicateSelectedViews();
+
+        expect(result).toHaveLength(2);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(template?.children ?? {}).length).toBe(4);
+      });
+    });
+
+    it('should select duplicated views after duplication', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const result = duplicateSelectedViews();
+
+        expect(selectionStore.selectedIds.has('MainView-0')).toBe(false);
+        expect(selectionStore.selectedIds.has(result[0])).toBe(true);
+      });
+    });
+
+    it('should not duplicate root template view', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({ origin: '0, 0', size: '800, 600' }),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView');
+
+        const result = duplicateSelectedViews();
+
+        expect(result).toEqual([]);
+      });
+    });
+
+    it('should duplicate container with all children', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockContainer(
+                  { origin: '50, 50', size: '200, 200' },
+                  {
+                    '0': createMockView({ class: 'CTextLabel', origin: '10, 10' }),
+                  }
+                ),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const result = duplicateSelectedViews();
+
+        expect(result).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const newContainer = template?.children?.['1'];
+        expect(newContainer?.attributes.origin).toBe('60, 60');
+        expect(newContainer?.children?.['0']?.attributes.class).toBe('CTextLabel');
+      });
+    });
+  });
+
+  describe('createDuplicateOperation', () => {
+    it('should create a history operation for duplication', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const duplicatedIds = duplicateSelectedViews();
+        const operation = createDuplicateOperation(duplicatedIds);
+
+        expect(operation.type).toBe('duplicate');
+        expect(operation.description).toContain('Duplicate');
+        expect(typeof operation.undo).toBe('function');
+        expect(typeof operation.redo).toBe('function');
+      });
+    });
+
+    it('should undo duplication by removing duplicated views', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const duplicatedIds = duplicateSelectedViews();
+        const operation = createDuplicateOperation(duplicatedIds);
+
+        const templateBefore = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateBefore?.children ?? {}).length).toBe(2);
+
+        operation.undo();
+
+        const templateAfter = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfter?.children ?? {}).length).toBe(1);
+        expect(templateAfter?.children?.['0']).toBeDefined();
+        expect(templateAfter?.children?.['1']).toBeUndefined();
+      });
+    });
+
+    it('should describe single view duplication correctly', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const duplicatedIds = duplicateSelectedViews();
+        const operation = createDuplicateOperation(duplicatedIds);
+
+        expect(operation.description).toBe('Duplicate 1 view');
+      });
+    });
+
+    it('should describe multiple view duplication correctly', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const duplicatedIds = duplicateSelectedViews();
+        const operation = createDuplicateOperation(duplicatedIds);
+
+        expect(operation.description).toBe('Duplicate 2 views');
       });
     });
   });
