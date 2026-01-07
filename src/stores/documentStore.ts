@@ -373,3 +373,318 @@ export function updateViewAttribute(
 
   return previousStr;
 }
+
+/**
+ * Serialized view for removal/restoration operations.
+ */
+export interface RemovedViewInfo {
+  /** The view ID that was removed */
+  viewId: string;
+  /** The key in the parent's children object */
+  childKey: string;
+  /** The parent view ID */
+  parentId: string;
+  /** The serialized view data */
+  viewData: ViewNode;
+}
+
+/**
+ * Find the parent of a view in the tree.
+ * Returns [parentNode, childKey] or null if not found.
+ */
+function findParentInTree(
+  root: ViewNode,
+  targetId: string,
+  rootId: string,
+  currentPath: string = rootId
+): { parent: ViewNode; childKey: string; parentId: string } | null {
+  if (!root.children) {
+    return null;
+  }
+
+  for (const [key, child] of Object.entries(root.children)) {
+    const childId = `${currentPath}-${key}`;
+    if (childId === targetId) {
+      return { parent: root, childKey: key, parentId: currentPath };
+    }
+    const result = findParentInTree(child, targetId, rootId, childId);
+    if (result) {
+      return result;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Deep clone a ViewNode for serialization.
+ */
+function cloneViewNode(node: ViewNode): ViewNode {
+  const clone: ViewNode = {
+    attributes: { ...node.attributes },
+  };
+  if (node.children) {
+    clone.children = {};
+    for (const [key, child] of Object.entries(node.children)) {
+      clone.children[key] = cloneViewNode(child);
+    }
+  }
+  return clone;
+}
+
+/**
+ * Remove a single view from the document.
+ * Returns the removed view info for undo, or null if view not found.
+ * Cannot remove the root template view.
+ */
+export function removeView(viewId: string): RemovedViewInfo | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+
+  if (viewId === templateId) {
+    return null;
+  }
+
+  const parentInfo = findParentInTree(templateView, viewId, templateId);
+  if (!parentInfo) {
+    return null;
+  }
+
+  const { childKey, parentId } = parentInfo;
+  const viewToRemove = parentInfo.parent.children?.[childKey];
+  if (!viewToRemove) {
+    return null;
+  }
+
+  const viewData = cloneViewNode(viewToRemove);
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftParentInfo = findParentInTree(
+        draftVstgui.templates[templateId],
+        viewId,
+        templateId
+      );
+      if (draftParentInfo?.parent.children) {
+        delete draftParentInfo.parent.children[childKey];
+      }
+    })
+  );
+
+  return {
+    viewId,
+    childKey,
+    parentId,
+    viewData,
+  };
+}
+
+/**
+ * Remove multiple views from the document.
+ * Returns array of removed view info for undo.
+ * Silently skips views that cannot be removed (root, not found).
+ */
+export function removeViews(viewIds: string[]): RemovedViewInfo[] {
+  const removed: RemovedViewInfo[] = [];
+
+  const sortedIds = [...viewIds].sort((a, b) => {
+    const depthA = a.split('-').length;
+    const depthB = b.split('-').length;
+    return depthB - depthA;
+  });
+
+  for (const viewId of sortedIds) {
+    const result = removeView(viewId);
+    if (result) {
+      removed.push(result);
+    }
+  }
+
+  return removed;
+}
+
+/**
+ * Add a view to a parent container.
+ * Returns the new view ID, or null if parent not found.
+ */
+export function addView(parentId: string, view: ViewNode, childKey?: string): string | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const parent = findViewInTree(templateView, parentId, templateId);
+
+  if (!parent) {
+    return null;
+  }
+
+  const key = childKey ?? generateChildKey(parent);
+  const newViewId = `${parentId}-${key}`;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftParent = findViewInTree(draftVstgui.templates[templateId], parentId, templateId);
+      if (draftParent) {
+        if (!draftParent.children) {
+          draftParent.children = {};
+        }
+        draftParent.children[key] = cloneViewNode(view);
+      }
+    })
+  );
+
+  return newViewId;
+}
+
+/**
+ * Generate a unique child key for a parent view.
+ */
+function generateChildKey(parent: ViewNode): string {
+  const existing = parent.children ? Object.keys(parent.children) : [];
+  let index = existing.length;
+  while (existing.includes(String(index))) {
+    index++;
+  }
+  return String(index);
+}
+
+/**
+ * Restore a previously removed view.
+ * Returns the view ID if successful, null otherwise.
+ */
+export function restoreView(info: RemovedViewInfo): string | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const parent = findViewInTree(templateView, info.parentId, templateId);
+
+  if (!parent) {
+    return null;
+  }
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftParent = findViewInTree(
+        draftVstgui.templates[templateId],
+        info.parentId,
+        templateId
+      );
+      if (draftParent) {
+        if (!draftParent.children) {
+          draftParent.children = {};
+        }
+        draftParent.children[info.childKey] = cloneViewNode(info.viewData);
+      }
+    })
+  );
+
+  return info.viewId;
+}
+
+/**
+ * Duplicate a view with an offset.
+ * Returns the new view ID, or null if source view not found.
+ */
+export function duplicateView(viewId: string, offset: Point): string | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+
+  if (viewId === templateId) {
+    return null;
+  }
+
+  const parentInfo = findParentInTree(templateView, viewId, templateId);
+  if (!parentInfo) {
+    return null;
+  }
+
+  const sourceView = parentInfo.parent.children?.[parentInfo.childKey];
+  if (!sourceView) {
+    return null;
+  }
+
+  const clonedView = cloneViewNode(sourceView);
+  const currentOrigin = parsePoint(clonedView.attributes.origin);
+  const newOrigin = {
+    x: currentOrigin.x + offset.x,
+    y: currentOrigin.y + offset.y,
+  };
+  clonedView.attributes.origin = formatOrigin(newOrigin);
+
+  return addView(parentInfo.parentId, clonedView);
+}
