@@ -135,15 +135,15 @@
 
 **Purpose**: Documentation, edge cases, and cleanup
 
-- [ ] T043 Update CLAUDE.md with smartGuidesStore documentation in `CLAUDE.md`
-- [ ] T044 Update CLAUDE.md with smartGuides domain utilities documentation in `CLAUDE.md`
-- [ ] T045 Test multi-view drag scenario (anchor view guides) in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
-- [ ] T046 Test edge case: only child in container (parent center only) in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
-- [ ] T047 Run `npx biome check --write .` to lint and format all code
-- [ ] T048 Run `npx stylelint "**/*.css" --fix` to lint CSS
-- [ ] T049 Run `npx tsc --noEmit` to verify type correctness
-- [ ] T050 Run full test suite `npm test` and verify all tests pass
-- [ ] T051 **Commit**: Stage and commit Polish phase changes with message "chore(smart-guides): documentation and cleanup"
+- [x] T043 Update CLAUDE.md with smartGuidesStore documentation in `CLAUDE.md`
+- [x] T044 Update CLAUDE.md with smartGuides domain utilities documentation in `CLAUDE.md`
+- [x] T045 Test multi-view drag scenario (anchor view guides) in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
+- [x] T046 Test edge case: only child in container (parent center only) in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
+- [x] T047 Run `npx biome check --write .` to lint and format all code
+- [x] T048 Run `npx stylelint "**/*.css" --fix` to lint CSS
+- [x] T049 Run `npx tsc --noEmit` to verify type correctness
+- [x] T050 Run full test suite `npm test` and verify all tests pass
+- [x] T051 **Commit**: Stage and commit Polish phase changes with message "chore(smart-guides): documentation and cleanup"
 
 ---
 

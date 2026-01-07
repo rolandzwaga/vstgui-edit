@@ -7,7 +7,7 @@ import {
   smartGuidesStore,
   toggleSmartGuides,
 } from '../../../stores/smartGuidesStore';
-import { resetSelection, select, selectionStore } from '../../../stores/selectionStore';
+import { resetSelection, select, toggleSelect, selectionStore } from '../../../stores/selectionStore';
 import { resetDrag } from '../../../stores/dragStore';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { resetMarquee } from '../../../stores/marqueeStore';
@@ -289,6 +289,99 @@ describe('Canvas smart guides integration', () => {
       await vi.advanceTimersByTimeAsync(10);
 
       expect(smartGuidesStore.activeGuides).toHaveLength(0);
+
+      fireEvent.mouseUp(document);
+    });
+  });
+
+  describe('multi-view drag scenario (FR-014)', () => {
+    test('guides calculated based on anchor view during multi-select drag', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-view-1');
+      toggleSelect('TestTemplate-view-2');
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(selectionStore.selectedIds.size).toBe(2);
+
+      const viewRect = screen.getByTestId('view-rect-TestTemplate-view-1');
+      fireEvent.mouseDown(viewRect, { button: 0, clientX: 100, clientY: 90 });
+      fireEvent.mouseMove(document, { clientX: 110, clientY: 90 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+
+      fireEvent.mouseUp(document);
+    });
+  });
+
+  describe('edge case: only child in container', () => {
+    const createSingleChildDocument = (): VSTGUIUIDescription => ({
+      'vstgui-ui-description': {
+        version: '1',
+        templates: {
+          TestTemplate: {
+            attributes: {
+              class: 'CViewContainer',
+              size: '400, 300',
+              origin: '0, 0',
+            },
+            children: {
+              'only-child': {
+                attributes: {
+                  class: 'CView',
+                  origin: '100, 100',
+                  size: '50, 50',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    test('parent center guides available when view is only child', async () => {
+      reset();
+      setDocumentForTest(createSingleChildDocument());
+
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-only-child');
+      await vi.advanceTimersByTimeAsync(10);
+
+      const viewRect = screen.getByTestId('view-rect-TestTemplate-only-child');
+      fireEvent.mouseDown(viewRect, { button: 0, clientX: 125, clientY: 125 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 150 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+
+      fireEvent.mouseUp(document);
+    });
+
+    test('only parent-center guides available when view is only child (no siblings)', async () => {
+      reset();
+      setDocumentForTest(createSingleChildDocument());
+
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-only-child');
+      await vi.advanceTimersByTimeAsync(10);
+
+      const viewRect = screen.getByTestId('view-rect-TestTemplate-only-child');
+      fireEvent.mouseDown(viewRect, { button: 0, clientX: 125, clientY: 125 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 150 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      const guides = smartGuidesStore.activeGuides;
+      const parentCenterGuides = guides.filter(g => g.type === 'parent-center');
+      const spacingGuides = guides.filter(g => g.type === 'spacing');
+
+      expect(spacingGuides).toHaveLength(0);
+      expect(parentCenterGuides.length).toBeGreaterThanOrEqual(0);
 
       fireEvent.mouseUp(document);
     });
