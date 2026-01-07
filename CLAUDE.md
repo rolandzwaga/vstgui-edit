@@ -89,6 +89,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 ---
 
 ## Active Technologies
+- N/A (in-memory state via existing documentStore) (018-hierarchy-reparenting)
+- SolidJS 1.9.10, solid-js/store (already installed) (018-hierarchy-reparenting)
 - In-memory SolidJS store (extends existing documentStore) (016-property-editing)
 - SolidJS 1.9.10, solid-js/store, @floating-ui/dom 1.7.4 (for picker dropdowns) (016-property-editing)
 - N/A (in-memory state via SolidJS signals) (015-smart-guides)
@@ -1661,6 +1663,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 018-hierarchy-reparenting: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 016-property-editing: Added SolidJS 1.9.10, solid-js/store, @floating-ui/dom 1.7.4 (for picker dropdowns)
 - 015-smart-guides: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 014-snap-to-grid: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)

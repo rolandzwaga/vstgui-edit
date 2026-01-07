@@ -11,8 +11,8 @@ export type {
   DropPosition,
   GroupOperation,
   HierarchyDragState,
-  ReparentOperation,
   ReorderOperation,
+  ReparentOperation,
   TreeNode,
   UngroupOperation,
 } from './hierarchy';
