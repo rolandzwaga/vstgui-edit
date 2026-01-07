@@ -14,6 +14,7 @@ export interface ColorItemProps {
   name: string;
   value: string;
   isReadOnly?: boolean;
+  onDelete?: (name: string) => void;
 }
 
 export const ColorItem: Component<ColorItemProps> = (props) => {
@@ -23,6 +24,7 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
   const [valueInput, setValueInput] = createSignal('');
   const [nameError, setNameError] = createSignal<string | null>(null);
   const [valueError, setValueError] = createSignal<string | null>(null);
+  const [isHovered, setIsHovered] = createSignal(false);
 
   const displayName = () => truncateColorName(props.name);
   const displayValue = () => formatColorForDisplay(props.value);
@@ -127,11 +129,17 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
     }
   };
 
+  const handleDelete = () => {
+    props.onDelete?.(props.name);
+  };
+
   return (
     <div
       class={`${styles.item} ${props.isReadOnly ? styles.readonly : ''}`}
       data-testid="color-item"
       title={needsTooltip() ? props.name : undefined}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <ColorSwatch color={previewColor()} size="sm" />
       <div class={styles.info}>
@@ -204,6 +212,30 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
           </div>
         </Show>
       </div>
+      <Show when={isHovered() && !props.isReadOnly && props.onDelete}>
+        <button
+          type="button"
+          class={styles.deleteButton}
+          data-testid="delete-color-button"
+          aria-label={`Delete color ${props.name}`}
+          onClick={handleDelete}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 2l8 8M10 2l-8 8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </Show>
     </div>
   );
 };

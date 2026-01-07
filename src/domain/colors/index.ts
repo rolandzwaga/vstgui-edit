@@ -6,6 +6,9 @@ export type { ParsedColor } from './parsing';
 
 export { formatAsRgba, formatAsHex, truncateColorName, formatColorForDisplay } from './formatting';
 
+export { findColorUsages } from './usage';
+export type { ColorUsage } from './usage';
+
 export {
   createAddColorOperation,
   createEditColorNameOperation,

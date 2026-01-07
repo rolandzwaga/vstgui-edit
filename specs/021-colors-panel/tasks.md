@@ -146,17 +146,17 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T047 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T048 [P] [US4] Create color usage tracking tests in `src/domain/colors/__tests__/usage.spec.ts`
-- [ ] T049 [P] [US4] Create delete color tests in `src/components/ColorsPanel/__tests__/ColorItem.delete.spec.tsx`
+- [x] T047 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T048 [P] [US4] Create color usage tracking tests in `src/domain/colors/__tests__/usage.spec.ts`
+- [x] T049 [P] [US4] Create delete color tests in `src/components/ColorsPanel/__tests__/ColorItem.delete.spec.tsx`
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] Implement color usage tracking utility in `src/domain/colors/usage.ts`
-- [ ] T051 [US4] Add delete button/context menu to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
-- [ ] T052 [US4] Create DeleteConfirmDialog component for used colors in `src/components/ColorsPanel/DeleteConfirmDialog.tsx`
-- [ ] T053 [US4] Integrate delete with usage check and confirmation flow
-- [ ] T054 [US4] Integrate delete operation with historyStore for undo support
+- [x] T050 [US4] Implement color usage tracking utility in `src/domain/colors/usage.ts`
+- [x] T051 [US4] Add delete button/context menu to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
+- [x] T052 [US4] Create DeleteConfirmDialog component (inline in ColorsPanel) for used colors
+- [x] T053 [US4] Integrate delete with usage check and confirmation flow
+- [x] T054 [US4] Integrate delete operation with historyStore for undo support
 - [ ] T055 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(021): implement delete color with usage check (US4)"
 
 **Checkpoint**: At this point, all P1 and P2 (US4) stories should work
