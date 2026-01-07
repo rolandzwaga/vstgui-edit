@@ -1,0 +1,170 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import type { VSTGUIUIDescription } from '../../../types/uidesc';
+import {
+  getColors,
+  addColor,
+  reset,
+  setDocumentForTest,
+} from '../../../stores/documentStore';
+import { pushOperation, undo, redo, clearHistory } from '../../../stores/historyStore';
+import {
+  createAddColorOperation,
+  createEditColorNameOperation,
+  createEditColorValueOperation,
+  createDeleteColorOperation,
+} from '../historyOperations';
+
+function createTestDocument(): VSTGUIUIDescription {
+  return {
+    'vstgui-ui-description': {
+      version: '1',
+      colors: {
+        Background: '#2d2d2dff',
+        Text: '#ffffffff',
+      },
+      templates: {
+        MainView: {
+          attributes: {
+            class: 'CViewContainer',
+            origin: '0, 0',
+            size: '400, 300',
+          },
+        },
+      },
+    },
+  };
+}
+
+describe('createAddColorOperation', () => {
+  beforeEach(() => {
+    reset();
+    clearHistory();
+  });
+
+  it('should create an operation that can be undone', () => {
+    testInRoot(() => {
+      setDocumentForTest(createTestDocument());
+
+      addColor('NewColor', '#ff0000ff');
+      const operation = createAddColorOperation('NewColor', '#ff0000ff');
+      pushOperation(operation);
+
+      expect(getColors()?.NewColor).toBe('#ff0000ff');
+
+      undo();
+      expect(getColors()?.NewColor).toBeUndefined();
+    });
+  });
+
+  it('should create an operation that can be redone', () => {
+    testInRoot(() => {
+      setDocumentForTest(createTestDocument());
+
+      addColor('NewColor', '#ff0000ff');
+      const operation = createAddColorOperation('NewColor', '#ff0000ff');
+      pushOperation(operation);
+
+      undo();
+      redo();
+
+      expect(getColors()?.NewColor).toBe('#ff0000ff');
+    });
+  });
+
+  it('should have correct description', () => {
+    testInRoot(() => {
+      const operation = createAddColorOperation('MyColor', '#ff0000ff');
+      expect(operation.description).toBe('Add color "MyColor"');
+    });
+  });
+});
+
+describe('createEditColorNameOperation', () => {
+  beforeEach(() => {
+    reset();
+    clearHistory();
+  });
+
+  it('should create an operation that can be undone', () => {
+    testInRoot(() => {
+      setDocumentForTest(createTestDocument());
+
+      const operation = createEditColorNameOperation('Background', 'MainBg');
+      operation.redo();
+      pushOperation(operation);
+
+      expect(getColors()?.MainBg).toBe('#2d2d2dff');
+      expect(getColors()?.Background).toBeUndefined();
+
+      undo();
+      expect(getColors()?.Background).toBe('#2d2d2dff');
+      expect(getColors()?.MainBg).toBeUndefined();
+    });
+  });
+
+  it('should have correct description', () => {
+    testInRoot(() => {
+      const operation = createEditColorNameOperation('OldName', 'NewName');
+      expect(operation.description).toBe('Rename color "OldName" to "NewName"');
+    });
+  });
+});
+
+describe('createEditColorValueOperation', () => {
+  beforeEach(() => {
+    reset();
+    clearHistory();
+  });
+
+  it('should create an operation that can be undone', () => {
+    testInRoot(() => {
+      setDocumentForTest(createTestDocument());
+
+      const operation = createEditColorValueOperation('Background', '#2d2d2dff', '#ff0000ff');
+      operation.redo();
+      pushOperation(operation);
+
+      expect(getColors()?.Background).toBe('#ff0000ff');
+
+      undo();
+      expect(getColors()?.Background).toBe('#2d2d2dff');
+    });
+  });
+
+  it('should have correct description', () => {
+    testInRoot(() => {
+      const operation = createEditColorValueOperation('Background', '#000000', '#ffffff');
+      expect(operation.description).toBe('Change color "Background"');
+    });
+  });
+});
+
+describe('createDeleteColorOperation', () => {
+  beforeEach(() => {
+    reset();
+    clearHistory();
+  });
+
+  it('should create an operation that can be undone', () => {
+    testInRoot(() => {
+      setDocumentForTest(createTestDocument());
+
+      const operation = createDeleteColorOperation('Background', '#2d2d2dff');
+      operation.redo();
+      pushOperation(operation);
+
+      expect(getColors()?.Background).toBeUndefined();
+
+      undo();
+      expect(getColors()?.Background).toBe('#2d2d2dff');
+    });
+  });
+
+  it('should have correct description', () => {
+    testInRoot(() => {
+      const operation = createDeleteColorOperation('Background', '#2d2d2dff');
+      expect(operation.description).toBe('Delete color "Background"');
+    });
+  });
+});

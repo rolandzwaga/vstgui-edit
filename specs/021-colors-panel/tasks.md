@@ -39,12 +39,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 Create tests for documentStore color methods in `src/stores/__tests__/documentStore.colors.spec.ts`
-- [ ] T011 Extend documentStore with `addColor`, `updateColorName`, `updateColorValue`, `deleteColor`, `getColors` methods in `src/stores/documentStore.ts`
-- [ ] T012 Create tests for color history operations in `src/domain/colors/__tests__/historyOperations.spec.ts`
-- [ ] T013 Implement color history operations (add/edit/delete) in `src/domain/colors/historyOperations.ts`
-- [ ] T014 Add design tokens for ColorsPanel in `src/styles/tokens.css`
-- [ ] T015 **Commit**: Stage and commit Phase 2 changes with message "feat(021): extend documentStore with color mutations"
+- [x] T010 Create tests for documentStore color methods in `src/stores/__tests__/documentStore.colors.spec.ts`
+- [x] T011 Extend documentStore with `addColor`, `updateColorName`, `updateColorValue`, `deleteColor`, `getColors` methods in `src/stores/documentStore.ts`
+- [x] T012 Create tests for color history operations in `src/domain/colors/__tests__/historyOperations.spec.ts`
+- [x] T013 Implement color history operations (add/edit/delete) in `src/domain/colors/historyOperations.ts`
+- [x] T014 Add design tokens for ColorsPanel in `src/styles/tokens.css`
+- [x] T015 **Commit**: Stage and commit Phase 2 changes with message "feat(021): extend documentStore with color mutations"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 

@@ -5,3 +5,10 @@ export { parseHexColor, isPredefinedColor, getPredefinedColorValue } from './par
 export type { ParsedColor } from './parsing';
 
 export { formatAsRgba, formatAsHex, truncateColorName, formatColorForDisplay } from './formatting';
+
+export {
+  createAddColorOperation,
+  createEditColorNameOperation,
+  createEditColorValueOperation,
+  createDeleteColorOperation,
+} from './historyOperations';

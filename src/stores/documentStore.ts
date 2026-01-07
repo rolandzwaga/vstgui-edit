@@ -1096,3 +1096,106 @@ export function ungroupContainer(containerId: string): UngroupResult | null {
     containerAttributes,
   };
 }
+
+export function getColors(): Record<string, string> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.colors;
+}
+
+export function addColor(name: string, value: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui.colors) {
+        draftVstgui.colors = {};
+      }
+      draftVstgui.colors[name] = value;
+    })
+  );
+
+  return true;
+}
+
+export function updateColorName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.colors?.[oldName]) return false;
+
+  const value = vstgui.colors[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.colors) return;
+
+      delete draftVstgui.colors[oldName];
+      draftVstgui.colors[newName] = value;
+    })
+  );
+
+  return true;
+}
+
+export function updateColorValue(name: string, newValue: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.colors?.[name]) return null;
+
+  const oldValue = vstgui.colors[name];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.colors) return;
+
+      draftVstgui.colors[name] = newValue;
+    })
+  );
+
+  return oldValue;
+}
+
+export function deleteColor(name: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.colors?.[name]) return null;
+
+  const oldValue = vstgui.colors[name];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.colors) return;
+
+      delete draftVstgui.colors[name];
+    })
+  );
+
+  return oldValue;
+}

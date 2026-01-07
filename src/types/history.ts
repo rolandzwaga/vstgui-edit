@@ -20,7 +20,11 @@ export interface HistoryOperation {
     | 'reparent'
     | 'reorder'
     | 'group'
-    | 'ungroup';
+    | 'ungroup'
+    | 'add-color'
+    | 'edit-color-name'
+    | 'edit-color-value'
+    | 'delete-color';
   description: string;
   undo: () => void;
   redo: () => void;
