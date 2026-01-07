@@ -52,19 +52,18 @@ export const GridToolbar: Component = () => {
         #
       </button>
 
-      <button
-        type="button"
-        class={styles.button}
-        classList={{
-          [styles.buttonActive]: gridStore.isSnapEnabled,
-        }}
-        onClick={() => toggleSnap()}
-        aria-label="Toggle snap to grid"
-        aria-pressed={gridStore.isSnapEnabled}
-        title="Toggle Snap (Shift+G)"
-      >
-        ⌖
-      </button>
+      <div class={styles.separator} />
+
+      <label class={styles.checkboxLabel}>
+        <input
+          type="checkbox"
+          class={styles.checkbox}
+          checked={gridStore.isSnapEnabled}
+          onChange={() => toggleSnap()}
+          aria-label="Snap to grid"
+        />
+        <span>Snap to grid</span>
+      </label>
 
       <div class={styles.separator} />
 
