@@ -1,6 +1,6 @@
 # VSTGUI-Edit Development Guidelines
 
-Auto-generated from speckit templates. Last updated: 2026-01-06
+Auto-generated from speckit templates. Last updated: 2026-01-07
 
 ---
 
@@ -583,12 +583,20 @@ resetProperties();
 
 ### Properties Domain (`src/domain/properties/`)
 
-Utilities for attribute grouping and multi-selection merging:
+Utilities for attribute grouping, multi-selection merging, type classification, validation, and history operations:
 
 - `ATTRIBUTE_GROUP_MAP` - Map of attribute names to group categories
 - `getAttributeGroup(name)` - Get group ID for an attribute name
 - `groupAttributes(attrs)` - Group single view's attributes by category
 - `mergeSelections(viewAttrs, classNames)` - Merge attributes from multiple views
+- `ATTRIBUTE_TYPE_MAP` - Map of attribute names to editor types
+- `getAttributeType(name)` - Get editor type for an attribute
+- `validatePoint(value)` - Validate "x, y" format
+- `validateSize(value)` - Validate "w, h" format
+- `validateNumber(value, min?, max?)` - Validate numeric string
+- `validateBoolean(value)` - Validate "true"/"false" string
+- `validateColor(value)` - Validate hex color (#RRGGBB or #RRGGBBAA)
+- `createPropertyEditOperation(data, updateFn)` - Create HistoryOperation for property edits
 
 ```typescript
 import { ATTRIBUTE_GROUP_MAP, getAttributeGroup, groupAttributes, mergeSelections } from './domain/properties';
@@ -608,6 +616,119 @@ const result = mergeSelections(
 );
 // Returns: GroupedAttributes with shared values and 'Mixed' indicators
 ```
+
+```typescript
+import { getAttributeType, ATTRIBUTE_TYPE_MAP } from './domain/properties/attributeTypes';
+import { validatePoint, validateColor, validateNumber } from './domain/properties/validation';
+import { createPropertyEditOperation } from './domain/properties/historyOperations';
+
+// Get editor type for attribute
+getAttributeType('origin');         // 'point'
+getAttributeType('background-color'); // 'color'
+getAttributeType('font');           // 'font'
+getAttributeType('autosize');       // 'enum'
+getAttributeType('visible');        // 'boolean'
+getAttributeType('title');          // 'text' (default)
+
+// Validate attribute values
+validatePoint('10, 20');      // { valid: true }
+validatePoint('invalid');     // { valid: false, error: 'Invalid point...' }
+validateColor('#FF5500FF');   // { valid: true }
+validateNumber('42', 0, 100); // { valid: true }
+
+// Create undo/redo operation for property edit
+const operation = createPropertyEditOperation(
+  { viewId: 'view-1', attribute: 'origin', oldValue: '0, 0', newValue: '10, 20' },
+  updateViewAttribute
+);
+pushOperation(operation);
+```
+
+### Editor Components (`src/components/editors/`)
+
+Property editor components for the PropertiesPanel:
+
+- `TextEditor` - Free-form string input (title, tooltip, etc.)
+- `PointEditor` - "x, y" coordinate pairs with validation
+- `BooleanEditor` - Checkbox toggle for boolean attributes
+- `NumberEditor` - Numeric input with +/-, min/max/step, ArrowUp/ArrowDown keys
+- `EnumEditor` - Dropdown for fixed options (uses @floating-ui/dom)
+- `ColorPicker` - Document colors + hex input + predefined colors (~)
+- `FontPicker` - Dropdown for document fonts
+- `BitmapPicker` - Dropdown for document bitmaps
+
+```typescript
+import { TextEditor } from './components/editors/TextEditor';
+import { PointEditor } from './components/editors/PointEditor';
+import { BooleanEditor } from './components/editors/BooleanEditor';
+import { NumberEditor } from './components/editors/NumberEditor';
+import { EnumEditor } from './components/editors/EnumEditor';
+import { ColorPicker } from './components/editors/ColorPicker';
+import { FontPicker } from './components/editors/FontPicker';
+import { BitmapPicker } from './components/editors/BitmapPicker';
+
+// TextEditor - for strings
+<TextEditor value="Hello" onChange={setValue} onCommit={commitValue} />
+
+// PointEditor - validates "x, y" format
+<PointEditor value="10, 20" onChange={setValue} onCommit={commitValue} />
+
+// BooleanEditor - checkbox toggle
+<BooleanEditor value="true" onChange={handleToggle} onCommit={commitValue} />
+
+// NumberEditor - with constraints
+<NumberEditor
+  value="50"
+  min={0}
+  max={100}
+  step={1}
+  onChange={setValue}
+  onCommit={commitValue}
+/>
+
+// EnumEditor - dropdown for fixed options
+<EnumEditor
+  value="left"
+  options={[
+    { value: 'left', label: 'Left' },
+    { value: 'center', label: 'Center' },
+    { value: 'right', label: 'Right' }
+  ]}
+  onChange={setValue}
+  onCommit={commitValue}
+/>
+
+// ColorPicker - document colors + hex + predefined
+<ColorPicker
+  value="#FF5500FF"
+  documentColors={{ Background: '#000000FF', Highlight: '#FF0000FF' }}
+  onChange={setValue}
+  onCommit={commitValue}
+/>
+
+// FontPicker - document fonts
+<FontPicker
+  value="~ NormalFont"
+  documentFonts={{ NormalFont: { ... }, BoldFont: { ... } }}
+  onChange={setValue}
+  onCommit={commitValue}
+/>
+
+// BitmapPicker - document bitmaps
+<BitmapPicker
+  value="background.png"
+  documentBitmaps={{ 'background.png': '...', 'icon.png': '...' }}
+  onChange={setValue}
+  onCommit={commitValue}
+/>
+```
+
+**Editor Behavior**:
+- `onChange` fires on each keystroke/interaction (live preview)
+- `onCommit` fires on blur/Enter (creates undo history entry)
+- Invalid values show red border but don't commit
+- Escape key reverts to last committed value
+- All editors support keyboard navigation
 
 ### Hierarchy Utilities (`src/domain/hierarchy/buildTree.ts`)
 
@@ -1522,6 +1643,26 @@ class SetPropertyCommand implements Command {
 - 008-view-selection: Added TypeScript 5.9.3 with strict mode enabled + SolidJS 1.9.10, @floating-ui/dom 1.7.4 (tooltips)
 
 **[Track feature additions here]**
+
+- 2026-01-07: Implemented 016-property-editing feature
+  - 8 specialized editor components for property editing
+  - TextEditor: free-form string input with undo/redo support
+  - PointEditor: "x, y" coordinate pairs with validation
+  - BooleanEditor: checkbox toggle for boolean attributes
+  - NumberEditor: numeric input with +/- buttons, min/max/step, ArrowUp/ArrowDown keys
+  - EnumEditor: dropdown for fixed options using @floating-ui/dom
+  - ColorPicker: document colors + hex input + predefined colors (~)
+  - FontPicker: dropdown for document fonts
+  - BitmapPicker: dropdown for document bitmaps
+  - Domain utilities: attributeTypes.ts, validation.ts, historyOperations.ts
+  - Attribute type classification for 50+ attributes
+  - Validation functions: validatePoint, validateSize, validateNumber, validateBoolean, validateColor
+  - createPropertyEditOperation for undo/redo integration
+  - documentStore: getViewAttribute(), updateViewAttribute()
+  - All editors: onChange (live preview) + onCommit (history entry)
+  - Escape key reverts to last committed value
+  - Invalid values show red border, prevent commit
+  - 1622 passing tests (111 new + 1511 existing)
 
 - 2026-01-06: Implemented 012-view-move feature
   - Drag selected views to move them on canvas
