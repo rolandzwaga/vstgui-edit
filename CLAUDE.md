@@ -1663,6 +1663,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 021-colors-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 018-hierarchy-reparenting: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 016-property-editing: Added SolidJS 1.9.10, solid-js/store, @floating-ui/dom 1.7.4 (for picker dropdowns)
 - 015-smart-guides: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
