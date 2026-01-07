@@ -118,7 +118,7 @@ export function useCanvasInteractions(
     updateResize(canvasPoint, e.shiftKey, e.altKey);
   };
 
-  const handleResizeUp = () => {
+  const handleResizeUp = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleResizeMove);
     document.removeEventListener('mouseup', handleResizeUp);
 
@@ -131,7 +131,8 @@ export function useCanvasInteractions(
       const handle = resizeStore.activeHandle;
 
       if (originalOrigin && originalSize && handle) {
-        if (gridStore.isSnapEnabled && gridStore.isVisible) {
+        const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+        if (shouldSnap) {
           const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
           const snapResult = applySnapToResize(
             newOrigin,
@@ -243,7 +244,7 @@ export function useCanvasInteractions(
     updateDrag(canvasPoint, e.shiftKey);
   };
 
-  const handleDragUp = () => {
+  const handleDragUp = (e: MouseEvent) => {
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragUp);
 
@@ -253,7 +254,8 @@ export function useCanvasInteractions(
       const viewIds = Object.keys(origins);
       let newOrigins = applyDeltaToAll(origins, delta);
 
-      if (gridStore.isSnapEnabled && gridStore.isVisible) {
+      const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+      if (shouldSnap) {
         const anchorId = viewIds[0];
         if (anchorId) {
           const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
