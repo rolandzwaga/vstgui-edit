@@ -84,14 +84,19 @@
   stroke-dasharray: 4 2;
 }
 
-/* Legend container */
+/* Legend container - fixed at bottom of viewport */
 .legend {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 16px;
   padding: 8px 12px;
   background-color: var(--color-surface);
   border-radius: 4px;
-  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
 }
 
 /* Legend item */
