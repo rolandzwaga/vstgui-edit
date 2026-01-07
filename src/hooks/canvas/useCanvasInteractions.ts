@@ -175,7 +175,7 @@ export function useCanvasInteractions(
 
   const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
     const point = getHandlePosition(handle, view);
-    const origin = { x: view.absoluteX, y: view.absoluteY };
+    const origin = { x: view.relativeX, y: view.relativeY };
     const size = { width: view.width, height: view.height };
 
     startResize(handle, view.id, point, origin, size);
@@ -203,7 +203,7 @@ export function useCanvasInteractions(
 
     for (const view of views) {
       if (selectedIds.has(view.id)) {
-        origins[view.id] = { x: view.absoluteX, y: view.absoluteY };
+        origins[view.id] = { x: view.relativeX, y: view.relativeY };
       }
     }
 

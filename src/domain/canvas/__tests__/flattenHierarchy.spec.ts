@@ -333,6 +333,43 @@ describe('flattenHierarchy', () => {
       expect(result[2].absoluteX).toBe(160);
       expect(result[2].absoluteY).toBe(160);
     });
+
+    it('should preserve relative position (origin value) separate from absolute position', () => {
+      const view: ViewDefinition = {
+        attributes: {
+          class: 'CViewContainer',
+          origin: '100, 100',
+          size: '400, 300',
+        },
+        children: {
+          panel: {
+            attributes: {
+              class: 'CViewContainer',
+              origin: '50, 50',
+              size: '200, 200',
+            },
+            children: {
+              button: {
+                attributes: {
+                  class: 'CTextButton',
+                  origin: '10, 20',
+                  size: '80, 30',
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = flattenHierarchy(view, 'root');
+
+      expect(result[0].relativeX).toBe(100);
+      expect(result[0].relativeY).toBe(100);
+      expect(result[1].relativeX).toBe(50);
+      expect(result[1].relativeY).toBe(50);
+      expect(result[2].relativeX).toBe(10);
+      expect(result[2].relativeY).toBe(20);
+    });
   });
 
   describe('Given children at various levels (US2 - z-ordering)', () => {

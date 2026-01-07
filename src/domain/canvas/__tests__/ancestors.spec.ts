@@ -10,6 +10,8 @@ const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView
   id: 'test-view',
   absoluteX: 0,
   absoluteY: 0,
+  relativeX: 0,
+  relativeY: 0,
   width: 100,
   height: 100,
   className: 'CViewContainer',

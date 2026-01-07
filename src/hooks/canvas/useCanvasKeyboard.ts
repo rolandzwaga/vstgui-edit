@@ -138,8 +138,8 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       for (const view of views) {
         if (selectedIds.has(view.id)) {
           viewIds.push(view.id);
-          originalOrigins[view.id] = { x: view.absoluteX, y: view.absoluteY };
-          newOrigins[view.id] = applyDelta({ x: view.absoluteX, y: view.absoluteY }, delta);
+          originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
+          newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);
         }
       }
 

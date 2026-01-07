@@ -119,6 +119,8 @@ export function flattenHierarchy(
       id: viewId,
       absoluteX,
       absoluteY,
+      relativeX: origin.x,
+      relativeY: origin.y,
       width: size.width,
       height: size.height,
       className: className ?? 'Unknown',
