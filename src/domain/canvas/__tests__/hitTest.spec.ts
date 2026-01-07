@@ -18,6 +18,8 @@ const createMockView = (
   id,
   absoluteX: x,
   absoluteY: y,
+  relativeX: x,
+  relativeY: y,
   width,
   height,
   className: 'CView',

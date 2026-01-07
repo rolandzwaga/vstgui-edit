@@ -21,6 +21,7 @@
 export {
   createMockContainer,
   createMockDocument,
+  createMockRenderableView,
   createMockUidescFile,
   createMockUidescJson,
   createMockUidescXml,

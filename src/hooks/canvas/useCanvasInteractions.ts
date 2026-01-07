@@ -3,6 +3,7 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
+import { calculateSmartGuides, getViewBounds } from '../../domain/canvas/smartGuides';
 import {
   applySnapToMove,
   applySnapToResize,
@@ -36,6 +37,11 @@ import {
   selectionStore,
   toggleSelect,
 } from '../../stores/selectionStore';
+import {
+  clearActiveGuides,
+  setActiveGuides,
+  smartGuidesStore,
+} from '../../stores/smartGuidesStore';
 import type { RenderableView } from '../../types/canvas';
 import { CLICK_TOLERANCE } from '../../types/history';
 import type { HandlePosition } from '../../types/selection';
@@ -169,7 +175,7 @@ export function useCanvasInteractions(
 
   const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
     const point = getHandlePosition(handle, view);
-    const origin = { x: view.absoluteX, y: view.absoluteY };
+    const origin = { x: view.relativeX, y: view.relativeY };
     const size = { width: view.width, height: view.height };
 
     startResize(handle, view.id, point, origin, size);
@@ -197,7 +203,7 @@ export function useCanvasInteractions(
 
     for (const view of views) {
       if (selectedIds.has(view.id)) {
-        origins[view.id] = { x: view.absoluteX, y: view.absoluteY };
+        origins[view.id] = { x: view.relativeX, y: view.relativeY };
       }
     }
 
@@ -242,6 +248,34 @@ export function useCanvasInteractions(
     );
 
     updateDrag(canvasPoint, e.shiftKey);
+
+    if (smartGuidesStore.isEnabled && dragStore.isDragging) {
+      const delta = dragStore.delta;
+      const selectedIds = selectionStore.selectedIds;
+      const views = renderableViews();
+      const anchorId = Object.keys(dragStore.originalOrigins)[0];
+
+      if (anchorId) {
+        const anchorView = views.find(v => v.id === anchorId);
+        if (anchorView) {
+          const draggedBounds = getViewBounds({
+            ...anchorView,
+            absoluteX: anchorView.absoluteX + delta.x,
+            absoluteY: anchorView.absoluteY + delta.y,
+          });
+
+          const siblings = views.filter(v => !selectedIds.has(v.id)).map(getViewBounds);
+
+          const parentView = anchorView.parentId
+            ? views.find(v => v.id === anchorView.parentId)
+            : undefined;
+          const parentBounds = parentView ? getViewBounds(parentView) : undefined;
+
+          const guides = calculateSmartGuides(draggedBounds, siblings, parentBounds);
+          setActiveGuides(guides);
+        }
+      }
+    }
   };
 
   const handleDragUp = (e: MouseEvent) => {
@@ -280,6 +314,7 @@ export function useCanvasInteractions(
     setPendingDragStart(null);
     setPendingDragViewId(null);
     resetDrag();
+    clearActiveGuides();
   };
 
   const handleMarqueeMove = (e: MouseEvent) => {

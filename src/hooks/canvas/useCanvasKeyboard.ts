@@ -8,6 +8,7 @@ import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
+import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import type { RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 
@@ -137,8 +138,8 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       for (const view of views) {
         if (selectedIds.has(view.id)) {
           viewIds.push(view.id);
-          originalOrigins[view.id] = { x: view.absoluteX, y: view.absoluteY };
-          newOrigins[view.id] = applyDelta({ x: view.absoluteX, y: view.absoluteY }, delta);
+          originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
+          newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);
         }
       }
 
@@ -170,6 +171,8 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       toggleVisibility();
     } else if ((e.key === 'g' || e.key === 'G') && e.shiftKey) {
       toggleSnap();
+    } else if (e.key === 's' || e.key === 'S') {
+      toggleSmartGuides();
     }
   };
 

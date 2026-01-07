@@ -30,6 +30,18 @@ export type {
   ResizeState,
 } from './resize';
 export { MIN_VIEW_SIZE, RESIZE_CLICK_TOLERANCE } from './resize';
+// Re-export smart guides types
+export type {
+  EdgeType,
+  GuideMatch,
+  GuideOrientation,
+  GuideType,
+  SmartGuide,
+  SmartGuidesState,
+  SpacingGuide,
+  ViewBounds,
+} from './smartGuides';
+export { isSpacingGuide } from './smartGuides';
 
 /**
  * State machine for upload process

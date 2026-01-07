@@ -44,6 +44,12 @@ export interface RenderableView {
   /** Absolute Y position in canvas coordinates */
   absoluteY: number;
 
+  /** Relative X position (the origin attribute value, relative to parent) */
+  relativeX: number;
+
+  /** Relative Y position (the origin attribute value, relative to parent) */
+  relativeY: number;
+
   /** View width in pixels */
   width: number;
 

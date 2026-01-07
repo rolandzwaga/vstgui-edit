@@ -13,6 +13,8 @@ const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView
   id: 'test-view',
   absoluteX: 50,
   absoluteY: 100,
+  relativeX: 50,
+  relativeY: 100,
   width: 200,
   height: 80,
   className: 'CTextButton',

@@ -9,6 +9,8 @@ function createMockView(overrides?: Partial<RenderableView>): RenderableView {
     id: 'test-view',
     absoluteX: 100,
     absoluteY: 100,
+    relativeX: 100,
+    relativeY: 100,
     width: 200,
     height: 150,
     className: 'CTextButton',

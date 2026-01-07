@@ -1,3 +1,4 @@
+import type { RenderableView, ViewCategory } from '../../types/canvas';
 import type {
   BitmapsDefinition,
   ColorsDefinition,
@@ -137,4 +138,25 @@ export function createMockUidescFile(
   filename: string = 'test.uidesc'
 ): File {
   return new File([content], filename, { type: 'text/plain' });
+}
+
+export function createMockRenderableView(
+  overrides: Partial<RenderableView> = {}
+): RenderableView {
+  const absoluteX = overrides.absoluteX ?? 0;
+  const absoluteY = overrides.absoluteY ?? 0;
+  return {
+    id: 'view-0',
+    absoluteX,
+    absoluteY,
+    relativeX: overrides.relativeX ?? absoluteX,
+    relativeY: overrides.relativeY ?? absoluteY,
+    width: 100,
+    height: 100,
+    className: 'CView',
+    category: 'control' as ViewCategory,
+    zIndex: 0,
+    parentId: null,
+    ...overrides,
+  };
 }

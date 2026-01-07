@@ -61,6 +61,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-06
 ---
 
 ## Active Technologies
+- N/A (in-memory state via SolidJS signals) (015-smart-guides)
 - In-memory SolidJS signals (extends gridStore for snap state) (014-snap-to-grid)
 - N/A (extends existing documentStore for view size mutations) (013-view-resize)
 - In-memory SolidJS store (documentStore for view origins, new historyStore for undo/redo) (012-view-move)
@@ -334,6 +335,39 @@ setSnapThreshold(8);  // Views within 8px of grid line will snap
 resetGrid();  // Visibility: true, Size: 10, Style: 'lines', Snap: true, Threshold: 5
 ```
 
+### Smart Guides Store (`src/stores/smartGuidesStore.ts`)
+
+Global store for smart guides feature state management:
+
+- `smartGuidesStore` - Reactive store with isEnabled and activeGuides
+- `toggleSmartGuides()` - Toggle smart guides on/off
+- `setActiveGuides(guides)` - Set currently active guide lines (during drag)
+- `clearActiveGuides()` - Clear all active guides (on drag end)
+- `resetSmartGuides()` - Reset to default state (enabled, no guides)
+- `DEFAULT_GUIDES_ENABLED` - Default enabled state (true)
+
+```typescript
+import { smartGuidesStore, toggleSmartGuides, setActiveGuides, clearActiveGuides, resetSmartGuides } from './stores/smartGuidesStore';
+
+// Access smart guides state
+console.log(smartGuidesStore.isEnabled);    // boolean (default: true)
+console.log(smartGuidesStore.activeGuides); // SmartGuide[]
+
+// Toggle visibility (also: S key on canvas)
+toggleSmartGuides();
+
+// Set guides during drag operation
+setActiveGuides([
+  { id: 'v-1', orientation: 'vertical', position: 100, type: 'edge', participatingViewIds: ['a', 'b'] }
+]);
+
+// Clear guides on drag end
+clearActiveGuides();
+
+// Reset for testing
+resetSmartGuides();
+```
+
 ### Grid Utilities (`src/domain/canvas/grid.ts`)
 
 Grid calculation utilities:
@@ -393,6 +427,42 @@ const threshold = getEffectiveThreshold(10, 16);  // 8 (clamped)
 - Alt key temporarily disables snap during drag/resize
 - Multi-view moves: anchor view snaps, all others maintain relative positions
 - Resize: edges being dragged snap, minimum view size (10px) takes precedence
+
+### Smart Guides Utilities (`src/domain/canvas/smartGuides.ts`)
+
+Utilities for calculating alignment and spacing guides during drag operations:
+
+- `GUIDE_THRESHOLD` - Alignment threshold (5 pixels)
+- `getViewBounds(view)` - Convert RenderableView to ViewBounds with edges and centers
+- `isWithinThreshold(distance)` - Check if distance is within guide threshold
+- `createGuide(orientation, position, type, viewIds)` - Factory for SmartGuide objects
+- `findEdgeAlignments(dragged, siblings)` - Find edge-to-edge alignments
+- `findCenterAlignments(dragged, siblings)` - Find center-to-center alignments
+- `findParentCenterGuides(dragged, parent)` - Find alignment with parent center
+- `findSpacingGuides(dragged, siblings)` - Find equal spacing between views
+- `calculateSmartGuides(dragged, siblings, parentBounds?)` - Orchestrate all guide calculations
+
+```typescript
+import { getViewBounds, calculateSmartGuides, findSpacingGuides, GUIDE_THRESHOLD } from './domain/canvas/smartGuides';
+
+// Convert RenderableView to bounds
+const bounds = getViewBounds(view);
+// bounds: { id, left, right, top, bottom, centerX, centerY }
+
+// Calculate all guides for a dragged view
+const guides = calculateSmartGuides(draggedBounds, siblingBounds, parentBounds);
+// Returns: SmartGuide[] with edge, center, parent-center, and spacing guides
+
+// Find spacing guides (equal gaps)
+const spacingGuides = findSpacingGuides(draggedBounds, siblingBounds);
+// Returns: SpacingGuide[] with distance, measureStart, measureEnd
+```
+
+**Guide Types**:
+- `edge` - View edge aligns with sibling edge (left/right/top/bottom)
+- `center` - View center aligns with sibling center (horizontal/vertical)
+- `parent-center` - View center aligns with parent container center
+- `spacing` - Equal gap between view and two adjacent siblings
 
 ### Selection Store (`src/stores/selectionStore.ts`)
 
@@ -1440,6 +1510,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 015-smart-guides: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 014-snap-to-grid: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 013-view-resize: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 012-view-move: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)

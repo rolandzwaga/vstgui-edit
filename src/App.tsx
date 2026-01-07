@@ -1,5 +1,5 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
-import { Canvas } from './components/Canvas';
+import { Canvas, Legend } from './components/Canvas';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
@@ -31,14 +31,17 @@ export default function App() {
     <main style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}>
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
-        <div style={{ display: 'flex', "min-height": '100vh' }}>
-          <HierarchyPanel />
-          <div style={{ flex: 1, "min-width": 0 }}>
-            <MainToolbar onFitToView={handleFitToView} />
-            <Canvas />
+        <>
+          <div style={{ display: 'flex', "min-height": '100vh' }}>
+            <HierarchyPanel />
+            <div style={{ flex: 1, "min-width": 0 }}>
+              <MainToolbar onFitToView={handleFitToView} />
+              <Canvas />
+            </div>
+            <PropertiesPanel />
           </div>
-          <PropertiesPanel />
-        </div>
+          <Legend />
+        </>
       ) : (
         <>
         <h1 style={{ "margin-bottom": '1.5rem', "text-align": 'center' }}>VSTGUI-Edit</h1>
