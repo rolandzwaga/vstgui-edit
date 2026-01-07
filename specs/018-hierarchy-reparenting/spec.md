@@ -215,8 +215,8 @@ As a user, I want to see visual feedback during drag operations in the hierarchy
 | FR-023 | ✅ MET | `.dropTarget` style in `HierarchyPanel.module.css` highlights valid containers |
 | FR-024 | ✅ MET | `.dropBefore`/`.dropAfter` insertion line indicators in CSS |
 | FR-025 | ✅ MET | `.dropInvalid` style in `HierarchyPanel.module.css` for rejection indicator |
-| FR-026 | ⬜ PARTIAL | Group/ungroup supports multi-selection; drag reparent is single-view only (MVP scope) |
-| FR-027 | ⬜ PARTIAL | Reorder via drag is single-view only (MVP scope) |
+| FR-026 | ✅ MET | `createMultiReparentOperation()` + TreeNode drop handler reparents all selected views |
+| FR-027 | ✅ MET | `createMultiReorderOperation()` maintains relative order of selected views |
 | SC-001 | ✅ MET | Drag-drop reparent completes in single user action; tests verify operation success |
 | SC-002 | ✅ MET | Drag-drop reorder completes in single user action; tests verify operation success |
 | SC-003 | ✅ MET | `createGroupHistoryOperation()` returns single HistoryOperation with undo/redo |
@@ -229,7 +229,7 @@ As a user, I want to see visual feedback during drag operations in the hierarchy
 
 ### Final Verification
 
-- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified (25 MET, 2 PARTIAL - MVP scope)
+- [x] **Compliance Table Complete**: All 27 FR-xxx and 7 SC-xxx requirements verified with ✅ MET status
 - [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
 - [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
 - [x] **Quality Gate - CSS**: Run `npm run lint:css` - PASSED with zero errors/warnings
