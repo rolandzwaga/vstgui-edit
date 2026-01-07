@@ -1,10 +1,14 @@
 import type { Accessor } from 'solid-js';
 import { applyDelta, createMoveOperation } from '../../domain/canvas/move';
 import {
+  copySelectedViews,
   createDeleteOperation,
   createDuplicateOperation,
+  createPasteOperation,
+  cutSelectedViews,
   deleteSelectedViews,
   duplicateSelectedViews,
+  pasteViews,
 } from '../../domain/canvas/viewOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { updateViewOrigin } from '../../stores/documentStore';
@@ -92,6 +96,32 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const duplicated = duplicateSelectedViews();
       if (duplicated.length > 0) {
         const operation = createDuplicateOperation(duplicated);
+        pushOperation(operation);
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+      e.preventDefault();
+      copySelectedViews();
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x') {
+      e.preventDefault();
+      const removed = cutSelectedViews();
+      if (removed.length > 0) {
+        const operation = createDeleteOperation(removed);
+        pushOperation(operation);
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+      e.preventDefault();
+      const pasted = pasteViews();
+      if (pasted.length > 0) {
+        const operation = createPasteOperation(pasted);
         pushOperation(operation);
       }
       return;

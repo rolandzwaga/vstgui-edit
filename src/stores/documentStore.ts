@@ -183,6 +183,27 @@ export function setDocumentForTest(doc: VSTGUIUIDescription): void {
   });
 }
 
+export function getView(viewId: string): ViewNode | null {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  return findViewInTree(templateView, viewId, templateId);
+}
+
 function findViewInTree(root: ViewNode, compositeId: string, rootId: string): ViewNode | null {
   if (compositeId === rootId) {
     return root;
