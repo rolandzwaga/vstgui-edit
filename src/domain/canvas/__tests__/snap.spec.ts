@@ -43,12 +43,12 @@ describe('snapToGrid', () => {
     expect(result.gridLine).toBe(30);
   });
 
-  test('does not snap coordinate outside threshold', () => {
+  test('always snaps to nearest grid line', () => {
     const result = snapToGrid(15, 10, 4);
-    expect(result.snapped).toBe(false);
-    expect(result.value).toBe(15);
-    expect(result.snapDelta).toBe(0);
-    expect(result.gridLine).toBe(null);
+    expect(result.snapped).toBe(true);
+    expect(result.value).toBe(20);
+    expect(result.snapDelta).toBe(5);
+    expect(result.gridLine).toBe(20);
   });
 
   test('snaps to higher grid line when closer', () => {
@@ -91,18 +91,18 @@ describe('snapPoint', () => {
     expect(result.point).toEqual({ x: 20, y: 50 });
   });
 
-  test('snaps x only when y is outside threshold', () => {
+  test('always snaps both coordinates to nearest grid lines', () => {
     const result = snapPoint({ x: 23, y: 15 }, 10, 4);
     expect(result.x.snapped).toBe(true);
-    expect(result.y.snapped).toBe(false);
-    expect(result.point).toEqual({ x: 20, y: 15 });
+    expect(result.y.snapped).toBe(true);
+    expect(result.point).toEqual({ x: 20, y: 20 });
   });
 
-  test('does not snap either coordinate when both outside threshold', () => {
+  test('snaps both coordinates when between grid lines', () => {
     const result = snapPoint({ x: 15, y: 15 }, 10, 4);
-    expect(result.x.snapped).toBe(false);
-    expect(result.y.snapped).toBe(false);
-    expect(result.point).toEqual({ x: 15, y: 15 });
+    expect(result.x.snapped).toBe(true);
+    expect(result.y.snapped).toBe(true);
+    expect(result.point).toEqual({ x: 20, y: 20 });
   });
 });
 
@@ -185,27 +185,27 @@ describe('applySnapToMove', () => {
     expect(result.didSnap).toBe(true);
   });
 
-  test('returns original origins when no snap occurs', () => {
+  test('always snaps to nearest grid lines', () => {
     const origins = {
       anchor: { x: 15, y: 15 },
       other: { x: 100, y: 150 },
     };
     const result = applySnapToMove(origins, 'anchor', 10, 4);
 
-    expect(result.snappedOrigins.anchor).toEqual({ x: 15, y: 15 });
-    expect(result.snappedOrigins.other).toEqual({ x: 100, y: 150 });
-    expect(result.snapDelta).toEqual({ x: 0, y: 0 });
-    expect(result.didSnap).toBe(false);
+    expect(result.snappedOrigins.anchor).toEqual({ x: 20, y: 20 });
+    expect(result.snappedOrigins.other).toEqual({ x: 105, y: 155 });
+    expect(result.snapDelta).toEqual({ x: 5, y: 5 });
+    expect(result.didSnap).toBe(true);
   });
 
-  test('snaps only x when y is outside threshold', () => {
+  test('snaps both coordinates to nearest grid lines', () => {
     const origins = {
       anchor: { x: 23, y: 15 },
     };
     const result = applySnapToMove(origins, 'anchor', 10, 4);
 
-    expect(result.snappedOrigins.anchor).toEqual({ x: 20, y: 15 });
-    expect(result.snapDelta).toEqual({ x: -3, y: 0 });
+    expect(result.snappedOrigins.anchor).toEqual({ x: 20, y: 20 });
+    expect(result.snapDelta).toEqual({ x: -3, y: 5 });
     expect(result.didSnap).toBe(true);
   });
 
@@ -328,14 +328,14 @@ describe('applySnapToResize', () => {
     expect(result.didSnap).toBe(true);
   });
 
-  test('does not snap when edges are outside threshold', () => {
+  test('always snaps edges to nearest grid lines', () => {
     const origin = { x: 55, y: 55 };
     const size = { width: 100, height: 80 };
     const result = applySnapToResize(origin, size, 'nw', 10, 4);
 
-    expect(result.origin).toEqual({ x: 55, y: 55 });
-    expect(result.size).toEqual({ width: 100, height: 80 });
-    expect(result.didSnap).toBe(false);
+    expect(result.origin).toEqual({ x: 60, y: 60 });
+    expect(result.size).toEqual({ width: 95, height: 75 });
+    expect(result.didSnap).toBe(true);
   });
 
   test('respects minimum size constraint', () => {

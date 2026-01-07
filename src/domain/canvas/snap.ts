@@ -10,25 +10,15 @@ export function getEffectiveThreshold(threshold: number, gridSize: number): numb
   return Math.min(threshold, gridSize / 2);
 }
 
-export function snapToGrid(value: number, gridSize: number, threshold: number): SnapResult {
-  const effectiveThreshold = getEffectiveThreshold(threshold, gridSize);
+export function snapToGrid(value: number, gridSize: number, _threshold: number): SnapResult {
   const nearestGridLine = Math.round(value / gridSize) * gridSize;
-  const distance = Math.abs(value - nearestGridLine);
-
-  if (distance <= effectiveThreshold) {
-    return {
-      snapped: true,
-      value: nearestGridLine,
-      snapDelta: nearestGridLine - value,
-      gridLine: nearestGridLine,
-    };
-  }
+  const snapDelta = nearestGridLine - value;
 
   return {
-    snapped: false,
-    value,
-    snapDelta: 0,
-    gridLine: null,
+    snapped: true,
+    value: nearestGridLine,
+    snapDelta,
+    gridLine: nearestGridLine,
   };
 }
 
