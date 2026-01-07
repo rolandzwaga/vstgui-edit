@@ -124,3 +124,70 @@ export function applySnapToMove(
     didSnap,
   };
 }
+
+const MIN_VIEW_SIZE = 10;
+
+export interface ApplySnapToResizeResult {
+  origin: Point;
+  size: Size;
+  didSnap: boolean;
+}
+
+export function applySnapToResize(
+  origin: Point,
+  size: Size,
+  handle: string,
+  gridSize: number,
+  threshold: number
+): ApplySnapToResizeResult {
+  const bounds: ViewBounds = { origin, size };
+  const edgeSnap = snapEdges(bounds, handle, gridSize, threshold);
+
+  let newX = origin.x;
+  let newY = origin.y;
+  let newWidth = size.width;
+  let newHeight = size.height;
+
+  let didSnap = false;
+
+  if (edgeSnap.left?.snapped) {
+    const delta = edgeSnap.left.snapDelta;
+    newX += delta;
+    newWidth -= delta;
+    didSnap = true;
+  }
+
+  if (edgeSnap.right?.snapped) {
+    const rightEdge = origin.x + size.width;
+    const snappedRight = edgeSnap.right.value;
+    newWidth = snappedRight - newX;
+    didSnap = true;
+  }
+
+  if (edgeSnap.top?.snapped) {
+    const delta = edgeSnap.top.snapDelta;
+    newY += delta;
+    newHeight -= delta;
+    didSnap = true;
+  }
+
+  if (edgeSnap.bottom?.snapped) {
+    const bottomEdge = origin.y + size.height;
+    const snappedBottom = edgeSnap.bottom.value;
+    newHeight = snappedBottom - newY;
+    didSnap = true;
+  }
+
+  if (newWidth < MIN_VIEW_SIZE) {
+    newWidth = MIN_VIEW_SIZE;
+  }
+  if (newHeight < MIN_VIEW_SIZE) {
+    newHeight = MIN_VIEW_SIZE;
+  }
+
+  return {
+    origin: { x: newX, y: newY },
+    size: { width: newWidth, height: newHeight },
+    didSnap,
+  };
+}

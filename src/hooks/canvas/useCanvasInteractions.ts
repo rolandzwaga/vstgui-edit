@@ -3,7 +3,11 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
-import { applySnapToMove, getEffectiveThreshold } from '../../domain/canvas/snap';
+import {
+  applySnapToMove,
+  applySnapToResize,
+  getEffectiveThreshold,
+} from '../../domain/canvas/snap';
 import { canvasStore } from '../../stores/canvasStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
@@ -122,10 +126,24 @@ export function useCanvasInteractions(
       const viewId = resizeStore.viewId;
       const originalOrigin = resizeStore.originalOrigin;
       const originalSize = resizeStore.originalSize;
-      const newOrigin = resizeStore.newOrigin;
-      const newSize = resizeStore.newSize;
+      let newOrigin = resizeStore.newOrigin;
+      let newSize = resizeStore.newSize;
+      const handle = resizeStore.activeHandle;
 
-      if (originalOrigin && originalSize) {
+      if (originalOrigin && originalSize && handle) {
+        if (gridStore.isSnapEnabled && gridStore.isVisible) {
+          const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
+          const snapResult = applySnapToResize(
+            newOrigin,
+            newSize,
+            handle,
+            gridStore.size,
+            threshold
+          );
+          newOrigin = snapResult.origin;
+          newSize = snapResult.size;
+        }
+
         const sizeChanged =
           newSize.width !== originalSize.width || newSize.height !== originalSize.height;
         const originChanged = newOrigin.x !== originalOrigin.x || newOrigin.y !== originalOrigin.y;

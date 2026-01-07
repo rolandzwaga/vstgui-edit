@@ -51,7 +51,9 @@ export {
 // Snap-to-grid utilities
 export {
   type ApplySnapToMoveResult,
+  type ApplySnapToResizeResult,
   applySnapToMove,
+  applySnapToResize,
   getEffectiveThreshold,
   snapEdges,
   snapPoint,

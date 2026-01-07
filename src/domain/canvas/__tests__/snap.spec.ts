@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'vitest';
-import { applySnapToMove, getEffectiveThreshold, snapEdges, snapPoint, snapToGrid } from '../snap';
+import {
+  applySnapToMove,
+  applySnapToResize,
+  getEffectiveThreshold,
+  snapEdges,
+  snapPoint,
+  snapToGrid,
+} from '../snap';
 
 describe('getEffectiveThreshold', () => {
   test('returns threshold when less than half grid size', () => {
@@ -253,5 +260,90 @@ describe('applySnapToMove', () => {
 
     expect(result.snappedOrigins).toEqual(origins);
     expect(result.didSnap).toBe(false);
+  });
+});
+
+describe('applySnapToResize', () => {
+  test('snaps right edge for east handle', () => {
+    const origin = { x: 50, y: 50 };
+    const size = { width: 103, height: 80 };
+    const result = applySnapToResize(origin, size, 'e', 10, 5);
+
+    expect(result.origin).toEqual({ x: 50, y: 50 });
+    expect(result.size.width).toBe(100);
+    expect(result.size.height).toBe(80);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('snaps left edge for west handle', () => {
+    const origin = { x: 53, y: 50 };
+    const size = { width: 100, height: 80 };
+    const result = applySnapToResize(origin, size, 'w', 10, 5);
+
+    expect(result.origin.x).toBe(50);
+    expect(result.size.width).toBe(103);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('snaps top edge for north handle', () => {
+    const origin = { x: 50, y: 52 };
+    const size = { width: 100, height: 80 };
+    const result = applySnapToResize(origin, size, 'n', 10, 5);
+
+    expect(result.origin.y).toBe(50);
+    expect(result.size.height).toBe(82);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('snaps bottom edge for south handle', () => {
+    const origin = { x: 50, y: 50 };
+    const size = { width: 100, height: 78 };
+    const result = applySnapToResize(origin, size, 's', 10, 5);
+
+    expect(result.origin).toEqual({ x: 50, y: 50 });
+    expect(result.size.height).toBe(80);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('snaps both edges for southeast corner handle', () => {
+    const origin = { x: 50, y: 50 };
+    const size = { width: 103, height: 78 };
+    const result = applySnapToResize(origin, size, 'se', 10, 5);
+
+    expect(result.origin).toEqual({ x: 50, y: 50 });
+    expect(result.size.width).toBe(100);
+    expect(result.size.height).toBe(80);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('snaps both edges for northwest corner handle', () => {
+    const origin = { x: 53, y: 52 };
+    const size = { width: 100, height: 80 };
+    const result = applySnapToResize(origin, size, 'nw', 10, 5);
+
+    expect(result.origin.x).toBe(50);
+    expect(result.origin.y).toBe(50);
+    expect(result.size.width).toBe(103);
+    expect(result.size.height).toBe(82);
+    expect(result.didSnap).toBe(true);
+  });
+
+  test('does not snap when edges are outside threshold', () => {
+    const origin = { x: 55, y: 55 };
+    const size = { width: 100, height: 80 };
+    const result = applySnapToResize(origin, size, 'nw', 10, 4);
+
+    expect(result.origin).toEqual({ x: 55, y: 55 });
+    expect(result.size).toEqual({ width: 100, height: 80 });
+    expect(result.didSnap).toBe(false);
+  });
+
+  test('respects minimum size constraint', () => {
+    const origin = { x: 50, y: 50 };
+    const size = { width: 8, height: 8 };
+    const result = applySnapToResize(origin, size, 'se', 10, 5);
+
+    expect(result.size.width).toBeGreaterThanOrEqual(10);
+    expect(result.size.height).toBeGreaterThanOrEqual(10);
   });
 });
