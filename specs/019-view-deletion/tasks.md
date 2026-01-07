@@ -76,7 +76,7 @@
 - [x] T010 [US6] Integrate ContextMenu component into Canvas in `src/components/Canvas/Canvas.tsx`
   - Add ContextMenu component to Canvas
   - Connect Delete option to `deleteSelectedViews` and history push
-- [ ] T011 [US6] **Commit**: Stage and commit User Story 6 changes with descriptive message
+- [x] T011 [US6] **Commit**: Stage and commit User Story 6 changes with descriptive message
 
 **Checkpoint**: Context menu with Delete option should be fully functional
 
@@ -114,9 +114,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] TFINAL **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] TFINAL **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
-- [ ] TFINAL **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] TFINAL **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] TFINAL **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
+- [x] TFINAL **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
