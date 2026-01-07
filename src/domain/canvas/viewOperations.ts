@@ -22,6 +22,7 @@ import {
   applyOffsetToSerialized,
   collectOriginsFromSerialized,
   deserializeView,
+  extractOrigin,
   serializeView,
 } from '../views/serialization';
 import { isContainerClass } from '../views/viewClasses';
@@ -140,7 +141,12 @@ export function cutSelectedViews(): RemovedViewInfo[] {
   return deleteSelectedViews();
 }
 
-export function pasteViews(): string[] {
+export interface PasteOptions {
+  pointerPosition?: Point;
+  templateBounds?: { width: number; height: number };
+}
+
+export function pasteViews(options: PasteOptions = {}): string[] {
   const clipboardContent = getClipboardContent();
 
   if (!clipboardContent || clipboardContent.views.length === 0) {
@@ -148,17 +154,39 @@ export function pasteViews(): string[] {
   }
 
   const pastedIds: string[] = [];
-  const offset = (clipboardContent.pasteCount + 1) * PASTE_OFFSET;
+  const targetParentId = determinePasteTarget(clipboardContent.views[0].originalId);
 
-  for (const serializedView of clipboardContent.views) {
-    const offsetView = applyOffsetToSerialized(serializedView, { x: offset, y: offset });
-    const viewNode = deserializeView(offsetView);
+  const usePointerPosition = shouldUsePointerPosition(options);
 
-    const parentId = extractParentId(serializedView.originalId);
-    if (parentId) {
-      const newId = addView(parentId, viewNode);
-      if (newId) {
-        pastedIds.push(newId);
+  if (usePointerPosition && options.pointerPosition) {
+    const viewsWithPositions = calculatePointerPastePositions(
+      clipboardContent.views,
+      options.pointerPosition
+    );
+
+    for (const { serializedView, position } of viewsWithPositions) {
+      const positionedView = applyAbsolutePosition(serializedView, position);
+      const viewNode = deserializeView(positionedView);
+
+      if (targetParentId) {
+        const newId = addView(targetParentId, viewNode);
+        if (newId) {
+          pastedIds.push(newId);
+        }
+      }
+    }
+  } else {
+    const offset = (clipboardContent.pasteCount + 1) * PASTE_OFFSET;
+
+    for (const serializedView of clipboardContent.views) {
+      const offsetView = applyOffsetToSerialized(serializedView, { x: offset, y: offset });
+      const viewNode = deserializeView(offsetView);
+
+      if (targetParentId) {
+        const newId = addView(targetParentId, viewNode);
+        if (newId) {
+          pastedIds.push(newId);
+        }
       }
     }
   }
@@ -169,6 +197,92 @@ export function pasteViews(): string[] {
   }
 
   return pastedIds;
+}
+
+function shouldUsePointerPosition(options: PasteOptions): boolean {
+  const { pointerPosition, templateBounds } = options;
+
+  if (!pointerPosition || !templateBounds) {
+    return false;
+  }
+
+  return (
+    pointerPosition.x >= 0 &&
+    pointerPosition.x <= templateBounds.width &&
+    pointerPosition.y >= 0 &&
+    pointerPosition.y <= templateBounds.height
+  );
+}
+
+function calculatePointerPastePositions(
+  views: SerializedView[],
+  pointerPosition: Point
+): Array<{ serializedView: SerializedView; position: Point }> {
+  const origins = views.map(v => extractOrigin(v));
+  const sizes = views.map(v => extractSize(v));
+
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (let i = 0; i < views.length; i++) {
+    minX = Math.min(minX, origins[i].x);
+    minY = Math.min(minY, origins[i].y);
+    maxX = Math.max(maxX, origins[i].x + sizes[i].width);
+    maxY = Math.max(maxY, origins[i].y + sizes[i].height);
+  }
+
+  const groupWidth = maxX - minX;
+  const groupHeight = maxY - minY;
+
+  const groupCenterX = minX + groupWidth / 2;
+  const groupCenterY = minY + groupHeight / 2;
+
+  const offsetX = pointerPosition.x - groupCenterX;
+  const offsetY = pointerPosition.y - groupCenterY;
+
+  return views.map((serializedView, i) => ({
+    serializedView,
+    position: {
+      x: Math.round(origins[i].x + offsetX),
+      y: Math.round(origins[i].y + offsetY),
+    },
+  }));
+}
+
+function extractSize(serialized: SerializedView): { width: number; height: number } {
+  const size = serialized.attributes.size ?? '100, 100';
+  const parts = size.split(',').map(s => s.trim());
+  const width = Number.parseInt(parts[0], 10) || 100;
+  const height = Number.parseInt(parts[1], 10) || 100;
+  return { width, height };
+}
+
+function applyAbsolutePosition(serialized: SerializedView, position: Point): SerializedView {
+  return {
+    ...serialized,
+    attributes: {
+      ...serialized.attributes,
+      origin: `${position.x}, ${position.y}`,
+    },
+    children: serialized.children,
+  };
+}
+
+function determinePasteTarget(originalViewId: string): string | null {
+  const selectedIds = Array.from(selectionStore.selectedIds);
+
+  if (selectedIds.length === 1) {
+    const selectedId = selectedIds[0];
+    const selectedView = getView(selectedId);
+
+    if (selectedView && isContainerClass(selectedView.attributes.class || '')) {
+      return selectedId;
+    }
+  }
+
+  return extractParentId(originalViewId);
 }
 
 function extractParentId(viewId: string): string | null {

@@ -1,4 +1,4 @@
-import { type Component, For, Show } from 'solid-js';
+import { type Component, createSignal, For, Show } from 'solid-js';
 import {
   useCanvasData,
   useCanvasDrop,
@@ -35,6 +35,7 @@ import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
   const { renderableViews, templateBounds, selectedViews, hoveredView, isEmpty } = useCanvasData();
+  const [canvasMousePosition, setCanvasMousePosition] = createSignal<{ x: number; y: number } | null>(null);
 
   const handleDelete = () => {
     const removed = deleteSelectedViews();
@@ -61,6 +62,7 @@ export const Canvas: Component = () => {
     renderableViews,
     templateBounds,
     cancelCallbacks,
+    getMousePosition: () => canvasMousePosition(),
   });
 
   let wrapperElement: HTMLDivElement | undefined;
@@ -71,6 +73,17 @@ export const Canvas: Component = () => {
     }
     const rect = wrapperElement.getBoundingClientRect();
     return mouseToCanvas(clientX, clientY, rect, canvasStore.panOffset, canvasStore.zoomLevel);
+  };
+
+  const handleCanvasMouseMove = (e: MouseEvent) => {
+    handleTooltipMouseMove(e);
+    const point = getCanvasPoint(e.clientX, e.clientY);
+    setCanvasMousePosition(point);
+  };
+
+  const handleCanvasMouseLeave = () => {
+    handleTooltipMouseLeave();
+    setCanvasMousePosition(null);
   };
 
   const { isDraggingOver, handleDragOver, handleDragLeave, handleDrop } = useCanvasDrop({
@@ -114,8 +127,8 @@ export const Canvas: Component = () => {
           data-testid="canvas-wrapper"
           tabIndex={0}
           onMouseDown={handlePanMouseDown}
-          onMouseMove={handleTooltipMouseMove}
-          onMouseLeave={handleTooltipMouseLeave}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseLeave={handleCanvasMouseLeave}
           onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           onContextMenu={handleContextMenu}

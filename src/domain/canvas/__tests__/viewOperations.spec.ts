@@ -585,6 +585,34 @@ describe('viewOperations', () => {
         expect(operation.description).toBe('Duplicate 2 views');
       });
     });
+
+    it('should have no-op redo for duplicate (SC-004 note: new IDs make exact redo impossible)', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const duplicatedIds = duplicateSelectedViews();
+        const operation = createDuplicateOperation(duplicatedIds);
+
+        operation.undo();
+        const templateAfterUndo = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfterUndo?.children ?? {}).length).toBe(1);
+
+        operation.redo();
+        const templateAfterRedo = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfterRedo?.children ?? {}).length).toBe(1);
+      });
+    });
   });
 
   describe('copySelectedViews', () => {
@@ -798,6 +826,105 @@ describe('viewOperations', () => {
         expect(thirdPaste?.attributes.origin).toBe('130, 130');
       });
     });
+
+    it('should paste into selected container (FR-010)', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+                '1': createMockContainer({ origin: '200, 200', size: '300, 300' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        // Copy view-0
+        select('MainView-0');
+        copySelectedViews();
+
+        // Select container view-1, then paste
+        select('MainView-1');
+        const pasted = pasteViews();
+
+        expect(pasted).toHaveLength(1);
+        // Pasted view should be child of the container (MainView-1), not sibling
+        expect(pasted[0]).toMatch(/^MainView-1-/);
+
+        // Verify structure
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const container = template?.children?.['1'];
+        expect(container?.children).toBeDefined();
+        expect(Object.keys(container?.children ?? {}).length).toBe(1);
+        expect(container?.children?.['0']?.attributes.class).toBe('CTextLabel');
+      });
+    });
+
+    it('should paste as sibling when no view is selected (FR-011)', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        // Copy view
+        select('MainView-0');
+        copySelectedViews();
+
+        // Clear selection, then paste
+        clearSelection();
+        const pasted = pasteViews();
+
+        expect(pasted).toHaveLength(1);
+        // Should paste into original parent (MainView)
+        expect(pasted[0]).toMatch(/^MainView-\d+$/);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(template?.children ?? {}).length).toBe(2);
+      });
+    });
+
+    it('should paste as sibling when non-container is selected (FR-011)', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+                '1': createMockView({ class: 'CTextButton', origin: '200, 200' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        // Copy view-0
+        select('MainView-0');
+        copySelectedViews();
+
+        // Select non-container view-1, then paste
+        select('MainView-1');
+        const pasted = pasteViews();
+
+        expect(pasted).toHaveLength(1);
+        // Should paste as sibling (child of MainView, not child of view-1)
+        expect(pasted[0]).toMatch(/^MainView-\d+$/);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(template?.children ?? {}).length).toBe(3);
+      });
+    });
   });
 
   describe('createPasteOperation', () => {
@@ -851,6 +978,213 @@ describe('viewOperations', () => {
 
         const templateAfter = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
         expect(Object.keys(templateAfter?.children ?? {}).length).toBe(1);
+      });
+    });
+
+    it('should have no-op redo for paste (SC-004 note: new IDs make exact redo impossible)', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+
+        const pasted = pasteViews();
+        const operation = createPasteOperation(pasted);
+
+        operation.undo();
+        const templateAfterUndo = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfterUndo?.children ?? {}).length).toBe(1);
+
+        operation.redo();
+        const templateAfterRedo = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        expect(Object.keys(templateAfterRedo?.children ?? {}).length).toBe(1);
+      });
+    });
+  });
+
+  describe('clipboard operation performance (SC-003)', () => {
+    it('should complete all clipboard operations in < 100ms', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockContainer(
+                  { origin: '10, 10', size: '200, 200' },
+                  {
+                    '0': createMockView({ class: 'CTextLabel', origin: '5, 5' }),
+                    '1': createMockView({ class: 'CTextButton', origin: '5, 30' }),
+                    '2': createMockView({ class: 'CSlider', origin: '5, 60' }),
+                  }
+                ),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const copyStart = performance.now();
+        copySelectedViews();
+        const copyDuration = performance.now() - copyStart;
+
+        const pasteStart = performance.now();
+        pasteViews();
+        const pasteDuration = performance.now() - pasteStart;
+
+        clearSelection();
+        select('MainView-0');
+
+        const cutStart = performance.now();
+        cutSelectedViews();
+        const cutDuration = performance.now() - cutStart;
+
+        select('MainView-1');
+
+        const duplicateStart = performance.now();
+        duplicateSelectedViews();
+        const duplicateDuration = performance.now() - duplicateStart;
+
+        expect(copyDuration).toBeLessThan(100);
+        expect(pasteDuration).toBeLessThan(100);
+        expect(cutDuration).toBeLessThan(100);
+        expect(duplicateDuration).toBeLessThan(100);
+      });
+    });
+  });
+
+  describe('pasteViews with pointer position (US5)', () => {
+    it('should paste at pointer position when pointer is inside template bounds', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 400, y: 300 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        const origin = pastedView?.attributes.origin?.split(', ').map(Number);
+        expect(origin?.[0]).toBe(375);
+        expect(origin?.[1]).toBe(290);
+      });
+    });
+
+    it('should fall back to offset paste when pointer is outside template bounds', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 900, y: 700 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        expect(pastedView?.attributes.origin).toBe('110, 110');
+      });
+    });
+
+    it('should fall back to offset paste when no pointer position provided', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+        copySelectedViews();
+        clearSelection();
+
+        const pasted = pasteViews();
+
+        expect(pasted).toHaveLength(1);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView = template?.children?.['1'];
+        expect(pastedView?.attributes.origin).toBe('110, 110');
+      });
+    });
+
+    it('should center multiple views around pointer position', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100', size: '50, 20' }),
+                '1': createMockView({ class: 'CTextButton', origin: '200, 100', size: '50, 20' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        selectAll(['MainView-0', 'MainView-1']);
+        copySelectedViews();
+        clearSelection();
+
+        const pointerPosition = { x: 400, y: 300 };
+        const templateBounds = { width: 800, height: 600 };
+        const pasted = pasteViews({ pointerPosition, templateBounds });
+
+        expect(pasted).toHaveLength(2);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        const pastedView1 = template?.children?.['2'];
+        const pastedView2 = template?.children?.['3'];
+
+        const origin1 = pastedView1?.attributes.origin?.split(', ').map(Number);
+        const origin2 = pastedView2?.attributes.origin?.split(', ').map(Number);
+
+        expect(origin1?.[0]).toBe(325);
+        expect(origin2?.[0]).toBe(425);
+        expect(origin1?.[1]).toBe(origin2?.[1]);
       });
     });
   });
