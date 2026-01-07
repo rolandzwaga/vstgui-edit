@@ -10,6 +10,7 @@ import {
   getEffectiveThreshold,
 } from '../../domain/canvas/snap';
 import { canvasStore } from '../../stores/canvasStore';
+import { showContextMenu } from '../../stores/contextMenuStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
 import { gridStore } from '../../stores/gridStore';
@@ -419,13 +420,17 @@ export function useCanvasInteractions(
   };
 
   const handleContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+
     if (marqueeStore.isActive) {
-      e.preventDefault();
       selectAll([...marqueeStore.previousSelection]);
       cancelMarquee();
       document.removeEventListener('mousemove', handleMarqueeMove);
       document.removeEventListener('mouseup', handleMarqueeUp);
+      return;
     }
+
+    showContextMenu(e.clientX, e.clientY);
   };
 
   createEffect(() => {

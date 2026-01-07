@@ -8,11 +8,17 @@ import {
   useCanvasInteractions,
 } from '../../hooks/canvas';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
+import {
+  createDeleteOperation,
+  deleteSelectedViews,
+} from '../../domain/canvas/viewOperations';
 import { useTooltip } from '../../hooks/useTooltip';
 import { canvasStore } from '../../stores/canvasStore';
+import { pushOperation } from '../../stores/historyStore';
 import { marqueeStore } from '../../stores/marqueeStore';
 import { dragStore } from '../../stores/dragStore';
 import { resizeStore } from '../../stores/resizeStore';
+import { ContextMenu } from '../ContextMenu';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
@@ -29,6 +35,14 @@ import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
   const { renderableViews, templateBounds, selectedViews, hoveredView, isEmpty } = useCanvasData();
+
+  const handleDelete = () => {
+    const removed = deleteSelectedViews();
+    if (removed.length > 0) {
+      const operation = createDeleteOperation(removed);
+      pushOperation(operation);
+    }
+  };
 
   const {
     showTooltip,
@@ -148,6 +162,7 @@ export const Canvas: Component = () => {
             <HoverTooltip view={view()} x={tooltipPosition().x} y={tooltipPosition().y} />
           )}
         </Show>
+        <ContextMenu onDelete={handleDelete} />
       </div>
     </Show>
   );
