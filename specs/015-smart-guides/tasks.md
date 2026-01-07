@@ -65,7 +65,7 @@
 - [x] T020 [US1+US2] Integrate guide calculation into useCanvasInteractions hook in `src/hooks/canvas/useCanvasInteractions.ts` (call calculateSmartGuides in handleDragMove, clear in handleDragUp)
 - [x] T021 [US1+US2] Add SmartGuideLines to Canvas component in `src/components/Canvas/Canvas.tsx`
 - [x] T022 [US1+US2] Write integration tests for guide display during drag in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
-- [ ] T023 [US1+US2] **Commit**: Stage and commit User Story 1+2 changes with message "feat(smart-guides): implement edge and center alignment guides"
+- [x] T023 [US1+US2] **Commit**: Stage and commit User Story 1+2 changes with message "feat(smart-guides): implement edge and center alignment guides"
 
 **Checkpoint**: Edge and center guides functional - MVP complete
 
@@ -81,10 +81,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T024 [US5] Write keyboard test for S key toggle in `src/hooks/canvas/__tests__/useCanvasKeyboard.spec.ts` (tests written FIRST, will fail until T026)
-- [ ] T025 [US5] Write test verifying guides don't appear when disabled in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T027)
-- [ ] T026 [US5] Add S key handler to useCanvasKeyboard hook in `src/hooks/canvas/useCanvasKeyboard.ts` (calls toggleSmartGuides, filter for text inputs)
-- [ ] T027 [US5] Update useCanvasInteractions to check isEnabled before calculating guides in `src/hooks/canvas/useCanvasInteractions.ts`
+- [x] T024 [US5] Write keyboard test for S key toggle in `src/hooks/canvas/__tests__/useCanvasKeyboard.spec.ts` (tests written FIRST, will fail until T026)
+- [x] T025 [US5] Write test verifying guides don't appear when disabled in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T027)
+- [x] T026 [US5] Add S key handler to useCanvasKeyboard hook in `src/hooks/canvas/useCanvasKeyboard.ts` (calls toggleSmartGuides, filter for text inputs)
+- [x] T027 [US5] Update useCanvasInteractions to check isEnabled before calculating guides in `src/hooks/canvas/useCanvasInteractions.ts`
 - [ ] T028 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(smart-guides): add S key toggle for visibility"
 
 **Checkpoint**: Users can toggle guides on/off

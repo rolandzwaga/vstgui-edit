@@ -2,7 +2,11 @@ import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@solidjs/testing-library';
 import { Canvas } from '../Canvas';
 import { reset, setDocumentForTest } from '../../../stores/documentStore';
-import { resetSmartGuides, smartGuidesStore } from '../../../stores/smartGuidesStore';
+import {
+  resetSmartGuides,
+  smartGuidesStore,
+  toggleSmartGuides,
+} from '../../../stores/smartGuidesStore';
 import { resetSelection, select, selectionStore } from '../../../stores/selectionStore';
 import { resetDrag } from '../../../stores/dragStore';
 import { resetCanvas } from '../../../stores/canvasStore';
@@ -129,12 +133,91 @@ describe('Canvas smart guides integration', () => {
       render(() => <Canvas />);
       await vi.advanceTimersByTimeAsync(50);
 
-      resetSmartGuides();
+      toggleSmartGuides();
+      expect(smartGuidesStore.isEnabled).toBe(false);
 
-      select('view-1');
+      select('TestTemplate-view-1');
       await vi.advanceTimersByTimeAsync(10);
 
       expect(smartGuidesStore.activeGuides).toHaveLength(0);
+    });
+  });
+
+  describe('S key toggle (US5)', () => {
+    test('S key toggles smart guides off', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+      fireEvent.keyDown(wrapper, { key: 's' });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(false);
+    });
+
+    test('S key toggles smart guides back on', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      toggleSmartGuides();
+      expect(smartGuidesStore.isEnabled).toBe(false);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+      fireEvent.keyDown(wrapper, { key: 's' });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+    });
+
+    test('S key works with uppercase', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+      fireEvent.keyDown(wrapper, { key: 'S' });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(false);
+    });
+
+    test('S key ignored in text inputs', async () => {
+      render(() => (
+        <div>
+          <input type="text" data-testid="text-input" />
+          <Canvas />
+        </div>
+      ));
+      await vi.advanceTimersByTimeAsync(50);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+
+      const input = screen.getByTestId('text-input');
+      fireEvent.keyDown(input, { key: 's' });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.isEnabled).toBe(true);
+    });
+
+    test('guides not shown during drag when disabled', async () => {
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      toggleSmartGuides();
+      expect(smartGuidesStore.isEnabled).toBe(false);
+
+      select('TestTemplate-view-1');
+      await vi.advanceTimersByTimeAsync(10);
+
+      const viewRect = screen.getByTestId('view-rect-TestTemplate-view-1');
+      fireEvent.mouseDown(viewRect, { button: 0, clientX: 100, clientY: 90 });
+      fireEvent.mouseMove(document, { clientX: 110, clientY: 90 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      expect(smartGuidesStore.activeGuides).toHaveLength(0);
+
+      fireEvent.mouseUp(document);
     });
   });
 });

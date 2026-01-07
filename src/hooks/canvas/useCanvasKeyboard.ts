@@ -4,6 +4,7 @@ import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore'
 import { updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
+import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
@@ -170,6 +171,8 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       toggleVisibility();
     } else if ((e.key === 'g' || e.key === 'G') && e.shiftKey) {
       toggleSnap();
+    } else if (e.key === 's' || e.key === 'S') {
+      toggleSmartGuides();
     }
   };
 
