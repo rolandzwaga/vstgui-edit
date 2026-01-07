@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import {
-  validatePoint,
-  validateSize,
-  validateNumber,
   validateBoolean,
   validateColor,
+  validateNumber,
+  validatePoint,
+  validateSize,
 } from '../validation';
 
 describe('validation', () => {

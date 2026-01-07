@@ -1,10 +1,12 @@
 import type { Component } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 import type { ViewNode } from '../../types/uidesc';
-import { documentStore } from '../../stores/documentStore';
+import { documentStore, updateViewAttribute, getViewAttribute } from '../../stores/documentStore';
 import { selectionStore } from '../../stores/selectionStore';
 import { isGroupExpanded, toggleGroup } from '../../stores/propertiesStore';
+import { pushOperation } from '../../stores/historyStore';
 import { mergeSelections } from '../../domain/properties';
+import { createPropertyEditOperation } from '../../domain/properties/historyOperations';
 import { EmptyState } from './EmptyState';
 import { SelectionHeader } from './SelectionHeader';
 import { AttributeGroup } from './AttributeGroup';
@@ -83,6 +85,35 @@ export const PropertiesPanel: Component = () => {
     }
   };
 
+  const handleValueChange = (name: string, newValue: string) => {
+    const selectedIds = Array.from(selectionStore.selectedIds);
+    for (const viewId of selectedIds) {
+      updateViewAttribute(viewId, name, newValue);
+    }
+  };
+
+  const handleValueCommit = (name: string, newValue: string, originalValue: string) => {
+    const selectedIds = Array.from(selectionStore.selectedIds);
+    if (selectedIds.length === 0) return;
+
+    const previousValues: Record<string, string | undefined> = {};
+    for (const viewId of selectedIds) {
+      previousValues[viewId] = originalValue;
+    }
+
+    const operation = createPropertyEditOperation(
+      {
+        viewIds: selectedIds,
+        attributeName: name,
+        previousValues,
+        newValue,
+      },
+      name
+    );
+
+    pushOperation(operation);
+  };
+
   return (
     <div class={styles.panel} data-testid="properties-panel" role="complementary" aria-label="Properties">
       <Show when={groupedAttributes()} fallback={<EmptyState />}>
@@ -101,6 +132,9 @@ export const PropertiesPanel: Component = () => {
                     isExpanded={isGroupExpanded(group.id)}
                     onToggle={() => toggleGroup(group.id)}
                     onCopy={handleCopy}
+                    onValueChange={handleValueChange}
+                    onValueCommit={handleValueCommit}
+                    editable={true}
                   />
                 )}
               </For>

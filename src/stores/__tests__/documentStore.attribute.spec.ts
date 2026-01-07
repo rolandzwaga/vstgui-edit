@@ -3,9 +3,9 @@ import { testInRoot } from '../../__tests__/helpers/solidjs';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
 import {
   documentStore,
+  getViewAttribute,
   reset,
   setDocumentForTest,
-  getViewAttribute,
   updateViewAttribute,
 } from '../documentStore';
 

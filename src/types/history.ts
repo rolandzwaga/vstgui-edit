@@ -10,15 +10,10 @@ import type { Point } from './canvas';
  * Generic interface that can support future operation types beyond 'move'.
  */
 export interface HistoryOperation {
-  /** Operation type for debugging/display */
-  type: 'move' | 'resize';
-  /** Human-readable description (e.g., "Move CTextButton") */
+  type: 'move' | 'resize' | 'property-change';
   description: string;
-  /** Function to reverse this operation */
   undo: () => void;
-  /** Function to replay this operation */
   redo: () => void;
-  /** Timestamp for ordering/debugging */
   timestamp: number;
 }
 

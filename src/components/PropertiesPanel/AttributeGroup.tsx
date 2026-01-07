@@ -9,6 +9,9 @@ export interface AttributeGroupProps {
   isExpanded: boolean;
   onToggle?: () => void;
   onCopy?: (value: string) => void;
+  onValueChange?: (name: string, newValue: string) => void;
+  onValueCommit?: (name: string, newValue: string, originalValue: string) => void;
+  editable?: boolean;
 }
 
 export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
@@ -48,7 +51,15 @@ export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
       <Show when={showContent()}>
         <div class={styles.content}>
           <For each={props.group.attributes}>
-            {(entry) => <AttributeRow entry={entry} onCopy={props.onCopy} />}
+            {(entry) => (
+              <AttributeRow
+                entry={entry}
+                onCopy={props.onCopy}
+                onValueChange={props.onValueChange}
+                onValueCommit={props.onValueCommit}
+                editable={props.editable}
+              />
+            )}
           </For>
         </div>
       </Show>

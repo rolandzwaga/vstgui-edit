@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
   ATTRIBUTE_TYPE_MAP,
-  getAttributeConfig,
-  ENUM_OPTIONS,
   AUTOSIZE_FLAGS,
+  ENUM_OPTIONS,
+  getAttributeConfig,
 } from '../attributeTypes';
 
 describe('attributeTypes', () => {
