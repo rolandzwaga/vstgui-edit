@@ -73,18 +73,23 @@ As a user, I want to paste copied views as children of a selected container so t
 
 ---
 
-### User Story 5 - Paste at Cursor Position (Priority: P3)
+### User Story 5 - Paste at Mouse Pointer Position (Priority: P3)
 
-As a user, I want pasted views to appear near my cursor position so that I can place elements precisely where I want them.
+As a user, I want pasted views to appear near my mouse pointer position so that I can place elements precisely where I want them.
+
+**Clarification**: "Cursor" in this context means the **mouse pointer**, not a text cursor (this app has no text cursor on the canvas).
+
+**Constraint**: Paste at pointer position only applies when the mouse pointer is **inside the main container bounds**. If the pointer is outside the container (e.g., over the toolbar, panel, or empty canvas area), fall back to the standard offset-based paste logic.
 
 **Why this priority**: Enhances usability but basic offset paste from P1 is sufficient for MVP.
 
-**Independent Test**: Copy a view, move cursor to a specific canvas location, paste, verify view appears near the cursor.
+**Independent Test**: Copy a view, move mouse pointer to a specific canvas location inside the template, paste, verify view appears near the pointer.
 
 **Acceptance Scenarios**:
 
-1. **Given** I copied a view and my cursor is over the canvas, **When** I paste, **Then** the view appears centered at the cursor position
-2. **Given** I copied multiple views and my cursor is over the canvas, **When** I paste, **Then** the views appear with their group centered at the cursor position
+1. **Given** I copied a view and my mouse pointer is inside the main container, **When** I paste, **Then** the view appears centered at the pointer position
+2. **Given** I copied multiple views and my mouse pointer is inside the main container, **When** I paste, **Then** the views appear with their group centered at the pointer position
+3. **Given** I copied a view and my mouse pointer is outside the main container, **When** I paste, **Then** the view appears using standard offset logic (same as P1 behavior)
 
 ---
 
@@ -174,9 +179,9 @@ As a user, I want pasted views to appear near my cursor position so that I can p
 - [x] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
 - [x] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
 - [x] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [x] **Git Status Check**: Run `git status` to verify all changes are committed
+- [x] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [x] **Confirm Clean Working Tree**: Verify `git status` shows clean (editor.uidesc is untracked test file)
 - [x] **Update Documentation**: No new utilities requiring CLAUDE.md update (uses existing patterns)
 
 **⚠️ CRITICAL**: The feature is NOT complete until:

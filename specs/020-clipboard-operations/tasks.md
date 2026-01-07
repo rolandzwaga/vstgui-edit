@@ -132,27 +132,33 @@
 
 ---
 
-## Phase 6: User Story 5 - Paste at Cursor Position (Priority: P3)
+## Phase 6: User Story 5 - Paste at Mouse Pointer Position (Priority: P3)
 
-**Goal**: Pasted views appear near cursor position instead of fixed offset
+**Goal**: Pasted views appear near mouse pointer position instead of fixed offset
 
-**Independent Test**: Copy view, move cursor to canvas location, paste, verify view appears at cursor
+**Clarification**: "Cursor" means **mouse pointer**, not a text cursor (this app has no text cursor on the canvas).
+
+**Constraint**: Only paste at pointer position if pointer is **inside the main container bounds**. If outside (toolbar, panel, empty canvas), fall back to standard offset paste.
+
+**Independent Test**: Copy view, move mouse pointer inside template bounds, paste, verify view appears at pointer
 
 ### Tests for User Story 5
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
 - [ ] T039 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T040 [P] [US5] Test: paste at cursor centers view group at cursor position in `src/domain/canvas/__tests__/viewOperations.spec.ts`
+- [ ] T040 [P] [US5] Test: paste at mouse pointer centers view group at pointer position when pointer is inside container in `src/domain/canvas/__tests__/viewOperations.spec.ts`
+- [ ] T040b [P] [US5] Test: paste falls back to offset logic when pointer is outside container bounds in `src/domain/canvas/__tests__/viewOperations.spec.ts`
 
 ### Implementation for User Story 5
 
-- [ ] T041 [US5] Add cursor position tracking for paste operations in `src/stores/canvasStore.ts` or create `src/stores/cursorStore.ts`
-- [ ] T042 [US5] Update `pasteViews()` to accept optional cursor position parameter in `src/domain/canvas/viewOperations.ts`
-- [ ] T043 [US5] Wire cursor position from keyboard handler to paste in `src/hooks/canvas/useCanvasKeyboard.ts`
+- [ ] T041 [US5] Add mouse pointer position tracking for paste operations in `src/stores/canvasStore.ts` or create `src/stores/pointerStore.ts`
+- [ ] T042 [US5] Update `pasteViews()` to accept optional pointer position parameter in `src/domain/canvas/viewOperations.ts`
+- [ ] T042b [US5] Add bounds check: only use pointer position if inside main container, otherwise use offset logic
+- [ ] T043 [US5] Wire mouse pointer position from keyboard handler to paste in `src/hooks/canvas/useCanvasKeyboard.ts`
 - [ ] T044 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
 
-**Checkpoint**: Cursor paste functional (P3 - can defer if needed)
+**Checkpoint**: Mouse pointer paste functional (P3 - can defer if needed)
 
 ---
 
@@ -207,9 +213,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] TFINAL-1 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] TFINAL-1 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 ---
 
