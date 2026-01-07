@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { validateHexColor, validateColorName, normalizeHexColor } from '../validation';
+import { normalizeHexColor, validateColorName, validateHexColor } from '../validation';
 
 describe('validateHexColor', () => {
   describe('valid formats', () => {

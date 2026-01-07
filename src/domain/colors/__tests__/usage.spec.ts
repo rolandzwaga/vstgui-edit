@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { findColorUsages, type ColorUsage } from '../usage';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
+import { type ColorUsage, findColorUsages } from '../usage';
 
 describe('findColorUsages', () => {
   describe('given no document', () => {

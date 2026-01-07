@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { formatAsRgba, formatAsHex, truncateColorName, formatColorForDisplay } from '../formatting';
+import { formatAsHex, formatAsRgba, formatColorForDisplay, truncateColorName } from '../formatting';
 
 describe('formatAsRgba', () => {
   test('formats opaque red', () => {

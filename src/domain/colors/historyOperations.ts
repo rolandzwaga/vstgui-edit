@@ -1,10 +1,10 @@
-import type { HistoryOperation } from '../../types/history';
 import {
   addColor,
   deleteColor,
   updateColorName,
   updateColorValue,
 } from '../../stores/documentStore';
+import type { HistoryOperation } from '../../types/history';
 
 export function createAddColorOperation(name: string, value: string): HistoryOperation {
   return {

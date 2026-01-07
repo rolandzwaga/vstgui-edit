@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
-import type { VSTGUIUIDescription } from '../../../types/uidesc';
 import {
-  getColors,
   addColor,
+  getColors,
   reset,
   setDocumentForTest,
 } from '../../../stores/documentStore';
-import { pushOperation, undo, redo, clearHistory } from '../../../stores/historyStore';
+import { clearHistory, pushOperation, redo, undo } from '../../../stores/historyStore';
+import type { VSTGUIUIDescription } from '../../../types/uidesc';
 import {
   createAddColorOperation,
+  createDeleteColorOperation,
   createEditColorNameOperation,
   createEditColorValueOperation,
-  createDeleteColorOperation,
 } from '../historyOperations';
 
 function createTestDocument(): VSTGUIUIDescription {

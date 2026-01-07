@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
 import {
+  addColor,
+  deleteColor,
   documentStore,
   getColors,
-  addColor,
-  updateColorName,
-  updateColorValue,
-  deleteColor,
   reset,
   setDocumentForTest,
+  updateColorName,
+  updateColorValue,
 } from '../documentStore';
 
 function createTestDocument(): VSTGUIUIDescription {

@@ -1,4 +1,4 @@
-import type { VSTGUIUIDescription, ViewNode } from '../../types/uidesc';
+import type { ViewNode, VSTGUIUIDescription } from '../../types/uidesc';
 
 export interface ColorUsage {
   viewId: string;

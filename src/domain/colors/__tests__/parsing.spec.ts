@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parseHexColor, isPredefinedColor, getPredefinedColorValue } from '../parsing';
+import { getPredefinedColorValue, isPredefinedColor, parseHexColor } from '../parsing';
 
 describe('parseHexColor', () => {
   describe('#RGB format', () => {
