@@ -1,15 +1,15 @@
-export { generateViewId, generateUniqueViewIds } from './idGenerator';
+export { generateUniqueViewIds, generateViewId } from './idGenerator';
 export {
-  serializeView,
-  deserializeView,
   applyOffsetToSerialized,
   collectOriginsFromSerialized,
+  deserializeView,
+  serializeView,
 } from './serialization';
 export {
-  VIEW_CLASSES,
-  PALETTE_CATEGORIES,
   getViewClass,
   getViewClassesByCategory,
   isContainerClass,
+  PALETTE_CATEGORIES,
+  VIEW_CLASSES,
 } from './viewClasses';
-export { getDefaultSize, getDefaultAttributes } from './viewDefaults';
+export { getDefaultAttributes, getDefaultSize } from './viewDefaults';
