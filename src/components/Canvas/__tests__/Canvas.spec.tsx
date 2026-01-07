@@ -629,27 +629,37 @@ describe('Canvas', () => {
       };
     });
 
-    it('should increase zoomLevel when wheel scrolls up (deltaY < 0)', () => {
+    it('should increase zoomLevel when Ctrl+wheel scrolls up (deltaY < 0)', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Scroll up (zoom in)
-      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+      // Ctrl + Scroll up (zoom in)
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150, ctrlKey: true });
 
       expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
     });
 
-    it('should decrease zoomLevel when wheel scrolls down (deltaY > 0)', () => {
+    it('should decrease zoomLevel when Ctrl+wheel scrolls down (deltaY > 0)', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Scroll down (zoom out)
-      fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150 });
+      // Ctrl + Scroll down (zoom out)
+      fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150, ctrlKey: true });
 
       expect(canvasStore.zoomLevel).toBeLessThan(1.0);
     });
 
-    it('should prevent default browser zoom on wheel event', () => {
+    it('should NOT zoom when wheel scrolls without Ctrl key', () => {
+      render(() => <Canvas />);
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Scroll without Ctrl (should not zoom)
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+
+      expect(canvasStore.zoomLevel).toBe(1.0);
+    });
+
+    it('should prevent default browser zoom on Ctrl+wheel event', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
@@ -657,6 +667,7 @@ describe('Canvas', () => {
         deltaY: -100,
         clientX: 200,
         clientY: 150,
+        ctrlKey: true,
         bubbles: true,
         cancelable: true,
       });
@@ -671,10 +682,8 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Zoom in
-      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150, ctrlKey: true });
 
-      // Transform should include scale
       expect(wrapper.style.transform).toContain('scale(');
     });
 
@@ -682,10 +691,8 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Zoom with cursor at extreme position
-      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 1000, clientY: 1000 });
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 1000, clientY: 1000, ctrlKey: true });
 
-      // Should still zoom without error
       expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
     });
 
@@ -693,7 +700,6 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Pan first
       fireEvent.mouseDown(wrapper, { button: 1, clientX: 100, clientY: 100 });
       fireEvent.mouseMove(document, { clientX: 150, clientY: 120 });
       fireEvent.mouseUp(document);
@@ -702,25 +708,19 @@ describe('Canvas', () => {
       expect(panOffsetBeforeZoom.x).toBe(50);
       expect(panOffsetBeforeZoom.y).toBe(20);
 
-      // Now zoom - pan should be adjusted for cursor centering
-      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+      fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150, ctrlKey: true });
 
-      // Zoom should change
       expect(canvasStore.zoomLevel).toBeGreaterThan(1.0);
-      // Pan should be adjusted (won't be the same as before)
-      // Just verify we can zoom after panning without error
     });
 
-    it('should handle rapid wheel scrolling (multiple events)', () => {
+    it('should handle rapid Ctrl+wheel scrolling (multiple events)', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Rapid zoom in - 5 consecutive wheel events
       for (let i = 0; i < 5; i++) {
-        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150, ctrlKey: true });
       }
 
-      // Zoom should be significantly greater than 1.0 (approximately 1.1^5 ≈ 1.61)
       expect(canvasStore.zoomLevel).toBeGreaterThan(1.5);
     });
 
@@ -728,12 +728,10 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Zoom in many times to hit the limit (1.1^20 ≈ 6.7, but should cap at 5.0)
       for (let i = 0; i < 20; i++) {
-        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
+        fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150, ctrlKey: true });
       }
 
-      // Should be capped at MAX_ZOOM (5.0)
       expect(canvasStore.zoomLevel).toBe(5.0);
     });
 
@@ -741,12 +739,10 @@ describe('Canvas', () => {
       render(() => <Canvas />);
       const wrapper = screen.getByTestId('canvas-wrapper');
 
-      // Zoom out many times to hit the limit (1/1.1^30 ≈ 0.042, but should cap at 0.1)
       for (let i = 0; i < 30; i++) {
-        fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150 });
+        fireEvent.wheel(wrapper, { deltaY: 100, clientX: 200, clientY: 150, ctrlKey: true });
       }
 
-      // Should be capped at MIN_ZOOM (0.1)
       expect(canvasStore.zoomLevel).toBe(0.1);
     });
   });
