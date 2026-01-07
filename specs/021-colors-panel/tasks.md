@@ -21,15 +21,15 @@
 
 **Purpose**: Create domain utilities and extend stores
 
-- [ ] T001 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T002 [P] Create color validation utilities tests in `src/domain/colors/__tests__/validation.spec.ts`
-- [ ] T003 [P] Create color parsing utilities tests in `src/domain/colors/__tests__/parsing.spec.ts`
-- [ ] T004 [P] Create color formatting utilities tests in `src/domain/colors/__tests__/formatting.spec.ts`
-- [ ] T005 Implement color validation utilities in `src/domain/colors/validation.ts` (FR-006, FR-007, FR-021-024 format preservation)
-- [ ] T006 [P] Implement color parsing utilities in `src/domain/colors/parsing.ts`
-- [ ] T007 [P] Implement color formatting utilities in `src/domain/colors/formatting.ts`
-- [ ] T008 Create barrel export in `src/domain/colors/index.ts`
-- [ ] T009 **Commit**: Stage and commit Phase 1 changes with message "feat(021): add color domain utilities"
+- [x] T001 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T002 [P] Create color validation utilities tests in `src/domain/colors/__tests__/validation.spec.ts`
+- [x] T003 [P] Create color parsing utilities tests in `src/domain/colors/__tests__/parsing.spec.ts`
+- [x] T004 [P] Create color formatting utilities tests in `src/domain/colors/__tests__/formatting.spec.ts`
+- [x] T005 Implement color validation utilities in `src/domain/colors/validation.ts` (FR-006, FR-007, FR-021-024 format preservation)
+- [x] T006 [P] Implement color parsing utilities in `src/domain/colors/parsing.ts`
+- [x] T007 [P] Implement color formatting utilities in `src/domain/colors/formatting.ts`
+- [x] T008 Create barrel export in `src/domain/colors/index.ts`
+- [x] T009 **Commit**: Stage and commit Phase 1 changes with message "feat(021): add color domain utilities"
 
 ---
 
