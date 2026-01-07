@@ -4,6 +4,34 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 
 ---
 
+## ⛔️⛔️⛔️ CRITICAL: BRANCH WORKFLOW - NEVER COMMIT TO MAIN ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   NEVER COMMIT DIRECTLY TO MAIN BRANCH. ALWAYS USE FEATURE BRANCHES.         ┃
+┃                                                                              ┃
+┃   BEFORE ANY CODE CHANGE:                                                    ┃
+┃   1. Check current branch: git branch --show-current                         ┃
+┃   2. If on main, CREATE AND SWITCH to feature branch FIRST                   ┃
+┃   3. VERIFY you are on the feature branch before ANY edit                    ┃
+┃                                                                              ┃
+┃   WORKFLOW:                                                                  ┃
+┃   git checkout -b feature-name    # Create AND switch to branch              ┃
+┃   git branch --show-current       # VERIFY: must NOT show 'main'             ┃
+┃   # NOW you can make changes                                                 ┃
+┃                                                                              ┃
+┃   ❌ NEVER: Make changes while on main                                       ┃
+┃   ❌ NEVER: Commit to main directly                                          ┃
+┃   ❌ NEVER: Assume you're on the right branch - ALWAYS verify                ┃
+┃                                                                              ┃
+┃   VIOLATION = POLLUTED MAIN BRANCH. THIS IS IRREVERSIBLE AFTER PUSH.         ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
 ## ⛔️⛔️⛔️ CRITICAL: SOLIDJS ONLY - REACT IS FORBIDDEN ⛔️⛔️⛔️
 
 ```
