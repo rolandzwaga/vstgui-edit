@@ -94,15 +94,15 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T031 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T032 [P] [US2] Create AddColorButton component tests in `src/components/ColorsPanel/__tests__/AddColorButton.spec.tsx`
-- [ ] T033 [P] [US2] Create add color integration tests in `src/components/ColorsPanel/__tests__/ColorsPanel.add.spec.tsx`
+- [x] T031 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T032 [P] [US2] Create AddColorButton component tests in `src/components/ColorsPanel/__tests__/AddColorButton.spec.tsx`
+- [x] T033 [P] [US2] Create add color integration tests in `src/components/ColorsPanel/__tests__/ColorsPanel.add.spec.tsx`
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Implement AddColorButton component in `src/components/ColorsPanel/AddColorButton.tsx`
-- [ ] T035 [US2] Add "Add Color" functionality to ColorsPanel (unique name generation, default value) in `src/components/ColorsPanel/ColorsPanel.tsx`
-- [ ] T036 [US2] Integrate add operation with historyStore for undo support
+- [x] T034 [US2] Implement AddColorButton component in `src/components/ColorsPanel/AddColorButton.tsx`
+- [x] T035 [US2] Add "Add Color" functionality to ColorsPanel (unique name generation, default value) in `src/components/ColorsPanel/ColorsPanel.tsx`
+- [x] T036 [US2] Integrate add operation with historyStore for undo support
 - [ ] T037 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(021): implement add color functionality (US2)"
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
