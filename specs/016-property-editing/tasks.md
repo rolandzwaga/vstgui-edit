@@ -38,7 +38,7 @@
 - [ ] T006 **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before proceeding with tests
 - [ ] T007 Write tests for `attributeTypes.ts` in `src/domain/properties/__tests__/attributeTypes.spec.ts`
 - [ ] T008 Implement ATTRIBUTE_TYPE_MAP and getAttributeConfig() in `src/domain/properties/attributeTypes.ts`
-- [ ] T009 [P] Write tests for validation utilities in `src/domain/properties/__tests__/validation.spec.ts`
+- [ ] T009 [P] Write tests for validation utilities in `src/domain/properties/__tests__/validation.spec.ts` (include timing assertions: validation must complete in <50ms per SC-003)
 - [ ] T010 [P] Implement validation functions (validatePoint, validateSize, validateNumber, validateBoolean, validateColor) in `src/domain/properties/validation.ts`
 
 ### Store Extensions

@@ -162,6 +162,8 @@ As a user making property edits, I want Ctrl+Z to undo and Ctrl+Y to redo my cha
 
 **Why this priority**: Undo/redo is essential for any editor. Must work from day one.
 
+**Implementation Note**: This story is implemented together with User Story 1 (Text Editing) in tasks.md Phase 3, as undo/redo is a cross-cutting concern that must be established with the first editor type.
+
 **Independent Test**: Can be tested by editing any attribute, then pressing Ctrl+Z.
 
 **Acceptance Scenarios**:
