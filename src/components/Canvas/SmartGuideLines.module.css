@@ -1,0 +1,13 @@
+.spacingLabel {
+  pointer-events: none;
+}
+
+.spacingLabelBg {
+  fill: var(--color-smart-guide-label-bg, rgba(0, 0, 0, 0.8));
+}
+
+.spacingLabelText {
+  fill: var(--color-smart-guide-label-text, #fff);
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+}

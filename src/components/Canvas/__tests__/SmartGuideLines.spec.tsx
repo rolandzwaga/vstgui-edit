@@ -3,7 +3,7 @@ import { render, screen, cleanup } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 import { SmartGuideLines } from '../SmartGuideLines';
 import { setActiveGuides, resetSmartGuides } from '../../../stores/smartGuidesStore';
-import type { SmartGuide } from '../../../types/smartGuides';
+import type { SmartGuide, SpacingGuide } from '../../../types/smartGuides';
 
 describe('SmartGuideLines', () => {
   beforeEach(() => {
@@ -255,6 +255,163 @@ describe('SmartGuideLines', () => {
 
       setActiveGuides([]);
       expect(screen.queryByTestId('smart-guide-guide-1')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('spacing guides', () => {
+    test('renders spacing type guide line', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'horizontal',
+        position: 100,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 25,
+        measureStart: 50,
+        measureEnd: 75,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const line = screen.getByTestId('smart-guide-spacing-guide-1');
+      expect(line).toBeInTheDocument();
+    });
+
+    test('renders distance label for spacing guide', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'horizontal',
+        position: 100,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 25,
+        measureStart: 50,
+        measureEnd: 75,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const label = screen.getByTestId('spacing-label-spacing-guide-1');
+      expect(label).toBeInTheDocument();
+      expect(label.textContent).toBe('25px');
+    });
+
+    test('rounds distance to nearest integer in label', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'horizontal',
+        position: 100,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 24.7,
+        measureStart: 50,
+        measureEnd: 74.7,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const label = screen.getByTestId('spacing-label-spacing-guide-1');
+      expect(label.textContent).toBe('25px');
+    });
+
+    test('positions horizontal spacing label at measurement midpoint', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'horizontal',
+        position: 100,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 50,
+        measureStart: 100,
+        measureEnd: 150,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const label = screen.getByTestId('spacing-label-spacing-guide-1');
+      expect(label.getAttribute('x')).toBe('125');
+      expect(label.getAttribute('y')).toBe('100');
+    });
+
+    test('positions vertical spacing label at measurement midpoint', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'vertical',
+        position: 200,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 40,
+        measureStart: 80,
+        measureEnd: 120,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const label = screen.getByTestId('spacing-label-spacing-guide-1');
+      expect(label.getAttribute('x')).toBe('200');
+      expect(label.getAttribute('y')).toBe('100');
+    });
+
+    test('does not render label for non-spacing guides', () => {
+      const guide: SmartGuide = {
+        id: 'edge-guide',
+        orientation: 'vertical',
+        position: 100,
+        type: 'edge',
+        participatingViewIds: ['view-1'],
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      expect(screen.queryByTestId(/^spacing-label-/)).not.toBeInTheDocument();
+    });
+
+    test('renders multiple spacing labels for multiple spacing guides', () => {
+      const guides: SpacingGuide[] = [
+        {
+          id: 'spacing-1',
+          orientation: 'horizontal',
+          position: 100,
+          type: 'spacing',
+          participatingViewIds: ['a', 'b', 'c'],
+          distance: 25,
+          measureStart: 50,
+          measureEnd: 75,
+        },
+        {
+          id: 'spacing-2',
+          orientation: 'horizontal',
+          position: 150,
+          type: 'spacing',
+          participatingViewIds: ['a', 'b', 'c'],
+          distance: 25,
+          measureStart: 125,
+          measureEnd: 150,
+        },
+      ];
+      setActiveGuides(guides);
+
+      renderInSvg(() => <SmartGuideLines />);
+      expect(screen.getByTestId('spacing-label-spacing-1')).toBeInTheDocument();
+      expect(screen.getByTestId('spacing-label-spacing-2')).toBeInTheDocument();
+    });
+
+    test('label has background rect for readability', () => {
+      const guide: SpacingGuide = {
+        id: 'spacing-guide-1',
+        orientation: 'horizontal',
+        position: 100,
+        type: 'spacing',
+        participatingViewIds: ['view-a', 'view-b', 'view-c'],
+        distance: 25,
+        measureStart: 50,
+        measureEnd: 75,
+      };
+      setActiveGuides([guide]);
+
+      renderInSvg(() => <SmartGuideLines />);
+      const rect = screen.getByTestId('spacing-label-bg-spacing-guide-1');
+      expect(rect).toBeInTheDocument();
     });
   });
 });

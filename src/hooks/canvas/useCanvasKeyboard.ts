@@ -4,11 +4,11 @@ import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore'
 import { updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
-import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
+import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import type { RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 

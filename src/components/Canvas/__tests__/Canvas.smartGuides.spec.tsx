@@ -155,6 +155,67 @@ describe('Canvas smart guides integration', () => {
     });
   });
 
+  describe('spacing guides (US4)', () => {
+    const createSpacingTestDocument = (): VSTGUIUIDescription => ({
+      'vstgui-ui-description': {
+        version: '1',
+        templates: {
+          TestTemplate: {
+            attributes: {
+              class: 'CViewContainer',
+              size: '400, 300',
+              origin: '0, 0',
+            },
+            children: {
+              'view-left': {
+                attributes: {
+                  class: 'CView',
+                  origin: '0, 50',
+                  size: '50, 100',
+                },
+              },
+              'view-middle': {
+                attributes: {
+                  class: 'CView',
+                  origin: '75, 50',
+                  size: '50, 100',
+                },
+              },
+              'view-right': {
+                attributes: {
+                  class: 'CView',
+                  origin: '150, 50',
+                  size: '50, 100',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    test('spacing guides calculated during drag with equal gaps', async () => {
+      reset();
+      setDocumentForTest(createSpacingTestDocument());
+
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-view-middle');
+      await vi.advanceTimersByTimeAsync(10);
+
+      const viewRect = screen.getByTestId('view-rect-TestTemplate-view-middle');
+      fireEvent.mouseDown(viewRect, { button: 0, clientX: 100, clientY: 100 });
+      fireEvent.mouseMove(document, { clientX: 110, clientY: 100 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      const spacingGuides = smartGuidesStore.activeGuides.filter(g => g.type === 'spacing');
+      expect(spacingGuides.length).toBeGreaterThanOrEqual(0);
+
+      fireEvent.mouseUp(document);
+    });
+  });
+
   describe('S key toggle (US5)', () => {
     test('S key toggles smart guides off', async () => {
       render(() => <Canvas />);

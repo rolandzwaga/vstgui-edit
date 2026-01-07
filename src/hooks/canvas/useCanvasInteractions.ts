@@ -15,11 +15,6 @@ import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragSt
 import { gridStore } from '../../stores/gridStore';
 import { pushOperation } from '../../stores/historyStore';
 import {
-  clearActiveGuides,
-  setActiveGuides,
-  smartGuidesStore,
-} from '../../stores/smartGuidesStore';
-import {
   activateMarquee,
   beginTracking,
   cancelMarquee,
@@ -42,6 +37,11 @@ import {
   selectionStore,
   toggleSelect,
 } from '../../stores/selectionStore';
+import {
+  clearActiveGuides,
+  setActiveGuides,
+  smartGuidesStore,
+} from '../../stores/smartGuidesStore';
 import type { RenderableView } from '../../types/canvas';
 import { CLICK_TOLERANCE } from '../../types/history';
 import type { HandlePosition } from '../../types/selection';

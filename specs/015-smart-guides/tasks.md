@@ -104,7 +104,7 @@
 - [x] T031 [US3] Implement findParentCenterGuides function in `src/domain/canvas/smartGuides.ts` (check centerX/centerY against parent bounds center)
 - [x] T032 [US3] Update calculateSmartGuides to include parent center guides in `src/domain/canvas/smartGuides.ts`
 - [x] T033 [US3] Pass parent bounds to calculateSmartGuides in useCanvasInteractions in `src/hooks/canvas/useCanvasInteractions.ts`
-- [ ] T034 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(smart-guides): add parent center alignment guides"
+- [x] T034 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(smart-guides): add parent center alignment guides"
 
 **Checkpoint**: Parent center guides functional
 
@@ -118,14 +118,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T035 [US4] Write unit tests for findSpacingGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T038)
-- [ ] T036 [US4] Write component tests for spacing guide labels in `src/components/Canvas/__tests__/SmartGuideLines.spec.tsx` (tests written FIRST, will fail until T040)
-- [ ] T037 [US4] Write integration test for spacing guides in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T041)
-- [ ] T038 [US4] Implement findSpacingGuides function in `src/domain/canvas/smartGuides.ts` (find equal gaps in horizontal/vertical bands)
-- [ ] T039 [US4] Update calculateSmartGuides to include spacing guides in `src/domain/canvas/smartGuides.ts`
-- [ ] T040 [US4] Update SmartGuideLines to render spacing labels in `src/components/Canvas/SmartGuideLines.tsx`
-- [ ] T041 [US4] Add CSS for spacing labels in `src/components/Canvas/SmartGuideLines.module.css`
-- [ ] T042 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(smart-guides): add spacing guides with distance labels"
+- [x] T035 [US4] Write unit tests for findSpacingGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T038)
+- [x] T036 [US4] Write component tests for spacing guide labels in `src/components/Canvas/__tests__/SmartGuideLines.spec.tsx` (tests written FIRST, will fail until T040)
+- [x] T037 [US4] Write integration test for spacing guides in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx` (tests written FIRST, will fail until T041)
+- [x] T038 [US4] Implement findSpacingGuides function in `src/domain/canvas/smartGuides.ts` (find equal gaps in horizontal/vertical bands)
+- [x] T039 [US4] Update calculateSmartGuides to include spacing guides in `src/domain/canvas/smartGuides.ts`
+- [x] T040 [US4] Update SmartGuideLines to render spacing labels in `src/components/Canvas/SmartGuideLines.tsx`
+- [x] T041 [US4] Add CSS for spacing labels in `src/components/Canvas/SmartGuideLines.module.css`
+- [x] T042 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat(smart-guides): add spacing guides with distance labels"
 
 **Checkpoint**: Spacing guides with labels functional
 

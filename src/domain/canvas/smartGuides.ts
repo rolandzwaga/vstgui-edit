@@ -1,5 +1,11 @@
 import type { RenderableView } from '../../types/canvas';
-import type { GuideOrientation, GuideType, SmartGuide, ViewBounds } from '../../types/smartGuides';
+import type {
+  GuideOrientation,
+  GuideType,
+  SmartGuide,
+  SpacingGuide,
+  ViewBounds,
+} from '../../types/smartGuides';
 
 export const GUIDE_THRESHOLD = 5;
 
@@ -118,6 +124,126 @@ export function findParentCenterGuides(
   return guides;
 }
 
+function createSpacingGuide(
+  orientation: GuideOrientation,
+  position: number,
+  distance: number,
+  measureStart: number,
+  measureEnd: number,
+  participatingViewIds: string[]
+): SpacingGuide {
+  guideCounter += 1;
+  return {
+    id: `${orientation}-spacing-${guideCounter}`,
+    orientation,
+    position,
+    type: 'spacing',
+    participatingViewIds,
+    distance,
+    measureStart,
+    measureEnd,
+  };
+}
+
+function viewsOverlapVertically(a: ViewBounds, b: ViewBounds): boolean {
+  return a.top < b.bottom && a.bottom > b.top;
+}
+
+function viewsOverlapHorizontally(a: ViewBounds, b: ViewBounds): boolean {
+  return a.left < b.right && a.right > b.left;
+}
+
+export function findSpacingGuides(dragged: ViewBounds, siblings: ViewBounds[]): SpacingGuide[] {
+  const filtered = siblings.filter(s => s.id !== dragged.id);
+  if (filtered.length < 2) {
+    return [];
+  }
+
+  const guides: SpacingGuide[] = [];
+
+  const horizontallyAligned = filtered.filter(s => viewsOverlapVertically(dragged, s));
+  if (horizontallyAligned.length >= 2) {
+    const leftNeighbors = horizontallyAligned.filter(s => s.right <= dragged.left);
+    const rightNeighbors = horizontallyAligned.filter(s => s.left >= dragged.right);
+
+    for (const leftSibling of leftNeighbors) {
+      for (const rightSibling of rightNeighbors) {
+        const leftGap = dragged.left - leftSibling.right;
+        const rightGap = rightSibling.left - dragged.right;
+
+        if (leftGap > 0 && rightGap > 0 && isWithinThreshold(leftGap - rightGap)) {
+          const avgDistance = (leftGap + rightGap) / 2;
+          const leftMidpoint = leftSibling.right + leftGap / 2;
+          const rightMidpoint = dragged.right + rightGap / 2;
+
+          guides.push(
+            createSpacingGuide(
+              'horizontal',
+              leftMidpoint,
+              avgDistance,
+              leftSibling.right,
+              dragged.left,
+              [dragged.id, leftSibling.id, rightSibling.id]
+            )
+          );
+          guides.push(
+            createSpacingGuide(
+              'horizontal',
+              rightMidpoint,
+              avgDistance,
+              dragged.right,
+              rightSibling.left,
+              [dragged.id, leftSibling.id, rightSibling.id]
+            )
+          );
+        }
+      }
+    }
+  }
+
+  const verticallyAligned = filtered.filter(s => viewsOverlapHorizontally(dragged, s));
+  if (verticallyAligned.length >= 2) {
+    const topNeighbors = verticallyAligned.filter(s => s.bottom <= dragged.top);
+    const bottomNeighbors = verticallyAligned.filter(s => s.top >= dragged.bottom);
+
+    for (const topSibling of topNeighbors) {
+      for (const bottomSibling of bottomNeighbors) {
+        const topGap = dragged.top - topSibling.bottom;
+        const bottomGap = bottomSibling.top - dragged.bottom;
+
+        if (topGap > 0 && bottomGap > 0 && isWithinThreshold(topGap - bottomGap)) {
+          const avgDistance = (topGap + bottomGap) / 2;
+          const topMidpoint = topSibling.bottom + topGap / 2;
+          const bottomMidpoint = dragged.bottom + bottomGap / 2;
+
+          guides.push(
+            createSpacingGuide(
+              'vertical',
+              topMidpoint,
+              avgDistance,
+              topSibling.bottom,
+              dragged.top,
+              [dragged.id, topSibling.id, bottomSibling.id]
+            )
+          );
+          guides.push(
+            createSpacingGuide(
+              'vertical',
+              bottomMidpoint,
+              avgDistance,
+              dragged.bottom,
+              bottomSibling.top,
+              [dragged.id, topSibling.id, bottomSibling.id]
+            )
+          );
+        }
+      }
+    }
+  }
+
+  return guides;
+}
+
 export function calculateSmartGuides(
   dragged: ViewBounds,
   siblings: ViewBounds[],
@@ -129,6 +255,7 @@ export function calculateSmartGuides(
   if (filteredSiblings.length > 0) {
     allGuides.push(...findEdgeAlignments(dragged, filteredSiblings));
     allGuides.push(...findCenterAlignments(dragged, filteredSiblings));
+    allGuides.push(...findSpacingGuides(dragged, filteredSiblings));
   }
 
   if (parentBounds) {
@@ -141,7 +268,7 @@ export function calculateSmartGuides(
 
   const uniqueGuides = new Map<string, SmartGuide>();
   for (const guide of allGuides) {
-    const key = `${guide.orientation}-${guide.position}`;
+    const key = `${guide.orientation}-${guide.position}-${guide.type}`;
     if (!uniqueGuides.has(key)) {
       uniqueGuides.set(key, guide);
     }

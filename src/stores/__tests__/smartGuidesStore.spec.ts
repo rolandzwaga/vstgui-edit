@@ -1,14 +1,14 @@
-import { describe, expect, test, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
+import type { SmartGuide } from '../../types/smartGuides';
 import {
+  clearActiveGuides,
+  DEFAULT_GUIDES_ENABLED,
+  resetSmartGuides,
+  setActiveGuides,
   smartGuidesStore,
   toggleSmartGuides,
-  setActiveGuides,
-  clearActiveGuides,
-  resetSmartGuides,
-  DEFAULT_GUIDES_ENABLED,
 } from '../smartGuidesStore';
-import type { SmartGuide } from '../../types/smartGuides';
 
 describe('smartGuidesStore', () => {
   beforeEach(() => {

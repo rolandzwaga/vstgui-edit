@@ -1,15 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import type { RenderableView } from '../../../types/canvas';
-import type { ViewBounds, SmartGuide } from '../../../types/smartGuides';
+import type { SmartGuide, SpacingGuide, ViewBounds } from '../../../types/smartGuides';
+import { isSpacingGuide } from '../../../types/smartGuides';
 import {
+  calculateSmartGuides,
+  createGuide,
+  findCenterAlignments,
+  findEdgeAlignments,
+  findParentCenterGuides,
+  findSpacingGuides,
+  GUIDE_THRESHOLD,
   getViewBounds,
   isWithinThreshold,
-  createGuide,
-  findEdgeAlignments,
-  findCenterAlignments,
-  findParentCenterGuides,
-  calculateSmartGuides,
-  GUIDE_THRESHOLD,
 } from '../smartGuides';
 
 describe('smartGuides foundational utilities', () => {
@@ -476,5 +478,116 @@ describe('findParentCenterGuides', () => {
     const horizontal = guides.filter(g => g.orientation === 'horizontal');
     expect(vertical.length).toBeGreaterThan(0);
     expect(horizontal.length).toBeGreaterThan(0);
+  });
+});
+
+describe('findSpacingGuides', () => {
+  const createBounds = (overrides: Partial<ViewBounds> = {}): ViewBounds => ({
+    id: 'test-view',
+    left: 100,
+    right: 200,
+    top: 50,
+    bottom: 150,
+    centerX: 150,
+    centerY: 100,
+    ...overrides,
+  });
+
+  test('returns empty array when fewer than 2 siblings', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const sibling = createBounds({ id: 'sibling', left: 300 });
+    const guides = findSpacingGuides(dragged, [sibling]);
+    expect(guides).toEqual([]);
+  });
+
+  test('returns empty array when no equal horizontal spacing', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50 });
+    const siblingB = createBounds({ id: 'b', left: 200, right: 250 });
+    const dragged = createBounds({ id: 'dragged', left: 80, right: 130 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => g.type === 'spacing');
+    expect(spacingGuides.length).toBe(0);
+  });
+
+  test('finds horizontal equal spacing when view is centered between two siblings', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 75, right: 125, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g));
+    expect(spacingGuides.length).toBeGreaterThan(0);
+    const spacing = spacingGuides[0] as SpacingGuide;
+    expect(spacing.distance).toBe(25);
+  });
+
+  test('finds vertical equal spacing when view is centered between two siblings', () => {
+    const siblingA = createBounds({ id: 'a', left: 50, right: 150, top: 0, bottom: 50 });
+    const siblingB = createBounds({ id: 'b', left: 50, right: 150, top: 150, bottom: 200 });
+    const dragged = createBounds({ id: 'dragged', left: 50, right: 150, top: 75, bottom: 125 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g));
+    expect(spacingGuides.length).toBeGreaterThan(0);
+    const spacing = spacingGuides[0] as SpacingGuide;
+    expect(spacing.distance).toBe(25);
+  });
+
+  test('includes all three view IDs in participatingViewIds', () => {
+    const siblingA = createBounds({ id: 'view-a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'view-b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 75, right: 125, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g));
+    expect(spacingGuides[0].participatingViewIds).toContain('dragged');
+    expect(spacingGuides[0].participatingViewIds).toContain('view-a');
+    expect(spacingGuides[0].participatingViewIds).toContain('view-b');
+  });
+
+  test('finds spacing within threshold (not exact)', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 77, right: 127, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g));
+    expect(spacingGuides.length).toBeGreaterThan(0);
+  });
+
+  test('does not find spacing beyond threshold', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 85, right: 135, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g));
+    expect(spacingGuides.length).toBe(0);
+  });
+
+  test('spacing guide has correct measureStart and measureEnd', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 75, right: 125, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g)) as SpacingGuide[];
+    const horizontalSpacing = spacingGuides.find(g => g.orientation === 'horizontal');
+    expect(horizontalSpacing).toBeDefined();
+    expect(horizontalSpacing!.measureStart).toBe(50);
+    expect(horizontalSpacing!.measureEnd).toBe(75);
+  });
+
+  test('spacing guide position is at the midpoint of the gap', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 50, top: 50, bottom: 150 });
+    const siblingB = createBounds({ id: 'b', left: 150, right: 200, top: 50, bottom: 150 });
+    const dragged = createBounds({ id: 'dragged', left: 75, right: 125, top: 50, bottom: 150 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const spacingGuides = guides.filter(g => isSpacingGuide(g)) as SpacingGuide[];
+    const horizontalSpacing = spacingGuides.find(g => g.orientation === 'horizontal');
+    expect(horizontalSpacing!.position).toBe(62.5);
+  });
+
+  test('only considers views in same horizontal band for vertical spacing', () => {
+    const siblingA = createBounds({ id: 'a', left: 0, right: 100, top: 0, bottom: 50 });
+    const siblingB = createBounds({ id: 'b', left: 200, right: 300, top: 150, bottom: 200 });
+    const dragged = createBounds({ id: 'dragged', left: 50, right: 150, top: 75, bottom: 125 });
+    const guides = findSpacingGuides(dragged, [siblingA, siblingB]);
+    const verticalSpacing = guides.filter(g => isSpacingGuide(g) && g.orientation === 'vertical');
+    expect(verticalSpacing.length).toBe(0);
   });
 });
