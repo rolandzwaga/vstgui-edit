@@ -175,6 +175,27 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
+## Phase Final-1: Quality Gates (MANDATORY)
+
+**Purpose**: Verify code quality before marking feature complete
+
+**⚠️ CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
+
+- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
+- [ ] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings  
+- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
+- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+
+**If Quality Gates Fail**:
+1. STOP - do not proceed to Git Verification
+2. FIX all reported errors and warnings
+3. RE-RUN the failing command(s)
+4. REPEAT until all three commands pass cleanly
+
+**NO EXCEPTIONS**: Even "pre-existing" issues MUST be resolved. The spec is NOT complete until all quality gates pass.
+
+---
+
 ## Phase Final: Git Verification
 
 **Purpose**: Ensure all work is committed before marking feature complete

@@ -4,7 +4,7 @@
   background-color: var(--color-neutral-800);
   color: var(--color-neutral-100);
   font-size: 11px;
-  font-family: var(--font-mono);
+  font-family: var(--font-family-mono);
   border-radius: 3px;
   pointer-events: none;
   white-space: nowrap;

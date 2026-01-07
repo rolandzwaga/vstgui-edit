@@ -148,7 +148,6 @@ export function applySnapToResize(
   }
 
   if (edgeSnap.right?.snapped) {
-    const rightEdge = origin.x + size.width;
     const snappedRight = edgeSnap.right.value;
     newWidth = snappedRight - newX;
     didSnap = true;
@@ -162,7 +161,6 @@ export function applySnapToResize(
   }
 
   if (edgeSnap.bottom?.snapped) {
-    const bottomEdge = origin.y + size.height;
     const snappedBottom = edgeSnap.bottom.value;
     newHeight = snappedBottom - newY;
     didSnap = true;

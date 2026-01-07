@@ -144,9 +144,15 @@
 - [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
 - [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
 - [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [ ] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
+- [ ] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
+- [ ] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
 - [ ] **Git Status Check**: Run `git status` to verify all changes are committed
 - [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
 - [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
 - [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
-**⚠️ CRITICAL**: The feature is NOT complete until all work is committed to the feature branch AND the compliance table shows all requirements MET.
+**⚠️ CRITICAL**: The feature is NOT complete until:
+1. All quality gates pass (lint:css, check, typecheck) with zero errors/warnings
+2. All work is committed to the feature branch
+3. The compliance table shows all requirements MET

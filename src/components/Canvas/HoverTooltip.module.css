@@ -7,12 +7,12 @@
 .tooltip {
   position: fixed;
   z-index: 1000;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--color-tooltip-bg, #1a1a2e);
-  color: var(--color-tooltip-text, #ffffff);
-  font-family: var(--font-mono);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-tooltip-background);
+  color: var(--color-tooltip-text);
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-xs);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   pointer-events: none;
   white-space: nowrap;

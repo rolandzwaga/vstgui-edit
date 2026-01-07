@@ -72,6 +72,11 @@ export function useCanvasInteractions(
   const handleGlobalMouseDown = (e: MouseEvent) => {
     if (!wrapperRefValue) return;
     if (wrapperRefValue.contains(e.target as Node)) return;
+
+    const target = e.target as Element;
+    if (target.closest('[data-testid="properties-panel"]')) return;
+    if (target.closest('[data-testid="hierarchy-panel"]')) return;
+
     if (selectionStore.selectedIds.size > 0) {
       clearSelection();
     }

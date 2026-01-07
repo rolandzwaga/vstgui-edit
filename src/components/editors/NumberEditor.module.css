@@ -30,7 +30,7 @@
   width: 24px;
   padding: 0;
   border: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
+  background: var(--color-neutral-100);
   color: var(--color-text-secondary);
   cursor: pointer;
   font-size: 14px;
@@ -50,12 +50,12 @@
 }
 
 .spinButton:hover:not(:disabled) {
-  background: var(--color-bg-tertiary);
+  background: var(--color-neutral-50);
   color: var(--color-text-primary);
 }
 
 .spinButton:active:not(:disabled) {
-  background: var(--color-bg-active);
+  background: var(--color-neutral-200);
 }
 
 .spinButton:disabled {

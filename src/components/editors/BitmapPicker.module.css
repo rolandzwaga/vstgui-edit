@@ -11,7 +11,7 @@
   padding: 4px 8px;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: var(--color-bg-primary);
+  background: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 12px;
   text-align: left;
@@ -20,13 +20,13 @@
 }
 
 .trigger:hover:not(:disabled) {
-  border-color: var(--color-border-hover);
+  border-color: var(--color-neutral-400);
 }
 
 .trigger:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-alpha);
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
 .trigger:disabled {
@@ -55,7 +55,7 @@
   overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: var(--color-bg-primary);
+  background: var(--color-surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -74,23 +74,23 @@
 
 .bitmapOption:hover,
 .bitmapOption.highlighted {
-  background: var(--color-bg-secondary);
+  background: var(--color-neutral-100);
 }
 
 .bitmapOption[aria-selected="true"] {
-  background: var(--color-primary-alpha);
+  background: var(--color-primary-100);
   font-weight: 500;
 }
 
 .bitmapOption[aria-selected="true"].highlighted {
-  background: var(--color-primary);
-  color: var(--color-text-on-primary, #fff);
+  background: var(--color-primary-500);
+  color: #fff;
 }
 
 .emptyState {
   padding: 12px;
   text-align: center;
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
   font-style: italic;
 }

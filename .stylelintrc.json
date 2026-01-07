@@ -5,7 +5,7 @@
   "rules": {
     "csstools/value-no-unknown-custom-properties": [true, {
       "importFrom": [
-        "./src/styles/colors.css"
+        "./src/styles/tokens.css"
       ]
     }]
   }

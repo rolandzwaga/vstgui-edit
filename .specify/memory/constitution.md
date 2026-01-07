@@ -1,6 +1,29 @@
+<!--
+  SYNC IMPACT REPORT
+  ==================
+  Version change: 1.5.0 → 1.6.0 (MINOR - new principle added)
+  
+  Modified principles:
+  - IV. Code Quality & Architecture: Updated to reference new XXIII for quality gates
+  
+  Added sections:
+  - XXIII. Quality Gates (NON-NEGOTIABLE): Three mandatory commands before spec completion
+  
+  Removed sections:
+  - None
+  
+  Templates updated:
+  - ✅ .specify/templates/tasks-template.md: Added "Phase Final-1: Quality Gates" section
+  - ✅ .specify/templates/spec-template.md: Added quality gate verification to Final Verification checklist
+  - ✅ .specify/templates/plan-template.md: No changes needed (quality gates are task-level, not plan-level)
+  
+  Follow-up TODOs:
+  - None
+-->
+
 # VSTGUI-Edit Project Constitution
 
-**Version**: 1.5.0
+**Version**: 1.6.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for the VSTGUI-Edit project
 
 ---
@@ -118,6 +141,7 @@ All code MUST adhere to consistent quality standards:
 - Review all output and manually fix ANY remaining issues
 - A task is NOT complete until all checks pass without errors or warnings
 - NEVER commit code with unresolved errors
+- See also: **Principle XXIII. Quality Gates** for spec-level quality verification
 
 **Architectural Standards**:
 - Every feature begins as a standalone, testable module
@@ -597,6 +621,43 @@ If ANY requirement is not met, the spec is NOT complete.
 
 **Rationale**: Honest completion prevents technical debt accumulation, ensures stakeholder trust, and maintains code quality. Shortcuts compound into major problems.
 
+### XXIII. Quality Gates (NON-NEGOTIABLE)
+
+**CRITICAL**: Three mandatory quality gate commands MUST pass before ANY spec can be declared complete.
+
+**Required Commands** (ALL MUST pass with zero errors and zero warnings):
+
+1. **CSS Linting**: `npm run lint:css`
+   - Validates all CSS files against Stylelint rules
+   - Checks for unknown custom properties
+   - Enforces CSS best practices
+
+2. **Code Quality**: `npm run check`
+   - Runs Biome linting and formatting checks
+   - Validates code style consistency
+   - Catches common programming errors
+
+3. **Type Safety**: `npm run typecheck`
+   - Runs TypeScript compiler in check mode
+   - Verifies all types are correct
+   - Catches type-related bugs at compile time
+
+**Enforcement**:
+- ALL three commands MUST be run at spec completion
+- ALL errors MUST be fixed before spec can be marked complete
+- ALL warnings MUST be fixed before spec can be marked complete
+- NO exceptions - even "pre-existing" issues MUST be resolved
+- Tasks template includes explicit quality gate phase
+
+**When Quality Gates Fail**:
+1. **STOP** - do not mark spec complete
+2. **FIX** all reported errors and warnings
+3. **RE-RUN** the failing command(s)
+4. **REPEAT** until all three commands pass cleanly
+5. Only THEN proceed to final verification
+
+**Rationale**: Quality gates catch issues that tests alone cannot detect. CSS variable errors, linting violations, and type errors indicate code that may work but is not maintainable. Enforcing these gates ensures consistent, high-quality code across the entire codebase.
+
 ## Technology Stack Requirements
 
 ### Mandatory Dependencies
@@ -653,8 +714,9 @@ If ANY requirement is not met, the spec is NOT complete.
    - Commit atomically
 7. **Coverage Verification**: Verify 80% threshold after spec completion
 8. **All Tests Passing**: Ensure ALL tests pass before completion
-9. **Update Technical Docs**: Document new utilities/patterns in CLAUDE.md
-10. **Review**: Submit PR with all checks passing
+9. **Quality Gates**: Run ALL quality gate commands (lint:css, check, typecheck)
+10. **Update Technical Docs**: Document new utilities/patterns in CLAUDE.md
+11. **Review**: Submit PR with all checks passing
 
 ### Git Workflow
 
@@ -671,7 +733,7 @@ All code reviews MUST verify:
 - [ ] Every file has corresponding `.spec.ts` or `.test.ts`
 - [ ] All tests passing (EVERY SINGLE TEST)
 - [ ] Coverage >= 80% for business logic
-- [ ] Quality checks pass without errors (`biome check`, `tsc --noEmit`)
+- [ ] Quality gates pass (`npm run lint:css`, `npm run check`, `npm run typecheck`)
 - [ ] No React patterns used (SolidJS only)
 - [ ] CLAUDE.md consulted and updated
 - [ ] No duplicate code
@@ -721,10 +783,10 @@ Exceptions are **extremely rare** and require:
 4. Time-bound exception with remediation plan
 5. Documentation in exceptions log
 
-**Note**: Security/compliance principles and Zero Failing Tests Policy have **NO exceptions**.
+**Note**: Security/compliance principles, Zero Failing Tests Policy, and Quality Gates have **NO exceptions**.
 
 ---
 
-**Version**: 1.5.0
+**Version**: 1.6.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-05 (v1.5.0: Added Static Imports ONLY principle - dynamic imports forbidden except vi.importActual)
+**Last Amended**: 2026-01-07 (v1.6.0: Added Quality Gates principle - npm run lint:css, check, typecheck MUST pass before spec completion)
