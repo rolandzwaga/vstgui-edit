@@ -119,17 +119,17 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T038 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T039 [P] [US3] Create edit color tests in `src/components/ColorsPanel/__tests__/ColorItem.edit.spec.tsx`
-- [ ] T040 [P] [US3] Create edit validation tests in `src/components/ColorsPanel/__tests__/ColorItem.validation.spec.tsx`
+- [x] T038 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T039 [P] [US3] Create edit color tests in `src/components/ColorsPanel/__tests__/ColorItem.edit.spec.tsx`
+- [x] T040 [P] [US3] Create edit validation tests in `src/components/ColorsPanel/__tests__/ColorItem.validation.spec.tsx`
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Add inline edit mode to ColorItem (click-to-edit name, click-to-edit value) in `src/components/ColorsPanel/ColorItem.tsx`
-- [ ] T042 [US3] Add live swatch preview during hex value editing
-- [ ] T043 [US3] Add validation feedback (red border for invalid, error message)
-- [ ] T044 [US3] Add keyboard support (Enter=confirm, Escape=cancel, Tab=next field)
-- [ ] T045 [US3] Integrate edit operations with historyStore for undo support
+- [x] T041 [US3] Add inline edit mode to ColorItem (click-to-edit name, click-to-edit value) in `src/components/ColorsPanel/ColorItem.tsx`
+- [x] T042 [US3] Add live swatch preview during hex value editing
+- [x] T043 [US3] Add validation feedback (red border for invalid, error message)
+- [x] T044 [US3] Add keyboard support (Enter=confirm, Escape=cancel, Tab=next field)
+- [x] T045 [US3] Integrate edit operations with historyStore for undo support
 - [ ] T046 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(021): implement edit color functionality (US3)"
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently

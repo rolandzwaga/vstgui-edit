@@ -43,3 +43,44 @@
   font-family: var(--font-family-mono);
   color: var(--color-text-secondary);
 }
+
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.input {
+  padding: 2px 4px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 3px;
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text-primary);
+  outline: none;
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--color-focus, #0066cc);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.valueInput {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}
+
+.inputError {
+  border-color: var(--color-error, #dc3545);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.error {
+  font-size: 10px;
+  color: var(--color-error, #dc3545);
+}
