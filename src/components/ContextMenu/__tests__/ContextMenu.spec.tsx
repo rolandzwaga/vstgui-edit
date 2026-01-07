@@ -107,4 +107,32 @@ describe('ContextMenu', () => {
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
   });
+
+  describe('event propagation', () => {
+    it('should stop mousedown propagation on menu', () => {
+      const parentMouseDown = vi.fn();
+      showContextMenu(100, 100);
+      render(() => (
+        <div onMouseDown={parentMouseDown}>
+          <ContextMenu onDelete={mockOnDelete} />
+        </div>
+      ));
+      const menu = screen.getByRole('menu');
+      fireEvent.mouseDown(menu);
+      expect(parentMouseDown).not.toHaveBeenCalled();
+    });
+
+    it('should stop mouseup propagation on menu', () => {
+      const parentMouseUp = vi.fn();
+      showContextMenu(100, 100);
+      render(() => (
+        <div onMouseUp={parentMouseUp}>
+          <ContextMenu onDelete={mockOnDelete} />
+        </div>
+      ));
+      const menu = screen.getByRole('menu');
+      fireEvent.mouseUp(menu);
+      expect(parentMouseUp).not.toHaveBeenCalled();
+    });
+  });
 });

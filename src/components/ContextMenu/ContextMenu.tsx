@@ -12,6 +12,14 @@ export const ContextMenu: Component<ContextMenuProps> = (props) => {
 
   const hasSelection = () => selectionStore.selectedIds.size > 0;
 
+  const handleMenuMouseDown = (e: MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleMenuMouseUp = (e: MouseEvent) => {
+    e.stopPropagation();
+  };
+
   const handleDelete = () => {
     if (!hasSelection()) {
       return;
@@ -50,6 +58,9 @@ export const ContextMenu: Component<ContextMenuProps> = (props) => {
         ref={menuRef}
         class={styles.menu}
         role="menu"
+        data-testid="context-menu"
+        onMouseDown={handleMenuMouseDown}
+        onMouseUp={handleMenuMouseUp}
         style={{
           left: `${contextMenuStore.position.x}px`,
           top: `${contextMenuStore.position.y}px`,
