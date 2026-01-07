@@ -1,9 +1,6 @@
 import type { Component } from 'solid-js';
-import styles from './Canvas.module.css';
+import styles from './Legend.module.css';
 
-/**
- * Legend component showing color coding for view categories.
- */
 export const Legend: Component = () => {
   return (
     <div class={styles.legend} data-testid="canvas-legend">
