@@ -5,6 +5,12 @@
 **Status**: Draft  
 **Input**: User description: "Implement smart guides for view alignment - show visual guide lines when dragging views near sibling edges, centers, or parent centers, with optional spacing guides for equal distribution"
 
+## Clarifications
+
+### Session 2026-01-07
+
+- Q: Which keyboard shortcut should toggle smart guides? → A: `S` key (mnemonic: "Smart guides")
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Edge Alignment Guides (Priority: P1)
@@ -83,8 +89,8 @@ As a user, I want smart guides to have a distinct visual appearance that doesn't
 **Acceptance Scenarios**:
 
 1. **Given** smart guides are visible, **When** I look at them, **Then** they appear as colored lines (distinct from grid and selection) that extend across the canvas
-2. **Given** smart guides are enabled, **When** I press a toggle shortcut, **Then** smart guides are disabled and no longer appear during drag
-3. **Given** smart guides are disabled, **When** I press the toggle shortcut, **Then** smart guides are re-enabled
+2. **Given** smart guides are enabled, **When** I press the `S` key, **Then** smart guides are disabled and no longer appear during drag
+3. **Given** smart guides are disabled, **When** I press the `S` key, **Then** smart guides are re-enabled
 
 ---
 
@@ -112,7 +118,7 @@ As a user, I want smart guides to have a distinct visual appearance that doesn't
 - **FR-008**: System MUST hide guide lines when the alignment condition is no longer met (view moves beyond threshold)
 - **FR-009**: System MUST use a visually distinct color for guide lines (different from grid, selection, and view borders)
 - **FR-010**: System MUST provide a toggle to enable/disable smart guides (default: enabled)
-- **FR-011**: System MUST respond to a keyboard shortcut to toggle smart guides on/off
+- **FR-011**: System MUST respond to the `S` key to toggle smart guides on/off
 - **FR-012**: System MUST display distance labels on spacing guides showing the pixel distance
 - **FR-013**: System MUST show spacing guides when a view is positioned with equal distance between two adjacent views (within 5px tolerance)
 - **FR-014**: System MUST calculate guides based on the anchor view when multiple views are selected and dragged
