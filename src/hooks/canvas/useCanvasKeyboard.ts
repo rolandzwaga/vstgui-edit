@@ -1,5 +1,6 @@
 import type { Accessor } from 'solid-js';
 import { applyDelta, createMoveOperation } from '../../domain/canvas/move';
+import { createDeleteOperation, deleteSelectedViews } from '../../domain/canvas/viewOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
@@ -152,6 +153,20 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         updateViewOrigin
       );
       pushOperation(operation);
+      return;
+    }
+
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+      e.preventDefault();
+      const removed = deleteSelectedViews();
+      if (removed.length > 0) {
+        const operation = createDeleteOperation(removed);
+        pushOperation(operation);
+      }
       return;
     }
 
