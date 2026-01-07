@@ -14,7 +14,7 @@ import { resizeStore } from '../../stores/resizeStore';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
 import { HoverTooltip } from './HoverTooltip';
-import { Legend } from './Legend';
+
 import { MarqueeRectangle } from './MarqueeRectangle';
 import { SelectionOverlay } from './SelectionOverlay';
 import { TemplateBounds } from './TemplateBounds';
@@ -118,7 +118,6 @@ export const Canvas: Component = () => {
             </Show>
           </svg>
         </div>
-        <Legend />
         <DimensionIndicator />
         <Show when={showTooltip() && hoveredView()}>
           {(view) => (
