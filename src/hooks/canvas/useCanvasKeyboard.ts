@@ -3,7 +3,7 @@ import { applyDelta, createMoveOperation } from '../../domain/canvas/move';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
-import { toggleVisibility } from '../../stores/gridStore';
+import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
@@ -166,8 +166,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       resetZoom();
     } else if (e.key === 'f' || e.key === 'F') {
       handleFitToView();
-    } else if (e.key === 'g' || e.key === 'G') {
+    } else if ((e.key === 'g' || e.key === 'G') && !e.shiftKey) {
       toggleVisibility();
+    } else if ((e.key === 'g' || e.key === 'G') && e.shiftKey) {
+      toggleSnap();
     }
   };
 

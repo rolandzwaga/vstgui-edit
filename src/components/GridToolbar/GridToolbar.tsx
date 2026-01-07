@@ -4,6 +4,7 @@ import {
   gridStore,
   setGridSize,
   setGridStyle,
+  toggleSnap,
   toggleVisibility,
 } from '../../stores/gridStore';
 import type { GridSizePreset, GridStyle } from '../../types/grid';
@@ -46,8 +47,23 @@ export const GridToolbar: Component = () => {
         onClick={() => toggleVisibility()}
         aria-label="Toggle grid visibility"
         aria-pressed={gridStore.isVisible}
+        title="Toggle Grid (G)"
       >
         #
+      </button>
+
+      <button
+        type="button"
+        class={styles.button}
+        classList={{
+          [styles.buttonActive]: gridStore.isSnapEnabled,
+        }}
+        onClick={() => toggleSnap()}
+        aria-label="Toggle snap to grid"
+        aria-pressed={gridStore.isSnapEnabled}
+        title="Toggle Snap (Shift+G)"
+      >
+        ⌖
       </button>
 
       <div class={styles.separator} />
