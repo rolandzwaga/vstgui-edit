@@ -296,3 +296,80 @@ export function updateViewSize(viewId: string, newSize: Size): Size | null {
 
   return previousSize;
 }
+
+export function getViewAttribute(viewId: string, attributeName: string): string | undefined {
+  const doc = store.document;
+  if (!doc) {
+    return undefined;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return undefined;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return undefined;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+
+  if (!view) {
+    return undefined;
+  }
+
+  const value = view.attributes[attributeName];
+  return value === undefined ? undefined : String(value);
+}
+
+export function updateViewAttribute(
+  viewId: string,
+  attributeName: string,
+  newValue: string
+): string | null | undefined {
+  const doc = store.document;
+  if (!doc) {
+    return null;
+  }
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) {
+    return null;
+  }
+
+  const templates = vstgui.templates;
+  const templateEntries = Object.entries(templates);
+  if (templateEntries.length === 0) {
+    return null;
+  }
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+
+  if (!view) {
+    return null;
+  }
+
+  const previousValue = view.attributes[attributeName];
+  const previousStr = previousValue === undefined ? undefined : String(previousValue);
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes[attributeName] = newValue;
+      }
+    })
+  );
+
+  return previousStr;
+}

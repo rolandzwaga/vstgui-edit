@@ -1,0 +1,201 @@
+.editorInput {
+  width: 100%;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.editorInput:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.editorInput:disabled {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.editorInputError {
+  border-color: var(--color-error-500);
+}
+
+.editorInputError:focus {
+  border-color: var(--color-error-600);
+  box-shadow: 0 0 0 2px var(--color-error-100);
+}
+
+.errorMessage {
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-error-600);
+  line-height: var(--line-height-tight);
+}
+
+.editorWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary-500);
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.spinButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 100%;
+  padding: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  background-color: var(--color-neutral-100);
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.spinButton:hover:not(:disabled) {
+  background-color: var(--color-neutral-200);
+  color: var(--color-text-primary);
+}
+
+.spinButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.numberWrapper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.numberWrapper:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.numberInput {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: none;
+  outline: none;
+  text-align: right;
+}
+
+.numberInput:disabled {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-muted);
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.selectTrigger:hover:not(:disabled) {
+  border-color: var(--color-neutral-400);
+}
+
+.selectTrigger:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+  outline: none;
+}
+
+.selectTrigger:disabled {
+  background-color: var(--color-neutral-100);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.dropdownIcon {
+  width: 12px;
+  height: 12px;
+  color: var(--color-text-secondary);
+}
+
+.dropdown {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  min-width: 120px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.dropdownOption {
+  padding: var(--spacing-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.dropdownOption:hover {
+  background-color: var(--color-neutral-100);
+}
+
+.dropdownOptionSelected {
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.colorSwatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+  margin-right: var(--spacing-1);
+}
+
+.colorPickerTrigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
