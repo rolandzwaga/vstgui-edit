@@ -3,6 +3,7 @@ import { findIntersectingViews, isMinimumSize, normalizeRect } from '../../domai
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
+import { calculateSmartGuides, getViewBounds } from '../../domain/canvas/smartGuides';
 import {
   applySnapToMove,
   applySnapToResize,
@@ -13,6 +14,11 @@ import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
 import { gridStore } from '../../stores/gridStore';
 import { pushOperation } from '../../stores/historyStore';
+import {
+  clearActiveGuides,
+  setActiveGuides,
+  smartGuidesStore,
+} from '../../stores/smartGuidesStore';
 import {
   activateMarquee,
   beginTracking,
@@ -242,6 +248,29 @@ export function useCanvasInteractions(
     );
 
     updateDrag(canvasPoint, e.shiftKey);
+
+    if (smartGuidesStore.isEnabled && dragStore.isDragging) {
+      const delta = dragStore.delta;
+      const selectedIds = selectionStore.selectedIds;
+      const views = renderableViews();
+      const anchorId = Object.keys(dragStore.originalOrigins)[0];
+
+      if (anchorId) {
+        const anchorView = views.find(v => v.id === anchorId);
+        if (anchorView) {
+          const draggedBounds = getViewBounds({
+            ...anchorView,
+            absoluteX: anchorView.absoluteX + delta.x,
+            absoluteY: anchorView.absoluteY + delta.y,
+          });
+
+          const siblings = views.filter(v => !selectedIds.has(v.id)).map(getViewBounds);
+
+          const guides = calculateSmartGuides(draggedBounds, siblings);
+          setActiveGuides(guides);
+        }
+      }
+    }
   };
 
   const handleDragUp = (e: MouseEvent) => {
@@ -280,6 +309,7 @@ export function useCanvasInteractions(
     setPendingDragStart(null);
     setPendingDragViewId(null);
     resetDrag();
+    clearActiveGuides();
   };
 
   const handleMarqueeMove = (e: MouseEvent) => {

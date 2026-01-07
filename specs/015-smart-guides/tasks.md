@@ -19,12 +19,12 @@
 
 **Purpose**: Types, store, and design tokens needed by all user stories
 
-- [ ] T001 [P] Create smart guide type definitions in `src/types/smartGuides.ts` (GuideOrientation, GuideType, SmartGuide, SpacingGuide, SmartGuidesState, GuideMatch, ViewBounds)
-- [ ] T002 [P] Add smart guide design tokens to `src/styles/tokens.css` (--color-smart-guide, --color-smart-guide-label-bg, --color-smart-guide-label-text)
-- [ ] T003 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with tests
-- [ ] T004 Write unit tests for smartGuidesStore in `src/stores/__tests__/smartGuidesStore.spec.ts` (tests written FIRST, will fail until T005)
-- [ ] T005 Create smartGuidesStore in `src/stores/smartGuidesStore.ts` (isEnabled, activeGuides, toggleSmartGuides, setActiveGuides, clearActiveGuides, resetSmartGuides)
-- [ ] T006 **Commit**: Stage and commit Phase 1 changes with message "feat(smart-guides): add types, store, and design tokens"
+- [x] T001 [P] Create smart guide type definitions in `src/types/smartGuides.ts` (GuideOrientation, GuideType, SmartGuide, SpacingGuide, SmartGuidesState, GuideMatch, ViewBounds)
+- [x] T002 [P] Add smart guide design tokens to `src/styles/tokens.css` (--color-smart-guide, --color-smart-guide-label-bg, --color-smart-guide-label-text)
+- [x] T003 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with tests
+- [x] T004 Write unit tests for smartGuidesStore in `src/stores/__tests__/smartGuidesStore.spec.ts` (tests written FIRST, will fail until T005)
+- [x] T005 Create smartGuidesStore in `src/stores/smartGuidesStore.ts` (isEnabled, activeGuides, toggleSmartGuides, setActiveGuides, clearActiveGuides, resetSmartGuides)
+- [x] T006 **Commit**: Stage and commit Phase 1 changes with message "feat(smart-guides): add types, store, and design tokens"
 
 ---
 
@@ -34,11 +34,11 @@
 
 **⚠️ CRITICAL**: User story implementation depends on these utilities
 
-- [ ] T007 Write unit tests for foundational utilities in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T008-T010)
-- [ ] T008 Create getViewBounds utility in `src/domain/canvas/smartGuides.ts` (converts RenderableView to ViewBounds with left/right/top/bottom/centerX/centerY)
-- [ ] T009 Create isWithinThreshold utility in `src/domain/canvas/smartGuides.ts` (checks if distance <= GUIDE_THRESHOLD)
-- [ ] T010 Create createGuide utility in `src/domain/canvas/smartGuides.ts` (factory for SmartGuide objects with unique IDs)
-- [ ] T011 **Commit**: Stage and commit Phase 2 changes with message "feat(smart-guides): add foundational calculation utilities"
+- [x] T007 Write unit tests for foundational utilities in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T008-T010)
+- [x] T008 Create getViewBounds utility in `src/domain/canvas/smartGuides.ts` (converts RenderableView to ViewBounds with left/right/top/bottom/centerX/centerY)
+- [x] T009 Create isWithinThreshold utility in `src/domain/canvas/smartGuides.ts` (checks if distance <= GUIDE_THRESHOLD)
+- [x] T010 Create createGuide utility in `src/domain/canvas/smartGuides.ts` (factory for SmartGuide objects with unique IDs)
+- [x] T011 **Commit**: Stage and commit Phase 2 changes with message "feat(smart-guides): add foundational calculation utilities"
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -54,17 +54,17 @@
 
 ### Implementation for User Story 1+2
 
-- [ ] T012 [US1+US2] Write unit tests for findEdgeAlignments in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T015)
-- [ ] T013 [US1+US2] Write unit tests for findCenterAlignments in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T016)
-- [ ] T014 [US1+US2] Write unit tests for calculateSmartGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T017)
-- [ ] T015 [US1] Implement findEdgeAlignments function in `src/domain/canvas/smartGuides.ts` (check left/right edges against sibling left/right, top/bottom against sibling top/bottom)
-- [ ] T016 [US2] Implement findCenterAlignments function in `src/domain/canvas/smartGuides.ts` (check centerX against sibling centerX, centerY against sibling centerY)
-- [ ] T017 [US1+US2] Implement calculateSmartGuides function in `src/domain/canvas/smartGuides.ts` (orchestrates edge + center alignment checks, returns SmartGuide[])
-- [ ] T018 [US1+US2] Write component tests for SmartGuideLines in `src/components/Canvas/__tests__/SmartGuideLines.spec.tsx` (tests written FIRST, will fail until T019)
-- [ ] T019 [P] [US1+US2] Create SmartGuideLines component in `src/components/Canvas/SmartGuideLines.tsx` (renders SVG lines from activeGuides, full viewport extent)
-- [ ] T020 [US1+US2] Integrate guide calculation into useCanvasInteractions hook in `src/hooks/canvas/useCanvasInteractions.ts` (call calculateSmartGuides in handleDragMove, clear in handleDragUp)
-- [ ] T021 [US1+US2] Add SmartGuideLines to Canvas component in `src/components/Canvas/Canvas.tsx`
-- [ ] T022 [US1+US2] Write integration tests for guide display during drag in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
+- [x] T012 [US1+US2] Write unit tests for findEdgeAlignments in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T015)
+- [x] T013 [US1+US2] Write unit tests for findCenterAlignments in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T016)
+- [x] T014 [US1+US2] Write unit tests for calculateSmartGuides in `src/domain/canvas/__tests__/smartGuides.spec.ts` (tests written FIRST, will fail until T017)
+- [x] T015 [US1] Implement findEdgeAlignments function in `src/domain/canvas/smartGuides.ts` (check left/right edges against sibling left/right, top/bottom against sibling top/bottom)
+- [x] T016 [US2] Implement findCenterAlignments function in `src/domain/canvas/smartGuides.ts` (check centerX against sibling centerX, centerY against sibling centerY)
+- [x] T017 [US1+US2] Implement calculateSmartGuides function in `src/domain/canvas/smartGuides.ts` (orchestrates edge + center alignment checks, returns SmartGuide[])
+- [x] T018 [US1+US2] Write component tests for SmartGuideLines in `src/components/Canvas/__tests__/SmartGuideLines.spec.tsx` (tests written FIRST, will fail until T019)
+- [x] T019 [P] [US1+US2] Create SmartGuideLines component in `src/components/Canvas/SmartGuideLines.tsx` (renders SVG lines from activeGuides, full viewport extent)
+- [x] T020 [US1+US2] Integrate guide calculation into useCanvasInteractions hook in `src/hooks/canvas/useCanvasInteractions.ts` (call calculateSmartGuides in handleDragMove, clear in handleDragUp)
+- [x] T021 [US1+US2] Add SmartGuideLines to Canvas component in `src/components/Canvas/Canvas.tsx`
+- [x] T022 [US1+US2] Write integration tests for guide display during drag in `src/components/Canvas/__tests__/Canvas.smartGuides.spec.tsx`
 - [ ] T023 [US1+US2] **Commit**: Stage and commit User Story 1+2 changes with message "feat(smart-guides): implement edge and center alignment guides"
 
 **Checkpoint**: Edge and center guides functional - MVP complete

@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import type { RenderableView } from '../../../types/canvas';
-import type { ViewBounds } from '../../../types/smartGuides';
+import type { ViewBounds, SmartGuide } from '../../../types/smartGuides';
 import {
   getViewBounds,
   isWithinThreshold,
   createGuide,
+  findEdgeAlignments,
+  findCenterAlignments,
+  calculateSmartGuides,
   GUIDE_THRESHOLD,
 } from '../smartGuides';
 
@@ -169,5 +172,232 @@ describe('smartGuides foundational utilities', () => {
       expect(guide.id).toContain('vertical');
       expect(guide.id).toContain('edge');
     });
+  });
+});
+
+describe('findEdgeAlignments', () => {
+  const createBounds = (overrides: Partial<ViewBounds> = {}): ViewBounds => ({
+    id: 'test-view',
+    left: 100,
+    right: 200,
+    top: 50,
+    bottom: 150,
+    centerX: 150,
+    centerY: 100,
+    ...overrides,
+  });
+
+  test('returns empty array when no siblings', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const guides = findEdgeAlignments(dragged, []);
+    expect(guides).toEqual([]);
+  });
+
+  test('finds left edge alignment with sibling left edge', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100 });
+    const sibling = createBounds({ id: 'sibling', left: 100, top: 200 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const leftGuides = guides.filter(g => g.position === 100 && g.orientation === 'vertical');
+    expect(leftGuides.length).toBeGreaterThan(0);
+    expect(leftGuides[0].type).toBe('edge');
+  });
+
+  test('finds left edge alignment with sibling right edge', () => {
+    const dragged = createBounds({ id: 'dragged', left: 200 });
+    const sibling = createBounds({ id: 'sibling', right: 200, left: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 200 && g.orientation === 'vertical');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds right edge alignment with sibling right edge', () => {
+    const dragged = createBounds({ id: 'dragged', right: 300 });
+    const sibling = createBounds({ id: 'sibling', right: 300 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 300 && g.orientation === 'vertical');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds right edge alignment with sibling left edge', () => {
+    const dragged = createBounds({ id: 'dragged', right: 100 });
+    const sibling = createBounds({ id: 'sibling', left: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 100 && g.orientation === 'vertical');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds top edge alignment with sibling top edge', () => {
+    const dragged = createBounds({ id: 'dragged', top: 50 });
+    const sibling = createBounds({ id: 'sibling', top: 50, left: 300 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 50 && g.orientation === 'horizontal');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds top edge alignment with sibling bottom edge', () => {
+    const dragged = createBounds({ id: 'dragged', top: 150 });
+    const sibling = createBounds({ id: 'sibling', bottom: 150 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 150 && g.orientation === 'horizontal');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds bottom edge alignment with sibling bottom edge', () => {
+    const dragged = createBounds({ id: 'dragged', bottom: 200 });
+    const sibling = createBounds({ id: 'sibling', bottom: 200, top: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 200 && g.orientation === 'horizontal');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds bottom edge alignment with sibling top edge', () => {
+    const dragged = createBounds({ id: 'dragged', bottom: 50 });
+    const sibling = createBounds({ id: 'sibling', top: 50 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 50 && g.orientation === 'horizontal');
+    expect(matching.length).toBeGreaterThan(0);
+  });
+
+  test('finds alignment within threshold (not exact)', () => {
+    const dragged = createBounds({ id: 'dragged', left: 102 });
+    const sibling = createBounds({ id: 'sibling', left: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    expect(guides.length).toBeGreaterThan(0);
+  });
+
+  test('does not find alignment beyond threshold', () => {
+    const dragged = createBounds({ id: 'dragged', left: 110 });
+    const sibling = createBounds({ id: 'sibling', left: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    const leftGuides = guides.filter(g => g.position === 100);
+    expect(leftGuides.length).toBe(0);
+  });
+
+  test('includes both view IDs in participatingViewIds', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100 });
+    const sibling = createBounds({ id: 'sibling', left: 100 });
+    const guides = findEdgeAlignments(dragged, [sibling]);
+    expect(guides[0].participatingViewIds).toContain('dragged');
+    expect(guides[0].participatingViewIds).toContain('sibling');
+  });
+
+  test('finds alignments with multiple siblings', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100, top: 200 });
+    const sibling1 = createBounds({ id: 'sibling1', left: 100 });
+    const sibling2 = createBounds({ id: 'sibling2', top: 200, left: 300 });
+    const guides = findEdgeAlignments(dragged, [sibling1, sibling2]);
+    expect(guides.length).toBeGreaterThan(0);
+  });
+});
+
+describe('findCenterAlignments', () => {
+  const createBounds = (overrides: Partial<ViewBounds> = {}): ViewBounds => ({
+    id: 'test-view',
+    left: 100,
+    right: 200,
+    top: 50,
+    bottom: 150,
+    centerX: 150,
+    centerY: 100,
+    ...overrides,
+  });
+
+  test('returns empty array when no siblings', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const guides = findCenterAlignments(dragged, []);
+    expect(guides).toEqual([]);
+  });
+
+  test('finds centerX alignment', () => {
+    const dragged = createBounds({ id: 'dragged', centerX: 150 });
+    const sibling = createBounds({ id: 'sibling', centerX: 150, top: 200 });
+    const guides = findCenterAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 150 && g.orientation === 'vertical');
+    expect(matching.length).toBeGreaterThan(0);
+    expect(matching[0].type).toBe('center');
+  });
+
+  test('finds centerY alignment', () => {
+    const dragged = createBounds({ id: 'dragged', centerY: 100 });
+    const sibling = createBounds({ id: 'sibling', centerY: 100, left: 300 });
+    const guides = findCenterAlignments(dragged, [sibling]);
+    const matching = guides.filter(g => g.position === 100 && g.orientation === 'horizontal');
+    expect(matching.length).toBeGreaterThan(0);
+    expect(matching[0].type).toBe('center');
+  });
+
+  test('finds center alignment within threshold', () => {
+    const dragged = createBounds({ id: 'dragged', centerX: 152 });
+    const sibling = createBounds({ id: 'sibling', centerX: 150 });
+    const guides = findCenterAlignments(dragged, [sibling]);
+    expect(guides.length).toBeGreaterThan(0);
+  });
+
+  test('does not find center alignment beyond threshold', () => {
+    const dragged = createBounds({ id: 'dragged', centerX: 160 });
+    const sibling = createBounds({ id: 'sibling', centerX: 150 });
+    const guides = findCenterAlignments(dragged, [sibling]);
+    const centerXGuides = guides.filter(g => g.position === 150);
+    expect(centerXGuides.length).toBe(0);
+  });
+
+  test('includes both view IDs in participatingViewIds', () => {
+    const dragged = createBounds({ id: 'dragged', centerX: 150 });
+    const sibling = createBounds({ id: 'sibling', centerX: 150 });
+    const guides = findCenterAlignments(dragged, [sibling]);
+    expect(guides[0].participatingViewIds).toContain('dragged');
+    expect(guides[0].participatingViewIds).toContain('sibling');
+  });
+});
+
+describe('calculateSmartGuides', () => {
+  const createBounds = (overrides: Partial<ViewBounds> = {}): ViewBounds => ({
+    id: 'test-view',
+    left: 100,
+    right: 200,
+    top: 50,
+    bottom: 150,
+    centerX: 150,
+    centerY: 100,
+    ...overrides,
+  });
+
+  test('returns empty array when no siblings', () => {
+    const dragged = createBounds({ id: 'dragged' });
+    const guides = calculateSmartGuides(dragged, []);
+    expect(guides).toEqual([]);
+  });
+
+  test('combines edge and center alignments', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100, centerX: 200 });
+    const sibling1 = createBounds({ id: 'sibling1', left: 100 });
+    const sibling2 = createBounds({ id: 'sibling2', centerX: 200 });
+    const guides = calculateSmartGuides(dragged, [sibling1, sibling2]);
+    const hasEdge = guides.some(g => g.type === 'edge');
+    const hasCenter = guides.some(g => g.type === 'center');
+    expect(hasEdge).toBe(true);
+    expect(hasCenter).toBe(true);
+  });
+
+  test('deduplicates guides at same position', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100 });
+    const sibling1 = createBounds({ id: 'sibling1', left: 100 });
+    const sibling2 = createBounds({ id: 'sibling2', left: 100 });
+    const guides = calculateSmartGuides(dragged, [sibling1, sibling2]);
+    const verticalAt100 = guides.filter(g => g.position === 100 && g.orientation === 'vertical');
+    expect(verticalAt100.length).toBe(1);
+  });
+
+  test('returns guides for all matching siblings', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100, top: 50 });
+    const sibling = createBounds({ id: 'sibling', left: 100, top: 50 });
+    const guides = calculateSmartGuides(dragged, [sibling]);
+    expect(guides.length).toBeGreaterThan(0);
+  });
+
+  test('does not include dragged view id in siblings check', () => {
+    const dragged = createBounds({ id: 'dragged', left: 100 });
+    const guides = calculateSmartGuides(dragged, [dragged]);
+    expect(guides).toEqual([]);
   });
 });

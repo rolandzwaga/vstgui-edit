@@ -22,6 +22,7 @@ import { ViewRectangle } from './ViewRectangle';
 import { DragPreview } from './DragPreview';
 import { ResizePreview } from './ResizePreview';
 import { DimensionIndicator } from './DimensionIndicator';
+import { SmartGuideLines } from './SmartGuideLines';
 import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
@@ -111,6 +112,7 @@ export const Canvas: Component = () => {
             </For>
             <DragPreview views={selectedViews()} />
             <ResizePreview />
+            <SmartGuideLines />
             <Show when={marqueeStore.isActive}>
               <MarqueeRectangle />
             </Show>
