@@ -85,6 +85,34 @@
   color: var(--color-error, #dc3545);
 }
 
+.usageBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 9px;
+  background-color: var(--color-info-light, rgba(0, 102, 204, 0.1));
+  color: var(--color-info, #0066cc);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.usageBadge:hover {
+  background-color: var(--color-info, #0066cc);
+  color: white;
+}
+
+.usageBadge:focus-visible {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: 1px;
+}
+
 .deleteButton {
   display: flex;
   align-items: center;

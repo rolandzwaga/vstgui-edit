@@ -173,14 +173,14 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T056 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T057 [P] [US5] Create usage badge tests in `src/components/ColorsPanel/__tests__/ColorItem.usage.spec.tsx`
+- [x] T056 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T057 [P] [US5] Create usage badge tests in `src/components/ColorsPanel/__tests__/ColorItem.usage.spec.tsx`
 
 ### Implementation for User Story 5
 
-- [ ] T058 [US5] Add usage count badge to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
-- [ ] T059 [US5] Create UsagePopover component to display referencing views in `src/components/ColorsPanel/UsagePopover.tsx`
-- [ ] T060 [US5] Wire up usage popover to badge click/hover
+- [x] T058 [US5] Add usage count badge to ColorItem in `src/components/ColorsPanel/ColorItem.tsx`
+- [x] T059 [US5] Create UsagePopover component (inline in ColorsPanel) to display referencing views
+- [x] T060 [US5] Wire up usage popover to badge click
 - [ ] T061 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat(021): implement color usage tracking (US5)"
 
 ---

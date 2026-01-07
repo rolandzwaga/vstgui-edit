@@ -2,7 +2,7 @@ import { type Component, createMemo, createSignal, For, Show } from 'solid-js';
 import { addColor, deleteColor, documentStore, getColors } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import { createAddColorOperation, createDeleteColorOperation } from '../../domain/colors/historyOperations';
-import { findColorUsages } from '../../domain/colors/usage';
+import { findColorUsages, type ColorUsage } from '../../domain/colors/usage';
 import { ColorItem } from './ColorItem';
 import { AddColorButton } from './AddColorButton';
 import { EmptyState } from './EmptyState';
@@ -23,6 +23,7 @@ function generateUniqueColorName(existingColors: Record<string, string>): string
 
 export const ColorsPanel: Component = () => {
   const [pendingDelete, setPendingDelete] = createSignal<{ name: string; value: string; usageCount: number } | null>(null);
+  const [usagePopover, setUsagePopover] = createSignal<{ name: string; usages: ColorUsage[] } | null>(null);
 
   const colors = createMemo(() => {
     const colorMap = getColors();
@@ -72,6 +73,19 @@ export const ColorsPanel: Component = () => {
     setPendingDelete(null);
   };
 
+  const handleUsageClick = (name: string) => {
+    const usages = findColorUsages(name, documentStore.document);
+    setUsagePopover({ name, usages });
+  };
+
+  const closeUsagePopover = () => {
+    setUsagePopover(null);
+  };
+
+  const getUsageCount = (name: string) => {
+    return findColorUsages(name, documentStore.document).length;
+  };
+
   return (
     <div class={styles.panel} data-testid="colors-panel">
       <div class={styles.header}>
@@ -86,6 +100,8 @@ export const ColorsPanel: Component = () => {
                 name={color.name}
                 value={color.value}
                 onDelete={handleDeleteRequest}
+                usageCount={getUsageCount(color.name)}
+                onUsageClick={handleUsageClick}
               />
             )}
           </For>
@@ -117,6 +133,38 @@ export const ColorsPanel: Component = () => {
                   Delete
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+      </Show>
+      <Show when={usagePopover()}>
+        {(popover) => (
+          <div class={styles.usagePopover} data-testid="usage-popover">
+            <div class={styles.popoverContent}>
+              <div class={styles.popoverHeader}>
+                <span class={styles.popoverTitle}>
+                  Uses of "{popover().name}"
+                </span>
+                <button
+                  type="button"
+                  class={styles.closeButton}
+                  onClick={closeUsagePopover}
+                  aria-label="Close"
+                  data-testid="close-usage-popover"
+                >
+                  ×
+                </button>
+              </div>
+              <ul class={styles.usageList}>
+                <For each={popover().usages}>
+                  {(usage) => (
+                    <li class={styles.usageItem}>
+                      <span class={styles.usageView}>{usage.viewClass}</span>
+                      <span class={styles.usageAttr}>{usage.attribute}</span>
+                    </li>
+                  )}
+                </For>
+              </ul>
             </div>
           </div>
         )}

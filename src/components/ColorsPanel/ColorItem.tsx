@@ -15,6 +15,8 @@ export interface ColorItemProps {
   value: string;
   isReadOnly?: boolean;
   onDelete?: (name: string) => void;
+  usageCount?: number;
+  onUsageClick?: (name: string) => void;
 }
 
 export const ColorItem: Component<ColorItemProps> = (props) => {
@@ -212,6 +214,17 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
           </div>
         </Show>
       </div>
+      <Show when={props.usageCount && props.usageCount > 0}>
+        <button
+          type="button"
+          class={styles.usageBadge}
+          data-testid="usage-badge"
+          aria-label={`${props.usageCount} ${props.usageCount === 1 ? 'usage' : 'usages'}`}
+          onClick={() => props.onUsageClick?.(props.name)}
+        >
+          {props.usageCount}
+        </button>
+      </Show>
       <Show when={isHovered() && !props.isReadOnly && props.onDelete}>
         <button
           type="button"
