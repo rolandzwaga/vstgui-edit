@@ -151,10 +151,10 @@
 
 **Purpose**: Ensure all work is committed and requirements met
 
-- [ ] T052 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] T053 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
-- [ ] T054 **Confirm Clean**: Verify working tree is clean (nothing to commit)
-- [ ] T055 **Update Compliance Table**: Update spec.md compliance table with MET status and evidence for all FR-xxx and SC-xxx requirements
+- [x] T052 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [x] T053 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them
+- [x] T054 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [x] T055 **Update Compliance Table**: Update spec.md compliance table with MET status and evidence for all FR-xxx and SC-xxx requirements
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until:
 1. All work is committed
