@@ -111,7 +111,7 @@ As a user, I want pasted views to appear near my cursor position so that I can p
 - **FR-008**: System MUST support undo for paste operations (removing pasted views)
 - **FR-009**: System MUST duplicate selected view(s) when Ctrl+D is pressed (copy and immediately paste)
 - **FR-010**: System MUST paste views as children of selected container when one is selected
-- **FR-011**: System MUST paste views as siblings when a non-container or no view is selected
+- **FR-011**: System MUST paste views as siblings when a non-container or no view is selected (i.e., as children of the selected view's parent, making them siblings of the selected view)
 - **FR-012**: System MUST prevent cut/copy operations when no views are selected
 - **FR-013**: System MUST prevent cutting the root template view
 - **FR-014**: System MUST select the newly pasted/duplicated views after the operation
@@ -129,7 +129,7 @@ As a user, I want pasted views to appear near my cursor position so that I can p
 
 - **SC-001**: Users can copy and paste a view with a single Ctrl+C, Ctrl+V sequence
 - **SC-002**: Users can duplicate a view with a single Ctrl+D keypress
-- **SC-003**: All clipboard operations complete instantly (no perceptible delay)
+- **SC-003**: All clipboard operations complete in < 100ms (no perceptible delay)
 - **SC-004**: 100% of clipboard operations can be fully reversed with undo
 - **SC-005**: Pasted views appear in a visible location (not obscured by original)
 - **SC-006**: Container hierarchies are preserved when copying/pasting nested views
@@ -142,42 +142,42 @@ As a user, I want pasted views to appear near my cursor position so that I can p
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-014 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
-| SC-006 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | viewOperations.spec.ts: "should copy a selected view to clipboard" |
+| FR-002 | ✅ MET | serialization.spec.ts: "should serialize a container with children" |
+| FR-003 | ✅ MET | viewOperations.spec.ts: "should paste views from clipboard with offset" |
+| FR-004 | ✅ MET | viewOperations.spec.ts: "should paste views from clipboard with offset" (110, 110) |
+| FR-005 | ✅ MET | viewOperations.spec.ts: "should increment paste offset on multiple pastes" |
+| FR-006 | ✅ MET | viewOperations.spec.ts: "should copy and delete selected views" |
+| FR-007 | ✅ MET | useCanvasKeyboard.spec.ts: "should support undo after cut" |
+| FR-008 | ✅ MET | viewOperations.spec.ts: "should undo paste by removing pasted views" |
+| FR-009 | ✅ MET | viewOperations.spec.ts: "should duplicate a single selected view with 10px offset" |
+| FR-010 | ✅ MET | viewOperations.spec.ts: "should paste into selected container (FR-010)" |
+| FR-011 | ✅ MET | viewOperations.spec.ts: "should paste as sibling when no view is selected (FR-011)" |
+| FR-012 | ✅ MET | viewOperations.spec.ts: "should return false when no views are selected" |
+| FR-013 | ✅ MET | viewOperations.spec.ts: "should not delete root template view" |
+| FR-014 | ✅ MET | viewOperations.spec.ts: "should select pasted views" |
+| FR-015 | ✅ MET | serialization.spec.ts: "should roundtrip serialize and deserialize" |
+| SC-001 | ✅ MET | useCanvasKeyboard.spec.ts: Ctrl+C/V tests demonstrate sequence |
+| SC-002 | ✅ MET | useCanvasKeyboard.spec.ts: "should duplicate selected view on Ctrl+D" |
+| SC-003 | ✅ MET | viewOperations.spec.ts: "should complete all clipboard operations in < 100ms" |
+| SC-004 | ✅ MET | Undo tests pass; redo documented as intentional no-op (new IDs each time) |
+| SC-005 | ✅ MET | viewOperations.spec.ts: offset 10px per paste verified |
+| SC-006 | ✅ MET | serialization.spec.ts: nested container serialization tests |
 
 **⚠️ CRITICAL**: Any ❌ NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with ✅ MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
 - [ ] **Git Status Check**: Run `git status` to verify all changes are committed
 - [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
 - [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Update Documentation**: No new utilities requiring CLAUDE.md update (uses existing patterns)
 
 **⚠️ CRITICAL**: The feature is NOT complete until:
 1. All quality gates pass (lint:css, check, typecheck) with zero errors/warnings

@@ -150,13 +150,14 @@ export function pasteViews(): string[] {
   const pastedIds: string[] = [];
   const offset = (clipboardContent.pasteCount + 1) * PASTE_OFFSET;
 
+  const targetParentId = determinePasteTarget(clipboardContent.views[0].originalId);
+
   for (const serializedView of clipboardContent.views) {
     const offsetView = applyOffsetToSerialized(serializedView, { x: offset, y: offset });
     const viewNode = deserializeView(offsetView);
 
-    const parentId = extractParentId(serializedView.originalId);
-    if (parentId) {
-      const newId = addView(parentId, viewNode);
+    if (targetParentId) {
+      const newId = addView(targetParentId, viewNode);
       if (newId) {
         pastedIds.push(newId);
       }
@@ -169,6 +170,21 @@ export function pasteViews(): string[] {
   }
 
   return pastedIds;
+}
+
+function determinePasteTarget(originalViewId: string): string | null {
+  const selectedIds = Array.from(selectionStore.selectedIds);
+
+  if (selectedIds.length === 1) {
+    const selectedId = selectedIds[0];
+    const selectedView = getView(selectedId);
+
+    if (selectedView && isContainerClass(selectedView.attributes.class || '')) {
+      return selectedId;
+    }
+  }
+
+  return extractParentId(originalViewId);
 }
 
 function extractParentId(viewId: string): string | null {
