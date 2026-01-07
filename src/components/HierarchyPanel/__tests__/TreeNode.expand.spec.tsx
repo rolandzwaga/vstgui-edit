@@ -1,9 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@solidjs/testing-library';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
-import { expandAll, isExpanded, resetHierarchy } from '../../../stores/hierarchyStore';
+import { expandAll, resetHierarchy } from '../../../stores/hierarchyStore';
 import { TreeNode } from '../TreeNode';
+import { HierarchyDragProvider } from '../HierarchyDragContext';
 import type { TreeNode as TreeNodeType } from '../../../types/hierarchy';
+
+const renderTreeNode = (node: TreeNodeType) =>
+  render(() => (
+    <HierarchyDragProvider>
+      <TreeNode node={node} />
+    </HierarchyDragProvider>
+  ));
 
 describe('TreeNode expand/collapse', () => {
   const createNode = (overrides: Partial<TreeNodeType> = {}): TreeNodeType => ({
@@ -26,7 +34,7 @@ describe('TreeNode expand/collapse', () => {
     it('should not render expand/collapse toggle', () => {
       const node = createNode({ hasChildren: false });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.queryByTestId('toggle-test-node')).not.toBeInTheDocument();
     });
@@ -43,7 +51,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', label: 'Child', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.getByTestId('toggle-test-node')).toBeInTheDocument();
     });
@@ -58,7 +66,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', label: 'ChildNode', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.getByText('ChildNode')).toBeInTheDocument();
     });
@@ -69,7 +77,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', label: 'ChildNode', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.queryByText('ChildNode')).not.toBeInTheDocument();
     });
@@ -84,7 +92,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', label: 'ChildNode', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.getByText('ChildNode')).toBeInTheDocument();
 
@@ -100,7 +108,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', label: 'ChildNode', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       expect(screen.queryByText('ChildNode')).not.toBeInTheDocument();
 
@@ -122,7 +130,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveAttribute('aria-expanded', 'true');
@@ -134,7 +142,7 @@ describe('TreeNode expand/collapse', () => {
         children: [createNode({ id: 'child-1', depth: 1 })],
       });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-test-node');
       expect(row).toHaveAttribute('aria-expanded', 'false');

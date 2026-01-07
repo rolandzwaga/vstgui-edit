@@ -5,6 +5,17 @@
 import type { FormatType, ParseState, ValidationError } from './parser';
 import type { VSTGUIUIDescription } from './uidesc';
 
+// Re-export hierarchy types
+export type {
+  DropInfo,
+  DropPosition,
+  GroupOperation,
+  HierarchyDragState,
+  ReorderOperation,
+  ReparentOperation,
+  TreeNode,
+  UngroupOperation,
+} from './hierarchy';
 // Re-export history types
 export type {
   ConstraintAxis,

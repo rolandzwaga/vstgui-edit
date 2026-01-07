@@ -4,6 +4,34 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 
 ---
 
+## ⛔️⛔️⛔️ CRITICAL: BRANCH WORKFLOW - NEVER COMMIT TO MAIN ⛔️⛔️⛔️
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                              ┃
+┃   NEVER COMMIT DIRECTLY TO MAIN BRANCH. ALWAYS USE FEATURE BRANCHES.         ┃
+┃                                                                              ┃
+┃   BEFORE ANY CODE CHANGE:                                                    ┃
+┃   1. Check current branch: git branch --show-current                         ┃
+┃   2. If on main, CREATE AND SWITCH to feature branch FIRST                   ┃
+┃   3. VERIFY you are on the feature branch before ANY edit                    ┃
+┃                                                                              ┃
+┃   WORKFLOW:                                                                  ┃
+┃   git checkout -b feature-name    # Create AND switch to branch              ┃
+┃   git branch --show-current       # VERIFY: must NOT show 'main'             ┃
+┃   # NOW you can make changes                                                 ┃
+┃                                                                              ┃
+┃   ❌ NEVER: Make changes while on main                                       ┃
+┃   ❌ NEVER: Commit to main directly                                          ┃
+┃   ❌ NEVER: Assume you're on the right branch - ALWAYS verify                ┃
+┃                                                                              ┃
+┃   VIOLATION = POLLUTED MAIN BRANCH. THIS IS IRREVERSIBLE AFTER PUSH.         ┃
+┃                                                                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+---
+
 ## ⛔️⛔️⛔️ CRITICAL: SOLIDJS ONLY - REACT IS FORBIDDEN ⛔️⛔️⛔️
 
 ```
@@ -61,6 +89,8 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 ---
 
 ## Active Technologies
+- N/A (in-memory state via existing documentStore) (018-hierarchy-reparenting)
+- SolidJS 1.9.10, solid-js/store (already installed) (018-hierarchy-reparenting)
 - In-memory SolidJS store (extends existing documentStore) (016-property-editing)
 - SolidJS 1.9.10, solid-js/store, @floating-ui/dom 1.7.4 (for picker dropdowns) (016-property-editing)
 - N/A (in-memory state via SolidJS signals) (015-smart-guides)
@@ -1633,6 +1663,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 018-hierarchy-reparenting: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 016-property-editing: Added SolidJS 1.9.10, solid-js/store, @floating-ui/dom 1.7.4 (for picker dropdowns)
 - 015-smart-guides: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 - 014-snap-to-grid: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)

@@ -1,10 +1,26 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { For } from 'solid-js';
 import { fireEvent, render, screen } from '@solidjs/testing-library';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { isSelected, resetSelection, selectionStore } from '../../../stores/selectionStore';
 import { resetHierarchy } from '../../../stores/hierarchyStore';
 import { TreeNode } from '../TreeNode';
+import { HierarchyDragProvider } from '../HierarchyDragContext';
 import type { TreeNode as TreeNodeType } from '../../../types/hierarchy';
+
+const renderTreeNode = (node: TreeNodeType) =>
+  render(() => (
+    <HierarchyDragProvider>
+      <TreeNode node={node} />
+    </HierarchyDragProvider>
+  ));
+
+const renderMultipleTreeNodes = (nodes: TreeNodeType[]) =>
+  render(() => (
+    <HierarchyDragProvider>
+      <For each={nodes}>{node => <TreeNode node={node} />}</For>
+    </HierarchyDragProvider>
+  ));
 
 describe('TreeNode selection', () => {
   const createNode = (overrides: Partial<TreeNodeType> = {}): TreeNodeType => ({
@@ -28,7 +44,7 @@ describe('TreeNode selection', () => {
     it('should select the node', () => {
       const node = createNode({ id: 'view-1' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-view-1');
       fireEvent.click(row);
@@ -42,12 +58,7 @@ describe('TreeNode selection', () => {
       const node1 = createNode({ id: 'view-1', label: 'View1' });
       const node2 = createNode({ id: 'view-2', label: 'View2' });
 
-      render(() => (
-        <>
-          <TreeNode node={node1} />
-          <TreeNode node={node2} />
-        </>
-      ));
+      renderMultipleTreeNodes([node1, node2]);
 
       fireEvent.click(screen.getByTestId('tree-node-view-1'));
       fireEvent.click(screen.getByTestId('tree-node-view-2'));
@@ -65,12 +76,7 @@ describe('TreeNode selection', () => {
       const node1 = createNode({ id: 'view-1', label: 'View1' });
       const node2 = createNode({ id: 'view-2', label: 'View2' });
 
-      render(() => (
-        <>
-          <TreeNode node={node1} />
-          <TreeNode node={node2} />
-        </>
-      ));
+      renderMultipleTreeNodes([node1, node2]);
 
       fireEvent.click(screen.getByTestId('tree-node-view-1'));
       fireEvent.click(screen.getByTestId('tree-node-view-2'), { shiftKey: true });
@@ -86,12 +92,7 @@ describe('TreeNode selection', () => {
       const node1 = createNode({ id: 'view-1', label: 'View1' });
       const node2 = createNode({ id: 'view-2', label: 'View2' });
 
-      render(() => (
-        <>
-          <TreeNode node={node1} />
-          <TreeNode node={node2} />
-        </>
-      ));
+      renderMultipleTreeNodes([node1, node2]);
 
       fireEvent.click(screen.getByTestId('tree-node-view-1'));
       fireEvent.click(screen.getByTestId('tree-node-view-2'), { shiftKey: true });
@@ -109,7 +110,7 @@ describe('TreeNode selection', () => {
     it('should apply selected class when node is selected', () => {
       const node = createNode({ id: 'view-1' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       fireEvent.click(screen.getByTestId('tree-node-view-1'));
 
@@ -120,7 +121,7 @@ describe('TreeNode selection', () => {
     it('should not have selected class when not selected', () => {
       const node = createNode({ id: 'view-1' });
 
-      render(() => <TreeNode node={node} />);
+      renderTreeNode(node);
 
       const row = screen.getByTestId('tree-node-view-1');
       expect(row.className).not.toContain('selected');

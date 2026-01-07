@@ -10,6 +10,10 @@ import {
   duplicateSelectedViews,
   pasteViews,
 } from '../../domain/canvas/viewOperations';
+import {
+  createGroupHistoryOperation,
+  createUngroupHistoryOperation,
+} from '../../domain/hierarchy/groupOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
@@ -122,6 +126,34 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const pasted = pasteViews();
       if (pasted.length > 0) {
         const operation = createPasteOperation(pasted);
+        pushOperation(operation);
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && !e.shiftKey) {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size < 2) {
+        return;
+      }
+      e.preventDefault();
+
+      const operation = createGroupHistoryOperation([...selectedIds]);
+      if (operation) {
+        pushOperation(operation);
+      }
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && e.shiftKey) {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size !== 1) {
+        return;
+      }
+      e.preventDefault();
+
+      const operation = createUngroupHistoryOperation([...selectedIds][0]);
+      if (operation) {
         pushOperation(operation);
       }
       return;

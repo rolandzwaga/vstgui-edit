@@ -6,6 +6,7 @@ import { expandAll, expandNode } from '../../stores/hierarchyStore';
 import { selectionStore } from '../../stores/selectionStore';
 import { TreeNode } from './TreeNode';
 import { EmptyState } from './EmptyState';
+import { HierarchyDragProvider } from './HierarchyDragContext';
 import styles from './HierarchyPanel.module.css';
 
 export const HierarchyPanel: Component = () => {
@@ -50,17 +51,19 @@ export const HierarchyPanel: Component = () => {
   });
 
   return (
-    <div class={styles.panel} data-testid="hierarchy-panel">
-      <div class={styles.header}>
-        <span class={styles.title}>Hierarchy</span>
+    <HierarchyDragProvider>
+      <div class={styles.panel} data-testid="hierarchy-panel">
+        <div class={styles.header}>
+          <span class={styles.title}>Hierarchy</span>
+        </div>
+        <Show when={tree()} fallback={<EmptyState />}>
+          {(treeNode) => (
+            <div role="tree" aria-label="View hierarchy" class={styles.tree}>
+              <TreeNode node={treeNode()} />
+            </div>
+          )}
+        </Show>
       </div>
-      <Show when={tree()} fallback={<EmptyState />}>
-        {(treeNode) => (
-          <div role="tree" aria-label="View hierarchy" class={styles.tree}>
-            <TreeNode node={treeNode()} />
-          </div>
-        )}
-      </Show>
-    </div>
+    </HierarchyDragProvider>
   );
 };
