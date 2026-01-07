@@ -295,22 +295,104 @@ describe('Canvas smart guides integration', () => {
   });
 
   describe('multi-view drag scenario (FR-014)', () => {
-    test('guides calculated based on anchor view during multi-select drag', async () => {
+    const createAlignmentTestDocument = (): VSTGUIUIDescription => ({
+      'vstgui-ui-description': {
+        version: '1',
+        templates: {
+          TestTemplate: {
+            attributes: {
+              class: 'CViewContainer',
+              size: '500, 400',
+              origin: '0, 0',
+            },
+            children: {
+              anchor: {
+                attributes: {
+                  class: 'CView',
+                  origin: '100, 100',
+                  size: '50, 50',
+                },
+              },
+              selected: {
+                attributes: {
+                  class: 'CView',
+                  origin: '200, 200',
+                  size: '50, 50',
+                },
+              },
+              sibling: {
+                attributes: {
+                  class: 'CView',
+                  origin: '100, 200',
+                  size: '50, 50',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    test('guides calculated based on anchor view position, not other selected views', async () => {
+      reset();
+      setDocumentForTest(createAlignmentTestDocument());
+
       render(() => <Canvas />);
       await vi.advanceTimersByTimeAsync(50);
 
-      select('TestTemplate-view-1');
-      toggleSelect('TestTemplate-view-2');
+      select('TestTemplate-anchor');
+      toggleSelect('TestTemplate-selected');
       await vi.advanceTimersByTimeAsync(10);
 
       expect(selectionStore.selectedIds.size).toBe(2);
 
-      const viewRect = screen.getByTestId('view-rect-TestTemplate-view-1');
-      fireEvent.mouseDown(viewRect, { button: 0, clientX: 100, clientY: 90 });
-      fireEvent.mouseMove(document, { clientX: 110, clientY: 90 });
+      const anchorRect = screen.getByTestId('view-rect-TestTemplate-anchor');
+      fireEvent.mouseDown(anchorRect, { button: 0, clientX: 125, clientY: 125 });
+      fireEvent.mouseMove(document, { clientX: 130, clientY: 125 });
       await vi.advanceTimersByTimeAsync(10);
 
-      expect(smartGuidesStore.isEnabled).toBe(true);
+      const guides = smartGuidesStore.activeGuides;
+
+      const anchorAlignedGuides = guides.filter(
+        g => g.participatingViewIds.includes('TestTemplate-anchor')
+      );
+      expect(anchorAlignedGuides.length).toBeGreaterThan(0);
+
+      const nonAnchorOnlyGuides = guides.filter(
+        g =>
+          !g.participatingViewIds.includes('TestTemplate-anchor') &&
+          g.participatingViewIds.includes('TestTemplate-selected')
+      );
+      expect(nonAnchorOnlyGuides.length).toBe(0);
+
+      fireEvent.mouseUp(document);
+    });
+
+    test('anchor view aligns with sibling at same left edge', async () => {
+      reset();
+      setDocumentForTest(createAlignmentTestDocument());
+
+      render(() => <Canvas />);
+      await vi.advanceTimersByTimeAsync(50);
+
+      select('TestTemplate-anchor');
+      toggleSelect('TestTemplate-selected');
+      await vi.advanceTimersByTimeAsync(10);
+
+      const anchorRect = screen.getByTestId('view-rect-TestTemplate-anchor');
+      fireEvent.mouseDown(anchorRect, { button: 0, clientX: 125, clientY: 125 });
+      fireEvent.mouseMove(document, { clientX: 130, clientY: 125 });
+      await vi.advanceTimersByTimeAsync(10);
+
+      const guides = smartGuidesStore.activeGuides;
+      const leftEdgeGuide = guides.find(
+        g =>
+          g.orientation === 'vertical' &&
+          g.participatingViewIds.includes('TestTemplate-anchor') &&
+          g.participatingViewIds.includes('TestTemplate-sibling')
+      );
+
+      expect(leftEdgeGuide).toBeDefined();
 
       fireEvent.mouseUp(document);
     });
