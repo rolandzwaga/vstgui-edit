@@ -156,9 +156,9 @@
 - [x] T042 [US5] Update `pasteViews()` to accept optional pointer position parameter in `src/domain/canvas/viewOperations.ts`
 - [x] T042b [US5] Add bounds check: only use pointer position if inside main container, otherwise use offset logic
 - [x] T043 [US5] Wire mouse pointer position from keyboard handler to paste in `src/hooks/canvas/useCanvasKeyboard.ts`
-- [ ] T044 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
+- [x] T044 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
 
-**Checkpoint**: Mouse pointer paste functional
+**Checkpoint**: Mouse pointer paste functional ✅
 
 ---
 
