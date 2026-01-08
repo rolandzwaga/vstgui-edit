@@ -110,8 +110,10 @@ describe('ControlTagsPanel', () => {
 
       render(() => <ControlTagsPanel />);
 
-      expect(screen.getByText('0')).toBeInTheDocument();
-      expect(screen.getByText('1')).toBeInTheDocument();
+      const tagIdElements = screen.getAllByTestId('control-tag-id');
+      expect(tagIdElements).toHaveLength(2);
+      expect(tagIdElements[0]).toHaveTextContent('0');
+      expect(tagIdElements[1]).toHaveTextContent('1');
     });
 
     it('should render panel header with title', () => {

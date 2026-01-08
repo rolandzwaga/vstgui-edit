@@ -23,10 +23,12 @@ import { generateUniqueTagName, getNextAvailableTagId } from '../../domain/contr
 import { CollapsibleSection } from '../CollapsibleSection';
 import { ControlTagItem } from './ControlTagItem';
 import { AddControlTagButton } from './AddControlTagButton';
+import { AddControlTagDialog } from './AddControlTagDialog';
 import { EmptyState } from './EmptyState';
 import styles from './ControlTagsPanel.module.css';
 
 export const ControlTagsPanel: Component = () => {
+  const [showAddDialog, setShowAddDialog] = createSignal(false);
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
     tagId: string;
@@ -60,15 +62,22 @@ export const ControlTagsPanel: Component = () => {
   const hasControlTags = createMemo(() => controlTags().length > 0);
   const hasDocument = createMemo(() => documentStore.document !== null);
 
-  const handleAddControlTag = () => {
-    const existingTags = getControlTags() ?? {};
-    
-    const newName = generateUniqueTagName(existingTags);
-    const newTagId = getNextAvailableTagId(existingTags);
-
-    addControlTag(newName, newTagId);
-    pushOperation(createAddControlTagOperation(newName, newTagId));
+  const handleOpenAddDialog = () => {
+    setShowAddDialog(true);
   };
+
+  const handleCloseAddDialog = () => {
+    setShowAddDialog(false);
+  };
+
+  const handleAddControlTag = (name: string, tagId: string) => {
+    addControlTag(name, tagId);
+    pushOperation(createAddControlTagOperation(name, tagId));
+    setShowAddDialog(false);
+  };
+
+  const suggestedName = () => generateUniqueTagName(getControlTags() ?? {});
+  const suggestedId = () => getNextAvailableTagId(getControlTags() ?? {});
 
   const handleDeleteRequest = (name: string) => {
     const tags = getControlTags() ?? {};
@@ -113,7 +122,7 @@ export const ControlTagsPanel: Component = () => {
     <div class={styles.panel} data-testid="control-tags-panel">
       <CollapsibleSection
         title="Control Tags"
-        headerActions={<AddControlTagButton onClick={handleAddControlTag} disabled={!hasDocument()} />}
+        headerActions={<AddControlTagButton onClick={handleOpenAddDialog} disabled={!hasDocument()} />}
       >
         <Show when={hasControlTags()} fallback={<EmptyState />}>
           <div role="list" aria-label="Control tag definitions" class={styles.list}>
@@ -192,6 +201,14 @@ export const ControlTagsPanel: Component = () => {
           )}
         </Show>
       </CollapsibleSection>
+      <AddControlTagDialog
+        isOpen={showAddDialog()}
+        onClose={handleCloseAddDialog}
+        onAdd={handleAddControlTag}
+        existingTags={getControlTags() ?? {}}
+        suggestedName={suggestedName()}
+        suggestedId={suggestedId()}
+      />
     </div>
   );
 };

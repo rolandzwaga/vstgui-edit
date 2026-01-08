@@ -32,11 +32,45 @@ vi.mock('../../../domain/controlTags/usage', () => ({
   findControlTagUsages: vi.fn(() => []),
 }));
 
-describe('ControlTagsPanel - Add Control Tag', () => {
+describe('ControlTagsPanel - Add Control Tag via Dialog', () => {
   beforeEach(() => {
     mocks.document = null;
     mocks.addControlTag.mockClear();
     mocks.pushOperation.mockClear();
+  });
+
+  describe('dialog opening', () => {
+    beforeEach(() => {
+      mocks.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {},
+          'control-tags': {},
+        },
+      };
+    });
+
+    it('should open dialog when add button clicked', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+
+      expect(screen.getByTestId('add-control-tag-dialog')).toBeInTheDocument();
+    });
+
+    it('should pre-fill dialog with suggested name and ID', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+
+      const nameInput = screen.getByTestId('dialog-name-input') as HTMLInputElement;
+      const idInput = screen.getByTestId('dialog-id-input') as HTMLInputElement;
+
+      expect(nameInput.value).toBe('New Tag');
+      expect(idInput.value).toBe('0');
+    });
   });
 
   describe('given document with empty control-tags', () => {
@@ -50,11 +84,12 @@ describe('ControlTagsPanel - Add Control Tag', () => {
       };
     });
 
-    it('should call addControlTag with "New Tag" and "0" when clicked', async () => {
+    it('should call addControlTag when Add clicked in dialog', async () => {
       const user = userEvent.setup();
       render(() => <ControlTagsPanel />);
 
       await user.click(screen.getByTestId('add-control-tag-button'));
+      await user.click(screen.getByTestId('dialog-add-button'));
 
       expect(mocks.addControlTag).toHaveBeenCalledWith('New Tag', '0');
     });
@@ -64,10 +99,32 @@ describe('ControlTagsPanel - Add Control Tag', () => {
       render(() => <ControlTagsPanel />);
 
       await user.click(screen.getByTestId('add-control-tag-button'));
+      await user.click(screen.getByTestId('dialog-add-button'));
 
       expect(mocks.pushOperation).toHaveBeenCalled();
       const operation = mocks.pushOperation.mock.calls[0][0];
       expect(operation.type).toBe('add-control-tag');
+    });
+
+    it('should close dialog after adding', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+      await user.click(screen.getByTestId('dialog-add-button'));
+
+      expect(screen.queryByTestId('add-control-tag-dialog')).not.toBeInTheDocument();
+    });
+
+    it('should not add when Cancel clicked', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+      await user.click(screen.getByTestId('dialog-cancel-button'));
+
+      expect(mocks.addControlTag).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('add-control-tag-dialog')).not.toBeInTheDocument();
     });
   });
 
@@ -85,13 +142,24 @@ describe('ControlTagsPanel - Add Control Tag', () => {
       };
     });
 
-    it('should generate unique name "New Tag 2" when "New Tag" exists', async () => {
+    it('should suggest unique name "New Tag 2" when "New Tag" exists', async () => {
       const user = userEvent.setup();
       render(() => <ControlTagsPanel />);
 
       await user.click(screen.getByTestId('add-control-tag-button'));
 
-      expect(mocks.addControlTag).toHaveBeenCalledWith('New Tag 2', '2');
+      const nameInput = screen.getByTestId('dialog-name-input') as HTMLInputElement;
+      expect(nameInput.value).toBe('New Tag 2');
+    });
+
+    it('should suggest next available ID', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+
+      const idInput = screen.getByTestId('dialog-id-input') as HTMLInputElement;
+      expect(idInput.value).toBe('2');
     });
   });
 
@@ -110,13 +178,45 @@ describe('ControlTagsPanel - Add Control Tag', () => {
       };
     });
 
-    it('should fill gap and assign ID "1"', async () => {
+    it('should suggest gap-filling ID "1"', async () => {
       const user = userEvent.setup();
       render(() => <ControlTagsPanel />);
 
       await user.click(screen.getByTestId('add-control-tag-button'));
 
-      expect(mocks.addControlTag).toHaveBeenCalledWith('New Tag', '1');
+      const idInput = screen.getByTestId('dialog-id-input') as HTMLInputElement;
+      expect(idInput.value).toBe('1');
+    });
+  });
+
+  describe('custom values', () => {
+    beforeEach(() => {
+      mocks.document = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {},
+          'control-tags': {},
+        },
+      };
+    });
+
+    it('should allow user to enter custom name and ID', async () => {
+      const user = userEvent.setup();
+      render(() => <ControlTagsPanel />);
+
+      await user.click(screen.getByTestId('add-control-tag-button'));
+
+      const nameInput = screen.getByTestId('dialog-name-input');
+      const idInput = screen.getByTestId('dialog-id-input');
+
+      await user.clear(nameInput);
+      await user.type(nameInput, 'CustomTag');
+      await user.clear(idInput);
+      await user.type(idInput, '99');
+
+      await user.click(screen.getByTestId('dialog-add-button'));
+
+      expect(mocks.addControlTag).toHaveBeenCalledWith('CustomTag', '99');
     });
   });
 });

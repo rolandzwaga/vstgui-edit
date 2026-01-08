@@ -57,6 +57,7 @@ describe('ControlTagsPanel - History Integration', () => {
       render(() => <ControlTagsPanel />);
 
       await user.click(screen.getByTestId('add-control-tag-button'));
+      await user.click(screen.getByTestId('dialog-add-button'));
 
       expect(mocks.pushOperation).toHaveBeenCalledTimes(1);
       const operation = mocks.pushOperation.mock.calls[0][0];
