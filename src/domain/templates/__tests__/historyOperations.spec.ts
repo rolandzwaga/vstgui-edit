@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { getTemplate, reset, setDocumentForTest } from '../../../stores/documentStore';
+import { resetTemplateStore } from '../../../stores/templateStore';
+import type { TemplateDefinition, VSTGUIUIDescription } from '../../../types/uidesc';
 import {
-  createRenameTemplateOperation,
   createAddTemplateOperation,
   createDeleteTemplateOperation,
   createDuplicateTemplateOperation,
+  createRenameTemplateOperation,
 } from '../historyOperations';
-import { reset, setDocumentForTest, getTemplate } from '../../../stores/documentStore';
-import { resetTemplateStore } from '../../../stores/templateStore';
-import type { VSTGUIUIDescription, TemplateDefinition } from '../../../types/uidesc';
 
 function createTestDocument(templates: Record<string, unknown>): VSTGUIUIDescription {
   return {

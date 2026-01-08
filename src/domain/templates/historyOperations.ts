@@ -1,11 +1,11 @@
-import type { HistoryOperation } from '../../types/history';
-import type { TemplateDefinition } from '../../types/uidesc';
 import {
-  renameTemplate,
   addTemplate,
   deleteTemplate,
+  renameTemplate,
   restoreTemplate,
 } from '../../stores/documentStore';
+import type { HistoryOperation } from '../../types/history';
+import type { TemplateDefinition } from '../../types/uidesc';
 
 export function createRenameTemplateOperation(oldName: string, newName: string): HistoryOperation {
   return {

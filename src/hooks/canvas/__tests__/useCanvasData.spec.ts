@@ -1,8 +1,8 @@
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { createMockContainer, createMockDocument, createMockView } from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
-import { createMockDocument, createMockContainer, createMockView } from '../../../__tests__/helpers/fixtures';
 import { reset, setDocumentForTest } from '../../../stores/documentStore';
-import { setActiveTemplate, resetTemplateStore } from '../../../stores/templateStore';
+import { resetTemplateStore, setActiveTemplate } from '../../../stores/templateStore';
 import { useCanvasData } from '../useCanvasData';
 
 describe('useCanvasData', () => {

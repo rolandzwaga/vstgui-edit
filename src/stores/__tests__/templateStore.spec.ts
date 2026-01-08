@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
-import { templateStore, setActiveTemplate, resetTemplateStore } from '../templateStore';
-import { select, selectionStore, resetSelection } from '../selectionStore';
+import { resetSelection, select, selectionStore } from '../selectionStore';
+import { resetTemplateStore, setActiveTemplate, templateStore } from '../templateStore';
 
 describe('templateStore', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
-import { isValidTemplateName, generateDuplicateName } from '../domain/templates/validation';
+import { generateDuplicateName, isValidTemplateName } from '../domain/templates/validation';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
 import type {
@@ -11,7 +11,7 @@ import type {
   VSTGUIUIDescription,
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
-import { setActiveTemplate, resetTemplateStore, templateStore } from './templateStore';
+import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
   if (!size) {
@@ -1201,7 +1201,7 @@ export function addTemplate(name: string): boolean {
   if (!isValidTemplateName(name)) return false;
 
   const templates = doc['vstgui-ui-description']?.templates;
-  if (templates && templates[name]) return false;
+  if (templates?.[name]) return false;
 
   const defaultTemplate: TemplateDefinition = {
     attributes: {

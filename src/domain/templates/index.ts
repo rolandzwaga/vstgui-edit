@@ -1,12 +1,11 @@
 export {
-  isValidTemplateName,
-  generateUniqueTemplateName,
-  generateDuplicateName,
-} from './validation';
-
-export {
-  createRenameTemplateOperation,
   createAddTemplateOperation,
   createDeleteTemplateOperation,
   createDuplicateTemplateOperation,
+  createRenameTemplateOperation,
 } from './historyOperations';
+export {
+  generateDuplicateName,
+  generateUniqueTemplateName,
+  isValidTemplateName,
+} from './validation';
