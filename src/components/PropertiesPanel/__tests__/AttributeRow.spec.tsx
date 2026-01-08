@@ -72,4 +72,40 @@ describe('AttributeRow', () => {
       expect(valueElement).not.toHaveClass(/copyable/);
     });
   });
+
+  describe('unset values', () => {
+    it('should render (not set) placeholder for unset attribute', () => {
+      render(() => <AttributeRow entry={createEntry({ isUnset: true, value: null, isCopyable: false })} />);
+
+      expect(screen.getByText('(not set)')).toBeInTheDocument();
+    });
+
+    it('should apply unset styling class to placeholder', () => {
+      render(() => <AttributeRow entry={createEntry({ isUnset: true, value: null })} />);
+
+      const unsetIndicator = screen.getByText('(not set)');
+      expect(unsetIndicator).toHaveClass(/unset/);
+    });
+
+    it('should apply unsetRow styling to row when unset', () => {
+      render(() => <AttributeRow entry={createEntry({ isUnset: true, value: null })} />);
+
+      const row = screen.getByTestId('attribute-row');
+      expect(row).toHaveClass(/unsetRow/);
+    });
+
+    it('should not apply unsetRow styling when value is set', () => {
+      render(() => <AttributeRow entry={createEntry({ isUnset: false, value: 'some value' })} />);
+
+      const row = screen.getByTestId('attribute-row');
+      expect(row).not.toHaveClass(/unsetRow/);
+    });
+
+    it('should show unset even when isMixed is false', () => {
+      render(() => <AttributeRow entry={createEntry({ isUnset: true, isMixed: false, value: null })} />);
+
+      expect(screen.getByText('(not set)')).toBeInTheDocument();
+      expect(screen.queryByText('Mixed')).not.toBeInTheDocument();
+    });
+  });
 });

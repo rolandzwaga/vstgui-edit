@@ -135,17 +135,20 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
       <Show when={props.entry.isMixed}>
         <span class={styles.mixed}>Mixed</span>
       </Show>
-      <Show when={!props.entry.isMixed && props.entry.value === ''}>
+      <Show when={!props.entry.isMixed && props.entry.isUnset}>
+        <span class={styles.unset}>(not set)</span>
+      </Show>
+      <Show when={!props.entry.isMixed && !props.entry.isUnset && props.entry.value === ''}>
         <span class={styles.empty}>(empty)</span>
       </Show>
-      <Show when={!props.entry.isMixed && props.entry.value !== ''}>
+      <Show when={!props.entry.isMixed && !props.entry.isUnset && props.entry.value !== ''}>
         {props.entry.value}
       </Show>
     </span>
   );
 
   return (
-    <div class={styles.row} data-testid="attribute-row">
+    <div class={`${styles.row} ${props.entry.isUnset ? styles.unsetRow : ''}`} data-testid="attribute-row">
       <span class={styles.name}>{props.entry.name}</span>
       <Switch fallback={renderValueDisplay()}>
         <Match when={isBooleanType() && canEdit()}>
