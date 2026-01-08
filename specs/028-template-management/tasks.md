@@ -23,7 +23,7 @@
 - [x] T002 [P] Create templates domain directory structure: src/domain/templates/
 - [x] T003 [P] Create TemplatesPanel component directory: src/components/TemplatesPanel/
 - [x] T004 [P] Extend history types in src/types/history.ts with template operation types
-- [ ] T005 **Commit**: Stage and commit Phase 1 setup changes
+- [x] T005 **Commit**: Stage and commit Phase 1 setup changes
 
 ---
 
@@ -35,23 +35,23 @@
 
 ### Template Store
 
-- [ ] T006 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T007 Write tests for templateStore in src/stores/__tests__/templateStore.spec.ts
-- [ ] T008 Implement templateStore (activeTemplateId signal, setActiveTemplate, resetTemplateStore) in src/stores/templateStore.ts
+- [x] T006 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T007 Write tests for templateStore in src/stores/__tests__/templateStore.spec.ts
+- [x] T008 Implement templateStore (activeTemplateId signal, setActiveTemplate, resetTemplateStore) in src/stores/templateStore.ts
 
 ### Template Validation Domain
 
-- [ ] T009 [P] Write tests for template name validation in src/domain/templates/__tests__/validation.spec.ts
-- [ ] T010 [P] Implement isValidTemplateName, generateUniqueTemplateName, generateDuplicateName in src/domain/templates/validation.ts
+- [x] T009 [P] Write tests for template name validation in src/domain/templates/__tests__/validation.spec.ts
+- [x] T010 [P] Implement isValidTemplateName, generateUniqueTemplateName, generateDuplicateName in src/domain/templates/validation.ts
 
 ### DocumentStore Template Read Operations
 
-- [ ] T011 Write tests for getTemplates, getTemplate, getTemplateNames in src/stores/__tests__/documentStore.templates.spec.ts
-- [ ] T012 Implement getTemplates, getTemplate, getTemplateNames in src/stores/documentStore.ts
+- [x] T011 Write tests for getTemplates, getTemplate, getTemplateNames in src/stores/__tests__/documentStore.templates.spec.ts
+- [x] T012 Implement getTemplates, getTemplate, getTemplateNames in src/stores/documentStore.ts
 
 ### Barrel Export
 
-- [ ] T013 Create barrel export in src/domain/templates/index.ts
+- [x] T013 Create barrel export in src/domain/templates/index.ts
 
 - [ ] T014 **Commit**: Stage and commit Phase 2 foundational changes
 

@@ -3,7 +3,12 @@ import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
-import type { ViewNode, VSTGUIUIDescription } from '../types/uidesc';
+import type {
+  TemplateDefinition,
+  TemplatesDefinition,
+  ViewNode,
+  VSTGUIUIDescription,
+} from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -1127,14 +1132,21 @@ export function addColor(name: string, value: string): boolean {
   return true;
 }
 
-// ============================================================================
-// Variables Functions
-// ============================================================================
+export function getTemplates(): TemplatesDefinition | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+  return doc['vstgui-ui-description']?.templates;
+}
 
-export interface RemovedVariableReference {
-  viewId: string;
-  attribute: string;
-  value: string;
+export function getTemplate(name: string): TemplateDefinition | undefined {
+  const templates = getTemplates();
+  return templates?.[name];
+}
+
+export function getTemplateNames(): string[] {
+  const templates = getTemplates();
+  if (!templates) return [];
+  return Object.keys(templates);
 }
 
 export function getVariables(): Record<string, string> | undefined {
