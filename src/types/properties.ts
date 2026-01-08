@@ -1,3 +1,30 @@
+export type EditorType =
+  | 'color'
+  | 'point'
+  | 'boolean'
+  | 'number'
+  | 'enum'
+  | 'font'
+  | 'bitmap'
+  | 'gradient'
+  | 'text';
+
+export interface AttributeDefinition {
+  name: string;
+  editorType: EditorType;
+  description?: string;
+  enumValues?: string[];
+  schemaRef?: string;
+}
+
+export interface ViewClassSchema {
+  className: string;
+  displayName?: string;
+  parentClass?: string;
+  attributes: AttributeDefinition[];
+  inheritanceChain: string[];
+}
+
 export type AttributeGroupId =
   | 'identity'
   | 'geometry'
@@ -38,6 +65,10 @@ export interface AttributeEntry {
   value: string | null;
   isMixed: boolean;
   isCopyable: boolean;
+  isUnset: boolean;
+  editorType: EditorType;
+  enumValues?: string[];
+  description?: string;
 }
 
 export interface AttributeGroup {

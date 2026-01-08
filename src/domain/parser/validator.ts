@@ -56,11 +56,26 @@ export function validateUidesc(document: unknown): ValidateResult {
 
   // FR-006: Collect all errors
   // FR-007: Include path information
-  const errors: ValidationError[] = (validate.errors ?? []).map(err => ({
-    type: 'schema' as const,
-    message: err.message ?? 'Validation error',
-    path: toJsonPointer(err.instancePath),
-  }));
+  const errors: ValidationError[] = (validate.errors ?? []).map(err => {
+    // With verbose: true, AJV provides the actual data that failed validation
+    let dataPreview: string | undefined;
+    if (err.data !== undefined) {
+      try {
+        const dataStr = JSON.stringify(err.data);
+        // Truncate long data for readability
+        dataPreview = dataStr.length > 100 ? `${dataStr.slice(0, 100)}...` : dataStr;
+      } catch {
+        dataPreview = String(err.data);
+      }
+    }
+
+    return {
+      type: 'schema' as const,
+      message: err.message ?? 'Validation error',
+      path: toJsonPointer(err.instancePath),
+      data: dataPreview,
+    };
+  });
 
   return { valid: false, errors };
 }

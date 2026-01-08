@@ -30,8 +30,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const [originalValue, setOriginalValue] = createSignal('');
 
   const config = () => getAttributeConfig(props.entry.name);
-  const editorType = () => config().editorType;
-  const isReadonly = () => editorType() === 'readonly';
+  const editorType = () => props.entry.editorType ?? config().editorType;
+  const isReadonly = () => props.entry.name === 'class' || config().editorType === 'readonly';
   const isTextType = () => editorType() === 'text';
   const isPointType = () => editorType() === 'point';
   const isBooleanType = () => editorType() === 'boolean';
@@ -40,8 +40,9 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isColorType = () => editorType() === 'color';
   const isFontType = () => editorType() === 'font';
   const isBitmapType = () => editorType() === 'bitmap';
+  const isGradientType = () => editorType() === 'gradient';
   const canEdit = () => props.editable && !isReadonly() && !props.entry.isMixed;
-  const canInlineEdit = () => isTextType() || isPointType() || isNumberType();
+  const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
   const validationError = createMemo(() => {
     if (!isEditing()) return null;
@@ -135,17 +136,20 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
       <Show when={props.entry.isMixed}>
         <span class={styles.mixed}>Mixed</span>
       </Show>
-      <Show when={!props.entry.isMixed && props.entry.value === ''}>
+      <Show when={!props.entry.isMixed && props.entry.isUnset}>
+        <span class={styles.unset}>(not set)</span>
+      </Show>
+      <Show when={!props.entry.isMixed && !props.entry.isUnset && props.entry.value === ''}>
         <span class={styles.empty}>(empty)</span>
       </Show>
-      <Show when={!props.entry.isMixed && props.entry.value !== ''}>
+      <Show when={!props.entry.isMixed && !props.entry.isUnset && props.entry.value !== ''}>
         {props.entry.value}
       </Show>
     </span>
   );
 
   return (
-    <div class={styles.row} data-testid="attribute-row">
+    <div class={`${styles.row} ${props.entry.isUnset ? styles.unsetRow : ''}`} data-testid="attribute-row">
       <span class={styles.name}>{props.entry.name}</span>
       <Switch fallback={renderValueDisplay()}>
         <Match when={isBooleanType() && canEdit()}>
@@ -161,7 +165,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
           <div class={styles.editorContainer}>
             <EnumEditor
               value={props.entry.value ?? ''}
-              options={config().options ?? []}
+              options={props.entry.enumValues ?? config().options ?? []}
               onChange={handleEnumChange}
               onCommit={() => {}}
               onCancel={() => {}}

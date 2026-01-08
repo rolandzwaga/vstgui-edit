@@ -9,8 +9,8 @@ describe('AttributeGroup', () => {
     label: 'Geometry',
     priority: 1,
     attributes: [
-      { name: 'origin', value: '10, 20', isMixed: false, isCopyable: true },
-      { name: 'size', value: '100, 50', isMixed: false, isCopyable: true },
+      { name: 'origin', value: '10, 20', isMixed: false, isCopyable: true, isUnset: false, editorType: 'text' },
+      { name: 'size', value: '100, 50', isMixed: false, isCopyable: true, isUnset: false, editorType: 'text' },
     ],
     ...overrides,
   });
@@ -57,7 +57,7 @@ describe('AttributeGroup', () => {
         id: 'identity',
         label: 'Identity',
         priority: 0,
-        attributes: [{ name: 'class', value: 'CView', isMixed: false, isCopyable: true }],
+        attributes: [{ name: 'class', value: 'CView', isMixed: false, isCopyable: true, isUnset: false, editorType: 'text' as const }],
       });
 
       render(() => <AttributeGroup group={identityGroup} isExpanded={false} />);
@@ -70,7 +70,7 @@ describe('AttributeGroup', () => {
         id: 'identity',
         label: 'Identity',
         priority: 0,
-        attributes: [{ name: 'class', value: 'CView', isMixed: false, isCopyable: true }],
+        attributes: [{ name: 'class', value: 'CView', isMixed: false, isCopyable: true, isUnset: false, editorType: 'text' as const }],
       });
 
       render(() => <AttributeGroup group={identityGroup} isExpanded={true} />);

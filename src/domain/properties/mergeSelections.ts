@@ -6,6 +6,7 @@ import type {
 } from '../../types/properties';
 import { GROUP_LABELS, GROUP_PRIORITY } from '../../types/properties';
 import { getAttributeGroup } from './groupAttributes';
+import { findCommonBaseClass, getAttributesForClass } from './schemaAttributes';
 
 function stringifyValue(value: unknown): string {
   if (value === undefined || value === null) {
@@ -38,13 +39,6 @@ export function mergeSelections(
   const sameClass = uniqueClasses.size === 1;
   const className = sameClass ? classNames[0] : null;
 
-  const allAttrNames = new Set<string>();
-  for (const attrs of viewAttributes) {
-    for (const name of Object.keys(attrs)) {
-      allAttrNames.add(name);
-    }
-  }
-
   const groupedEntries: Record<AttributeGroupId, AttributeEntry[]> = {
     identity: [],
     geometry: [],
@@ -54,26 +48,30 @@ export function mergeSelections(
     other: [],
   };
 
-  for (const attrName of allAttrNames) {
+  const effectiveClass = sameClass ? classNames[0] : findCommonBaseClass(classNames);
+  const schemaInfo = getAttributesForClass(effectiveClass);
+  const schemaAttrMap = new Map(schemaInfo.attributes.map(a => [a.name, a]));
+
+  for (const schemaDef of schemaInfo.attributes) {
+    const attrName = schemaDef.name;
     const values: string[] = [];
+    let anyHasAttribute = false;
     let allHaveAttribute = true;
 
     for (const attrs of viewAttributes) {
       if (attrName in attrs) {
+        anyHasAttribute = true;
         values.push(stringifyValue(attrs[attrName]));
       } else {
         allHaveAttribute = false;
       }
     }
 
-    if (values.length === 0) {
-      continue;
-    }
-
+    const isUnset = !anyHasAttribute;
     const uniqueValues = new Set(values);
-    const isMixed = !allHaveAttribute || uniqueValues.size > 1;
-    const value = isMixed ? null : values[0];
-    const isCopyable = !isMixed && value !== '';
+    const isMixed = anyHasAttribute && (!allHaveAttribute || uniqueValues.size > 1);
+    const value = isUnset || isMixed ? null : values[0];
+    const isCopyable = !isMixed && !isUnset && value !== '';
 
     const groupId = getAttributeGroup(attrName);
     groupedEntries[groupId].push({
@@ -81,7 +79,48 @@ export function mergeSelections(
       value,
       isMixed,
       isCopyable,
+      isUnset,
+      editorType: schemaDef.editorType,
+      enumValues: schemaDef.enumValues,
+      description: schemaDef.description,
     });
+  }
+
+  for (const attrs of viewAttributes) {
+    for (const attrName of Object.keys(attrs)) {
+      if (!schemaAttrMap.has(attrName)) {
+        const values: string[] = [];
+        let allHaveAttribute = true;
+
+        for (const viewAttrs of viewAttributes) {
+          if (attrName in viewAttrs) {
+            values.push(stringifyValue(viewAttrs[attrName]));
+          } else {
+            allHaveAttribute = false;
+          }
+        }
+
+        if (values.length === 0) continue;
+
+        const uniqueValues = new Set(values);
+        const isMixed = !allHaveAttribute || uniqueValues.size > 1;
+        const value = isMixed ? null : values[0];
+        const isCopyable = !isMixed && value !== '';
+
+        const groupId = getAttributeGroup(attrName);
+        const existingEntry = groupedEntries[groupId].find(e => e.name === attrName);
+        if (!existingEntry) {
+          groupedEntries[groupId].push({
+            name: attrName,
+            value,
+            isMixed,
+            isCopyable,
+            isUnset: false,
+            editorType: 'text',
+          });
+        }
+      }
+    }
   }
 
   for (const entries of Object.values(groupedEntries)) {

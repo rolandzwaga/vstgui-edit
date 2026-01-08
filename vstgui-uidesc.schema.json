@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://steinbergmedia.github.io/vstgui/uidesc.schema.json",
   "title": "VSTGUI UI Description",
-  "description": "Schema for VSTGUI uidesc JSON format - declarative UI definition for VST3 plugins",
+  "description": "Schema for VSTGUI uidesc JSON format - declarative UI definition for VST3 plugins. Generated from VSTGUI4 source code.",
   "type": "object",
   "required": ["vstgui-ui-description"],
   "properties": {
@@ -46,8 +46,8 @@
   "$defs": {
     "colorValue": {
       "type": "string",
-      "description": "Color value: hex (#RRGGBBAA or #RRGGBB), color name reference, or predefined (~ BlackCColor)",
-      "pattern": "^(#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?|~\\s*\\w+|var\\.\\w+|[a-zA-Z][a-zA-Z0-9_-]*)$"
+      "description": "Color value: hex (#RRGGBBAA or #RRGGBB), color name reference, or predefined (~BlackCColor)",
+      "pattern": "^(#[0-9a-fA-F]{6,8}|~[A-Za-z][A-Za-z0-9]*|var\\.[A-Za-z_][A-Za-z0-9_]*|[A-Za-z][A-Za-z0-9_-]*)$"
     },
     "pointValue": {
       "type": "string",
@@ -61,8 +61,8 @@
     },
     "rectValue": {
       "type": "string",
-      "description": "Rectangle value: 'x, y, width, height'",
-      "pattern": "^-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?\\s*,\\s*\\d+(\\.\\d+)?\\s*,\\s*\\d+(\\.\\d+)?$"
+      "description": "Rectangle value: 'left, top, right, bottom'",
+      "pattern": "^-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?\\s*,\\s*-?\\d+(\\.\\d+)?$"
     },
     "booleanValue": {
       "type": "string",
@@ -76,8 +76,7 @@
     },
     "autosizeValue": {
       "type": "string",
-      "description": "Autosize anchors: combination of 'left', 'right', 'top', 'bottom', 'row', 'column'",
-      "pattern": "^(left|right|top|bottom|row|column)(\\s+(left|right|top|bottom|row|column))*$"
+      "description": "Autosize anchors: combination of 'left', 'right', 'top', 'bottom', 'row', 'column'"
     },
     "colorsDefinition": {
       "type": "object",
@@ -206,8 +205,7 @@
     },
     "controlTagValue": {
       "type": "string",
-      "description": "Control tag: numeric ID, string tag ('name'), or expression",
-      "pattern": "^(\\d+|'[^']{1,4}'|[\\d+\\-*/\\s]+)$"
+      "description": "Control tag: numeric ID, string tag ('name'), or expression"
     },
     "controlTagsDefinition": {
       "type": "object",
@@ -223,6 +221,552 @@
         "type": "string"
       }
     },
+
+    "CViewAttributes": {
+      "type": "object",
+      "description": "CView - Base view attributes (all views inherit these)",
+      "properties": {
+        "class": { "type": "string", "description": "View class name" },
+        "origin": { "$ref": "#/$defs/pointValue", "description": "Top-left corner position 'x, y'" },
+        "size": { "$ref": "#/$defs/pointValue", "description": "View dimensions 'width, height'" },
+        "opacity": { "$ref": "#/$defs/numericValue", "description": "View opacity (0.0 to 1.0)" },
+        "transparent": { "$ref": "#/$defs/booleanValue", "description": "If true, view is transparent to mouse events" },
+        "mouse-enabled": { "$ref": "#/$defs/booleanValue", "description": "If true, view responds to mouse events" },
+        "wants-focus": { "$ref": "#/$defs/booleanValue", "description": "If true, view can receive keyboard focus" },
+        "bitmap": { "type": "string", "description": "Background bitmap reference" },
+        "disabled-bitmap": { "type": "string", "description": "Disabled state background bitmap reference" },
+        "autosize": { "$ref": "#/$defs/autosizeValue", "description": "Autosize flags: left, right, top, bottom, row, column" },
+        "tooltip": { "type": "string", "description": "Tooltip text shown on hover" },
+        "custom-view-name": { "type": "string", "description": "Custom view name for factory lookup" },
+        "sub-controller": { "type": "string", "description": "Sub-controller name" },
+        "uidesc-label": { "type": "string", "description": "Label for identification in editor" }
+      }
+    },
+
+    "CViewContainerAttributes": {
+      "type": "object",
+      "description": "CViewContainer - Container view attributes (inherits from CView)",
+      "allOf": [{ "$ref": "#/$defs/CViewAttributes" }],
+      "properties": {
+        "background-color": { "$ref": "#/$defs/colorValue", "description": "Background fill color" },
+        "background-color-draw-style": {
+          "type": "string",
+          "enum": ["stroked", "filled", "filled and stroked"],
+          "description": "How background color is drawn"
+        }
+      }
+    },
+
+    "CLayeredViewContainerAttributes": {
+      "type": "object",
+      "description": "CLayeredViewContainer - Layered container (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "z-index": { "$ref": "#/$defs/numericValue", "description": "Z-order index for layering" }
+      }
+    },
+
+    "CRowColumnViewAttributes": {
+      "type": "object",
+      "description": "CRowColumnView - Row/column layout container (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "row-style": { "$ref": "#/$defs/booleanValue", "description": "If true, arrange children in row; if false, in column" },
+        "spacing": { "$ref": "#/$defs/numericValue", "description": "Spacing between children in pixels" },
+        "margin": { "$ref": "#/$defs/rectValue", "description": "Margins: 'left, top, right, bottom'" },
+        "animate-view-resizing": { "$ref": "#/$defs/booleanValue", "description": "Animate view resize changes" },
+        "hide-clipped-subviews": { "$ref": "#/$defs/booleanValue", "description": "Hide subviews that are clipped" },
+        "equal-size-layout": {
+          "type": "string",
+          "enum": ["left-top", "center", "right-bottom", "stretch", "top-left", "top-center", "top-right", "middle-left", "middle-center", "middle-right", "bottom-left", "bottom-center", "bottom-right"],
+          "description": "Layout style for equal-sized children"
+        },
+        "view-resize-animation-time": { "$ref": "#/$defs/numericValue", "description": "Animation duration in milliseconds" }
+      }
+    },
+
+    "CScrollViewAttributes": {
+      "type": "object",
+      "description": "CScrollView - Scrollable container (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "container-size": { "$ref": "#/$defs/pointValue", "description": "Scrollable content size 'width, height'" },
+        "scrollbar-background-color": { "$ref": "#/$defs/colorValue", "description": "Scrollbar background color" },
+        "scrollbar-frame-color": { "$ref": "#/$defs/colorValue", "description": "Scrollbar frame color" },
+        "scrollbar-scroller-color": { "$ref": "#/$defs/colorValue", "description": "Scrollbar thumb color" },
+        "horizontal-scrollbar": { "$ref": "#/$defs/booleanValue", "description": "Show horizontal scrollbar" },
+        "vertical-scrollbar": { "$ref": "#/$defs/booleanValue", "description": "Show vertical scrollbar" },
+        "auto-hide-scrollbars": { "$ref": "#/$defs/booleanValue", "description": "Auto-hide scrollbars when not needed" },
+        "auto-drag-scrolling": { "$ref": "#/$defs/booleanValue", "description": "Enable drag scrolling" },
+        "overlay-scrollbars": { "$ref": "#/$defs/booleanValue", "description": "Scrollbars overlay content" },
+        "scrollbar-width": { "$ref": "#/$defs/numericValue", "description": "Scrollbar width in pixels" },
+        "scrollbar-min-scroller-size": { "$ref": "#/$defs/numericValue", "description": "Minimum scrollbar thumb size" },
+        "bordered": { "$ref": "#/$defs/booleanValue", "description": "Draw border around scroll view" },
+        "follow-focus-view": { "$ref": "#/$defs/booleanValue", "description": "Auto-scroll to focused view" }
+      }
+    },
+
+    "UIViewSwitchContainerAttributes": {
+      "type": "object",
+      "description": "UIViewSwitchContainer - Template switching container (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "template-names": { "type": "string", "description": "Comma-separated list of template names" },
+        "template-switch-control": { "type": "string", "description": "Control tag that switches templates" },
+        "animation-style": {
+          "type": "string",
+          "enum": ["fade", "move", "push"],
+          "description": "Transition animation style"
+        },
+        "animation-timing-function": {
+          "type": "string",
+          "enum": ["linear", "easy-in", "easy-out", "easy-in-out", "easy"],
+          "description": "Animation easing function"
+        },
+        "animation-time": { "$ref": "#/$defs/numericValue", "description": "Animation duration in milliseconds" }
+      }
+    },
+
+    "CSplitViewAttributes": {
+      "type": "object",
+      "description": "CSplitView - Resizable split container (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "orientation": {
+          "type": "string",
+          "enum": ["horizontal", "vertical"],
+          "description": "Split orientation"
+        },
+        "resize-method": {
+          "type": "string",
+          "enum": ["first", "second", "last", "all"],
+          "description": "Which view(s) resize when container resizes"
+        },
+        "separator-width": { "$ref": "#/$defs/numericValue", "description": "Separator width in pixels" }
+      }
+    },
+
+    "CShadowViewContainerAttributes": {
+      "type": "object",
+      "description": "CShadowViewContainer - Container with shadow effect (inherits from CViewContainer)",
+      "allOf": [{ "$ref": "#/$defs/CViewContainerAttributes" }],
+      "properties": {
+        "shadow-intensity": { "$ref": "#/$defs/numericValue", "description": "Shadow opacity (0.0 to 1.0)" },
+        "shadow-offset": { "$ref": "#/$defs/pointValue", "description": "Shadow offset 'x, y'" },
+        "shadow-blur-size": { "$ref": "#/$defs/numericValue", "description": "Shadow blur radius (0.8 to 20)" }
+      }
+    },
+
+    "CControlAttributes": {
+      "type": "object",
+      "description": "CControl - Base control attributes (inherits from CView)",
+      "allOf": [{ "$ref": "#/$defs/CViewAttributes" }],
+      "properties": {
+        "control-tag": { "type": "string", "description": "Control tag name or ID" },
+        "default-value": { "$ref": "#/$defs/numericValue", "description": "Default/initial value (0.0 to 1.0)" },
+        "min-value": { "$ref": "#/$defs/numericValue", "description": "Minimum value" },
+        "max-value": { "$ref": "#/$defs/numericValue", "description": "Maximum value" },
+        "wheel-inc-value": { "$ref": "#/$defs/numericValue", "description": "Mouse wheel increment" }
+      }
+    },
+
+    "CParamDisplayAttributes": {
+      "type": "object",
+      "description": "CParamDisplay - Parameter display (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "font": { "type": "string", "description": "Font reference name" },
+        "font-color": { "$ref": "#/$defs/colorValue", "description": "Text color" },
+        "back-color": { "$ref": "#/$defs/colorValue", "description": "Background color" },
+        "frame-color": { "$ref": "#/$defs/colorValue", "description": "Frame/border color" },
+        "shadow-color": { "$ref": "#/$defs/colorValue", "description": "Text shadow color" },
+        "round-rect-radius": { "$ref": "#/$defs/numericValue", "description": "Corner radius for rounded rectangle style" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame/border width" },
+        "text-alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Horizontal text alignment"
+        },
+        "text-inset": { "$ref": "#/$defs/pointValue", "description": "Text inset from edges 'x, y'" },
+        "text-shadow-offset": { "$ref": "#/$defs/pointValue", "description": "Text shadow offset 'x, y'" },
+        "value-precision": { "$ref": "#/$defs/numericValue", "description": "Decimal places for value display" },
+        "background-offset": { "$ref": "#/$defs/pointValue", "description": "Background bitmap offset" },
+        "font-antialias": { "$ref": "#/$defs/booleanValue", "description": "Enable font anti-aliasing" },
+        "style-3D-in": { "$ref": "#/$defs/booleanValue", "description": "3D inset style" },
+        "style-3D-out": { "$ref": "#/$defs/booleanValue", "description": "3D outset style" },
+        "style-no-frame": { "$ref": "#/$defs/booleanValue", "description": "Hide frame" },
+        "style-no-text": { "$ref": "#/$defs/booleanValue", "description": "Hide text" },
+        "style-no-draw": { "$ref": "#/$defs/booleanValue", "description": "Don't draw background" },
+        "style-shadow-text": { "$ref": "#/$defs/booleanValue", "description": "Draw text shadow" },
+        "style-round-rect": { "$ref": "#/$defs/booleanValue", "description": "Use rounded rectangle" },
+        "text-rotation": { "$ref": "#/$defs/numericValue", "description": "Text rotation angle (0 to 360)" }
+      }
+    },
+
+    "CTextLabelAttributes": {
+      "type": "object",
+      "description": "CTextLabel - Text label (inherits from CParamDisplay)",
+      "allOf": [{ "$ref": "#/$defs/CParamDisplayAttributes" }],
+      "properties": {
+        "title": { "type": "string", "description": "Label text (use \\n for newlines)" },
+        "truncate-mode": {
+          "type": "string",
+          "enum": ["none", "head", "tail"],
+          "description": "Text truncation mode when too long"
+        }
+      }
+    },
+
+    "CMultiLineTextLabelAttributes": {
+      "type": "object",
+      "description": "CMultiLineTextLabel - Multi-line text label (inherits from CTextLabel)",
+      "allOf": [{ "$ref": "#/$defs/CTextLabelAttributes" }],
+      "properties": {
+        "line-layout": {
+          "type": "string",
+          "enum": ["clip", "truncate", "wrap"],
+          "description": "How lines are handled"
+        },
+        "auto-height": { "$ref": "#/$defs/booleanValue", "description": "Auto-adjust height to fit text" },
+        "vertical-centered": { "$ref": "#/$defs/booleanValue", "description": "Vertically center text" }
+      }
+    },
+
+    "CTextEditAttributes": {
+      "type": "object",
+      "description": "CTextEdit - Editable text field (inherits from CTextLabel)",
+      "allOf": [{ "$ref": "#/$defs/CTextLabelAttributes" }],
+      "properties": {
+        "secure-style": { "$ref": "#/$defs/booleanValue", "description": "Password/secure input mode" },
+        "immediate-text-change": { "$ref": "#/$defs/booleanValue", "description": "Notify on each keystroke" },
+        "style-doubleclick": { "$ref": "#/$defs/booleanValue", "description": "Require double-click to edit" },
+        "placeholder-title": { "type": "string", "description": "Placeholder text when empty" }
+      }
+    },
+
+    "CSearchTextEditAttributes": {
+      "type": "object",
+      "description": "CSearchTextEdit - Search text field with clear button (inherits from CTextEdit)",
+      "allOf": [{ "$ref": "#/$defs/CTextEditAttributes" }],
+      "properties": {
+        "clearmark-inset": { "$ref": "#/$defs/pointValue", "description": "Clear button inset 'x, y'" }
+      }
+    },
+
+    "COptionMenuAttributes": {
+      "type": "object",
+      "description": "COptionMenu - Dropdown menu (inherits from CParamDisplay)",
+      "allOf": [{ "$ref": "#/$defs/CParamDisplayAttributes" }],
+      "properties": {
+        "menu-popup-style": { "$ref": "#/$defs/booleanValue", "description": "Show as popup menu" },
+        "menu-check-style": { "$ref": "#/$defs/booleanValue", "description": "Show checkmarks for selected items" }
+      }
+    },
+
+    "CXYPadAttributes": {
+      "type": "object",
+      "description": "CXYPad - XY coordinate pad control (inherits from CParamDisplay)",
+      "allOf": [{ "$ref": "#/$defs/CParamDisplayAttributes" }],
+      "properties": {
+        "handle-bitmap": { "type": "string", "description": "Handle/thumb bitmap reference" }
+      }
+    },
+
+    "CTextButtonAttributes": {
+      "type": "object",
+      "description": "CTextButton - Text button (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "kick-style": { "$ref": "#/$defs/booleanValue", "description": "Momentary (kick) vs toggle style" },
+        "title": { "type": "string", "description": "Button text" },
+        "font": { "type": "string", "description": "Font reference name" },
+        "text-color": { "$ref": "#/$defs/colorValue", "description": "Normal text color" },
+        "text-color-highlighted": { "$ref": "#/$defs/colorValue", "description": "Highlighted/pressed text color" },
+        "gradient": { "type": "string", "description": "Normal state gradient reference" },
+        "gradient-highlighted": { "type": "string", "description": "Highlighted state gradient reference" },
+        "frame-color": { "$ref": "#/$defs/colorValue", "description": "Normal frame color" },
+        "frame-color-highlighted": { "$ref": "#/$defs/colorValue", "description": "Highlighted frame color" },
+        "round-radius": { "$ref": "#/$defs/numericValue", "description": "Corner radius" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame/border width" },
+        "icon-text-margin": { "$ref": "#/$defs/numericValue", "description": "Space between icon and text" },
+        "text-alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Text alignment"
+        },
+        "icon": { "type": "string", "description": "Normal icon bitmap reference" },
+        "icon-highlighted": { "type": "string", "description": "Highlighted icon bitmap reference" },
+        "icon-position": {
+          "type": "string",
+          "enum": ["left", "center above text", "center below text", "right"],
+          "description": "Icon position relative to text"
+        }
+      }
+    },
+
+    "CSegmentButtonAttributes": {
+      "type": "object",
+      "description": "CSegmentButton - Segmented button control (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": ["horizontal", "vertical", "horizontal-inverse", "vertical-inverse"],
+          "description": "Segment arrangement style"
+        },
+        "selection-mode": {
+          "type": "string",
+          "enum": ["Single", "Single-Toggle", "Multiple"],
+          "description": "Selection behavior"
+        },
+        "segment-names": { "type": "string", "description": "Comma-separated segment names" },
+        "font": { "type": "string", "description": "Font reference name" },
+        "text-color": { "$ref": "#/$defs/colorValue", "description": "Normal text color" },
+        "text-color-highlighted": { "$ref": "#/$defs/colorValue", "description": "Selected text color" },
+        "gradient": { "type": "string", "description": "Normal gradient reference" },
+        "gradient-highlighted": { "type": "string", "description": "Selected gradient reference" },
+        "frame-color": { "$ref": "#/$defs/colorValue", "description": "Frame color" },
+        "round-radius": { "$ref": "#/$defs/numericValue", "description": "Corner radius" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame width" },
+        "icon-text-margin": { "$ref": "#/$defs/numericValue", "description": "Icon to text margin" },
+        "text-alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Text alignment"
+        },
+        "truncate-mode": {
+          "type": "string",
+          "enum": ["none", "head", "tail"],
+          "description": "Text truncation mode"
+        }
+      }
+    },
+
+    "CCheckBoxAttributes": {
+      "type": "object",
+      "description": "CCheckBox - Checkbox control (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "title": { "type": "string", "description": "Checkbox label text" },
+        "font": { "type": "string", "description": "Font reference name" },
+        "font-color": { "$ref": "#/$defs/colorValue", "description": "Label text color" },
+        "boxframe-color": { "$ref": "#/$defs/colorValue", "description": "Box frame color" },
+        "boxfill-color": { "$ref": "#/$defs/colorValue", "description": "Box fill color" },
+        "checkmark-color": { "$ref": "#/$defs/colorValue", "description": "Checkmark color" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame width" },
+        "round-rect-radius": { "$ref": "#/$defs/numericValue", "description": "Corner radius" },
+        "autosize-to-fit": { "$ref": "#/$defs/booleanValue", "description": "Auto-size to fit text" },
+        "draw-crossbox": { "$ref": "#/$defs/booleanValue", "description": "Draw X instead of checkmark" }
+      }
+    },
+
+    "COnOffButtonAttributes": {
+      "type": "object",
+      "description": "COnOffButton - On/Off toggle button (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }]
+    },
+
+    "CKickButtonAttributes": {
+      "type": "object",
+      "description": "CKickButton - Momentary button (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }]
+    },
+
+    "CKnobAttributes": {
+      "type": "object",
+      "description": "CKnob - Rotary knob control (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "angle-start": { "$ref": "#/$defs/numericValue", "description": "Start angle in degrees" },
+        "angle-range": { "$ref": "#/$defs/numericValue", "description": "Rotation range in degrees" },
+        "knob-range": { "$ref": "#/$defs/numericValue", "description": "Value range" },
+        "value-inset": { "$ref": "#/$defs/numericValue", "description": "Value indicator inset" },
+        "zoom-factor": { "$ref": "#/$defs/numericValue", "description": "Fine adjustment zoom factor" },
+        "circle-drawing": { "$ref": "#/$defs/booleanValue", "description": "Draw circular handle" },
+        "corona-drawing": { "$ref": "#/$defs/booleanValue", "description": "Draw corona arc" },
+        "corona-outline": { "$ref": "#/$defs/booleanValue", "description": "Draw corona outline" },
+        "corona-from-center": { "$ref": "#/$defs/booleanValue", "description": "Corona starts from center" },
+        "corona-inverted": { "$ref": "#/$defs/booleanValue", "description": "Invert corona direction" },
+        "corona-dash-dot": { "$ref": "#/$defs/booleanValue", "description": "Dashed corona line" },
+        "corona-line-cap-butt": { "$ref": "#/$defs/booleanValue", "description": "Use butt line cap for corona" },
+        "skip-handle-drawing": { "$ref": "#/$defs/booleanValue", "description": "Don't draw handle" },
+        "corona-inset": { "$ref": "#/$defs/numericValue", "description": "Corona inset from edge" },
+        "corona-color": { "$ref": "#/$defs/colorValue", "description": "Corona color" },
+        "handle-shadow-color": { "$ref": "#/$defs/colorValue", "description": "Handle shadow color" },
+        "handle-color": { "$ref": "#/$defs/colorValue", "description": "Handle color" },
+        "handle-line-width": { "$ref": "#/$defs/numericValue", "description": "Handle line width" },
+        "corona-outline-width-add": { "$ref": "#/$defs/numericValue", "description": "Additional corona outline width" },
+        "corona-dash-dot-lengths": { "type": "string", "description": "Comma-separated dash lengths" },
+        "handle-bitmap": { "type": "string", "description": "Handle bitmap reference" }
+      }
+    },
+
+    "CAnimKnobAttributes": {
+      "type": "object",
+      "description": "CAnimKnob - Animated bitmap knob (inherits from CKnob base)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "angle-start": { "$ref": "#/$defs/numericValue", "description": "Start angle in degrees" },
+        "angle-range": { "$ref": "#/$defs/numericValue", "description": "Rotation range in degrees" },
+        "knob-range": { "$ref": "#/$defs/numericValue", "description": "Value range" },
+        "value-inset": { "$ref": "#/$defs/numericValue", "description": "Value indicator inset" },
+        "zoom-factor": { "$ref": "#/$defs/numericValue", "description": "Fine adjustment zoom factor" },
+        "inverse-bitmap": { "$ref": "#/$defs/booleanValue", "description": "Reverse bitmap frame order" }
+      }
+    },
+
+    "CSliderAttributes": {
+      "type": "object",
+      "description": "CSlider - Slider control (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["touch", "relative touch", "free click", "ramp", "use global"],
+          "description": "Slider interaction mode"
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["horizontal", "vertical"],
+          "description": "Slider orientation"
+        },
+        "reverse-orientation": { "$ref": "#/$defs/booleanValue", "description": "Reverse value direction" },
+        "handle-offset": { "$ref": "#/$defs/pointValue", "description": "Handle offset 'x, y'" },
+        "zoom-factor": { "$ref": "#/$defs/numericValue", "description": "Fine adjustment zoom factor" },
+        "handle-bitmap": { "type": "string", "description": "Handle/thumb bitmap reference" },
+        "bitmap-offset": { "$ref": "#/$defs/pointValue", "description": "Background bitmap offset" },
+        "draw-frame": { "$ref": "#/$defs/booleanValue", "description": "Draw frame" },
+        "draw-back": { "$ref": "#/$defs/booleanValue", "description": "Draw background" },
+        "draw-value": { "$ref": "#/$defs/booleanValue", "description": "Draw value bar" },
+        "draw-value-from-center": { "$ref": "#/$defs/booleanValue", "description": "Value bar starts from center" },
+        "draw-value-inverted": { "$ref": "#/$defs/booleanValue", "description": "Invert value bar" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame width" },
+        "draw-frame-color": { "$ref": "#/$defs/colorValue", "description": "Frame color" },
+        "draw-back-color": { "$ref": "#/$defs/colorValue", "description": "Background color" },
+        "draw-value-color": { "$ref": "#/$defs/colorValue", "description": "Value bar color" }
+      }
+    },
+
+    "CVuMeterAttributes": {
+      "type": "object",
+      "description": "CVuMeter - VU meter display (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "off-bitmap": { "type": "string", "description": "Off/empty state bitmap" },
+        "num-led": { "$ref": "#/$defs/numericValue", "description": "Number of LED segments" },
+        "orientation": {
+          "type": "string",
+          "enum": ["horizontal", "vertical"],
+          "description": "Meter orientation"
+        },
+        "decrease-step-value": { "$ref": "#/$defs/numericValue", "description": "Peak decay step value" }
+      }
+    },
+
+    "CVerticalSwitchAttributes": {
+      "type": "object",
+      "description": "CVerticalSwitch - Vertical bitmap switch (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "inverse-bitmap": { "$ref": "#/$defs/booleanValue", "description": "Reverse bitmap frame order" }
+      }
+    },
+
+    "CHorizontalSwitchAttributes": {
+      "type": "object",
+      "description": "CHorizontalSwitch - Horizontal bitmap switch (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "inverse-bitmap": { "$ref": "#/$defs/booleanValue", "description": "Reverse bitmap frame order" }
+      }
+    },
+
+    "CRockerSwitchAttributes": {
+      "type": "object",
+      "description": "CRockerSwitch - Rocker switch control (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }]
+    },
+
+    "CMovieBitmapAttributes": {
+      "type": "object",
+      "description": "CMovieBitmap - Animated bitmap display (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }]
+    },
+
+    "CMovieButtonAttributes": {
+      "type": "object",
+      "description": "CMovieButton - Animated bitmap button (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }]
+    },
+
+    "CAutoAnimationAttributes": {
+      "type": "object",
+      "description": "CAutoAnimation - Auto-animating bitmap (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "animation-time": { "$ref": "#/$defs/numericValue", "description": "Animation cycle time in milliseconds" },
+        "bitmap-offset": { "$ref": "#/$defs/pointValue", "description": "Bitmap offset" }
+      }
+    },
+
+    "CAnimationSplashScreenAttributes": {
+      "type": "object",
+      "description": "CAnimationSplashScreen - Splash screen with animation (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "splash-bitmap": { "type": "string", "description": "Splash bitmap reference" },
+        "splash-origin": { "$ref": "#/$defs/pointValue", "description": "Splash display origin" },
+        "splash-size": { "$ref": "#/$defs/pointValue", "description": "Splash display size" },
+        "animation-index": { "$ref": "#/$defs/numericValue", "description": "Starting animation frame index" },
+        "animation-time": { "$ref": "#/$defs/numericValue", "description": "Animation time in milliseconds" }
+      }
+    },
+
+    "CGradientViewAttributes": {
+      "type": "object",
+      "description": "CGradientView - Gradient-filled view (inherits from CView)",
+      "allOf": [{ "$ref": "#/$defs/CViewAttributes" }],
+      "properties": {
+        "gradient-style": {
+          "type": "string",
+          "enum": ["linear", "radial"],
+          "description": "Gradient type"
+        },
+        "gradient": { "type": "string", "description": "Gradient reference name" },
+        "gradient-angle": { "$ref": "#/$defs/numericValue", "description": "Linear gradient angle (0 to 360)" },
+        "radial-center": { "$ref": "#/$defs/pointValue", "description": "Radial gradient center 'x, y'" },
+        "radial-radius": { "$ref": "#/$defs/numericValue", "description": "Radial gradient radius" },
+        "frame-color": { "$ref": "#/$defs/colorValue", "description": "Frame color" },
+        "round-rect-radius": { "$ref": "#/$defs/numericValue", "description": "Corner radius" },
+        "frame-width": { "$ref": "#/$defs/numericValue", "description": "Frame width" },
+        "draw-antialiased": { "$ref": "#/$defs/booleanValue", "description": "Enable anti-aliasing" }
+      }
+    },
+
+    "CStringListControlAttributes": {
+      "type": "object",
+      "description": "CStringListControl - String list selector (inherits from CControl)",
+      "allOf": [{ "$ref": "#/$defs/CControlAttributes" }],
+      "properties": {
+        "style-hover": { "$ref": "#/$defs/booleanValue", "description": "Enable hover highlighting" },
+        "font": { "type": "string", "description": "Font reference name" },
+        "font-color": { "$ref": "#/$defs/colorValue", "description": "Normal text color" },
+        "font-color-selected": { "$ref": "#/$defs/colorValue", "description": "Selected text color" },
+        "back-color": { "$ref": "#/$defs/colorValue", "description": "Normal background color" },
+        "back-color-selected": { "$ref": "#/$defs/colorValue", "description": "Selected background color" },
+        "hover-color": { "$ref": "#/$defs/colorValue", "description": "Hover background color" },
+        "line-color": { "$ref": "#/$defs/colorValue", "description": "Row separator color" },
+        "line-width": { "$ref": "#/$defs/numericValue", "description": "Separator line width" },
+        "text-inset": { "$ref": "#/$defs/numericValue", "description": "Text inset from edges" },
+        "row-height": { "$ref": "#/$defs/numericValue", "description": "Row height in pixels" },
+        "text-alignment": {
+          "type": "string",
+          "enum": ["left", "center", "right"],
+          "description": "Text alignment"
+        }
+      }
+    },
+
     "viewClass": {
       "type": "string",
       "description": "VSTGUI view class name",
@@ -236,6 +780,7 @@
         "CShadowViewContainer",
         "UIViewSwitchContainer",
         "CControl",
+        "CParamDisplay",
         "CTextLabel",
         "CMultiLineTextLabel",
         "CTextEdit",
@@ -248,13 +793,12 @@
         "CRockerSwitch",
         "CVerticalSwitch",
         "CHorizontalSwitch",
-        "CMovieButton",
         "CMovieBitmap",
+        "CMovieButton",
         "CKnob",
         "CAnimKnob",
         "CSlider",
         "CVuMeter",
-        "CParamDisplay",
         "CXYPad",
         "COptionMenu",
         "CGradientView",
@@ -263,484 +807,58 @@
         "CAnimationSplashScreen"
       ]
     },
-    "baseViewAttributes": {
+
+    "viewAttributesByClass": {
+      "description": "Mapping of view class names to their attribute schemas",
       "type": "object",
-      "description": "Attributes common to all views",
       "properties": {
-        "class": {
-          "$ref": "#/$defs/viewClass"
-        },
-        "origin": {
-          "$ref": "#/$defs/pointValue",
-          "description": "Top-left corner position"
-        },
-        "size": {
-          "$ref": "#/$defs/sizeValue",
-          "description": "View dimensions"
-        },
-        "autosize": {
-          "$ref": "#/$defs/autosizeValue",
-          "description": "Resize anchor behavior"
-        },
-        "transparent": {
-          "$ref": "#/$defs/booleanValue",
-          "description": "Allow mouse events to pass through"
-        },
-        "mouse-enabled": {
-          "$ref": "#/$defs/booleanValue",
-          "description": "Respond to mouse events"
-        },
-        "opacity": {
-          "$ref": "#/$defs/numericValue",
-          "description": "View opacity (0 to 1)"
-        },
-        "wants-focus": {
-          "$ref": "#/$defs/booleanValue",
-          "description": "Can receive keyboard focus"
-        },
-        "tooltip": {
-          "type": "string",
-          "description": "Hover tooltip text"
-        },
-        "uidesc-label": {
-          "type": "string",
-          "description": "Editor label for identification"
-        },
-        "custom-view-name": {
-          "type": "string",
-          "description": "Reference to custom plugin view"
-        },
-        "sub-controller": {
-          "type": "string",
-          "description": "Sub-controller name for this view"
-        },
-        "template": {
-          "type": "string",
-          "description": "Template name to instantiate"
-        }
+        "CView": { "$ref": "#/$defs/CViewAttributes" },
+        "CViewContainer": { "$ref": "#/$defs/CViewContainerAttributes" },
+        "CLayeredViewContainer": { "$ref": "#/$defs/CLayeredViewContainerAttributes" },
+        "CRowColumnView": { "$ref": "#/$defs/CRowColumnViewAttributes" },
+        "CScrollView": { "$ref": "#/$defs/CScrollViewAttributes" },
+        "CSplitView": { "$ref": "#/$defs/CSplitViewAttributes" },
+        "CShadowViewContainer": { "$ref": "#/$defs/CShadowViewContainerAttributes" },
+        "UIViewSwitchContainer": { "$ref": "#/$defs/UIViewSwitchContainerAttributes" },
+        "CControl": { "$ref": "#/$defs/CControlAttributes" },
+        "CParamDisplay": { "$ref": "#/$defs/CParamDisplayAttributes" },
+        "CTextLabel": { "$ref": "#/$defs/CTextLabelAttributes" },
+        "CMultiLineTextLabel": { "$ref": "#/$defs/CMultiLineTextLabelAttributes" },
+        "CTextEdit": { "$ref": "#/$defs/CTextEditAttributes" },
+        "CSearchTextEdit": { "$ref": "#/$defs/CSearchTextEditAttributes" },
+        "CTextButton": { "$ref": "#/$defs/CTextButtonAttributes" },
+        "COnOffButton": { "$ref": "#/$defs/COnOffButtonAttributes" },
+        "CCheckBox": { "$ref": "#/$defs/CCheckBoxAttributes" },
+        "CSegmentButton": { "$ref": "#/$defs/CSegmentButtonAttributes" },
+        "CKickButton": { "$ref": "#/$defs/CKickButtonAttributes" },
+        "CRockerSwitch": { "$ref": "#/$defs/CRockerSwitchAttributes" },
+        "CVerticalSwitch": { "$ref": "#/$defs/CVerticalSwitchAttributes" },
+        "CHorizontalSwitch": { "$ref": "#/$defs/CHorizontalSwitchAttributes" },
+        "CMovieBitmap": { "$ref": "#/$defs/CMovieBitmapAttributes" },
+        "CMovieButton": { "$ref": "#/$defs/CMovieButtonAttributes" },
+        "CKnob": { "$ref": "#/$defs/CKnobAttributes" },
+        "CAnimKnob": { "$ref": "#/$defs/CAnimKnobAttributes" },
+        "CSlider": { "$ref": "#/$defs/CSliderAttributes" },
+        "CVuMeter": { "$ref": "#/$defs/CVuMeterAttributes" },
+        "CXYPad": { "$ref": "#/$defs/CXYPadAttributes" },
+        "COptionMenu": { "$ref": "#/$defs/COptionMenuAttributes" },
+        "CGradientView": { "$ref": "#/$defs/CGradientViewAttributes" },
+        "CStringListControl": { "$ref": "#/$defs/CStringListControlAttributes" },
+        "CAutoAnimation": { "$ref": "#/$defs/CAutoAnimationAttributes" },
+        "CAnimationSplashScreen": { "$ref": "#/$defs/CAnimationSplashScreenAttributes" }
       }
     },
-    "containerAttributes": {
-      "type": "object",
-      "description": "Attributes for container views",
-      "allOf": [
-        { "$ref": "#/$defs/baseViewAttributes" }
-      ],
-      "properties": {
-        "background-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "background-color-draw-style": {
-          "type": "string",
-          "enum": ["filled", "stroked", "filled and stroked"]
-        }
-      }
-    },
-    "controlAttributes": {
-      "type": "object",
-      "description": "Attributes for control views",
-      "allOf": [
-        { "$ref": "#/$defs/baseViewAttributes" }
-      ],
-      "properties": {
-        "control-tag": {
-          "type": "string",
-          "description": "Reference to control-tags entry"
-        },
-        "default-value": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Initial value (0.0 to 1.0)"
-        },
-        "min-value": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "max-value": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "wheel-inc-value": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Mouse wheel increment"
-        },
-        "font": {
-          "type": "string",
-          "description": "Reference to fonts entry"
-        },
-        "font-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "font-antialias": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "text-alignment": {
-          "type": "string",
-          "enum": ["left", "center", "right"]
-        },
-        "text-inset": {
-          "$ref": "#/$defs/pointValue"
-        },
-        "text-rotation": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "value-precision": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Decimal places displayed"
-        },
-        "style-3D-in": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-3D-out": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-no-frame": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-no-text": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-no-draw": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-shadow-text": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "style-round-rect": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "back-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "frame-color": {
-          "$ref": "#/$defs/colorValue"
-        }
-      }
-    },
-    "sliderAttributes": {
-      "type": "object",
-      "description": "Slider-specific attributes",
-      "allOf": [
-        { "$ref": "#/$defs/controlAttributes" }
-      ],
-      "properties": {
-        "bitmap": {
-          "type": "string",
-          "description": "Slider track/background bitmap"
-        },
-        "handle-bitmap": {
-          "type": "string",
-          "description": "Slider thumb bitmap"
-        },
-        "mode": {
-          "type": "string",
-          "enum": ["free click", "touch"]
-        },
-        "orientation": {
-          "type": "string",
-          "enum": ["horizontal", "vertical", "horizontal-inverse", "vertical-inverse"]
-        },
-        "reverse-orientation": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "bitmap-offset": {
-          "$ref": "#/$defs/pointValue"
-        },
-        "handle-offset": {
-          "$ref": "#/$defs/pointValue"
-        },
-        "draw-frame": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "draw-back": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "draw-value": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "draw-value-from-center": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "draw-value-inverted": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "draw-frame-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "draw-back-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "draw-value-color": {
-          "$ref": "#/$defs/colorValue"
-        }
-      }
-    },
-    "knobAttributes": {
-      "type": "object",
-      "description": "Knob-specific attributes",
-      "allOf": [
-        { "$ref": "#/$defs/controlAttributes" }
-      ],
-      "properties": {
-        "bitmap": {
-          "type": "string"
-        },
-        "angle-start": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Starting angle in degrees"
-        },
-        "angle-range": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Rotation range in degrees"
-        },
-        "zoom-factor": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "value-inset": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "handle-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "handle-shadow-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "handle-line-width": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "circle-drawing": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-drawing": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "corona-inset": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "corona-outline": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-inverted": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-from-center": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-dash-dot": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "corona-line-cap-butt": {
-          "$ref": "#/$defs/booleanValue"
-        }
-      }
-    },
-    "textButtonAttributes": {
-      "type": "object",
-      "description": "Text button attributes",
-      "allOf": [
-        { "$ref": "#/$defs/controlAttributes" }
-      ],
-      "properties": {
-        "title": {
-          "type": "string",
-          "description": "Button text"
-        },
-        "icon": {
-          "type": "string",
-          "description": "Icon bitmap"
-        },
-        "icon-highlighted": {
-          "type": "string"
-        },
-        "icon-position": {
-          "type": "string",
-          "enum": ["left", "right", "center above text", "center below text"]
-        },
-        "icon-text-margin": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "gradient": {
-          "type": "string",
-          "description": "Gradient name"
-        },
-        "gradient-highlighted": {
-          "type": "string"
-        },
-        "text-color-highlighted": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "frame-color-highlighted": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "round-radius": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "kick-style": {
-          "$ref": "#/$defs/booleanValue"
-        }
-      }
-    },
-    "scrollViewAttributes": {
-      "type": "object",
-      "description": "Scroll view attributes",
-      "allOf": [
-        { "$ref": "#/$defs/containerAttributes" }
-      ],
-      "properties": {
-        "container-size": {
-          "$ref": "#/$defs/sizeValue",
-          "description": "Scrollable content size"
-        },
-        "horizontal-scrollbar": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "vertical-scrollbar": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "auto-drag-scrolling": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "overlay-scrollbars": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "auto-hide-scrollbars": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "bordered": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "scrollbar-width": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "scrollbar-background-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "scrollbar-frame-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "scrollbar-scroller-color": {
-          "$ref": "#/$defs/colorValue"
-        }
-      }
-    },
-    "rowColumnViewAttributes": {
-      "type": "object",
-      "description": "Row/column view attributes",
-      "allOf": [
-        { "$ref": "#/$defs/containerAttributes" }
-      ],
-      "properties": {
-        "row-style": {
-          "$ref": "#/$defs/booleanValue",
-          "description": "true for rows, false for columns"
-        },
-        "spacing": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Pixels between items"
-        },
-        "margin": {
-          "type": "string",
-          "description": "Margins: 'left, top, right, bottom'"
-        },
-        "equal-size-layout": {
-          "type": "string",
-          "enum": ["left-top", "center", "right-bottom", "stretch"]
-        },
-        "animate-view-resizing": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "view-resize-animation-time": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Animation duration in ms"
-        }
-      }
-    },
-    "viewSwitchContainerAttributes": {
-      "type": "object",
-      "description": "View switch container attributes",
-      "allOf": [
-        { "$ref": "#/$defs/containerAttributes" }
-      ],
-      "properties": {
-        "template-names": {
-          "type": "string",
-          "description": "Comma-separated template names"
-        },
-        "template-switch-control": {
-          "type": "string",
-          "description": "Control tag to switch templates"
-        },
-        "animation-style": {
-          "type": "string",
-          "enum": ["fade", "move", "push"]
-        },
-        "animation-time": {
-          "$ref": "#/$defs/numericValue",
-          "description": "Animation duration in ms"
-        }
-      }
-    },
+
     "viewAttributes": {
       "type": "object",
-      "description": "Generic view attributes (union of all view types)",
+      "description": "View attributes - class is optional (defaults to CViewContainer), custom-view-name can be used alongside class",
       "additionalProperties": true,
       "properties": {
-        "class": {
-          "$ref": "#/$defs/viewClass"
-        },
-        "origin": {
-          "$ref": "#/$defs/pointValue"
-        },
-        "size": {
-          "$ref": "#/$defs/sizeValue"
-        },
-        "autosize": {
-          "$ref": "#/$defs/autosizeValue"
-        },
-        "transparent": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "mouse-enabled": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "opacity": {
-          "$ref": "#/$defs/numericValue"
-        },
-        "wants-focus": {
-          "$ref": "#/$defs/booleanValue"
-        },
-        "tooltip": {
-          "type": "string"
-        },
-        "template": {
-          "type": "string"
-        },
-        "custom-view-name": {
-          "type": "string"
-        },
-        "sub-controller": {
-          "type": "string"
-        },
-        "control-tag": {
-          "type": "string"
-        },
-        "bitmap": {
-          "type": "string"
-        },
-        "font": {
-          "type": "string"
-        },
-        "font-color": {
-          "$ref": "#/$defs/colorValue"
-        },
-        "title": {
-          "type": "string"
-        },
-        "background-color": {
-          "$ref": "#/$defs/colorValue"
-        }
+        "class": { "$ref": "#/$defs/viewClass" },
+        "custom-view-name": { "type": "string" }
       }
     },
+
     "viewDefinition": {
       "type": "object",
       "description": "View definition with attributes and optional children",
@@ -759,6 +877,7 @@
       },
       "additionalProperties": false
     },
+
     "templatesDefinition": {
       "type": "object",
       "description": "Template definitions",
@@ -766,6 +885,7 @@
         "$ref": "#/$defs/viewDefinition"
       }
     },
+
     "customAttributeSet": {
       "type": "object",
       "description": "Custom attribute set",
@@ -773,6 +893,7 @@
         "type": "string"
       }
     },
+
     "customDefinition": {
       "type": "object",
       "description": "Custom metadata and editor state",
@@ -783,15 +904,9 @@
         "FocusDrawing": {
           "type": "object",
           "properties": {
-            "enabled": {
-              "$ref": "#/$defs/booleanValue"
-            },
-            "width": {
-              "$ref": "#/$defs/numericValue"
-            },
-            "color-name": {
-              "type": "string"
-            }
+            "enabled": { "$ref": "#/$defs/booleanValue" },
+            "width": { "$ref": "#/$defs/numericValue" },
+            "color-name": { "type": "string" }
           }
         },
         "UITemplateController": {

@@ -45,6 +45,19 @@
   color: var(--color-text-muted, #999);
 }
 
+.unset {
+  font-style: italic;
+  color: var(--color-text-muted, #aaa);
+}
+
+.unsetRow {
+  opacity: 0.7;
+}
+
+.unsetRow .name {
+  color: var(--color-text-muted, #999);
+}
+
 .editable {
   cursor: text;
 }
