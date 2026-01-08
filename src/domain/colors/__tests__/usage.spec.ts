@@ -120,8 +120,8 @@ describe('findColorUsages', () => {
     });
   });
 
-  describe('given color name without tilde prefix', () => {
-    it('should not match raw color name in attribute value', () => {
+  describe('given color referenced by direct name (no tilde)', () => {
+    it('should find usage when color name matches directly', () => {
       const doc: VSTGUIUIDescription = {
         'vstgui-ui-description': {
           version: '1',
@@ -136,7 +136,29 @@ describe('findColorUsages', () => {
         },
       };
       const result = findColorUsages('Primary', doc);
-      expect(result).toHaveLength(0);
+      expect(result).toHaveLength(1);
+      expect(result[0].attribute).toBe('background-color');
+    });
+  });
+
+  describe('given both direct and tilde prefix references', () => {
+    it('should find all usages regardless of format', () => {
+      const doc: VSTGUIUIDescription = {
+        'vstgui-ui-description': {
+          version: '1',
+          templates: {
+            MainView: {
+              attributes: {
+                class: 'CViewContainer',
+                'background-color': 'Primary',
+                'frame-color': '~ Primary',
+              },
+            },
+          },
+        },
+      };
+      const result = findColorUsages('Primary', doc);
+      expect(result).toHaveLength(2);
     });
   });
 

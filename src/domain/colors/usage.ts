@@ -25,11 +25,10 @@ function findUsagesInView(
   usages: ColorUsage[]
 ): void {
   const viewClass = view.attributes.class ?? 'Unknown';
-  const colorRef = `~ ${colorName}`;
 
   for (const attr of COLOR_ATTRIBUTES) {
     const value = view.attributes[attr];
-    if (typeof value === 'string' && value === colorRef) {
+    if (typeof value === 'string' && (value === colorName || value === `~ ${colorName}`)) {
       usages.push({
         viewId,
         viewClass,
