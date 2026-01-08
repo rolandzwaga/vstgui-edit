@@ -29,6 +29,7 @@ export const FontItem: Component<FontItemProps> = (props) => {
   const [fontNameInput, setFontNameInput] = createSignal('');
   const [sizeInput, setSizeInput] = createSignal('');
   const [sizeError, setSizeError] = createSignal<string | null>(null);
+  const [altFontsInput, setAltFontsInput] = createSignal('');
 
   const displayName = () => truncateFontName(props.name);
   const summary = () => summarizeFontProperties(props.fontDef);
@@ -96,6 +97,7 @@ export const FontItem: Component<FontItemProps> = (props) => {
       setFontNameInput(props.fontDef['font-name']);
       setSizeInput(props.fontDef.size);
       setSizeError(null);
+      setAltFontsInput(props.fontDef['alternative-font-names'] ?? '');
     }
   };
 
@@ -168,6 +170,18 @@ export const FontItem: Component<FontItemProps> = (props) => {
     updateFontProperty(props.name, 'strike-through', newValue);
     pushOperation(
       createEditFontPropertyOperation(props.name, 'strike-through', oldValue, newValue)
+    );
+  };
+
+  const handleAltFontsBlur = () => {
+    const newValue = altFontsInput().trim();
+    const oldValue = props.fontDef['alternative-font-names'] ?? '';
+    if (newValue === oldValue) {
+      return;
+    }
+    updateFontProperty(props.name, 'alternative-font-names', newValue);
+    pushOperation(
+      createEditFontPropertyOperation(props.name, 'alternative-font-names', oldValue, newValue)
     );
   };
 
@@ -348,6 +362,18 @@ export const FontItem: Component<FontItemProps> = (props) => {
                 S
               </button>
             </div>
+          </div>
+          <div class={styles.propertyRow}>
+            <label class={styles.propertyLabel}>Fallback</label>
+            <input
+              type="text"
+              class={styles.propertyInput}
+              data-testid="alt-fonts-input"
+              placeholder="e.g., Helvetica, sans-serif"
+              value={altFontsInput()}
+              onInput={(e) => setAltFontsInput(e.currentTarget.value)}
+              onBlur={handleAltFontsBlur}
+            />
           </div>
         </div>
       </Show>
