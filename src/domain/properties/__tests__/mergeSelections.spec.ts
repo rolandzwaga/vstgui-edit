@@ -259,4 +259,122 @@ describe('mergeSelections', () => {
       expect(origin?.isMixed).toBe(true);
     });
   });
+
+  describe('schema-driven attributes (useSchema=true)', () => {
+    it('should show all CTextLabel schema attributes even with minimal instance', () => {
+      const attrs = [{ class: 'CTextLabel', origin: '10, 20', size: '100, 30' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
+
+      expect(allAttrNames).toContain('font');
+      expect(allAttrNames).toContain('font-color');
+      expect(allAttrNames).toContain('title');
+      expect(allAttrNames).toContain('truncate-mode');
+      expect(allAttrNames).toContain('text-alignment');
+    });
+
+    it('should mark schema attributes not in instance as isUnset', () => {
+      const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
+
+      expect(fontAttr?.isUnset).toBe(true);
+      expect(fontAttr?.value).toBeNull();
+    });
+
+    it('should mark instance attributes as not unset', () => {
+      const attrs = [{ class: 'CTextLabel', origin: '10, 20', font: 'MyFont' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
+      const originAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'origin');
+
+      expect(fontAttr?.isUnset).toBe(false);
+      expect(fontAttr?.value).toBe('MyFont');
+      expect(originAttr?.isUnset).toBe(false);
+    });
+
+    it('should include correct editorType from schema', () => {
+      const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const allAttrs = result.groups.flatMap((g) => g.attributes);
+
+      const originAttr = allAttrs.find((a) => a.name === 'origin');
+      const fontColorAttr = allAttrs.find((a) => a.name === 'font-color');
+      const alignAttr = allAttrs.find((a) => a.name === 'text-alignment');
+
+      expect(originAttr?.editorType).toBe('point');
+      expect(fontColorAttr?.editorType).toBe('color');
+      expect(alignAttr?.editorType).toBe('enum');
+    });
+
+    it('should include enumValues for enum attributes', () => {
+      const attrs = [{ class: 'CTextLabel' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const alignAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'text-alignment');
+
+      expect(alignAttr?.enumValues).toContain('left');
+      expect(alignAttr?.enumValues).toContain('center');
+      expect(alignAttr?.enumValues).toContain('right');
+    });
+
+    it('should default to CViewContainer for view without class', () => {
+      const attrs = [{ origin: '0, 0', size: '100, 100' }];
+      const classes = ['CViewContainer'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
+
+      expect(allAttrNames).toContain('background-color');
+      expect(allAttrNames).toContain('background-color-draw-style');
+    });
+
+    it('should still show deleted color reference attribute as unset', () => {
+      const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
+      const classes = ['CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const fontColorAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font-color');
+
+      expect(fontColorAttr).toBeDefined();
+      expect(fontColorAttr?.isUnset).toBe(true);
+    });
+
+    it('should handle multi-selection with schema', () => {
+      const attrs = [
+        { class: 'CTextLabel', origin: '10, 20', font: 'Font1' },
+        { class: 'CTextLabel', origin: '50, 60', font: 'Font1' },
+      ];
+      const classes = ['CTextLabel', 'CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
+
+      expect(fontAttr?.isMixed).toBe(false);
+      expect(fontAttr?.value).toBe('Font1');
+      expect(fontAttr?.isUnset).toBe(false);
+    });
+
+    it('should mark as mixed when one view has value and one does not', () => {
+      const attrs = [
+        { class: 'CTextLabel', font: 'Font1' },
+        { class: 'CTextLabel' },
+      ];
+      const classes = ['CTextLabel', 'CTextLabel'];
+
+      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
+
+      expect(fontAttr?.isMixed).toBe(true);
+    });
+  });
 });

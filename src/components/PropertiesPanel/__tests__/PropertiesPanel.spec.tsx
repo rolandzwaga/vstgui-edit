@@ -151,7 +151,7 @@ describe('PropertiesPanel', () => {
       expect(labels).toEqual(['Identity', 'Geometry', 'Appearance', 'Text', 'Behavior', 'Other']);
     });
 
-    it('should not display empty groups', () => {
+    it('should display schema-defined groups even if instance has no values in them', () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -174,8 +174,8 @@ describe('PropertiesPanel', () => {
 
       expect(screen.getByText('Identity')).toBeInTheDocument();
       expect(screen.getByText('Geometry')).toBeInTheDocument();
-      expect(screen.queryByText('Appearance')).not.toBeInTheDocument();
-      expect(screen.queryByText('Text')).not.toBeInTheDocument();
+      expect(screen.getByText('Appearance')).toBeInTheDocument();
+      expect(screen.getByText('Behavior')).toBeInTheDocument();
     });
   });
 
