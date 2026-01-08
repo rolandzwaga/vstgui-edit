@@ -7,7 +7,7 @@ export function truncateGradientName(name: string, maxLength: number = 24): stri
     return '.'.repeat(maxLength);
   }
 
-  return name.slice(0, maxLength - 3) + '...';
+  return `${name.slice(0, maxLength - 3)}...`;
 }
 
 export function formatStopCount(count: number): string {

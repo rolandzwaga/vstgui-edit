@@ -45,14 +45,14 @@
   border: 2px solid var(--color-surface);
   box-shadow:
     0 0 0 1px var(--color-border),
-    0 1px 3px rgba(0, 0, 0, 0.2);
+    0 1px 3px rgb(0 0 0 / 0.2);
 }
 
 .handleSelected .handleColor {
   border-color: var(--color-primary-500);
   box-shadow:
     0 0 0 1px var(--color-primary-500),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+    0 1px 3px rgb(0 0 0 / 0.3);
 }
 
 .controls {
@@ -60,7 +60,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   padding: var(--spacing-2);
-  background-color: var(--color-surface-secondary);
+  background-color: var(--color-surface-secondary, #f5f5f5);
   border-radius: var(--radius-base);
 }
 
@@ -125,7 +125,7 @@
 .deleteButton {
   font-size: var(--font-size-xs);
   padding: 4px 8px;
-  border: 1px solid var(--color-error-300);
+  border: 1px solid var(--color-error, #dc3545);
   border-radius: var(--radius-base);
   background-color: transparent;
   color: var(--color-error-600);
