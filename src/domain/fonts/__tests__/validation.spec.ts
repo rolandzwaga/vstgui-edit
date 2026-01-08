@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
-  validateFontName,
-  validateSystemFontName,
-  validateFontSize,
   validateBooleanProperty,
+  validateFontName,
+  validateFontSize,
+  validateSystemFontName,
 } from '../validation';
 
 describe('validateFontName', () => {

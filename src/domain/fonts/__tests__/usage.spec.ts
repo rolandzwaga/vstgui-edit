@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { findFontUsages } from '../usage';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
+import { findFontUsages } from '../usage';
 
 describe('findFontUsages', () => {
   test('returns empty array for null document', () => {

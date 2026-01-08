@@ -28,7 +28,11 @@ export interface HistoryOperation {
     | 'add-font'
     | 'edit-font-name'
     | 'edit-font-property'
-    | 'delete-font';
+    | 'delete-font'
+    | 'add-bitmap'
+    | 'edit-bitmap-name'
+    | 'edit-bitmap-property'
+    | 'delete-bitmap';
   description: string;
   undo: () => void;
   redo: () => void;

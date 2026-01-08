@@ -1,5 +1,5 @@
-import type { FontDefinition } from '../../types/uidesc';
 import type { HistoryOperation } from '../../types/history';
+import type { FontDefinition } from '../../types/uidesc';
 
 export interface RemovedFontReference {
   viewId: string;
