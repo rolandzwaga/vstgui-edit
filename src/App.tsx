@@ -4,6 +4,7 @@ import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
 import { FontsPanel } from './components/FontsPanel';
 import { BitmapsPanel } from './components/BitmapsPanel';
+import { GradientsPanel } from './components/GradientsPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
@@ -43,6 +44,7 @@ export default function App() {
               <ColorsPanel />
               <FontsPanel />
               <BitmapsPanel />
+              <GradientsPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
               <MainToolbar onFitToView={handleFitToView} />

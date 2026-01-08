@@ -1665,6 +1665,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 025-gradients-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 022-schema-driven-properties: Added SolidJS 1.9.x, Vite 7.x, existing JSON schema (`vstgui-uidesc.schema.json`)
 - 021-colors-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 018-hierarchy-reparenting: Added SolidJS 1.9.10, solid-js/store (already installed)

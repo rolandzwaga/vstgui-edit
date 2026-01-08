@@ -1572,3 +1572,185 @@ export function deleteBitmap(
 
   return { bitmap: bitmapCopy, removedReferences };
 }
+
+import type { GradientColorStop } from '../types/uidesc';
+
+const GRADIENT_ATTRIBUTES = ['gradient'];
+
+export interface RemovedGradientReference {
+  viewId: string;
+  attribute: string;
+  value: string;
+}
+
+function removeGradientReferencesFromView(
+  view: ViewNode,
+  gradientName: string,
+  viewId: string,
+  removed: RemovedGradientReference[]
+): void {
+  for (const attr of GRADIENT_ATTRIBUTES) {
+    const value = view.attributes[attr];
+    if (typeof value === 'string' && (value === gradientName || value === `~ ${gradientName}`)) {
+      removed.push({ viewId, attribute: attr, value });
+      delete view.attributes[attr];
+    }
+  }
+
+  if (view.children) {
+    for (const [key, child] of Object.entries(view.children)) {
+      removeGradientReferencesFromView(child, gradientName, `${viewId}-${key}`, removed);
+    }
+  }
+}
+
+export function getGradients(): Record<string, GradientColorStop[]> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.gradients;
+}
+
+export function addGradient(name: string, stops: GradientColorStop[]): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui.gradients) {
+        draftVstgui.gradients = {};
+      }
+      draftVstgui.gradients[name] = stops.map(stop => ({ ...stop }));
+    })
+  );
+
+  return true;
+}
+
+export function updateGradientName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.gradients?.[oldName]) return false;
+
+  const stops = vstgui.gradients[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.gradients) return;
+
+      delete draftVstgui.gradients[oldName];
+      draftVstgui.gradients[newName] = stops;
+    })
+  );
+
+  return true;
+}
+
+export function updateGradientStops(
+  name: string,
+  newStops: GradientColorStop[]
+): GradientColorStop[] | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.gradients?.[name]) return null;
+
+  const previousStops = vstgui.gradients[name].map(stop => ({ ...stop }));
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.gradients) return;
+
+      draftVstgui.gradients[name] = newStops.map(stop => ({ ...stop }));
+    })
+  );
+
+  return previousStops;
+}
+
+export function deleteGradient(
+  name: string
+): { stops: GradientColorStop[]; removedReferences: RemovedGradientReference[] } | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.gradients?.[name]) return null;
+
+  const stops = vstgui.gradients[name].map(stop => ({ ...stop }));
+  const removedReferences: RemovedGradientReference[] = [];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.gradients) return;
+
+      if (draftVstgui.templates) {
+        for (const [templateName, template] of Object.entries(draftVstgui.templates)) {
+          removeGradientReferencesFromView(template, name, templateName, removedReferences);
+        }
+      }
+
+      delete draftVstgui.gradients[name];
+    })
+  );
+
+  return { stops, removedReferences };
+}
+
+export function restoreGradientReference(
+  viewId: string,
+  attribute: string,
+  value: string
+): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) return false;
+
+  const templateEntries = Object.entries(vstgui.templates);
+  if (templateEntries.length === 0) return false;
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+  if (!view) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes[attribute] = value;
+      }
+    })
+  );
+
+  return true;
+}

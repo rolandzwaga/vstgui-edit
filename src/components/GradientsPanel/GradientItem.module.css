@@ -1,0 +1,147 @@
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  position: relative;
+}
+
+.item:hover {
+  background-color: var(--color-item-hover-bg);
+}
+
+.item.expanded {
+  background-color: var(--color-item-selected-bg);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+.name:hover {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.summary {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.input {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 2px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  outline: none;
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.inputError {
+  border-color: var(--color-error-500);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px var(--color-error-100);
+}
+
+.error {
+  font-size: var(--font-size-xs);
+  color: var(--color-error-600);
+}
+
+.usageBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--spacing-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary-700);
+  background-color: var(--color-primary-100);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.usageBadge:hover {
+  background-color: var(--color-primary-200);
+}
+
+.deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-base);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.deleteButton:hover {
+  color: var(--color-error-600);
+  background-color: var(--color-error-50);
+}
+
+.expandIcon {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.editorContainer {
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-2);
+}

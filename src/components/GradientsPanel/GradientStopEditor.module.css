@@ -1,0 +1,141 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.bar {
+  position: relative;
+  height: 24px;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border);
+  cursor: crosshair;
+  background-image:
+    linear-gradient(45deg, var(--color-swatch-checkerboard-light) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-swatch-checkerboard-light) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-swatch-checkerboard-light) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-swatch-checkerboard-light) 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+  background-color: var(--color-swatch-checkerboard-dark);
+}
+
+.handle {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  z-index: 1;
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.handleColor {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  box-shadow:
+    0 0 0 1px var(--color-border),
+    0 1px 3px rgb(0 0 0 / 0.2);
+}
+
+.handleSelected .handleColor {
+  border-color: var(--color-primary-500);
+  box-shadow:
+    0 0 0 1px var(--color-primary-500),
+    0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  background-color: var(--color-surface-secondary, #f5f5f5);
+  border-radius: var(--radius-base);
+}
+
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  min-width: 50px;
+}
+
+.colorInput {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-mono);
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.colorInput:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.positionInputContainer {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.positionInput {
+  width: 60px;
+  font-size: var(--font-size-sm);
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  outline: none;
+  text-align: right;
+}
+
+.positionInput:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.positionUnit {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-left: 4px;
+}
+
+.deleteButton {
+  font-size: var(--font-size-xs);
+  padding: 4px 8px;
+  border: 1px solid var(--color-error, #dc3545);
+  border-radius: var(--radius-base);
+  background-color: transparent;
+  color: var(--color-error-600);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.deleteButton:hover {
+  background-color: var(--color-error-50);
+  color: var(--color-error-700);
+}
