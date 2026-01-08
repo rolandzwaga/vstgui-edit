@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-01-07
 
 ## Active Technologies
+- N/A (in-memory state via existing documentStore) (023-fonts-panel)
+- SolidJS 1.9.10, solid-js/store (already installed - no new dependencies) (023-fonts-panel)
 
 [EXTRACTED FROM ALL PLAN.MD FILES]
 
@@ -21,6 +23,7 @@ Auto-generated from all feature plans. Last updated: 2026-01-07
 General: Follow standard conventions
 
 ## Recent Changes
+- 023-fonts-panel: Added SolidJS 1.9.10, solid-js/store (already installed - no new dependencies)
 
 [LAST 3 FEATURES AND WHAT THEY ADDED]
 
