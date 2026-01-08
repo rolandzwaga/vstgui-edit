@@ -8,13 +8,24 @@ import { Canvas } from '../Canvas';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { resetSelection, selectionStore } from '../../../stores/selectionStore';
 
-// Define mock store using vi.hoisted so it's available in vi.mock
 const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'TestTemplate' as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
+}));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
 }));
 
 // Helper to create mock uidesc document with multiple views

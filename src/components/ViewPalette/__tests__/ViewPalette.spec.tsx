@@ -4,6 +4,11 @@ import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { resetPalette } from '../../../stores/paletteStore';
 import { ViewPalette } from '../ViewPalette';
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Views/i });
+  await fireEvent.click(header);
+}
+
 describe('ViewPalette', () => {
   beforeEach(() => {
     testInRoot(() => {
@@ -27,15 +32,17 @@ describe('ViewPalette', () => {
     expect(screen.getByText('Views')).toBeInTheDocument();
   });
 
-  it('renders search input', () => {
+  it('renders search input', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     expect(screen.getByTestId('palette-search')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Search views...')).toBeInTheDocument();
   });
 
-  it('renders all categories', () => {
+  it('renders all categories', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     expect(screen.getByTestId('palette-category-containers')).toBeInTheDocument();
     expect(screen.getByTestId('palette-category-controls')).toBeInTheDocument();
@@ -44,8 +51,9 @@ describe('ViewPalette', () => {
     expect(screen.getByTestId('palette-category-animation')).toBeInTheDocument();
   });
 
-  it('filters items when searching', () => {
+  it('filters items when searching', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     const searchInput = screen.getByTestId('palette-search');
     fireEvent.input(searchInput, { target: { value: 'Knob' } });
@@ -56,8 +64,9 @@ describe('ViewPalette', () => {
     expect(screen.queryByTestId('palette-item-CTextButton')).not.toBeInTheDocument();
   });
 
-  it('hides categories with no matching items', () => {
+  it('hides categories with no matching items', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     const searchInput = screen.getByTestId('palette-search');
     fireEvent.input(searchInput, { target: { value: 'Knob' } });
@@ -67,8 +76,9 @@ describe('ViewPalette', () => {
     expect(screen.queryByTestId('palette-category-displays')).not.toBeInTheDocument();
   });
 
-  it('shows all items when search is cleared', () => {
+  it('shows all items when search is cleared', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     const searchInput = screen.getByTestId('palette-search');
 
@@ -79,8 +89,9 @@ describe('ViewPalette', () => {
     expect(screen.getByTestId('palette-item-CSlider')).toBeInTheDocument();
   });
 
-  it('search is case-insensitive', () => {
+  it('search is case-insensitive', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     const searchInput = screen.getByTestId('palette-search');
     fireEvent.input(searchInput, { target: { value: 'slider' } });
@@ -88,8 +99,9 @@ describe('ViewPalette', () => {
     expect(screen.getByTestId('palette-item-CSlider')).toBeInTheDocument();
   });
 
-  it('shows categories with correct item counts', () => {
+  it('shows categories with correct item counts', async () => {
     render(() => <ViewPalette />);
+    await expandSection();
 
     expect(screen.getByText('Containers')).toBeInTheDocument();
     expect(screen.getByText('(7)')).toBeInTheDocument();

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { ControlTagsPanel } from '../ControlTagsPanel';
 
@@ -32,6 +32,11 @@ vi.mock('../../../stores/historyStore', () => ({
 vi.mock('../../../domain/controlTags/usage', () => ({
   findControlTagUsages: vi.fn(() => []),
 }));
+
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Control Tags/i });
+  await fireEvent.click(header);
+}
 
 describe('ControlTagsPanel - History Integration', () => {
   beforeEach(() => {
@@ -82,6 +87,7 @@ describe('ControlTagsPanel - History Integration', () => {
     it('should push delete-control-tag operation for unused tag', async () => {
       const user = userEvent.setup();
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('control-tag-item');
       await user.hover(item);

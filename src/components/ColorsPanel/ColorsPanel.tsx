@@ -91,6 +91,7 @@ export const ColorsPanel: Component = () => {
     <div class={styles.panel} data-testid="colors-panel">
       <CollapsibleSection
         title="Colors"
+        defaultExpanded={false}
         headerActions={<AddColorButton onClick={handleAddColor} disabled={!hasDocument()} />}
       >
         <Show when={hasColors()} fallback={<EmptyState />}>

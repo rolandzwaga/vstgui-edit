@@ -3,6 +3,7 @@ import { render, screen } from '@solidjs/testing-library';
 import { PropertiesPanel } from '../PropertiesPanel';
 import { resetSelection, select } from '../../../stores/selectionStore';
 import { resetProperties } from '../../../stores/propertiesStore';
+import { resetTemplateStore, setActiveTemplate } from '../../../stores/templateStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -19,6 +20,7 @@ describe('PropertiesPanel', () => {
     testInRoot(() => {
       resetSelection();
       resetProperties();
+      resetTemplateStore();
     });
   });
 
@@ -64,6 +66,9 @@ describe('PropertiesPanel', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should show properties when view is selected', () => {
@@ -132,6 +137,9 @@ describe('PropertiesPanel', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should display groups in priority order: Identity, Geometry, Appearance, Text, Behavior, Other', () => {
@@ -167,6 +175,7 @@ describe('PropertiesPanel', () => {
       };
 
       testInRoot(() => {
+        setActiveTemplate('MainView');
         select('MainView');
       });
 
@@ -199,6 +208,9 @@ describe('PropertiesPanel', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should update when selection changes', () => {
@@ -268,6 +280,9 @@ describe('PropertiesPanel', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should show properties for child view using composite ID', () => {

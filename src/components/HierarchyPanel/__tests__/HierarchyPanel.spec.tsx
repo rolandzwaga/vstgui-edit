@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { HierarchyPanel } from '../HierarchyPanel';
 import { resetHierarchy } from '../../../stores/hierarchyStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
@@ -8,28 +8,47 @@ const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'MainView' as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
 }));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
+}));
+
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Hierarchy/i });
+  await fireEvent.click(header);
+}
 
 describe('HierarchyPanel', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
+    mockTemplateStore.activeTemplateId = 'MainView';
     testInRoot(() => {
       resetHierarchy();
     });
   });
 
   describe('given no document loaded', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       expect(screen.getByText('No template loaded')).toBeInTheDocument();
     });
   });
 
   describe('given document with template', () => {
-    it('should render tree with root view', () => {
+    it('should render tree with root view', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -42,11 +61,12 @@ describe('HierarchyPanel', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       expect(screen.getByText('CViewContainer')).toBeInTheDocument();
     });
 
-    it('should render nested views', () => {
+    it('should render nested views', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -63,6 +83,7 @@ describe('HierarchyPanel', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       expect(screen.getByText('CViewContainer')).toBeInTheDocument();
       expect(screen.getByText('CTextButton')).toBeInTheDocument();
@@ -71,7 +92,7 @@ describe('HierarchyPanel', () => {
   });
 
   describe('given empty template (edge case)', () => {
-    it('should render root with no children', () => {
+    it('should render root with no children', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -82,15 +103,17 @@ describe('HierarchyPanel', () => {
           },
         },
       };
+      mockTemplateStore.activeTemplateId = 'EmptyView';
 
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       expect(screen.getByText('CViewContainer')).toBeInTheDocument();
     });
   });
 
   describe('given ARIA attributes (accessibility)', () => {
-    it('should have role="tree"', () => {
+    it('should have role="tree"', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -103,12 +126,13 @@ describe('HierarchyPanel', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       const tree = screen.getByRole('tree');
       expect(tree).toBeInTheDocument();
     });
 
-    it('should have aria-label', () => {
+    it('should have aria-label', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -121,6 +145,7 @@ describe('HierarchyPanel', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandSection();
 
       const tree = screen.getByRole('tree');
       expect(tree).toHaveAttribute('aria-label', 'View hierarchy');

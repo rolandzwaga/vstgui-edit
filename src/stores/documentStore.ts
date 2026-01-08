@@ -1,10 +1,18 @@
 import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
+import { generateDuplicateName, isValidTemplateName } from '../domain/templates/validation';
+import type { RemovedVariableReference } from '../domain/variables/historyOperations';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
-import type { ViewNode, VSTGUIUIDescription } from '../types/uidesc';
+import type {
+  TemplateDefinition,
+  TemplatesDefinition,
+  ViewNode,
+  VSTGUIUIDescription,
+} from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
+import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
   if (!size) {
@@ -24,6 +32,22 @@ function parseSizeRaw(size: string | undefined): Size {
 
 function formatSize(size: Size): string {
   return `${Math.round(size.width)}, ${Math.round(size.height)}`;
+}
+
+/**
+ * Find the template that contains a view by checking if viewId starts with templateId.
+ * Returns [templateId, templateView] or null if not found.
+ */
+function findTemplateForView(
+  templates: TemplatesDefinition,
+  viewId: string
+): [string, TemplateDefinition] | null {
+  for (const [templateId, templateView] of Object.entries(templates)) {
+    if (viewId === templateId || viewId.startsWith(`${templateId}-`)) {
+      return [templateId, templateView];
+    }
+  }
+  return null;
 }
 
 const initialState: DocumentStoreState = {
@@ -64,15 +88,24 @@ function readFileAsText(file: File): Promise<string> {
  * Parse the content and update parse state
  * FR-000: Automatically triggered after successful file upload
  */
+function selectFirstTemplate(doc: VSTGUIUIDescription): void {
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (templates) {
+    const templateNames = Object.keys(templates);
+    if (templateNames.length > 0) {
+      setActiveTemplate(templateNames[0]);
+    }
+  }
+}
+
 function parseContent(content: string): void {
-  // Set parsing state
   setStore({ parseState: 'parsing' });
 
   const result = parseUidesc(content);
 
   if (result.success) {
-    // FR-009: Reset canvas (pan and zoom) on new document load
     resetCanvas();
+    resetTemplateStore();
 
     setStore({
       parseState: 'valid',
@@ -80,6 +113,8 @@ function parseContent(content: string): void {
       parseErrors: null,
       detectedFormat: result.format,
     });
+
+    selectFirstTemplate(result.document);
   } else {
     setStore({
       parseState: 'invalid',
@@ -153,11 +188,9 @@ export async function loadFile(file: File): Promise<void> {
   }
 }
 
-/**
- * Reset the store to initial state
- */
 export function reset(): void {
   setStore({ ...initialState });
+  resetTemplateStore();
 }
 
 /**
@@ -175,12 +208,14 @@ export function setDragging(isDragging: boolean): void {
 export const documentStore = store;
 
 export function setDocumentForTest(doc: VSTGUIUIDescription): void {
+  resetTemplateStore();
   setStore({
     document: doc,
     parseState: 'valid',
     parseErrors: null,
     detectedFormat: 'json',
   });
+  selectFirstTemplate(doc);
 }
 
 export function getView(viewId: string): ViewNode | null {
@@ -194,13 +229,12 @@ export function getView(viewId: string): ViewNode | null {
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   return findViewInTree(templateView, viewId, templateId);
 }
 
@@ -239,13 +273,12 @@ export function updateViewOrigin(viewId: string, newOrigin: Point): Point | null
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
 
   if (!view) {
@@ -284,13 +317,12 @@ export function updateViewSize(viewId: string, newSize: Size): Size | null {
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
 
   if (!view) {
@@ -329,13 +361,12 @@ export function getViewAttribute(viewId: string, attributeName: string): string 
     return undefined;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return undefined;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
 
   if (!view) {
@@ -361,13 +392,12 @@ export function updateViewAttribute(
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
 
   if (!view) {
@@ -469,13 +499,12 @@ export function removeView(viewId: string): RemovedViewInfo | null {
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   if (viewId === templateId) {
     return null;
@@ -560,13 +589,12 @@ export function addView(parentId: string, view: ViewNode, childKey?: string): st
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, parentId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const parent = findViewInTree(templateView, parentId, templateId);
 
   if (!parent) {
@@ -624,13 +652,12 @@ export function restoreView(info: RemovedViewInfo): string | null {
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, info.parentId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const parent = findViewInTree(templateView, info.parentId, templateId);
 
   if (!parent) {
@@ -677,13 +704,12 @@ export function duplicateView(viewId: string, offset: Point): string | null {
     return null;
   }
 
-  const templates = vstgui.templates;
-  const templateEntries = Object.entries(templates);
-  if (templateEntries.length === 0) {
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) {
     return null;
   }
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   if (viewId === templateId) {
     return null;
@@ -717,10 +743,10 @@ export function getParentId(viewId: string): string | null {
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return null;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return null;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return null;
 
-  const [templateId] = templateEntries[0];
+  const [templateId] = found;
   if (viewId === templateId) return null;
 
   const lastDash = viewId.lastIndexOf('-');
@@ -736,10 +762,10 @@ export function getChildIds(viewId: string): string[] {
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return [];
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return [];
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return [];
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
 
   if (!view?.children) return [];
@@ -778,10 +804,10 @@ export function reparentView(
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return null;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return null;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return null;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   if (viewId === templateId) return null;
 
@@ -870,10 +896,10 @@ export function reorderView(viewId: string, newIndex: number): ReorderResult | n
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return null;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return null;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return null;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   const parent = findViewInTree(templateView, parentId, templateId);
   if (!parent?.children) return null;
@@ -938,10 +964,10 @@ export function createGroupContainer(
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return null;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return null;
+  const found = findTemplateForView(vstgui.templates, viewIds[0]);
+  if (!found) return null;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   const parentIds = viewIds.map(id => getParentId(id));
   const firstParentId = parentIds[0];
@@ -1021,10 +1047,10 @@ export function ungroupContainer(containerId: string): UngroupResult | null {
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return null;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return null;
+  const found = findTemplateForView(vstgui.templates, containerId);
+  if (!found) return null;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
 
   if (containerId === templateId) return null;
 
@@ -1127,14 +1153,158 @@ export function addColor(name: string, value: string): boolean {
   return true;
 }
 
-// ============================================================================
-// Variables Functions
-// ============================================================================
+export function getTemplates(): TemplatesDefinition | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+  return doc['vstgui-ui-description']?.templates;
+}
 
-export interface RemovedVariableReference {
-  viewId: string;
-  attribute: string;
-  value: string;
+export function getTemplate(name: string): TemplateDefinition | undefined {
+  const templates = getTemplates();
+  return templates?.[name];
+}
+
+export function getTemplateNames(): string[] {
+  const templates = getTemplates();
+  if (!templates) return [];
+  return Object.keys(templates);
+}
+
+export function renameTemplate(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[oldName]) return false;
+
+  if (oldName === newName) return true;
+
+  if (!isValidTemplateName(newName)) return false;
+
+  if (templates[newName]) return false;
+
+  const templateData = templates[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftTemplates = draft.document?.['vstgui-ui-description']?.templates;
+      if (!draftTemplates) return;
+
+      draftTemplates[newName] = templateData;
+      delete draftTemplates[oldName];
+    })
+  );
+
+  if (templateStore.activeTemplateId === oldName) {
+    setActiveTemplate(newName);
+  }
+
+  return true;
+}
+
+export function addTemplate(name: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  if (!isValidTemplateName(name)) return false;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (templates?.[name]) return false;
+
+  const defaultTemplate: TemplateDefinition = {
+    attributes: {
+      class: 'CViewContainer',
+      origin: '0, 0',
+      size: '400, 300',
+      'background-color': '~ BlackCColor',
+    },
+  };
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui) return;
+
+      if (!vstgui.templates) {
+        vstgui.templates = {};
+      }
+      vstgui.templates[name] = defaultTemplate;
+    })
+  );
+
+  return true;
+}
+
+export function deleteTemplate(name: string): TemplateDefinition | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[name]) return null;
+
+  if (Object.keys(templates).length <= 1) return null;
+
+  const templateData = { ...templates[name] };
+
+  setStore(
+    produce(draft => {
+      const draftTemplates = draft.document?.['vstgui-ui-description']?.templates;
+      if (!draftTemplates) return;
+
+      delete draftTemplates[name];
+    })
+  );
+
+  if (templateStore.activeTemplateId === name) {
+    const remainingNames = Object.keys(templates).filter(n => n !== name);
+    setActiveTemplate(remainingNames.length > 0 ? remainingNames[0] : null);
+  }
+
+  return templateData;
+}
+
+export function restoreTemplate(name: string, data: TemplateDefinition): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui) return;
+
+      if (!vstgui.templates) {
+        vstgui.templates = {};
+      }
+      vstgui.templates[name] = data;
+    })
+  );
+
+  return true;
+}
+
+export function duplicateTemplate(sourceName: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[sourceName]) return null;
+
+  const sourceData = templates[sourceName];
+  const existingNames = Object.keys(templates);
+  const newName = generateDuplicateName(existingNames, sourceName);
+
+  const deepCopy = JSON.parse(JSON.stringify(sourceData)) as TemplateDefinition;
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui?.templates) return;
+
+      vstgui.templates[newName] = deepCopy;
+    })
+  );
+
+  return newName;
 }
 
 export function getVariables(): Record<string, string> | undefined {
@@ -1288,10 +1458,10 @@ export function restoreVariableReference(
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return false;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return false;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return false;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
   if (!view) return false;
 
@@ -1464,10 +1634,10 @@ export function restoreControlTagReference(viewId: string, value: string): boole
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return false;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return false;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return false;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
   if (!view) return false;
 
@@ -2092,10 +2262,10 @@ export function restoreGradientReference(
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.templates) return false;
 
-  const templateEntries = Object.entries(vstgui.templates);
-  if (templateEntries.length === 0) return false;
+  const found = findTemplateForView(vstgui.templates, viewId);
+  if (!found) return false;
 
-  const [templateId, templateView] = templateEntries[0];
+  const [templateId, templateView] = found;
   const view = findViewInTree(templateView, viewId, templateId);
   if (!view) return false;
 

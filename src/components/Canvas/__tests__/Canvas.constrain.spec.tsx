@@ -11,11 +11,23 @@ const mockDocumentStore = vi.hoisted(() => ({
   document: null as any,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'TestTemplate' as string | null,
+}));
+
 const mockUpdateViewOrigin = vi.fn();
 
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
   updateViewOrigin: (...args: unknown[]) => mockUpdateViewOrigin(...args),
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
+}));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
 }));
 
 const createMockDocument = (

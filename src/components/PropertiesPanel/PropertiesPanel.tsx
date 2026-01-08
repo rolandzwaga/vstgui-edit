@@ -3,6 +3,7 @@ import { createMemo, For, Show } from 'solid-js';
 import type { ViewNode } from '../../types/uidesc';
 import { documentStore, updateViewAttribute, getViewAttribute } from '../../stores/documentStore';
 import { selectionStore } from '../../stores/selectionStore';
+import { templateStore } from '../../stores/templateStore';
 import { isGroupExpanded, toggleGroup } from '../../stores/propertiesStore';
 import { pushOperation } from '../../stores/historyStore';
 import { mergeSelections } from '../../domain/properties';
@@ -47,16 +48,17 @@ export const PropertiesPanel: Component = () => {
     const vstgui = doc['vstgui-ui-description'];
     if (!vstgui?.templates) return [];
 
-    const templates = vstgui.templates;
-    const templateEntries = Object.entries(templates);
-    if (templateEntries.length === 0) return [];
+    const activeTemplateId = templateStore.activeTemplateId;
+    if (!activeTemplateId) return [];
 
-    const [templateId, templateView] = templateEntries[0];
+    const templateView = vstgui.templates[activeTemplateId];
+    if (!templateView) return [];
+
     const selectedIds = selectionStore.selectedIds;
 
     const views: ViewNode[] = [];
     for (const viewId of selectedIds) {
-      const view = findViewById(templateView, viewId, templateId);
+      const view = findViewById(templateView, viewId, activeTemplateId);
       if (view) {
         views.push(view);
       }

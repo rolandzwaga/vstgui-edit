@@ -125,6 +125,7 @@ export const BitmapsPanel: Component = () => {
     <div class={styles.panel} data-testid="bitmaps-panel">
       <CollapsibleSection
         title="Bitmaps"
+        defaultExpanded={false}
         headerActions={<AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />}
       >
         <Show when={hasBitmaps()} fallback={<EmptyState />}>

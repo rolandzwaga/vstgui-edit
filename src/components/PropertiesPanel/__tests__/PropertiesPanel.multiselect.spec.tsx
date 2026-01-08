@@ -3,6 +3,7 @@ import { render, screen } from '@solidjs/testing-library';
 import { PropertiesPanel } from '../PropertiesPanel';
 import { resetSelection, selectAll } from '../../../stores/selectionStore';
 import { resetProperties } from '../../../stores/propertiesStore';
+import { resetTemplateStore, setActiveTemplate } from '../../../stores/templateStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -19,6 +20,7 @@ describe('PropertiesPanel - Multi-selection', () => {
     testInRoot(() => {
       resetSelection();
       resetProperties();
+      resetTemplateStore();
     });
   });
 
@@ -60,6 +62,9 @@ describe('PropertiesPanel - Multi-selection', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should show class name with count for same class selection', () => {
@@ -138,6 +143,9 @@ describe('PropertiesPanel - Multi-selection', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should show count only when classes differ', () => {
@@ -189,6 +197,9 @@ describe('PropertiesPanel - Multi-selection', () => {
           },
         },
       };
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+      });
     });
 
     it('should mark attribute as Mixed when only some views have it', () => {

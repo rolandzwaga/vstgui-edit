@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { GradientsPanel } from '../GradientsPanel';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -29,14 +29,20 @@ vi.mock('../../../domain/gradients/usage', () => ({
   findGradientUsages: vi.fn(() => []),
 }));
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Gradients/i });
+  await fireEvent.click(header);
+}
+
 describe('GradientsPanel', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
   });
 
   describe('given no document loaded', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       render(() => <GradientsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('gradients-empty-state')).toBeInTheDocument();
       expect(screen.getByText('No gradients defined')).toBeInTheDocument();
@@ -44,7 +50,7 @@ describe('GradientsPanel', () => {
   });
 
   describe('given document with no gradients section', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -53,13 +59,14 @@ describe('GradientsPanel', () => {
       };
 
       render(() => <GradientsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('gradients-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with empty gradients', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -69,13 +76,14 @@ describe('GradientsPanel', () => {
       };
 
       render(() => <GradientsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('gradients-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with gradients', () => {
-    it('should render gradient items', () => {
+    it('should render gradient items', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -95,6 +103,7 @@ describe('GradientsPanel', () => {
       };
 
       render(() => <GradientsPanel />);
+      await expandSection();
 
       expect(screen.queryByTestId('gradients-empty-state')).not.toBeInTheDocument();
       expect(screen.getByText('Background Gradient')).toBeInTheDocument();
@@ -120,7 +129,7 @@ describe('GradientsPanel', () => {
       expect(screen.getByText('Gradients')).toBeInTheDocument();
     });
 
-    it('should render gradient previews', () => {
+    it('should render gradient previews', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -135,6 +144,7 @@ describe('GradientsPanel', () => {
       };
 
       render(() => <GradientsPanel />);
+      await expandSection();
 
       expect(screen.getAllByTestId('gradient-preview')).toHaveLength(1);
     });

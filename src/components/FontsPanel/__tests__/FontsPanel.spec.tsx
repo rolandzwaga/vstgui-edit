@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { FontsPanel } from '../FontsPanel';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -29,14 +29,20 @@ vi.mock('../../../domain/fonts/usage', () => ({
   findFontUsages: vi.fn(() => []),
 }));
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Fonts/i });
+  await fireEvent.click(header);
+}
+
 describe('FontsPanel', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
   });
 
   describe('given no document loaded', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       render(() => <FontsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('fonts-empty-state')).toBeInTheDocument();
       expect(screen.getByText('No fonts defined')).toBeInTheDocument();
@@ -44,7 +50,7 @@ describe('FontsPanel', () => {
   });
 
   describe('given document with no fonts section', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -53,13 +59,14 @@ describe('FontsPanel', () => {
       };
 
       render(() => <FontsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('fonts-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with empty fonts', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -69,13 +76,14 @@ describe('FontsPanel', () => {
       };
 
       render(() => <FontsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('fonts-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with fonts', () => {
-    it('should render font items', () => {
+    it('should render font items', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -88,6 +96,7 @@ describe('FontsPanel', () => {
       };
 
       render(() => <FontsPanel />);
+      await expandSection();
 
       expect(screen.queryByTestId('fonts-empty-state')).not.toBeInTheDocument();
       expect(screen.getByText('TitleFont')).toBeInTheDocument();
