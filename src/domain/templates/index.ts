@@ -8,4 +8,5 @@ export {
   createRenameTemplateOperation,
   createAddTemplateOperation,
   createDeleteTemplateOperation,
+  createDuplicateTemplateOperation,
 } from './historyOperations';

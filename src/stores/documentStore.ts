@@ -1,7 +1,7 @@
 import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
-import { isValidTemplateName } from '../domain/templates/validation';
+import { isValidTemplateName, generateDuplicateName } from '../domain/templates/validation';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
 import type {
@@ -1269,6 +1269,31 @@ export function restoreTemplate(name: string, data: TemplateDefinition): boolean
   );
 
   return true;
+}
+
+export function duplicateTemplate(sourceName: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[sourceName]) return null;
+
+  const sourceData = templates[sourceName];
+  const existingNames = Object.keys(templates);
+  const newName = generateDuplicateName(existingNames, sourceName);
+
+  const deepCopy = JSON.parse(JSON.stringify(sourceData)) as TemplateDefinition;
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui?.templates) return;
+
+      vstgui.templates[newName] = deepCopy;
+    })
+  );
+
+  return newName;
 }
 
 export function getVariables(): Record<string, string> | undefined {

@@ -160,16 +160,16 @@
 
 ### Tests for User Story 4
 
-- [ ] T049 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T050 [P] [US4] Write tests for duplicateTemplate (deep copy) in src/stores/__tests__/documentStore.templates.spec.ts
-- [ ] T051 [P] [US4] Write tests for duplicate history operation in src/domain/templates/__tests__/historyOperations.spec.ts
+- [x] T049 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T050 [P] [US4] Write tests for duplicateTemplate (deep copy) in src/stores/__tests__/documentStore.templates.spec.ts
+- [x] T051 [P] [US4] Write tests for duplicate history operation in src/domain/templates/__tests__/historyOperations.spec.ts
 
 ### Implementation for User Story 4
 
-- [ ] T052 [US4] Implement duplicateTemplate in src/stores/documentStore.ts (deep copy structure, unique name)
-- [ ] T053 [US4] Implement createDuplicateTemplateOperation in src/domain/templates/historyOperations.ts
-- [ ] T054 [US4] Add duplicate button to TemplateItem in src/components/TemplatesPanel/TemplateItem.tsx
-- [ ] T055 [US4] Wire up duplicate handler in TemplatesPanel in src/components/TemplatesPanel/TemplatesPanel.tsx
+- [x] T052 [US4] Implement duplicateTemplate in src/stores/documentStore.ts (deep copy structure, unique name)
+- [x] T053 [US4] Implement createDuplicateTemplateOperation in src/domain/templates/historyOperations.ts
+- [x] T054 [US4] Add duplicate button to TemplateItem in src/components/TemplatesPanel/TemplateItem.tsx
+- [x] T055 [US4] Wire up duplicate handler in TemplatesPanel in src/components/TemplatesPanel/TemplatesPanel.tsx
 
 - [ ] T056 [US4] **Commit**: Stage and commit User Story 4 changes
 

@@ -51,3 +51,20 @@ export function createDeleteTemplateOperation(
     },
   };
 }
+
+export function createDuplicateTemplateOperation(
+  newName: string,
+  templateData: TemplateDefinition
+): HistoryOperation {
+  return {
+    type: 'template-duplicate',
+    description: `Duplicate template as "${newName}"`,
+    timestamp: Date.now(),
+    undo: () => {
+      deleteTemplate(newName);
+    },
+    redo: () => {
+      restoreTemplate(newName, JSON.parse(JSON.stringify(templateData)));
+    },
+  };
+}

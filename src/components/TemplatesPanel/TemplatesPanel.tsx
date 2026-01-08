@@ -1,8 +1,8 @@
 import { type Component, createMemo, For, Show } from 'solid-js';
-import { addTemplate, documentStore, getTemplateNames } from '../../stores/documentStore';
+import { addTemplate, documentStore, duplicateTemplate, getTemplate, getTemplateNames } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import { setActiveTemplate, templateStore } from '../../stores/templateStore';
-import { generateUniqueTemplateName, createAddTemplateOperation } from '../../domain/templates';
+import { generateUniqueTemplateName, createAddTemplateOperation, createDuplicateTemplateOperation } from '../../domain/templates';
 import { CollapsibleSection } from '../CollapsibleSection';
 import { TemplateItem } from './TemplateItem';
 import { AddTemplateButton } from './AddTemplateButton';
@@ -29,6 +29,17 @@ export const TemplatesPanel: Component = () => {
     }
   };
 
+  const handleDuplicateTemplate = (name: string) => {
+    const newName = duplicateTemplate(name);
+    if (newName) {
+      const templateData = getTemplate(newName);
+      if (templateData) {
+        pushOperation(createDuplicateTemplateOperation(newName, templateData));
+        setActiveTemplate(newName);
+      }
+    }
+  };
+
   return (
     <div class={styles.panel} data-testid="templates-panel">
       <CollapsibleSection
@@ -43,6 +54,7 @@ export const TemplatesPanel: Component = () => {
                   name={name}
                   isActive={templateStore.activeTemplateId === name}
                   onClick={() => handleTemplateClick(name)}
+                  onDuplicate={() => handleDuplicateTemplate(name)}
                 />
               )}
             </For>

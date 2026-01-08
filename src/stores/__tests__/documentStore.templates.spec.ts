@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
-  documentStore,
   setDocumentForTest,
   reset,
   getTemplates,
@@ -10,6 +9,7 @@ import {
   renameTemplate,
   addTemplate,
   deleteTemplate,
+  duplicateTemplate,
 } from '../documentStore';
 import { templateStore, setActiveTemplate, resetTemplateStore } from '../templateStore';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
@@ -418,6 +418,109 @@ describe('documentStore template operations', () => {
         deleteTemplate('MainView');
 
         expect(templateStore.activeTemplateId).toBe('SettingsView');
+      });
+    });
+  });
+
+  describe('duplicateTemplate', () => {
+    beforeEach(() => {
+      resetTemplateStore();
+    });
+
+    it('should return null when no document is loaded', () => {
+      testInRoot(() => {
+        expect(duplicateTemplate('MainView')).toBeNull();
+      });
+    });
+
+    it('should return null when source template does not exist', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(duplicateTemplate('NonExistent')).toBeNull();
+      });
+    });
+
+    it('should duplicate template with SourceNameCopy naming', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const newName = duplicateTemplate('MainView');
+
+        expect(newName).toBe('MainViewCopy');
+        expect(getTemplate('MainViewCopy')).toBeDefined();
+        expect(getTemplate('MainView')).toBeDefined();
+      });
+    });
+
+    it('should generate unique name when copy already exists', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          MainViewCopy: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const newName = duplicateTemplate('MainView');
+
+        expect(newName).toBe('MainViewCopy2');
+        expect(getTemplate('MainViewCopy2')).toBeDefined();
+      });
+    });
+
+    it('should perform deep copy of template data', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: {
+            attributes: {
+              class: 'CViewContainer',
+              size: '400, 300',
+              'background-color': '#FF0000',
+            },
+            children: {
+              button: {
+                attributes: { class: 'CTextButton', title: 'Click Me', size: '100, 30' },
+              },
+            },
+          },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        duplicateTemplate('MainView');
+
+        const copy = getTemplate('MainViewCopy');
+        expect(copy).toBeDefined();
+        expect(copy?.attributes['background-color']).toBe('#FF0000');
+        expect(copy?.children?.button).toBeDefined();
+        expect(copy?.children?.button.attributes.title).toBe('Click Me');
+      });
+    });
+
+    it('should create independent copy (no shared references)', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: {
+            attributes: { class: 'CViewContainer', size: '400, 300' },
+            children: {
+              label: { attributes: { class: 'CTextLabel', title: 'Original', size: '100, 20' } },
+            },
+          },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        duplicateTemplate('MainView');
+
+        const original = getTemplate('MainView');
+        const copy = getTemplate('MainViewCopy');
+
+        expect(original?.children).not.toBe(copy?.children);
+        expect(original?.attributes).not.toBe(copy?.attributes);
       });
     });
   });

@@ -4,6 +4,7 @@ import {
   createRenameTemplateOperation,
   createAddTemplateOperation,
   createDeleteTemplateOperation,
+  createDuplicateTemplateOperation,
 } from '../historyOperations';
 import { reset, setDocumentForTest, getTemplate } from '../../../stores/documentStore';
 import { resetTemplateStore } from '../../../stores/templateStore';
@@ -267,6 +268,101 @@ describe('template history operations', () => {
         expect(restored).toBeDefined();
         expect(restored?.attributes.background).toBe('#ff0000');
         expect(Object.keys(restored?.children || {})).toHaveLength(1);
+      });
+    });
+  });
+
+  describe('createDuplicateTemplateOperation', () => {
+    it('should create operation with correct type', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+        expect(operation.type).toBe('template-duplicate');
+      });
+    });
+
+    it('should create operation with descriptive message', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+        expect(operation.description).toContain('MainViewCopy');
+        expect(operation.description).toContain('Duplicate');
+      });
+    });
+
+    it('should undo duplicate operation (deletes the duplicated template)', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          MainViewCopy: templateData,
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+
+        operation.undo();
+        expect(getTemplate('MainViewCopy')).toBeUndefined();
+        expect(getTemplate('MainView')).toBeDefined();
+      });
+    });
+
+    it('should redo duplicate operation (restores the duplicated template)', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+
+        operation.redo();
+        expect(getTemplate('MainViewCopy')).toBeDefined();
+        expect(getTemplate('MainViewCopy')?.attributes.size).toBe('400, 300');
+      });
+    });
+
+    it('should support full undo/redo cycle', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          MainViewCopy: templateData,
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+
+        operation.undo();
+        expect(getTemplate('MainViewCopy')).toBeUndefined();
+
+        operation.redo();
+        expect(getTemplate('MainViewCopy')).toBeDefined();
+      });
+    });
+
+    it('should have timestamp', () => {
+      testInRoot(() => {
+        const templateData: TemplateDefinition = {
+          attributes: { class: 'CViewContainer', size: '400, 300' },
+        };
+        const before = Date.now();
+        const operation = createDuplicateTemplateOperation('MainViewCopy', templateData);
+        const after = Date.now();
+
+        expect(operation.timestamp).toBeGreaterThanOrEqual(before);
+        expect(operation.timestamp).toBeLessThanOrEqual(after);
       });
     });
   });

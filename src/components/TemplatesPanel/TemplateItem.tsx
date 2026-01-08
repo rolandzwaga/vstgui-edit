@@ -9,12 +9,14 @@ export interface TemplateItemProps {
   name: string;
   isActive: boolean;
   onClick: () => void;
+  onDuplicate?: () => void;
 }
 
 export const TemplateItem: Component<TemplateItemProps> = (props) => {
   const [isEditing, setIsEditing] = createSignal(false);
   const [editValue, setEditValue] = createSignal('');
   const [error, setError] = createSignal<string | null>(null);
+  const [isHovered, setIsHovered] = createSignal(false);
 
   const startEditing = () => {
     setEditValue(props.name);
@@ -82,11 +84,18 @@ export const TemplateItem: Component<TemplateItemProps> = (props) => {
     }
   };
 
+  const handleDuplicate = (e: MouseEvent) => {
+    e.stopPropagation();
+    props.onDuplicate?.();
+  };
+
   return (
     <div
       class={`${styles.item} ${props.isActive ? styles.active : ''}`}
       onClick={handleClick}
       onDblClick={handleDoubleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       data-testid={`template-item-${props.name}`}
       role="option"
       aria-selected={props.isActive}
@@ -113,6 +122,26 @@ export const TemplateItem: Component<TemplateItemProps> = (props) => {
             <span class={styles.error}>{error()}</span>
           </Show>
         </div>
+      </Show>
+      <Show when={isHovered() && !isEditing() && props.onDuplicate}>
+        <button
+          type="button"
+          class={styles.duplicateButton}
+          data-testid="duplicate-template-button"
+          aria-label={`Duplicate template ${props.name}`}
+          onClick={handleDuplicate}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect x="1" y="3" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" />
+            <path d="M5 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.5" fill="none" />
+          </svg>
+        </button>
       </Show>
     </div>
   );
