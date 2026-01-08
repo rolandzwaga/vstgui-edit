@@ -86,7 +86,7 @@
 - [x] T026 [US1] Create TemplatesPanel styles in src/components/TemplatesPanel/TemplatesPanel.module.css
 - [x] T027 [US1] Add TemplatesPanel to App.tsx sidebar (above HierarchyPanel) in src/App.tsx
 
-- [ ] T028 [US1] **Commit**: Stage and commit User Story 1 changes
+- [x] T028 [US1] **Commit**: Stage and commit User Story 1 changes
 
 **Checkpoint**: Template list displays, switching works, canvas updates - MVP complete
 
@@ -102,18 +102,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T029 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T030 [P] [US2] Write tests for renameTemplate in src/stores/__tests__/documentStore.templates.spec.ts
-- [ ] T031 [P] [US2] Write tests for rename history operation in src/domain/templates/__tests__/historyOperations.spec.ts
+- [x] T029 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T030 [P] [US2] Write tests for renameTemplate in src/stores/__tests__/documentStore.templates.spec.ts
+- [x] T031 [P] [US2] Write tests for rename history operation in src/domain/templates/__tests__/historyOperations.spec.ts
 - [ ] T032 [P] [US2] Write tests for TemplateItem inline editing in src/components/TemplatesPanel/__tests__/TemplateItem.spec.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement renameTemplate in src/stores/documentStore.ts (validate name, check duplicates, update document)
-- [ ] T034 [US2] Implement createRenameTemplateOperation in src/domain/templates/historyOperations.ts
-- [ ] T035 [US2] Add inline editing to TemplateItem (double-click, input field, Enter/Escape handling) in src/components/TemplatesPanel/TemplateItem.tsx
-- [ ] T036 [US2] Add validation feedback (error state for invalid/duplicate names) in src/components/TemplatesPanel/TemplateItem.tsx
-- [ ] T037 [US2] Update activeTemplateId if renamed template was active in src/stores/templateStore.ts
+- [x] T033 [US2] Implement renameTemplate in src/stores/documentStore.ts (validate name, check duplicates, update document)
+- [x] T034 [US2] Implement createRenameTemplateOperation in src/domain/templates/historyOperations.ts
+- [x] T035 [US2] Add inline editing to TemplateItem (double-click, input field, Enter/Escape handling) in src/components/TemplatesPanel/TemplateItem.tsx
+- [x] T036 [US2] Add validation feedback (error state for invalid/duplicate names) in src/components/TemplatesPanel/TemplateItem.tsx
+- [x] T037 [US2] Update activeTemplateId if renamed template was active in src/stores/templateStore.ts
 
 - [ ] T038 [US2] **Commit**: Stage and commit User Story 2 changes
 

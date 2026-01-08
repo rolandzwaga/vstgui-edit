@@ -1,6 +1,7 @@
 import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
+import { isValidTemplateName } from '../domain/templates/validation';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
 import type {
@@ -10,7 +11,7 @@ import type {
   VSTGUIUIDescription,
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
-import { setActiveTemplate, resetTemplateStore } from './templateStore';
+import { setActiveTemplate, resetTemplateStore, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
   if (!size) {
@@ -1159,6 +1160,38 @@ export function getTemplateNames(): string[] {
   const templates = getTemplates();
   if (!templates) return [];
   return Object.keys(templates);
+}
+
+export function renameTemplate(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[oldName]) return false;
+
+  if (oldName === newName) return true;
+
+  if (!isValidTemplateName(newName)) return false;
+
+  if (templates[newName]) return false;
+
+  const templateData = templates[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftTemplates = draft.document?.['vstgui-ui-description']?.templates;
+      if (!draftTemplates) return;
+
+      draftTemplates[newName] = templateData;
+      delete draftTemplates[oldName];
+    })
+  );
+
+  if (templateStore.activeTemplateId === oldName) {
+    setActiveTemplate(newName);
+  }
+
+  return true;
 }
 
 export function getVariables(): Record<string, string> | undefined {

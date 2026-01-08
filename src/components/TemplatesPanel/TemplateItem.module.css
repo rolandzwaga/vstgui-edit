@@ -22,4 +22,42 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.editContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.input {
+  padding: 2px 4px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 3px;
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text-primary);
+  outline: none;
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--color-focus, #06c);
+  box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
+}
+
+.inputError {
+  border-color: var(--color-error, #dc3545);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px rgb(220 53 69 / 0.2);
+}
+
+.error {
+  font-size: 10px;
+  color: var(--color-error, #dc3545);
 }

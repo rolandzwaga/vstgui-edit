@@ -7,7 +7,9 @@ import {
   getTemplates,
   getTemplate,
   getTemplateNames,
+  renameTemplate,
 } from '../documentStore';
+import { templateStore, setActiveTemplate, resetTemplateStore } from '../templateStore';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
 
 function createTestDocument(templates: Record<string, unknown>): VSTGUIUIDescription {
@@ -137,6 +139,139 @@ describe('documentStore template operations', () => {
         } as VSTGUIUIDescription);
 
         expect(getTemplateNames()).toEqual([]);
+      });
+    });
+  });
+
+  describe('renameTemplate', () => {
+    beforeEach(() => {
+      resetTemplateStore();
+    });
+
+    it('should return false when no document is loaded', () => {
+      testInRoot(() => {
+        expect(renameTemplate('MainView', 'NewName')).toBe(false);
+      });
+    });
+
+    it('should return false when template does not exist', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('NonExistent', 'NewName')).toBe(false);
+      });
+    });
+
+    it('should return false for invalid new name (empty)', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('MainView', '')).toBe(false);
+      });
+    });
+
+    it('should return false for invalid new name (invalid characters)', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('MainView', 'New Name')).toBe(false);
+        expect(renameTemplate('MainView', '123Start')).toBe(false);
+      });
+    });
+
+    it('should return false when new name already exists', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('MainView', 'SettingsView')).toBe(false);
+      });
+    });
+
+    it('should rename template successfully', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('MainView', 'RenamedView')).toBe(true);
+        expect(getTemplate('MainView')).toBeUndefined();
+        expect(getTemplate('RenamedView')).toBeDefined();
+        expect(getTemplate('RenamedView')?.attributes.size).toBe('400, 300');
+      });
+    });
+
+    it('should preserve template data when renaming', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: {
+            attributes: { class: 'CViewContainer', size: '400, 300', 'background-color': '#FF0000' },
+            children: {
+              button: { attributes: { class: 'CTextButton', size: '100, 30' } },
+            },
+          },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        renameTemplate('MainView', 'RenamedView');
+
+        const renamed = getTemplate('RenamedView');
+        expect(renamed?.attributes['background-color']).toBe('#FF0000');
+        expect(renamed?.children).toBeDefined();
+      });
+    });
+
+    it('should return true when renaming to same name (no-op)', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(renameTemplate('MainView', 'MainView')).toBe(true);
+        expect(getTemplate('MainView')).toBeDefined();
+      });
+    });
+
+    it('should update activeTemplateId when renaming active template', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+        setActiveTemplate('MainView');
+
+        renameTemplate('MainView', 'RenamedView');
+
+        expect(templateStore.activeTemplateId).toBe('RenamedView');
+      });
+    });
+
+    it('should not update activeTemplateId when renaming non-active template', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+        setActiveTemplate('SettingsView');
+
+        renameTemplate('MainView', 'RenamedView');
+
+        expect(templateStore.activeTemplateId).toBe('SettingsView');
       });
     });
   });

@@ -3,3 +3,5 @@ export {
   generateUniqueTemplateName,
   generateDuplicateName,
 } from './validation';
+
+export { createRenameTemplateOperation } from './historyOperations';
