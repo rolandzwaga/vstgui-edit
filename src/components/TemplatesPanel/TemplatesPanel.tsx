@@ -21,6 +21,11 @@ export const TemplatesPanel: Component = () => {
     setActiveTemplate(name);
   };
 
+  const getTemplateSize = (name: string): string | undefined => {
+    const template = getTemplate(name);
+    return template?.attributes.size;
+  };
+
   const handleAddTemplate = () => {
     const existingNames = getTemplateNames();
     const newName = generateUniqueTemplateName(existingNames);
@@ -78,6 +83,7 @@ export const TemplatesPanel: Component = () => {
                 <TemplateItem
                   name={name}
                   isActive={templateStore.activeTemplateId === name}
+                  size={getTemplateSize(name)}
                   onClick={() => handleTemplateClick(name)}
                   onDuplicate={() => handleDuplicateTemplate(name)}
                   onDelete={() => handleDeleteRequest(name)}

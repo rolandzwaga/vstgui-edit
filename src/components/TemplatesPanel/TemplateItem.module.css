@@ -15,6 +15,14 @@
   background-color: var(--color-item-active-bg, rgb(0 102 204 / 0.1));
 }
 
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
 .name {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -22,7 +30,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
+}
+
+.size {
+  font-size: 10px;
+  color: var(--color-text-secondary, #666);
 }
 
 .editContainer {

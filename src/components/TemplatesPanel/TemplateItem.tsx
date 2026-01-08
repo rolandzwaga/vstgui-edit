@@ -8,6 +8,7 @@ import styles from './TemplateItem.module.css';
 export interface TemplateItemProps {
   name: string;
   isActive: boolean;
+  size?: string;
   onClick: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
@@ -109,7 +110,14 @@ export const TemplateItem: Component<TemplateItemProps> = (props) => {
     >
       <Show
         when={isEditing()}
-        fallback={<span class={styles.name}>{props.name}</span>}
+        fallback={
+          <div class={styles.info}>
+            <span class={styles.name}>{props.name}</span>
+            <Show when={props.size}>
+              <span class={styles.size}>{props.size}</span>
+            </Show>
+          </div>
+        }
       >
         <div class={styles.editContainer}>
           <input
