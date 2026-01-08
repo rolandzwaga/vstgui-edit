@@ -62,9 +62,9 @@ export const ColorsPanel: Component = () => {
   };
 
   const performDelete = (name: string, value: string) => {
-    const deleted = deleteColor(name);
-    if (deleted !== null) {
-      pushOperation(createDeleteColorOperation(name, value));
+    const result = deleteColor(name);
+    if (result !== null) {
+      pushOperation(createDeleteColorOperation(name, value, result.removedReferences));
     }
     setPendingDelete(null);
   };
@@ -113,7 +113,7 @@ export const ColorsPanel: Component = () => {
             <div class={styles.confirmContent}>
               <p class={styles.confirmMessage}>
                 "{pending().name}" is used in {pending().usageCount} view{pending().usageCount > 1 ? 's' : ''}.
-                Delete anyway?
+                Deleting will remove this color from {pending().usageCount === 1 ? 'that view' : 'those views'}.
               </p>
               <div class={styles.confirmActions}>
                 <button

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import {
   addColor,
+  deleteColor,
+  documentStore,
   getColors,
   reset,
   setDocumentForTest,
@@ -165,6 +167,62 @@ describe('createDeleteColorOperation', () => {
     testInRoot(() => {
       const operation = createDeleteColorOperation('Background', '#2d2d2dff');
       expect(operation.description).toBe('Delete color "Background"');
+    });
+  });
+
+  it('should restore color references on undo', () => {
+    testInRoot(() => {
+      setDocumentForTest({
+        'vstgui-ui-description': {
+          version: '1',
+          colors: { Theme: '#ff0000ff' },
+          templates: {
+            MainView: {
+              attributes: { class: 'CViewContainer', 'background-color': 'Theme' },
+            },
+          },
+        },
+      });
+
+      const result = deleteColor('Theme');
+      const operation = createDeleteColorOperation('Theme', '#ff0000ff', result?.removedReferences ?? []);
+      pushOperation(operation);
+
+      const viewAfterDelete = documentStore.document?.['vstgui-ui-description']?.templates?.MainView;
+      expect(viewAfterDelete?.attributes['background-color']).toBeUndefined();
+
+      undo();
+
+      expect(getColors()?.Theme).toBe('#ff0000ff');
+      const viewAfterUndo = documentStore.document?.['vstgui-ui-description']?.templates?.MainView;
+      expect(viewAfterUndo?.attributes['background-color']).toBe('Theme');
+    });
+  });
+
+  it('should remove color references again on redo', () => {
+    testInRoot(() => {
+      setDocumentForTest({
+        'vstgui-ui-description': {
+          version: '1',
+          colors: { Theme: '#ff0000ff' },
+          templates: {
+            MainView: {
+              attributes: { class: 'CViewContainer', 'background-color': 'Theme' },
+            },
+          },
+        },
+      });
+
+      const result = deleteColor('Theme');
+      const operation = createDeleteColorOperation('Theme', '#ff0000ff', result?.removedReferences ?? []);
+      pushOperation(operation);
+
+      undo();
+      redo();
+
+      expect(getColors()?.Theme).toBeUndefined();
+      const view = documentStore.document?.['vstgui-ui-description']?.templates?.MainView;
+      expect(view?.attributes['background-color']).toBeUndefined();
     });
   });
 });

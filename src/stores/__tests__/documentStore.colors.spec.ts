@@ -246,10 +246,10 @@ describe('documentStore - deleteColor', () => {
       });
     });
 
-    it('should delete a color', () => {
+    it('should delete a color and return old value', () => {
       testInRoot(() => {
-        const oldValue = deleteColor('Background');
-        expect(oldValue).toBe('#2d2d2dff');
+        const result = deleteColor('Background');
+        expect(result?.oldValue).toBe('#2d2d2dff');
 
         const colors = getColors();
         expect(colors?.Background).toBeUndefined();
@@ -270,6 +270,86 @@ describe('documentStore - deleteColor', () => {
       testInRoot(() => {
         const result = deleteColor('NonExistent');
         expect(result).toBeNull();
+      });
+    });
+
+    it('should remove color references from views and return them', () => {
+      testInRoot(() => {
+        const result = deleteColor('Background');
+
+        expect(result?.removedReferences).toHaveLength(1);
+        expect(result?.removedReferences[0]).toEqual({
+          viewId: 'MainView',
+          attribute: 'background-color',
+          value: 'Background',
+        });
+
+        const view = documentStore.document?.['vstgui-ui-description']?.templates?.MainView;
+        expect(view?.attributes['background-color']).toBeUndefined();
+      });
+    });
+
+    it('should remove tilde-prefixed color references', () => {
+      testInRoot(() => {
+        setDocumentForTest({
+          'vstgui-ui-description': {
+            version: '1',
+            colors: { MyColor: '#ff0000ff' },
+            templates: {
+              MainView: {
+                attributes: {
+                  class: 'CViewContainer',
+                  'background-color': '~ MyColor',
+                },
+              },
+            },
+          },
+        });
+
+        const result = deleteColor('MyColor');
+
+        expect(result?.removedReferences).toHaveLength(1);
+        expect(result?.removedReferences[0].value).toBe('~ MyColor');
+
+        const view = documentStore.document?.['vstgui-ui-description']?.templates?.MainView;
+        expect(view?.attributes['background-color']).toBeUndefined();
+      });
+    });
+
+    it('should remove multiple color references from nested views', () => {
+      testInRoot(() => {
+        setDocumentForTest({
+          'vstgui-ui-description': {
+            version: '1',
+            colors: { Theme: '#00ff00ff' },
+            templates: {
+              MainView: {
+                attributes: { class: 'CViewContainer', 'background-color': 'Theme' },
+                children: {
+                  child1: {
+                    attributes: { class: 'CView', 'frame-color': 'Theme' },
+                  },
+                  child2: {
+                    attributes: { class: 'CTextLabel', 'font-color': '~ Theme' },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const result = deleteColor('Theme');
+
+        expect(result?.removedReferences).toHaveLength(3);
+      });
+    });
+
+    it('should return empty removedReferences when color is not used', () => {
+      testInRoot(() => {
+        const result = deleteColor('Accent');
+
+        expect(result?.oldValue).toBe('#0066ccff');
+        expect(result?.removedReferences).toHaveLength(0);
       });
     });
   });
