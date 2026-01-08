@@ -10,7 +10,11 @@ export interface RemovedFontReference {
 type AddFontFn = (name: string, font: FontDefinition) => void;
 type DeleteFontFn = (name: string) => { removedReferences: RemovedFontReference[] } | null;
 type UpdateFontNameFn = (oldName: string, newName: string) => boolean;
-type UpdateFontPropertyFn = (name: string, prop: string, value: string) => string | null;
+type UpdateFontPropertyFn = (
+  name: string,
+  prop: string,
+  value: string
+) => string | null | undefined;
 type UpdateViewAttributeFn = (viewId: string, attribute: string, value: string) => void;
 
 let storeAddFont: AddFontFn;

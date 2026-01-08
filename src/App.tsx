@@ -2,6 +2,7 @@ import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
+import { FontsPanel } from './components/FontsPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
@@ -39,6 +40,7 @@ export default function App() {
               <ViewPalette />
               <HierarchyPanel />
               <ColorsPanel />
+              <FontsPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
               <MainToolbar onFitToView={handleFitToView} />
