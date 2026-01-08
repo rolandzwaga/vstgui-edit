@@ -1,3 +1,4 @@
+import { createEffect, onCleanup } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { TemplatesPanel } from './components/TemplatesPanel';
@@ -11,12 +12,25 @@ import { VariablesPanel } from './components/VariablesPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
+import { SaveButton } from './components/SaveButton';
 import { documentStore, getTemplate } from './stores/documentStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
 import './styles/tokens.css';
 
 export default function App() {
+  createEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (documentStore.isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    onCleanup(() => window.removeEventListener('beforeunload', handleBeforeUnload));
+  });
+
   const handleFitToView = () => {
     const viewportWidth = window.innerWidth - 64;
     const viewportHeight = window.innerHeight - 200;
@@ -51,7 +65,10 @@ export default function App() {
               <VariablesPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
-              <MainToolbar onFitToView={handleFitToView} />
+              <div style={{ display: 'flex', "align-items": 'center', gap: '8px', padding: '4px 8px' }}>
+                <SaveButton />
+                <MainToolbar onFitToView={handleFitToView} />
+              </div>
               <Canvas />
             </div>
             <PropertiesPanel />

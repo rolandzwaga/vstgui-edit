@@ -325,6 +325,7 @@ export function updateViewOrigin(viewId: string, newOrigin: Point): Point | null
     })
   );
 
+  markDirty();
   return previousOrigin;
 }
 
@@ -369,6 +370,7 @@ export function updateViewSize(viewId: string, newSize: Size): Size | null {
     })
   );
 
+  markDirty();
   return previousSize;
 }
 
@@ -444,6 +446,7 @@ export function updateViewAttribute(
     })
   );
 
+  markDirty();
   return previousStr;
 }
 
@@ -564,6 +567,7 @@ export function removeView(viewId: string): RemovedViewInfo | null {
     })
   );
 
+  markDirty();
   return {
     viewId,
     childKey,
@@ -644,6 +648,7 @@ export function addView(parentId: string, view: ViewNode, childKey?: string): st
     })
   );
 
+  markDirty();
   return newViewId;
 }
 
@@ -708,6 +713,7 @@ export function restoreView(info: RemovedViewInfo): string | null {
     })
   );
 
+  markDirty();
   return info.viewId;
 }
 
@@ -882,6 +888,7 @@ export function reparentView(
     })
   );
 
+  markDirty();
   return {
     viewId,
     oldParentId: parentInfo.parentId,
@@ -955,6 +962,7 @@ export function reorderView(viewId: string, newIndex: number): ReorderResult | n
     })
   );
 
+  markDirty();
   return {
     viewId,
     parentId,
@@ -1043,6 +1051,7 @@ export function createGroupContainer(
     })
   );
 
+  markDirty();
   return {
     groupId: newGroupId,
     movedViewIds: viewIds.map((_, i) => `${newGroupId}-${i}`),
@@ -1136,6 +1145,7 @@ export function ungroupContainer(containerId: string): UngroupResult | null {
     })
   );
 
+  markDirty();
   return {
     containerId,
     childIds: movedChildIds,
@@ -1172,6 +1182,7 @@ export function addColor(name: string, value: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1221,6 +1232,7 @@ export function renameTemplate(oldName: string, newName: string): boolean {
     setActiveTemplate(newName);
   }
 
+  markDirty();
   return true;
 }
 
@@ -1254,6 +1266,7 @@ export function addTemplate(name: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1282,6 +1295,7 @@ export function deleteTemplate(name: string): TemplateDefinition | null {
     setActiveTemplate(remainingNames.length > 0 ? remainingNames[0] : null);
   }
 
+  markDirty();
   return templateData;
 }
 
@@ -1301,6 +1315,7 @@ export function restoreTemplate(name: string, data: TemplateDefinition): boolean
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1326,6 +1341,7 @@ export function duplicateTemplate(sourceName: string): string | null {
     })
   );
 
+  markDirty();
   return newName;
 }
 
@@ -1356,6 +1372,7 @@ export function addVariable(name: string, value: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1381,6 +1398,7 @@ export function updateVariableName(oldName: string, newName: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1405,6 +1423,7 @@ export function updateVariableValue(name: string, newValue: string): string | nu
     })
   );
 
+  markDirty();
   return oldValue;
 }
 
@@ -1466,6 +1485,7 @@ export function deleteVariable(
     })
   );
 
+  markDirty();
   return { value, removedReferences };
 }
 
@@ -1502,6 +1522,7 @@ export function restoreVariableReference(
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1542,6 +1563,7 @@ export function addControlTag(name: string, tagId: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1567,6 +1589,7 @@ export function updateControlTagName(oldName: string, newName: string): boolean 
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1591,6 +1614,7 @@ export function updateControlTagId(name: string, newTagId: string): string | nul
     })
   );
 
+  markDirty();
   return oldTagId;
 }
 
@@ -1646,6 +1670,7 @@ export function deleteControlTag(
     })
   );
 
+  markDirty();
   return { tagId, removedReferences };
 }
 
@@ -1678,6 +1703,7 @@ export function restoreControlTagReference(viewId: string, value: string): boole
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1703,6 +1729,7 @@ export function updateColorName(oldName: string, newName: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1727,6 +1754,7 @@ export function updateColorValue(name: string, newValue: string): string | null 
     })
   );
 
+  markDirty();
   return oldValue;
 }
 
@@ -1799,6 +1827,7 @@ export function deleteColor(
     })
   );
 
+  markDirty();
   return { oldValue, removedReferences };
 }
 
@@ -1860,6 +1889,7 @@ export function addFont(name: string, font: FontDefinition): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1885,6 +1915,7 @@ export function updateFontName(oldName: string, newName: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -1915,6 +1946,7 @@ export function updateFontProperty(
     })
   );
 
+  markDirty();
   return oldValue;
 }
 
@@ -1948,6 +1980,7 @@ export function deleteFont(
     })
   );
 
+  markDirty();
   return { font, removedReferences };
 }
 
@@ -2015,6 +2048,7 @@ export function addBitmap(name: string, bitmap: BitmapDefinition | string): bool
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -2040,6 +2074,7 @@ export function updateBitmapName(oldName: string, newName: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -2068,6 +2103,7 @@ export function updateBitmapProperty(
           draftVstgui.bitmaps[name] = value;
         })
       );
+      markDirty();
       return bitmap;
     }
     return null;
@@ -2090,6 +2126,7 @@ export function updateBitmapProperty(
     })
   );
 
+  markDirty();
   return oldValue;
 }
 
@@ -2124,6 +2161,7 @@ export function deleteBitmap(
     })
   );
 
+  markDirty();
   return { bitmap: bitmapCopy, removedReferences };
 }
 
@@ -2185,6 +2223,7 @@ export function addGradient(name: string, stops: GradientColorStop[]): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -2210,6 +2249,7 @@ export function updateGradientName(oldName: string, newName: string): boolean {
     })
   );
 
+  markDirty();
   return true;
 }
 
@@ -2237,6 +2277,7 @@ export function updateGradientStops(
     })
   );
 
+  markDirty();
   return previousStops;
 }
 
@@ -2270,6 +2311,7 @@ export function deleteGradient(
     })
   );
 
+  markDirty();
   return { stops, removedReferences };
 }
 
@@ -2306,5 +2348,6 @@ export function restoreGradientReference(
     })
   );
 
+  markDirty();
   return true;
 }

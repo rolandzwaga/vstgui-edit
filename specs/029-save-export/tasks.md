@@ -43,7 +43,7 @@
 - [x] T011 Implement markDirty() and markClean() functions in src/stores/documentStore.ts (FR-003, FR-005)
 - [x] T012 Update loadFile() in src/stores/documentStore.ts to set originalFormat and clear isDirty (FR-011)
 - [x] T013 Update reset() in src/stores/documentStore.ts to clear dirty state fields (FR-003)
-- [ ] T014 **Commit**: Stage and commit Phase 2 changes with message "feat(029): add serialization and dirty state foundation"
+- [x] T014 **Commit**: Stage and commit Phase 2 changes with message "feat(029): add serialization and dirty state foundation"
 
 **Checkpoint**: Foundation ready - JSON/XML serialization works, dirty state tracking infrastructure in place
 
