@@ -2,12 +2,11 @@ import type {
   AttributeEntry,
   AttributeGroup,
   AttributeGroupId,
-  EditorType,
   GroupedAttributes,
 } from '../../types/properties';
 import { GROUP_LABELS, GROUP_PRIORITY } from '../../types/properties';
 import { getAttributeGroup } from './groupAttributes';
-import { getAttributesForClass, findCommonBaseClass } from './schemaAttributes';
+import { findCommonBaseClass, getAttributesForClass } from './schemaAttributes';
 
 export interface MergeSelectionsOptions {
   useSchema?: boolean;

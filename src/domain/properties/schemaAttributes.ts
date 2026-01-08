@@ -1,5 +1,5 @@
-import type { AttributeDefinition, EditorType, ViewClassSchema } from '../../types/properties';
 import schema from '../../../vstgui-uidesc.schema.json';
+import type { AttributeDefinition, EditorType, ViewClassSchema } from '../../types/properties';
 
 type SchemaDefinitions = Record<string, SchemaDefinition>;
 type SchemaDefinition = {

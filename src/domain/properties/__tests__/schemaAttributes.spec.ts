@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
+  findCommonBaseClass,
   getAttributesForClass,
   getInheritanceChain,
   resolveClassAttributes,
-  findCommonBaseClass,
 } from '../schemaAttributes';
 
 describe('schemaAttributes', () => {
