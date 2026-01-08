@@ -61,6 +61,11 @@ const initialState: DocumentStoreState = {
   parseState: 'idle',
   parseErrors: null,
   detectedFormat: null,
+  // Save/export state (from 029-save-export)
+  isDirty: false,
+  originalFormat: null,
+  fileHandle: null,
+  lastSavedAt: null,
 };
 
 const [store, setStore] = createStore<DocumentStoreState>({ ...initialState });
@@ -112,6 +117,9 @@ function parseContent(content: string): void {
       document: result.document,
       parseErrors: null,
       detectedFormat: result.format,
+      originalFormat: result.format,
+      isDirty: false,
+      lastSavedAt: null,
     });
 
     selectFirstTemplate(result.document);
@@ -191,6 +199,20 @@ export async function loadFile(file: File): Promise<void> {
 export function reset(): void {
   setStore({ ...initialState });
   resetTemplateStore();
+}
+
+export function markDirty(): void {
+  if (!store.isDirty) {
+    setStore({ isDirty: true });
+  }
+}
+
+export function markClean(): void {
+  setStore({ isDirty: false, lastSavedAt: new Date() });
+}
+
+export function setFileHandle(handle: FileSystemFileHandle | null): void {
+  setStore({ fileHandle: handle });
 }
 
 /**

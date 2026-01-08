@@ -95,4 +95,10 @@ export interface DocumentStoreState {
   parseState: ParseState;
   parseErrors: ValidationError[] | null;
   detectedFormat: FormatType | null;
+
+  // From 029-save-export
+  isDirty: boolean;
+  originalFormat: FormatType | null;
+  fileHandle: FileSystemFileHandle | null;
+  lastSavedAt: Date | null;
 }
