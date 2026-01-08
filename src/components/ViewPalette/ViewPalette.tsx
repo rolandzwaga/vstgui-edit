@@ -1,6 +1,7 @@
 import { type Component, For } from 'solid-js';
 import { PALETTE_CATEGORIES } from '../../domain/views/viewClasses';
 import { paletteStore, setSearchQuery } from '../../stores/paletteStore';
+import { CollapsibleSection } from '../CollapsibleSection';
 import { PaletteCategory } from './PaletteCategory';
 import styles from './ViewPalette.module.css';
 
@@ -12,24 +13,23 @@ export const ViewPalette: Component = () => {
 
   return (
     <div class={styles.panel} data-testid="view-palette">
-      <div class={styles.header}>
-        <span class={styles.title}>Views</span>
-      </div>
-      <div class={styles.searchContainer}>
-        <input
-          type="text"
-          class={styles.searchInput}
-          data-testid="palette-search"
-          placeholder="Search views..."
-          value={paletteStore.searchQuery}
-          onInput={handleSearchInput}
-        />
-      </div>
-      <div class={styles.categories}>
-        <For each={PALETTE_CATEGORIES}>
-          {(category) => <PaletteCategory category={category} />}
-        </For>
-      </div>
+      <CollapsibleSection title="Views">
+        <div class={styles.searchContainer}>
+          <input
+            type="text"
+            class={styles.searchInput}
+            data-testid="palette-search"
+            placeholder="Search views..."
+            value={paletteStore.searchQuery}
+            onInput={handleSearchInput}
+          />
+        </div>
+        <div class={styles.categories}>
+          <For each={PALETTE_CATEGORIES}>
+            {(category) => <PaletteCategory category={category} />}
+          </For>
+        </div>
+      </CollapsibleSection>
     </div>
   );
 };

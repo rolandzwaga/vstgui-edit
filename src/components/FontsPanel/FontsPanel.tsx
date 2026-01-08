@@ -16,6 +16,7 @@ import {
   initFontHistoryOperations,
 } from '../../domain/fonts/historyOperations';
 import { findFontUsages, type FontUsage } from '../../domain/fonts/usage';
+import { CollapsibleSection } from '../CollapsibleSection';
 import { FontItem } from './FontItem';
 import { AddFontButton } from './AddFontButton';
 import { EmptyState } from './EmptyState';
@@ -121,86 +122,87 @@ export const FontsPanel: Component = () => {
 
   return (
     <div class={styles.panel} data-testid="fonts-panel">
-      <div class={styles.header}>
-        <span class={styles.title}>Fonts</span>
-        <AddFontButton onClick={handleAddFont} disabled={!hasDocument()} />
-      </div>
-      <Show when={hasFonts()} fallback={<EmptyState />}>
-        <div role="list" aria-label="Font definitions" class={styles.list}>
-          <For each={fonts()}>
-            {(font) => (
-              <FontItem
-                name={font.name}
-                fontDef={font.fontDef}
-                onDelete={handleDeleteRequest}
-                usageCount={getUsageCount(font.name)}
-                onUsageClick={handleUsageClick}
-              />
-            )}
-          </For>
-        </div>
-      </Show>
-      <Show when={pendingDelete()}>
-        {(pending) => (
-          <div class={styles.confirmDialog} data-testid="delete-confirm-dialog">
-            <div class={styles.confirmContent}>
-              <p class={styles.confirmMessage}>
-                "{pending().name}" is used in {pending().usageCount} view
-                {pending().usageCount > 1 ? 's' : ''}. Deleting will remove this font from{' '}
-                {pending().usageCount === 1 ? 'that view' : 'those views'}.
-              </p>
-              <div class={styles.confirmActions}>
-                <button
-                  type="button"
-                  class={styles.cancelButton}
-                  onClick={cancelDelete}
-                  data-testid="cancel-delete"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  class={styles.deleteConfirmButton}
-                  onClick={() => performDelete(pending().name, pending().fontDef)}
-                  data-testid="confirm-delete"
-                >
-                  Delete
-                </button>
+      <CollapsibleSection
+        title="Fonts"
+        headerActions={<AddFontButton onClick={handleAddFont} disabled={!hasDocument()} />}
+      >
+        <Show when={hasFonts()} fallback={<EmptyState />}>
+          <div role="list" aria-label="Font definitions" class={styles.list}>
+            <For each={fonts()}>
+              {(font) => (
+                <FontItem
+                  name={font.name}
+                  fontDef={font.fontDef}
+                  onDelete={handleDeleteRequest}
+                  usageCount={getUsageCount(font.name)}
+                  onUsageClick={handleUsageClick}
+                />
+              )}
+            </For>
+          </div>
+        </Show>
+        <Show when={pendingDelete()}>
+          {(pending) => (
+            <div class={styles.confirmDialog} data-testid="delete-confirm-dialog">
+              <div class={styles.confirmContent}>
+                <p class={styles.confirmMessage}>
+                  "{pending().name}" is used in {pending().usageCount} view
+                  {pending().usageCount > 1 ? 's' : ''}. Deleting will remove this font from{' '}
+                  {pending().usageCount === 1 ? 'that view' : 'those views'}.
+                </p>
+                <div class={styles.confirmActions}>
+                  <button
+                    type="button"
+                    class={styles.cancelButton}
+                    onClick={cancelDelete}
+                    data-testid="cancel-delete"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class={styles.deleteConfirmButton}
+                    onClick={() => performDelete(pending().name, pending().fontDef)}
+                    data-testid="confirm-delete"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </Show>
-      <Show when={usagePopover()}>
-        {(popover) => (
-          <div class={styles.usagePopover} data-testid="usage-popover">
-            <div class={styles.popoverContent}>
-              <div class={styles.popoverHeader}>
-                <span class={styles.popoverTitle}>Uses of "{popover().name}"</span>
-                <button
-                  type="button"
-                  class={styles.closeButton}
-                  onClick={closeUsagePopover}
-                  aria-label="Close"
-                  data-testid="close-usage-popover"
-                >
-                  ×
-                </button>
+          )}
+        </Show>
+        <Show when={usagePopover()}>
+          {(popover) => (
+            <div class={styles.usagePopover} data-testid="usage-popover">
+              <div class={styles.popoverContent}>
+                <div class={styles.popoverHeader}>
+                  <span class={styles.popoverTitle}>Uses of "{popover().name}"</span>
+                  <button
+                    type="button"
+                    class={styles.closeButton}
+                    onClick={closeUsagePopover}
+                    aria-label="Close"
+                    data-testid="close-usage-popover"
+                  >
+                    ×
+                  </button>
+                </div>
+                <ul class={styles.usageList}>
+                  <For each={popover().usages}>
+                    {(usage) => (
+                      <li class={styles.usageItem}>
+                        <span class={styles.usageView}>{usage.viewClass}</span>
+                        <span class={styles.usageAttr}>{usage.attribute}</span>
+                      </li>
+                    )}
+                  </For>
+                </ul>
               </div>
-              <ul class={styles.usageList}>
-                <For each={popover().usages}>
-                  {(usage) => (
-                    <li class={styles.usageItem}>
-                      <span class={styles.usageView}>{usage.viewClass}</span>
-                      <span class={styles.usageAttr}>{usage.attribute}</span>
-                    </li>
-                  )}
-                </For>
-              </ul>
             </div>
-          </div>
-        )}
-      </Show>
+          )}
+        </Show>
+      </CollapsibleSection>
     </div>
   );
 };

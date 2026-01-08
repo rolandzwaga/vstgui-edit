@@ -4,6 +4,7 @@ import { documentStore } from '../../stores/documentStore';
 import { buildTree, getContainerIds, getTreeAncestorIds } from '../../domain/hierarchy';
 import { expandAll, expandNode } from '../../stores/hierarchyStore';
 import { selectionStore } from '../../stores/selectionStore';
+import { CollapsibleSection } from '../CollapsibleSection';
 import { TreeNode } from './TreeNode';
 import { EmptyState } from './EmptyState';
 import { HierarchyDragProvider } from './HierarchyDragContext';
@@ -53,16 +54,15 @@ export const HierarchyPanel: Component = () => {
   return (
     <HierarchyDragProvider>
       <div class={styles.panel} data-testid="hierarchy-panel">
-        <div class={styles.header}>
-          <span class={styles.title}>Hierarchy</span>
-        </div>
-        <Show when={tree()} fallback={<EmptyState />}>
-          {(treeNode) => (
-            <div role="tree" aria-label="View hierarchy" class={styles.tree}>
-              <TreeNode node={treeNode()} />
-            </div>
-          )}
-        </Show>
+        <CollapsibleSection title="Hierarchy">
+          <Show when={tree()} fallback={<EmptyState />}>
+            {(treeNode) => (
+              <div role="tree" aria-label="View hierarchy" class={styles.tree}>
+                <TreeNode node={treeNode()} />
+              </div>
+            )}
+          </Show>
+        </CollapsibleSection>
       </div>
     </HierarchyDragProvider>
   );
