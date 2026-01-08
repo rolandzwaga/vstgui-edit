@@ -2,6 +2,7 @@ import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { parseUidesc } from '../domain/parser';
 import { generateDuplicateName, isValidTemplateName } from '../domain/templates/validation';
+import type { RemovedVariableReference } from '../domain/variables/historyOperations';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
 import type {
