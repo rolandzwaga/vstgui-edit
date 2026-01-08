@@ -84,6 +84,36 @@ export function serializeToXml(doc: VSTGUIUIDescription): string {
     lines.push('  </bitmaps>');
   }
 
+  if (vstgui['control-tags'] && Object.keys(vstgui['control-tags']).length > 0) {
+    lines.push('  <control-tags>');
+    for (const [name, tag] of Object.entries(vstgui['control-tags'])) {
+      lines.push(`    <control-tag name="${escapeXml(name)}" tag="${escapeXml(tag)}"/>`);
+    }
+    lines.push('  </control-tags>');
+  }
+
+  if (vstgui.gradients && Object.keys(vstgui.gradients).length > 0) {
+    lines.push('  <gradients>');
+    for (const [name, colorStops] of Object.entries(vstgui.gradients)) {
+      lines.push(`    <gradient name="${escapeXml(name)}">`);
+      for (const stop of colorStops) {
+        lines.push(
+          `      <color-stop rgba="${escapeXml(stop.rgba)}" start="${escapeXml(stop.start)}"/>`
+        );
+      }
+      lines.push('    </gradient>');
+    }
+    lines.push('  </gradients>');
+  }
+
+  if (vstgui.variables && Object.keys(vstgui.variables).length > 0) {
+    lines.push('  <variables>');
+    for (const [name, value] of Object.entries(vstgui.variables)) {
+      lines.push(`    <variable name="${escapeXml(name)}" value="${escapeXml(value)}"/>`);
+    }
+    lines.push('  </variables>');
+  }
+
   if (vstgui.templates && Object.keys(vstgui.templates).length > 0) {
     lines.push('  <templates>');
     for (const [name, template] of Object.entries(vstgui.templates)) {

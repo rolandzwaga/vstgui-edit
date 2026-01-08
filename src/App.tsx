@@ -12,7 +12,7 @@ import { VariablesPanel } from './components/VariablesPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
-import { SaveButton } from './components/SaveButton';
+
 import { documentStore, getTemplate } from './stores/documentStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
@@ -65,10 +65,7 @@ export default function App() {
               <VariablesPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
-              <div style={{ display: 'flex', "align-items": 'center', gap: '8px', padding: '4px 8px' }}>
-                <SaveButton />
-                <MainToolbar onFitToView={handleFitToView} />
-              </div>
+              <MainToolbar onFitToView={handleFitToView} />
               <Canvas />
             </div>
             <PropertiesPanel />
