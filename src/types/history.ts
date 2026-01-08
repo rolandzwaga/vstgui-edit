@@ -44,7 +44,11 @@ export interface HistoryOperation {
     | 'add-variable'
     | 'edit-variable-name'
     | 'edit-variable-value'
-    | 'delete-variable';
+    | 'delete-variable'
+    | 'template-add'
+    | 'template-delete'
+    | 'template-rename'
+    | 'template-duplicate';
   description: string;
   undo: () => void;
   redo: () => void;

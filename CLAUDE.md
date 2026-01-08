@@ -1667,6 +1667,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 028-template-management: Added SolidJS 1.9.x, solid-js/store (already installed - no new dependencies)
 - 027-variables-panel: Added SolidJS 1.9.x, solid-js/store (already installed - no new dependencies)
 - 026-control-tags-panel: Added SolidJS 1.9.x, solid-js/store (already installed - no new dependencies)
 - 025-gradients-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
