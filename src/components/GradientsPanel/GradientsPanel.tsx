@@ -12,6 +12,9 @@ import {
 import { pushOperation } from '../../stores/historyStore';
 import {
   createAddGradientOperation,
+  createDeleteGradientOperation,
+  createEditGradientNameOperation,
+  createEditGradientStopsOperation,
   initGradientHistoryOperations,
 } from '../../domain/gradients/historyOperations';
 import { CollapsibleSection } from '../CollapsibleSection';
@@ -64,12 +67,39 @@ export const GradientsPanel: Component = () => {
   const hasGradients = createMemo(() => gradients().length > 0);
   const hasDocument = createMemo(() => documentStore.document !== null);
 
+  const existingNames = createMemo(() => gradients().map((g) => g.name));
+
   const handleAddGradient = () => {
     const existingGradients = getGradients() ?? {};
     const newName = generateUniqueGradientName(existingGradients);
 
     addGradient(newName, DEFAULT_GRADIENT_STOPS);
     pushOperation(createAddGradientOperation(newName, DEFAULT_GRADIENT_STOPS));
+  };
+
+  const handleRename = (oldName: string, newName: string) => {
+    const success = updateGradientName(oldName, newName);
+    if (success) {
+      pushOperation(createEditGradientNameOperation(oldName, newName));
+    }
+  };
+
+  const handleStopsChange = (name: string, newStops: GradientColorStop[]) => {
+    const oldStops = updateGradientStops(name, newStops);
+    if (oldStops) {
+      pushOperation(createEditGradientStopsOperation(name, oldStops, newStops));
+    }
+  };
+
+  const handleDelete = (name: string) => {
+    const existingGradients = getGradients() ?? {};
+    const stops = existingGradients[name];
+    if (!stops) return;
+
+    const result = deleteGradient(name);
+    if (result) {
+      pushOperation(createDeleteGradientOperation(name, stops, result.removedReferences));
+    }
   };
 
   return (
@@ -81,7 +111,16 @@ export const GradientsPanel: Component = () => {
         <Show when={hasGradients()} fallback={<EmptyState />}>
           <div role="list" aria-label="Gradient definitions" class={styles.list}>
             <For each={gradients()}>
-              {(item) => <GradientItem name={item.name} stops={item.stops} />}
+              {(item) => (
+                <GradientItem
+                  name={item.name}
+                  stops={item.stops}
+                  existingNames={existingNames()}
+                  onRename={handleRename}
+                  onStopsChange={handleStopsChange}
+                  onDelete={handleDelete}
+                />
+              )}
             </For>
           </div>
         </Show>
