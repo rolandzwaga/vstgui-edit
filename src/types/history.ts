@@ -32,7 +32,11 @@ export interface HistoryOperation {
     | 'add-bitmap'
     | 'edit-bitmap-name'
     | 'edit-bitmap-property'
-    | 'delete-bitmap';
+    | 'delete-bitmap'
+    | 'add-gradient'
+    | 'edit-gradient-name'
+    | 'edit-gradient-stops'
+    | 'delete-gradient';
   description: string;
   undo: () => void;
   redo: () => void;
