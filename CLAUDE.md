@@ -89,6 +89,7 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 ---
 
 ## Active Technologies
+- SolidJS 1.9.x, solid-js/store (already installed - no new dependencies) (026-control-tags-panel)
 - N/A (in-memory document model) (022-schema-driven-properties)
 - SolidJS 1.9.x, Vite 7.x, existing JSON schema (`vstgui-uidesc.schema.json`) (022-schema-driven-properties)
 - N/A (in-memory state via existing documentStore) (018-hierarchy-reparenting)
@@ -1665,6 +1666,7 @@ class SetPropertyCommand implements Command {
 ```
 
 ## Recent Changes
+- 026-control-tags-panel: Added SolidJS 1.9.x, solid-js/store (already installed - no new dependencies)
 - 025-gradients-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
 - 022-schema-driven-properties: Added SolidJS 1.9.x, Vite 7.x, existing JSON schema (`vstgui-uidesc.schema.json`)
 - 021-colors-panel: Added SolidJS 1.9.10, solid-js/store (already installed)
