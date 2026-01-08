@@ -22,7 +22,7 @@
 - [x] T001 Create directory structure: `src/domain/gradients/` and `src/domain/gradients/__tests__/`
 - [x] T002 Create directory structure: `src/components/GradientsPanel/` and `src/components/GradientsPanel/__tests__/`
 - [x] T003 Extend history types: Add gradient operation types to `src/types/history.ts`
-- [ ] T004 **Commit**: Stage and commit Phase 1 setup changes
+- [x] T004 **Commit**: Stage and commit Phase 1 setup changes
 
 ---
 

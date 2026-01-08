@@ -1,4 +1,4 @@
-export { truncateGradientName, formatStopCount } from './formatting';
+export { formatStopCount, truncateGradientName } from './formatting';
 export {
   createAddGradientOperation,
   createDeleteGradientOperation,
@@ -14,4 +14,4 @@ export {
   sortStops,
 } from './stopCalculations';
 export { findGradientUsages, GRADIENT_ATTRIBUTES, type GradientUsage } from './usage';
-export { validateGradientName, type ValidationResult } from './validation';
+export { type ValidationResult, validateGradientName } from './validation';

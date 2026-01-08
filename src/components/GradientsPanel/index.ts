@@ -1,6 +1,6 @@
-export { GradientsPanel } from './GradientsPanel';
-export { GradientPreview } from './GradientPreview';
-export { GradientItem } from './GradientItem';
-export { GradientStopEditor } from './GradientStopEditor';
-export { EmptyState } from './EmptyState';
 export { AddGradientButton } from './AddGradientButton';
+export { EmptyState } from './EmptyState';
+export { GradientItem } from './GradientItem';
+export { GradientPreview } from './GradientPreview';
+export { GradientStopEditor } from './GradientStopEditor';
+export { GradientsPanel } from './GradientsPanel';
