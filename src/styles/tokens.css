@@ -169,6 +169,16 @@
   --color-smart-guide: #ff00ff;
   --color-smart-guide-label-bg: rgba(255, 0, 255, 0.9);
   --color-smart-guide-label-text: #ffffff;
+
+  /* Colors Panel */
+  --color-swatch-border: var(--color-neutral-300);
+  --color-swatch-checkerboard-light: #cccccc;
+  --color-swatch-checkerboard-dark: #999999;
+  --color-item-hover-bg: var(--color-neutral-100);
+  --color-item-selected-bg: var(--color-primary-50);
+  --color-item-selected-border: var(--color-primary-500);
+  --color-item-readonly-bg: var(--color-neutral-50);
+  --color-item-readonly-text: var(--color-neutral-500);
 }
 
 @media (prefers-color-scheme: dark) {
