@@ -115,7 +115,7 @@
 - [x] T036 [US2] Add validation feedback (error state for invalid/duplicate names) in src/components/TemplatesPanel/TemplateItem.tsx
 - [x] T037 [US2] Update activeTemplateId if renamed template was active in src/stores/templateStore.ts
 
-- [ ] T038 [US2] **Commit**: Stage and commit User Story 2 changes
+- [x] T038 [US2] **Commit**: Stage and commit User Story 2 changes
 
 **Checkpoint**: Template renaming works with validation and undo/redo support
 
@@ -131,18 +131,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T039 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T040 [P] [US3] Write tests for addTemplate in src/stores/__tests__/documentStore.templates.spec.ts
-- [ ] T041 [P] [US3] Write tests for add history operation in src/domain/templates/__tests__/historyOperations.spec.ts
+- [x] T039 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T040 [P] [US3] Write tests for addTemplate in src/stores/__tests__/documentStore.templates.spec.ts
+- [x] T041 [P] [US3] Write tests for add history operation in src/domain/templates/__tests__/historyOperations.spec.ts
 - [ ] T042 [P] [US3] Write tests for AddTemplateButton in src/components/TemplatesPanel/__tests__/AddTemplateButton.spec.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T043 [US3] Implement addTemplate in src/stores/documentStore.ts (create default CViewContainer, size 400x300)
-- [ ] T044 [US3] Implement createAddTemplateOperation in src/domain/templates/historyOperations.ts
-- [ ] T045 [US3] Create AddTemplateButton component in src/components/TemplatesPanel/AddTemplateButton.tsx
-- [ ] T046 [US3] Add AddTemplateButton to TemplatesPanel header in src/components/TemplatesPanel/TemplatesPanel.tsx
-- [ ] T047 [US3] Auto-switch to newly created template in src/components/TemplatesPanel/TemplatesPanel.tsx
+- [x] T043 [US3] Implement addTemplate in src/stores/documentStore.ts (create default CViewContainer, size 400x300)
+- [x] T044 [US3] Implement createAddTemplateOperation in src/domain/templates/historyOperations.ts
+- [x] T045 [US3] Create AddTemplateButton component in src/components/TemplatesPanel/AddTemplateButton.tsx
+- [x] T046 [US3] Add AddTemplateButton to TemplatesPanel header in src/components/TemplatesPanel/TemplatesPanel.tsx
+- [x] T047 [US3] Auto-switch to newly created template in src/components/TemplatesPanel/TemplatesPanel.tsx
 
 - [ ] T048 [US3] **Commit**: Stage and commit User Story 3 changes
 
@@ -187,15 +187,15 @@
 
 ### Tests for User Story 5
 
-- [ ] T057 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T058 [P] [US5] Write tests for deleteTemplate (including last-template prevention) in src/stores/__tests__/documentStore.templates.spec.ts
-- [ ] T059 [P] [US5] Write tests for delete history operation in src/domain/templates/__tests__/historyOperations.spec.ts
+- [x] T057 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T058 [P] [US5] Write tests for deleteTemplate (including last-template prevention) in src/stores/__tests__/documentStore.templates.spec.ts
+- [x] T059 [P] [US5] Write tests for delete history operation in src/domain/templates/__tests__/historyOperations.spec.ts
 - [ ] T060 [P] [US5] Write tests for delete confirmation dialog in src/components/TemplatesPanel/__tests__/TemplatesPanel.spec.tsx
 
 ### Implementation for User Story 5
 
-- [ ] T061 [US5] Implement deleteTemplate in src/stores/documentStore.ts (prevent last, return deleted for undo)
-- [ ] T062 [US5] Implement createDeleteTemplateOperation in src/domain/templates/historyOperations.ts
+- [x] T061 [US5] Implement deleteTemplate in src/stores/documentStore.ts (prevent last, return deleted for undo)
+- [x] T062 [US5] Implement createDeleteTemplateOperation in src/domain/templates/historyOperations.ts
 - [ ] T063 [US5] Add delete button to TemplateItem in src/components/TemplatesPanel/TemplateItem.tsx
 - [ ] T064 [US5] Add confirmation dialog to TemplatesPanel in src/components/TemplatesPanel/TemplatesPanel.tsx
 - [ ] T065 [US5] Handle active template deletion (switch to first remaining) in src/stores/templateStore.ts

@@ -4,4 +4,8 @@ export {
   generateDuplicateName,
 } from './validation';
 
-export { createRenameTemplateOperation } from './historyOperations';
+export {
+  createRenameTemplateOperation,
+  createAddTemplateOperation,
+  createDeleteTemplateOperation,
+} from './historyOperations';

@@ -1194,6 +1194,83 @@ export function renameTemplate(oldName: string, newName: string): boolean {
   return true;
 }
 
+export function addTemplate(name: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  if (!isValidTemplateName(name)) return false;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (templates && templates[name]) return false;
+
+  const defaultTemplate: TemplateDefinition = {
+    attributes: {
+      class: 'CViewContainer',
+      origin: '0, 0',
+      size: '400, 300',
+      'background-color': '~ BlackCColor',
+    },
+  };
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui) return;
+
+      if (!vstgui.templates) {
+        vstgui.templates = {};
+      }
+      vstgui.templates[name] = defaultTemplate;
+    })
+  );
+
+  return true;
+}
+
+export function deleteTemplate(name: string): TemplateDefinition | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (!templates || !templates[name]) return null;
+
+  const templateData = { ...templates[name] };
+
+  setStore(
+    produce(draft => {
+      const draftTemplates = draft.document?.['vstgui-ui-description']?.templates;
+      if (!draftTemplates) return;
+
+      delete draftTemplates[name];
+    })
+  );
+
+  if (templateStore.activeTemplateId === name) {
+    setActiveTemplate(null);
+  }
+
+  return templateData;
+}
+
+export function restoreTemplate(name: string, data: TemplateDefinition): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const vstgui = draft.document?.['vstgui-ui-description'];
+      if (!vstgui) return;
+
+      if (!vstgui.templates) {
+        vstgui.templates = {};
+      }
+      vstgui.templates[name] = data;
+    })
+  );
+
+  return true;
+}
+
 export function getVariables(): Record<string, string> | undefined {
   const doc = store.document;
   if (!doc) return undefined;

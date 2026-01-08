@@ -8,6 +8,8 @@ import {
   getTemplate,
   getTemplateNames,
   renameTemplate,
+  addTemplate,
+  deleteTemplate,
 } from '../documentStore';
 import { templateStore, setActiveTemplate, resetTemplateStore } from '../templateStore';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
@@ -270,6 +272,150 @@ describe('documentStore template operations', () => {
         setActiveTemplate('SettingsView');
 
         renameTemplate('MainView', 'RenamedView');
+
+        expect(templateStore.activeTemplateId).toBe('SettingsView');
+      });
+    });
+  });
+
+  describe('addTemplate', () => {
+    beforeEach(() => {
+      resetTemplateStore();
+    });
+
+    it('should return false when no document is loaded', () => {
+      testInRoot(() => {
+        expect(addTemplate('NewTemplate')).toBe(false);
+      });
+    });
+
+    it('should return false for invalid name', () => {
+      testInRoot(() => {
+        setDocumentForTest(createTestDocument({}));
+
+        expect(addTemplate('')).toBe(false);
+        expect(addTemplate('Invalid Name')).toBe(false);
+        expect(addTemplate('123Start')).toBe(false);
+      });
+    });
+
+    it('should return false when name already exists', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(addTemplate('MainView')).toBe(false);
+      });
+    });
+
+    it('should add template with default CViewContainer', () => {
+      testInRoot(() => {
+        setDocumentForTest(createTestDocument({}));
+
+        expect(addTemplate('NewTemplate')).toBe(true);
+
+        const template = getTemplate('NewTemplate');
+        expect(template).toBeDefined();
+        expect(template?.attributes.class).toBe('CViewContainer');
+        expect(template?.attributes.size).toBe('400, 300');
+      });
+    });
+
+    it('should add template to existing templates', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '800, 600' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        addTemplate('NewTemplate');
+
+        const names = getTemplateNames();
+        expect(names).toContain('MainView');
+        expect(names).toContain('NewTemplate');
+      });
+    });
+
+    it('should create templates object if it does not exist', () => {
+      testInRoot(() => {
+        setDocumentForTest({
+          'vstgui-ui-description': {
+            version: '1',
+          },
+        } as VSTGUIUIDescription);
+
+        expect(addTemplate('NewTemplate')).toBe(true);
+        expect(getTemplate('NewTemplate')).toBeDefined();
+      });
+    });
+  });
+
+  describe('deleteTemplate', () => {
+    beforeEach(() => {
+      resetTemplateStore();
+    });
+
+    it('should return null when no document is loaded', () => {
+      testInRoot(() => {
+        expect(deleteTemplate('MainView')).toBeNull();
+      });
+    });
+
+    it('should return null when template does not exist', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(deleteTemplate('NonExistent')).toBeNull();
+      });
+    });
+
+    it('should delete template and return its data', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        const deleted = deleteTemplate('MainView');
+
+        expect(deleted).toBeDefined();
+        expect(deleted?.attributes.size).toBe('400, 300');
+        expect(getTemplate('MainView')).toBeUndefined();
+        expect(getTemplate('SettingsView')).toBeDefined();
+      });
+    });
+
+    it('should clear activeTemplateId if deleting active template', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+        setActiveTemplate('MainView');
+
+        deleteTemplate('MainView');
+
+        expect(templateStore.activeTemplateId).toBeNull();
+      });
+    });
+
+    it('should not change activeTemplateId if deleting non-active template', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+        setActiveTemplate('SettingsView');
+
+        deleteTemplate('MainView');
 
         expect(templateStore.activeTemplateId).toBe('SettingsView');
       });
