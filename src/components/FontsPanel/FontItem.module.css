@@ -1,10 +1,7 @@
 .item {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  padding: var(--spacing-2);
+  flex-direction: column;
   border-radius: var(--radius-base);
-  cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
@@ -18,8 +15,20 @@
 }
 
 .item.readonly .name,
-.item.readonly .value {
+.item.readonly .summary {
   color: var(--color-item-readonly-text);
+}
+
+.item.expanded {
+  background-color: var(--color-surface-secondary, #f8f8f8);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  cursor: pointer;
 }
 
 .info {
@@ -134,4 +143,107 @@
 .deleteButton:focus-visible {
   outline: 2px solid var(--color-focus, #0066cc);
   outline-offset: 1px;
+}
+
+.expandIcon {
+  font-size: 8px;
+  color: var(--color-text-secondary, #666);
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.properties {
+  padding: 8px 8px 8px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--color-border-light, #eee);
+}
+
+.propertyRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.propertyLabel {
+  font-size: 11px;
+  color: var(--color-text-secondary, #666);
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.propertyInput {
+  flex: 1;
+  padding: 4px 6px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: inherit;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.propertyInput:focus {
+  border-color: var(--color-focus, #0066cc);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+}
+
+.sizeInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sizeInput {
+  width: 50px;
+  flex: 0 0 50px;
+}
+
+.sizeUnit {
+  font-size: 11px;
+  color: var(--color-text-secondary, #666);
+}
+
+.styleButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.styleButton {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 3px;
+  background-color: var(--color-surface, #fff);
+  color: var(--color-text-secondary, #666);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.styleButton:hover {
+  border-color: var(--color-focus, #0066cc);
+  color: var(--color-focus, #0066cc);
+}
+
+.styleButton.styleActive {
+  background-color: var(--color-focus, #0066cc);
+  border-color: var(--color-focus, #0066cc);
+  color: white;
+}
+
+.italicButton {
+  font-style: italic;
+}
+
+.underlineButton {
+  text-decoration: underline;
+}
+
+.strikeButton {
+  text-decoration: line-through;
 }
