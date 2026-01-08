@@ -196,9 +196,9 @@
 
 - [x] T061 [US5] Implement deleteTemplate in src/stores/documentStore.ts (prevent last, return deleted for undo)
 - [x] T062 [US5] Implement createDeleteTemplateOperation in src/domain/templates/historyOperations.ts
-- [ ] T063 [US5] Add delete button to TemplateItem in src/components/TemplatesPanel/TemplateItem.tsx
-- [ ] T064 [US5] Add confirmation dialog to TemplatesPanel in src/components/TemplatesPanel/TemplatesPanel.tsx
-- [ ] T065 [US5] Handle active template deletion (switch to first remaining) in src/stores/templateStore.ts
+- [x] T063 [US5] Add delete button to TemplateItem in src/components/TemplatesPanel/TemplateItem.tsx
+- [x] T064 [US5] Add confirmation dialog to TemplatesPanel in src/components/TemplatesPanel/TemplatesPanel.tsx
+- [x] T065 [US5] Handle active template deletion (switch to first remaining) in src/stores/templateStore.ts
 
 - [ ] T066 [US5] **Commit**: Stage and commit User Story 5 changes
 

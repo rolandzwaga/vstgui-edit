@@ -62,29 +62,38 @@
   color: var(--color-error, #dc3545);
 }
 
-.duplicateButton {
+.actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.actionButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   padding: 0;
-  margin-left: auto;
   border: none;
   border-radius: 4px;
   background-color: transparent;
   color: var(--color-text-secondary, #666);
   cursor: pointer;
-  flex-shrink: 0;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.duplicateButton:hover {
+.actionButton:hover {
   background-color: var(--color-surface-hover, rgb(0 0 0 / 0.08));
   color: var(--color-text-primary, #333);
 }
 
-.duplicateButton:focus-visible {
+.actionButton:focus-visible {
   outline: 2px solid var(--color-focus, #06c);
   outline-offset: 1px;
+}
+
+.deleteButton:hover {
+  color: var(--color-error, #dc3545);
 }

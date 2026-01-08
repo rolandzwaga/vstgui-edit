@@ -391,7 +391,7 @@ describe('documentStore template operations', () => {
       });
     });
 
-    it('should clear activeTemplateId if deleting active template', () => {
+    it('should switch to first remaining template if deleting active template', () => {
       testInRoot(() => {
         const templates = {
           MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
@@ -402,7 +402,7 @@ describe('documentStore template operations', () => {
 
         deleteTemplate('MainView');
 
-        expect(templateStore.activeTemplateId).toBeNull();
+        expect(templateStore.activeTemplateId).toBe('SettingsView');
       });
     });
 
@@ -418,6 +418,35 @@ describe('documentStore template operations', () => {
         deleteTemplate('MainView');
 
         expect(templateStore.activeTemplateId).toBe('SettingsView');
+      });
+    });
+
+    it('should return null when trying to delete last template', () => {
+      testInRoot(() => {
+        const templates = {
+          OnlyTemplate: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+
+        expect(deleteTemplate('OnlyTemplate')).toBeNull();
+        expect(getTemplate('OnlyTemplate')).toBeDefined();
+      });
+    });
+
+    it('should switch to first remaining template when deleting active template', () => {
+      testInRoot(() => {
+        const templates = {
+          MainView: { attributes: { class: 'CViewContainer', size: '400, 300' } },
+          SettingsView: { attributes: { class: 'CViewContainer', size: '300, 200' } },
+          AboutView: { attributes: { class: 'CViewContainer', size: '200, 150' } },
+        };
+        setDocumentForTest(createTestDocument(templates));
+        setActiveTemplate('MainView');
+
+        deleteTemplate('MainView');
+
+        expect(templateStore.activeTemplateId).not.toBe('MainView');
+        expect(templateStore.activeTemplateId).not.toBeNull();
       });
     });
   });

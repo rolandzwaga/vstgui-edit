@@ -1234,6 +1234,8 @@ export function deleteTemplate(name: string): TemplateDefinition | null {
   const templates = doc['vstgui-ui-description']?.templates;
   if (!templates || !templates[name]) return null;
 
+  if (Object.keys(templates).length <= 1) return null;
+
   const templateData = { ...templates[name] };
 
   setStore(
@@ -1246,7 +1248,8 @@ export function deleteTemplate(name: string): TemplateDefinition | null {
   );
 
   if (templateStore.activeTemplateId === name) {
-    setActiveTemplate(null);
+    const remainingNames = Object.keys(templates).filter(n => n !== name);
+    setActiveTemplate(remainingNames.length > 0 ? remainingNames[0] : null);
   }
 
   return templateData;

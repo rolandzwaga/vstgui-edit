@@ -10,6 +10,8 @@ export interface TemplateItemProps {
   isActive: boolean;
   onClick: () => void;
   onDuplicate?: () => void;
+  onDelete?: () => void;
+  canDelete?: boolean;
 }
 
 export const TemplateItem: Component<TemplateItemProps> = (props) => {
@@ -89,6 +91,11 @@ export const TemplateItem: Component<TemplateItemProps> = (props) => {
     props.onDuplicate?.();
   };
 
+  const handleDelete = (e: MouseEvent) => {
+    e.stopPropagation();
+    props.onDelete?.();
+  };
+
   return (
     <div
       class={`${styles.item} ${props.isActive ? styles.active : ''}`}
@@ -123,25 +130,53 @@ export const TemplateItem: Component<TemplateItemProps> = (props) => {
           </Show>
         </div>
       </Show>
-      <Show when={isHovered() && !isEditing() && props.onDuplicate}>
-        <button
-          type="button"
-          class={styles.duplicateButton}
-          data-testid="duplicate-template-button"
-          aria-label={`Duplicate template ${props.name}`}
-          onClick={handleDuplicate}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            aria-hidden="true"
-          >
-            <rect x="1" y="3" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" />
-            <path d="M5 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.5" fill="none" />
-          </svg>
-        </button>
+      <Show when={isHovered() && !isEditing()}>
+        <div class={styles.actions}>
+          <Show when={props.onDuplicate}>
+            <button
+              type="button"
+              class={styles.actionButton}
+              data-testid="duplicate-template-button"
+              aria-label={`Duplicate template ${props.name}`}
+              onClick={handleDuplicate}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden="true"
+              >
+                <rect x="1" y="3" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" />
+                <path d="M5 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.5" fill="none" />
+              </svg>
+            </button>
+          </Show>
+          <Show when={props.onDelete && props.canDelete}>
+            <button
+              type="button"
+              class={`${styles.actionButton} ${styles.deleteButton}`}
+              data-testid="delete-template-button"
+              aria-label={`Delete template ${props.name}`}
+              onClick={handleDelete}
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2 2l8 8M10 2l-8 8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </Show>
+        </div>
       </Show>
     </div>
   );

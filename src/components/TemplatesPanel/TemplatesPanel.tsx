@@ -1,8 +1,8 @@
-import { type Component, createMemo, For, Show } from 'solid-js';
-import { addTemplate, documentStore, duplicateTemplate, getTemplate, getTemplateNames } from '../../stores/documentStore';
+import { type Component, createMemo, createSignal, For, Show } from 'solid-js';
+import { addTemplate, deleteTemplate, documentStore, duplicateTemplate, getTemplate, getTemplateNames } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import { setActiveTemplate, templateStore } from '../../stores/templateStore';
-import { generateUniqueTemplateName, createAddTemplateOperation, createDuplicateTemplateOperation } from '../../domain/templates';
+import { generateUniqueTemplateName, createAddTemplateOperation, createDuplicateTemplateOperation, createDeleteTemplateOperation } from '../../domain/templates';
 import { CollapsibleSection } from '../CollapsibleSection';
 import { TemplateItem } from './TemplateItem';
 import { AddTemplateButton } from './AddTemplateButton';
@@ -10,9 +10,12 @@ import { EmptyState } from './EmptyState';
 import styles from './TemplatesPanel.module.css';
 
 export const TemplatesPanel: Component = () => {
+  const [pendingDelete, setPendingDelete] = createSignal<string | null>(null);
+
   const templateNames = createMemo(() => getTemplateNames());
   const hasTemplates = createMemo(() => templateNames().length > 0);
   const hasDocument = createMemo(() => documentStore.document !== null);
+  const canDeleteTemplates = createMemo(() => templateNames().length > 1);
 
   const handleTemplateClick = (name: string) => {
     setActiveTemplate(name);
@@ -40,6 +43,28 @@ export const TemplatesPanel: Component = () => {
     }
   };
 
+  const handleDeleteRequest = (name: string) => {
+    setPendingDelete(name);
+  };
+
+  const confirmDelete = () => {
+    const name = pendingDelete();
+    if (!name) return;
+
+    const templateData = getTemplate(name);
+    if (!templateData) return;
+
+    const deleted = deleteTemplate(name);
+    if (deleted) {
+      pushOperation(createDeleteTemplateOperation(name, templateData));
+    }
+    setPendingDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setPendingDelete(null);
+  };
+
   return (
     <div class={styles.panel} data-testid="templates-panel">
       <CollapsibleSection
@@ -55,10 +80,41 @@ export const TemplatesPanel: Component = () => {
                   isActive={templateStore.activeTemplateId === name}
                   onClick={() => handleTemplateClick(name)}
                   onDuplicate={() => handleDuplicateTemplate(name)}
+                  onDelete={() => handleDeleteRequest(name)}
+                  canDelete={canDeleteTemplates()}
                 />
               )}
             </For>
           </div>
+        </Show>
+        <Show when={pendingDelete()}>
+          {(templateName) => (
+            <div class={styles.confirmDialog} data-testid="delete-confirm-dialog">
+              <div class={styles.confirmContent}>
+                <p class={styles.confirmMessage}>
+                  Delete template "{templateName()}"?
+                </p>
+                <div class={styles.confirmActions}>
+                  <button
+                    type="button"
+                    class={styles.cancelButton}
+                    onClick={cancelDelete}
+                    data-testid="cancel-delete"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    class={styles.deleteConfirmButton}
+                    onClick={confirmDelete}
+                    data-testid="confirm-delete"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </Show>
       </CollapsibleSection>
     </div>
