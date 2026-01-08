@@ -30,8 +30,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const [originalValue, setOriginalValue] = createSignal('');
 
   const config = () => getAttributeConfig(props.entry.name);
-  const editorType = () => config().editorType;
-  const isReadonly = () => editorType() === 'readonly';
+  const editorType = () => props.entry.editorType ?? config().editorType;
+  const isReadonly = () => props.entry.name === 'class' || config().editorType === 'readonly';
   const isTextType = () => editorType() === 'text';
   const isPointType = () => editorType() === 'point';
   const isBooleanType = () => editorType() === 'boolean';
@@ -40,8 +40,9 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isColorType = () => editorType() === 'color';
   const isFontType = () => editorType() === 'font';
   const isBitmapType = () => editorType() === 'bitmap';
+  const isGradientType = () => editorType() === 'gradient';
   const canEdit = () => props.editable && !isReadonly() && !props.entry.isMixed;
-  const canInlineEdit = () => isTextType() || isPointType() || isNumberType();
+  const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
   const validationError = createMemo(() => {
     if (!isEditing()) return null;
@@ -164,7 +165,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
           <div class={styles.editorContainer}>
             <EnumEditor
               value={props.entry.value ?? ''}
-              options={config().options ?? []}
+              options={props.entry.enumValues ?? config().options ?? []}
               onChange={handleEnumChange}
               onCommit={() => {}}
               onCancel={() => {}}

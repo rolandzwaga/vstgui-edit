@@ -107,5 +107,20 @@ describe('AttributeRow', () => {
       expect(screen.getByText('(not set)')).toBeInTheDocument();
       expect(screen.queryByText('Mixed')).not.toBeInTheDocument();
     });
+
+    it('should allow editing unset properties when editable', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isUnset: true, isMixed: false, value: null, editorType: 'text' })}
+          editable={true}
+        />
+      ));
+
+      const row = screen.getByTestId('attribute-row');
+      expect(row).toHaveClass(/unsetRow/);
+
+      const valueElement = screen.getByTestId('attribute-value');
+      expect(valueElement).toHaveClass(/editable/);
+    });
   });
 });
