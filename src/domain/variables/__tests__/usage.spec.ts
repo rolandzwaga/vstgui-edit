@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
-import { VARIABLE_REFERENCE_PATTERN, findVariableUsages } from '../usage';
+import { findVariableUsages, VARIABLE_REFERENCE_PATTERN } from '../usage';
 
 describe('findVariableUsages', () => {
   it('should return empty array when document is null', () => {

@@ -1222,7 +1222,6 @@ function removeVariableReferencesFromView(
   viewId: string,
   removed: RemovedVariableReference[]
 ): void {
-  const reference = `var.${variableName}`;
   const exactPattern = new RegExp(
     `var\\.${escapeRegExpForVariables(variableName)}(?![A-Za-z0-9_-])`
   );

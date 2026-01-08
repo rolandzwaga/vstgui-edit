@@ -6,6 +6,7 @@ import { FontsPanel } from './components/FontsPanel';
 import { BitmapsPanel } from './components/BitmapsPanel';
 import { GradientsPanel } from './components/GradientsPanel';
 import { ControlTagsPanel } from './components/ControlTagsPanel';
+import { VariablesPanel } from './components/VariablesPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
@@ -47,6 +48,7 @@ export default function App() {
               <BitmapsPanel />
               <GradientsPanel />
               <ControlTagsPanel />
+              <VariablesPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0 }}>
               <MainToolbar onFitToView={handleFitToView} />
