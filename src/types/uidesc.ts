@@ -32,6 +32,7 @@ export interface FontDefinition {
   italic?: BooleanValue;
   underline?: BooleanValue;
   'strike-through'?: BooleanValue;
+  'alternative-font-names'?: string;
 }
 
 /** Fonts definitions map */

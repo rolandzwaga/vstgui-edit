@@ -1,28 +1,9 @@
 .panel {
-  flex: 1;
   display: flex;
   flex-direction: column;
   background-color: var(--color-surface, #fff);
   overflow: hidden;
   min-height: 0;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 12px;
-  background-color: var(--color-surface-secondary, #f5f5f5);
-  border-bottom: 1px solid var(--color-border, #e0e0e0);
-  flex-shrink: 0;
-}
-
-.title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-primary, #333);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .tree {

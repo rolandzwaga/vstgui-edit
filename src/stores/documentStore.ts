@@ -1247,3 +1247,152 @@ export function deleteColor(
 
   return { oldValue, removedReferences };
 }
+
+import type { FontDefinition } from '../types/uidesc';
+
+const FONT_ATTRIBUTES = ['font'];
+
+export interface RemovedFontReference {
+  viewId: string;
+  attribute: string;
+  value: string;
+}
+
+function removeFontReferencesFromView(
+  view: ViewNode,
+  fontName: string,
+  viewId: string,
+  removed: RemovedFontReference[]
+): void {
+  for (const attr of FONT_ATTRIBUTES) {
+    const value = view.attributes[attr];
+    if (typeof value === 'string' && (value === fontName || value === `~ ${fontName}`)) {
+      removed.push({ viewId, attribute: attr, value });
+      delete view.attributes[attr];
+    }
+  }
+
+  if (view.children) {
+    for (const [key, child] of Object.entries(view.children)) {
+      removeFontReferencesFromView(child, fontName, `${viewId}-${key}`, removed);
+    }
+  }
+}
+
+export function getFonts(): Record<string, FontDefinition> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.fonts;
+}
+
+export function addFont(name: string, font: FontDefinition): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui.fonts) {
+        draftVstgui.fonts = {};
+      }
+      draftVstgui.fonts[name] = { ...font };
+    })
+  );
+
+  return true;
+}
+
+export function updateFontName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.fonts?.[oldName]) return false;
+
+  const fontDef = vstgui.fonts[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.fonts) return;
+
+      delete draftVstgui.fonts[oldName];
+      draftVstgui.fonts[newName] = fontDef;
+    })
+  );
+
+  return true;
+}
+
+export function updateFontProperty(
+  name: string,
+  prop: string,
+  value: string
+): string | undefined | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.fonts?.[name]) return null;
+
+  const font = vstgui.fonts[name];
+  const oldValue = font[prop as keyof FontDefinition];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.fonts?.[name]) return;
+
+      const fontRecord = draftVstgui.fonts[name] as unknown as Record<string, string>;
+      fontRecord[prop] = value;
+    })
+  );
+
+  return oldValue;
+}
+
+export function deleteFont(
+  name: string
+): { font: FontDefinition; removedReferences: RemovedFontReference[] } | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.fonts?.[name]) return null;
+
+  const font = { ...vstgui.fonts[name] };
+  const removedReferences: RemovedFontReference[] = [];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.fonts) return;
+
+      if (draftVstgui.templates) {
+        for (const [templateName, template] of Object.entries(draftVstgui.templates)) {
+          removeFontReferencesFromView(template, name, templateName, removedReferences);
+        }
+      }
+
+      delete draftVstgui.fonts[name];
+    })
+  );
+
+  return { font, removedReferences };
+}

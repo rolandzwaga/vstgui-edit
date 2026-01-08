@@ -24,7 +24,11 @@ export interface HistoryOperation {
     | 'add-color'
     | 'edit-color-name'
     | 'edit-color-value'
-    | 'delete-color';
+    | 'delete-color'
+    | 'add-font'
+    | 'edit-font-name'
+    | 'edit-font-property'
+    | 'delete-font';
   description: string;
   undo: () => void;
   redo: () => void;
