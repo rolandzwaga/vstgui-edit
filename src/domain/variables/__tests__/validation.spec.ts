@@ -2,10 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { generateUniqueVariableName, validateVariableName } from '../validation';
 
 describe('validateVariableName', () => {
-  it('should accept valid non-empty name', () => {
+  it('should accept valid name starting with letter', () => {
     const result = validateVariableName('buttonWidth', []);
     expect(result.valid).toBe(true);
     expect(result.error).toBeUndefined();
+  });
+
+  it('should accept valid name starting with underscore', () => {
+    const result = validateVariableName('_privateVar', []);
+    expect(result.valid).toBe(true);
+  });
+
+  it('should accept name with hyphens', () => {
+    const result = validateVariableName('button-width', []);
+    expect(result.valid).toBe(true);
+  });
+
+  it('should accept name with numbers', () => {
+    const result = validateVariableName('button1Width', []);
+    expect(result.valid).toBe(true);
   });
 
   it('should reject empty name', () => {
@@ -20,9 +35,22 @@ describe('validateVariableName', () => {
     expect(result.error).toContain('empty');
   });
 
-  it('should trim whitespace from name', () => {
-    const result = validateVariableName('  buttonWidth  ', []);
-    expect(result.valid).toBe(true);
+  it('should reject name with spaces', () => {
+    const result = validateVariableName('button width', []);
+    expect(result.valid).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it('should reject name starting with number', () => {
+    const result = validateVariableName('1button', []);
+    expect(result.valid).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it('should reject name with special characters', () => {
+    const result = validateVariableName('button@width', []);
+    expect(result.valid).toBe(false);
+    expect(result.error).toBeDefined();
   });
 
   it('should reject duplicate name', () => {
@@ -49,35 +77,35 @@ describe('validateVariableName', () => {
 });
 
 describe('generateUniqueVariableName', () => {
-  it('should return "New Variable" when no variables exist', () => {
+  it('should return "newVariable" when no variables exist', () => {
     const name = generateUniqueVariableName({});
-    expect(name).toBe('New Variable');
+    expect(name).toBe('newVariable');
   });
 
-  it('should return "New Variable" when name is available', () => {
+  it('should return "newVariable" when name is available', () => {
     const name = generateUniqueVariableName({ buttonWidth: '100', buttonHeight: '50' });
-    expect(name).toBe('New Variable');
+    expect(name).toBe('newVariable');
   });
 
-  it('should return "New Variable 2" when "New Variable" exists', () => {
-    const name = generateUniqueVariableName({ 'New Variable': '' });
-    expect(name).toBe('New Variable 2');
+  it('should return "newVariable2" when "newVariable" exists', () => {
+    const name = generateUniqueVariableName({ newVariable: '' });
+    expect(name).toBe('newVariable2');
   });
 
   it('should increment counter until unique name found', () => {
     const name = generateUniqueVariableName({
-      'New Variable': '',
-      'New Variable 2': '',
-      'New Variable 3': '',
+      newVariable: '',
+      newVariable2: '',
+      newVariable3: '',
     });
-    expect(name).toBe('New Variable 4');
+    expect(name).toBe('newVariable4');
   });
 
   it('should fill gaps in numbering', () => {
     const name = generateUniqueVariableName({
-      'New Variable': '',
-      'New Variable 3': '',
+      newVariable: '',
+      newVariable3: '',
     });
-    expect(name).toBe('New Variable 2');
+    expect(name).toBe('newVariable2');
   });
 });

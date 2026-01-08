@@ -43,11 +43,11 @@ describe('documentStore - variable edit flow integration', () => {
       testInRoot(() => {
         expect(getVariables()).toBeUndefined();
 
-        const added = addVariable('New Variable', '');
+        const added = addVariable('newVariable', '');
         expect(added).toBe(true);
-        expect(getVariables()).toEqual({ 'New Variable': '' });
+        expect(getVariables()).toEqual({ newVariable: '' });
 
-        const renamed = updateVariableName('New Variable', 'myVar');
+        const renamed = updateVariableName('newVariable', 'myVar');
         expect(renamed).toBe(true);
         expect(getVariables()).toEqual({ myVar: '' });
 
