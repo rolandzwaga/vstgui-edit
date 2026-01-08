@@ -1172,7 +1172,7 @@ export function updateVariableName(oldName: string, newName: string): boolean {
   if (!doc) return false;
 
   const vstgui = doc['vstgui-ui-description'];
-  if (!vstgui?.variables?.[oldName]) return false;
+  if (!vstgui?.variables || !(oldName in vstgui.variables)) return false;
 
   const value = vstgui.variables[oldName];
 
@@ -1197,7 +1197,7 @@ export function updateVariableValue(name: string, newValue: string): string | nu
   if (!doc) return null;
 
   const vstgui = doc['vstgui-ui-description'];
-  if (!vstgui?.variables?.[name]) return null;
+  if (!vstgui?.variables || !(name in vstgui.variables)) return null;
 
   const oldValue = vstgui.variables[name];
 
