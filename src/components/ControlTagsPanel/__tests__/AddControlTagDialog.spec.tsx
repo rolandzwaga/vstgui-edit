@@ -208,7 +208,7 @@ describe('AddControlTagDialog', () => {
       expect(onAdd).not.toHaveBeenCalled();
     });
 
-    it('should allow negative IDs', async () => {
+    it('should reject negative IDs', async () => {
       const user = userEvent.setup();
       const onAdd = vi.fn();
       render(() => <AddControlTagDialog {...defaultProps} onAdd={onAdd} />);
@@ -218,7 +218,8 @@ describe('AddControlTagDialog', () => {
       await user.type(idInput, '-1');
       await user.click(screen.getByTestId('dialog-add-button'));
 
-      expect(onAdd).toHaveBeenCalledWith('New Tag', '-1');
+      expect(screen.getByTestId('dialog-id-error')).toBeInTheDocument();
+      expect(onAdd).not.toHaveBeenCalled();
     });
   });
 });

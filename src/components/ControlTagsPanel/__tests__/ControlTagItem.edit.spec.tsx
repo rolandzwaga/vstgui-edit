@@ -159,7 +159,7 @@ describe('ControlTagItem - Edit', () => {
       expect(mocks.updateControlTagId).not.toHaveBeenCalled();
     });
 
-    it('should allow negative IDs', async () => {
+    it('should reject negative IDs', async () => {
       const user = userEvent.setup();
       render(() => <ControlTagItem name="Volume" tagId="0" />);
 
@@ -171,7 +171,8 @@ describe('ControlTagItem - Edit', () => {
       await user.type(input, '-1');
       fireEvent.keyDown(input, { key: 'Enter' });
 
-      expect(mocks.updateControlTagId).toHaveBeenCalledWith('Volume', '-1');
+      expect(screen.getByTestId('control-tag-id-error')).toBeInTheDocument();
+      expect(mocks.updateControlTagId).not.toHaveBeenCalled();
     });
   });
 });

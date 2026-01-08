@@ -264,12 +264,12 @@ describe('documentStore - updateControlTagId', () => {
       });
     });
 
-    it('should allow negative IDs', () => {
+    it('should allow ID 0', () => {
       testInRoot(() => {
-        updateControlTagId('Volume', '-1');
+        updateControlTagId('Volume', '0');
 
         const tags = getControlTags();
-        expect(tags?.Volume).toBe('-1');
+        expect(tags?.Volume).toBe('0');
       });
     });
   });

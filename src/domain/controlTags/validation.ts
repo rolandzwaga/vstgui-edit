@@ -48,15 +48,15 @@ export function validateTagId(
 ): ValidationResult {
   const trimmed = id.trim();
 
-  // Check if valid integer format (optional leading minus, then digits only)
-  if (!/^-?\d+$/.test(trimmed)) {
-    return { valid: false, error: 'Tag ID must be an integer' };
+  // Check if valid non-negative integer format (digits only)
+  if (!/^\d+$/.test(trimmed)) {
+    return { valid: false, error: 'Tag ID must be a non-negative integer' };
   }
 
   const numericId = Number.parseInt(trimmed, 10);
 
-  if (!Number.isFinite(numericId)) {
-    return { valid: false, error: 'Tag ID must be a valid number' };
+  if (!Number.isFinite(numericId) || numericId < 0) {
+    return { valid: false, error: 'Tag ID must be a non-negative integer' };
   }
 
   // Normalize for comparison (e.g., "007" -> "7")

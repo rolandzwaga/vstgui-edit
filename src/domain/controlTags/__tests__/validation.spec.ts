@@ -65,9 +65,10 @@ describe('validateTagId', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('should accept negative integer', () => {
+  it('should reject negative integer', () => {
     const result = validateTagId('-1', []);
-    expect(result.valid).toBe(true);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('non-negative');
   });
 
   it('should accept large positive integer', () => {
@@ -75,9 +76,10 @@ describe('validateTagId', () => {
     expect(result.valid).toBe(true);
   });
 
-  it('should accept large negative integer', () => {
+  it('should reject large negative integer', () => {
     const result = validateTagId('-999999', []);
-    expect(result.valid).toBe(true);
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('non-negative');
   });
 
   it('should reject empty string', () => {

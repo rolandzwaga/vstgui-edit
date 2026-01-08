@@ -113,6 +113,7 @@ export const AddControlTagDialog: Component<AddControlTagDialogProps> = (props) 
               <input
                 id="dialog-id"
                 type="number"
+                min="0"
                 class={`${styles.input} ${idError() ? styles.inputError : ''}`}
                 data-testid="dialog-id-input"
                 value={tagId()}

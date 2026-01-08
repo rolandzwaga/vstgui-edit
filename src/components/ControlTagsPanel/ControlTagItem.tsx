@@ -184,6 +184,7 @@ export const ControlTagItem: Component<ControlTagItemProps> = (props) => {
           <div class={styles.editContainer}>
             <input
               type="number"
+              min="0"
               class={`${styles.idInput} ${idError() ? styles.inputError : ''}`}
               data-testid="control-tag-id-input"
               value={idInput()}
