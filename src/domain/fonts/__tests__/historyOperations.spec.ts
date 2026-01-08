@@ -4,29 +4,26 @@ import {
   createDeleteFontOperation,
   createEditFontNameOperation,
   createEditFontPropertyOperation,
+  initFontHistoryOperations,
 } from '../historyOperations';
 import type { FontDefinition } from '../../../types/uidesc';
 
-// Mock the store functions
-vi.mock('../../../stores/documentStore', () => ({
-  addFont: vi.fn(),
-  deleteFont: vi.fn(() => ({ removedReferences: [] })),
-  updateFontName: vi.fn(() => true),
-  updateFontProperty: vi.fn(() => 'oldValue'),
-  updateViewAttribute: vi.fn(),
-}));
-
-import {
-  addFont,
-  deleteFont,
-  updateFontName,
-  updateFontProperty,
-  updateViewAttribute,
-} from '../../../stores/documentStore';
+const mockAddFont = vi.fn();
+const mockDeleteFont = vi.fn(() => ({ removedReferences: [] }));
+const mockUpdateFontName = vi.fn(() => true);
+const mockUpdateFontProperty = vi.fn(() => 'oldValue');
+const mockUpdateViewAttribute = vi.fn();
 
 describe('createAddFontOperation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    initFontHistoryOperations(
+      mockAddFont,
+      mockDeleteFont,
+      mockUpdateFontName,
+      mockUpdateFontProperty,
+      mockUpdateViewAttribute
+    );
   });
 
   const testFont: FontDefinition = {
@@ -55,19 +52,26 @@ describe('createAddFontOperation', () => {
   test('undo calls deleteFont', () => {
     const op = createAddFontOperation('TitleFont', testFont);
     op.undo();
-    expect(deleteFont).toHaveBeenCalledWith('TitleFont');
+    expect(mockDeleteFont).toHaveBeenCalledWith('TitleFont');
   });
 
   test('redo calls addFont', () => {
     const op = createAddFontOperation('TitleFont', testFont);
     op.redo();
-    expect(addFont).toHaveBeenCalledWith('TitleFont', testFont);
+    expect(mockAddFont).toHaveBeenCalledWith('TitleFont', testFont);
   });
 });
 
 describe('createEditFontNameOperation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    initFontHistoryOperations(
+      mockAddFont,
+      mockDeleteFont,
+      mockUpdateFontName,
+      mockUpdateFontProperty,
+      mockUpdateViewAttribute
+    );
   });
 
   test('returns operation with correct type', () => {
@@ -84,19 +88,26 @@ describe('createEditFontNameOperation', () => {
   test('undo reverts to old name', () => {
     const op = createEditFontNameOperation('OldName', 'NewName');
     op.undo();
-    expect(updateFontName).toHaveBeenCalledWith('NewName', 'OldName');
+    expect(mockUpdateFontName).toHaveBeenCalledWith('NewName', 'OldName');
   });
 
   test('redo applies new name', () => {
     const op = createEditFontNameOperation('OldName', 'NewName');
     op.redo();
-    expect(updateFontName).toHaveBeenCalledWith('OldName', 'NewName');
+    expect(mockUpdateFontName).toHaveBeenCalledWith('OldName', 'NewName');
   });
 });
 
 describe('createEditFontPropertyOperation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    initFontHistoryOperations(
+      mockAddFont,
+      mockDeleteFont,
+      mockUpdateFontName,
+      mockUpdateFontProperty,
+      mockUpdateViewAttribute
+    );
   });
 
   test('returns operation with correct type', () => {
@@ -112,19 +123,26 @@ describe('createEditFontPropertyOperation', () => {
   test('undo reverts to old value', () => {
     const op = createEditFontPropertyOperation('TitleFont', 'size', '12', '14');
     op.undo();
-    expect(updateFontProperty).toHaveBeenCalledWith('TitleFont', 'size', '12');
+    expect(mockUpdateFontProperty).toHaveBeenCalledWith('TitleFont', 'size', '12');
   });
 
   test('redo applies new value', () => {
     const op = createEditFontPropertyOperation('TitleFont', 'size', '12', '14');
     op.redo();
-    expect(updateFontProperty).toHaveBeenCalledWith('TitleFont', 'size', '14');
+    expect(mockUpdateFontProperty).toHaveBeenCalledWith('TitleFont', 'size', '14');
   });
 });
 
 describe('createDeleteFontOperation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    initFontHistoryOperations(
+      mockAddFont,
+      mockDeleteFont,
+      mockUpdateFontName,
+      mockUpdateFontProperty,
+      mockUpdateViewAttribute
+    );
   });
 
   const testFont: FontDefinition = {
@@ -146,7 +164,7 @@ describe('createDeleteFontOperation', () => {
   test('undo restores font', () => {
     const op = createDeleteFontOperation('TitleFont', testFont, []);
     op.undo();
-    expect(addFont).toHaveBeenCalledWith('TitleFont', testFont);
+    expect(mockAddFont).toHaveBeenCalledWith('TitleFont', testFont);
   });
 
   test('undo restores view references', () => {
@@ -156,13 +174,13 @@ describe('createDeleteFontOperation', () => {
     ];
     const op = createDeleteFontOperation('TitleFont', testFont, removedRefs);
     op.undo();
-    expect(updateViewAttribute).toHaveBeenCalledWith('view1', 'font', '~ TitleFont');
-    expect(updateViewAttribute).toHaveBeenCalledWith('view2', 'font', 'TitleFont');
+    expect(mockUpdateViewAttribute).toHaveBeenCalledWith('view1', 'font', '~ TitleFont');
+    expect(mockUpdateViewAttribute).toHaveBeenCalledWith('view2', 'font', 'TitleFont');
   });
 
   test('redo calls deleteFont', () => {
     const op = createDeleteFontOperation('TitleFont', testFont, []);
     op.redo();
-    expect(deleteFont).toHaveBeenCalledWith('TitleFont');
+    expect(mockDeleteFont).toHaveBeenCalledWith('TitleFont');
   });
 });
