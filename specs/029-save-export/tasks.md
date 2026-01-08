@@ -57,22 +57,22 @@
 
 ### Tests for User Story 1
 
-- [ ] T015 [US1] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before writing tests
-- [ ] T016 [P] [US1] Write tests for fileService in src/services/__tests__/fileService.spec.ts (FR-001, FR-002)
+- [x] T015 [US1] **Verify Testing Guide** - Read `specs/TESTING-GUIDE.md` before writing tests
+- [x] T016 [P] [US1] Write tests for fileService in src/services/__tests__/fileService.spec.ts (FR-001, FR-002)
 - [ ] T017 [P] [US1] Write tests for SaveButton component in src/components/Toolbar/__tests__/SaveButton.spec.tsx (FR-001, FR-002)
 - [ ] T017b [P] [US1] Write tests for beforeunload warning behavior in src/App.spec.tsx or dedicated test file (FR-012, SC-005)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Create fileService with hasFileSystemAccess(), saveDocument(), downloadDocument() in src/services/fileService.ts (FR-001, FR-002)
-- [ ] T019a [US1] Add markDirty() calls to view mutation functions in src/stores/documentStore.ts (updateViewOrigin, updateViewSize, updateViewAttribute, removeView, removeViews, addView, restoreView, duplicateView) (FR-003)
-- [ ] T019b [US1] Add markDirty() calls to hierarchy mutation functions in src/stores/documentStore.ts (reparentView, reorderView, createGroupContainer, ungroupContainer) (FR-003)
-- [ ] T019c [US1] Add markDirty() calls to resource mutation functions in src/stores/documentStore.ts (colors, fonts, bitmaps, gradients, variables, control-tags, templates) (FR-003)
-- [ ] T020 [P] [US1] Create SaveButton.module.css in src/components/Toolbar/SaveButton.module.css
-- [ ] T021 [US1] Implement SaveButton component with Ctrl+S handler in src/components/Toolbar/SaveButton.tsx (FR-001, FR-002)
-- [ ] T022 [US1] Add beforeunload warning effect reacting to isDirty state in src/App.tsx (FR-012, SC-005)
-- [ ] T023 [US1] Integrate SaveButton into existing Toolbar component
-- [ ] T024 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(029): implement save functionality (US1)"
+- [x] T018 [US1] Create fileService with hasFileSystemAccess(), saveDocument(), downloadDocument() in src/services/fileService.ts (FR-001, FR-002)
+- [x] T019a [US1] Add markDirty() calls to view mutation functions in src/stores/documentStore.ts (updateViewOrigin, updateViewSize, updateViewAttribute, removeView, removeViews, addView, restoreView, duplicateView) (FR-003)
+- [x] T019b [US1] Add markDirty() calls to hierarchy mutation functions in src/stores/documentStore.ts (reparentView, reorderView, createGroupContainer, ungroupContainer) (FR-003)
+- [x] T019c [US1] Add markDirty() calls to resource mutation functions in src/stores/documentStore.ts (colors, fonts, bitmaps, gradients, variables, control-tags, templates) (FR-003)
+- [x] T020 [P] [US1] Create SaveButton.module.css in src/components/SaveButton/SaveButton.module.css
+- [x] T021 [US1] Implement SaveButton component with Ctrl+S handler in src/components/SaveButton/SaveButton.tsx (FR-001, FR-002)
+- [x] T022 [US1] Add beforeunload warning effect reacting to isDirty state in src/App.tsx (FR-012, SC-005)
+- [x] T023 [US1] Integrate SaveButton into main toolbar area
+- [x] T024 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(029): implement save functionality (US1)"
 
 **Checkpoint**: Save to current file works via Ctrl+S and toolbar button
 
