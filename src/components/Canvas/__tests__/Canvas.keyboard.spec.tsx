@@ -10,13 +10,24 @@ import { resetSelection, select, selectionStore } from '../../../stores/selectio
 import { resetCanvas } from '../../../stores/canvasStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
-// Mock documentStore with vi.hoisted pattern
 const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'TestTemplate' as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
+}));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
 }));
 
 const createMockDocument = (viewCount: number) => ({
@@ -48,6 +59,7 @@ describe('Canvas Keyboard Shortcuts', () => {
       resetCanvas();
     });
     mockDocumentStore.document = null;
+    mockTemplateStore.activeTemplateId = 'TestTemplate';
   });
 
   describe('Ctrl+A - Select All (FR-005)', () => {
@@ -110,7 +122,6 @@ describe('Canvas Keyboard Shortcuts', () => {
     });
 
     it('should select root view when template has no children', () => {
-      // Template with only root container (no children)
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -126,6 +137,7 @@ describe('Canvas Keyboard Shortcuts', () => {
           },
         },
       };
+      mockTemplateStore.activeTemplateId = 'EmptyTemplate';
 
       render(() => <Canvas />);
 

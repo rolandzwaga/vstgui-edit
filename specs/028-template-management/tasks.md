@@ -53,7 +53,7 @@
 
 - [x] T013 Create barrel export in src/domain/templates/index.ts
 
-- [ ] T014 **Commit**: Stage and commit Phase 2 foundational changes
+- [x] T014 **Commit**: Stage and commit Phase 2 foundational changes
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -69,22 +69,22 @@
 
 ### Tests for User Story 1
 
-- [ ] T015 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T016 [P] [US1] Write tests for useCanvasData active template integration in src/hooks/canvas/__tests__/useCanvasData.spec.ts
+- [x] T015 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [x] T016 [P] [US1] Write tests for useCanvasData active template integration in src/hooks/canvas/__tests__/useCanvasData.spec.ts
 - [ ] T017 [P] [US1] Write tests for TemplatesPanel display in src/components/TemplatesPanel/__tests__/TemplatesPanel.spec.tsx
 - [ ] T018 [P] [US1] Write tests for TemplateItem component in src/components/TemplatesPanel/__tests__/TemplateItem.spec.tsx
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Modify useCanvasData.ts to use templateStore.activeTemplateId instead of hardcoded first template in src/hooks/canvas/useCanvasData.ts
-- [ ] T020 [US1] Add auto-select first template on document load (integrate with documentStore.loadFile) in src/stores/templateStore.ts
-- [ ] T021 [US1] Clear selection when switching templates (call clearSelection in setActiveTemplate) in src/stores/templateStore.ts
-- [ ] T022 [P] [US1] Create EmptyState component in src/components/TemplatesPanel/EmptyState.tsx
-- [ ] T023 [P] [US1] Create TemplateItem component (name display, active highlight, click handler) in src/components/TemplatesPanel/TemplateItem.tsx
-- [ ] T024 [P] [US1] Create TemplateItem styles in src/components/TemplatesPanel/TemplateItem.module.css
-- [ ] T025 [US1] Create TemplatesPanel component (CollapsibleSection, For loop over templates) in src/components/TemplatesPanel/TemplatesPanel.tsx
-- [ ] T026 [US1] Create TemplatesPanel styles in src/components/TemplatesPanel/TemplatesPanel.module.css
-- [ ] T027 [US1] Add TemplatesPanel to App.tsx sidebar (above HierarchyPanel) in src/App.tsx
+- [x] T019 [US1] Modify useCanvasData.ts to use templateStore.activeTemplateId instead of hardcoded first template in src/hooks/canvas/useCanvasData.ts
+- [x] T020 [US1] Add auto-select first template on document load (integrate with documentStore.loadFile) in src/stores/templateStore.ts
+- [x] T021 [US1] Clear selection when switching templates (call clearSelection in setActiveTemplate) in src/stores/templateStore.ts
+- [x] T022 [P] [US1] Create EmptyState component in src/components/TemplatesPanel/EmptyState.tsx
+- [x] T023 [P] [US1] Create TemplateItem component (name display, active highlight, click handler) in src/components/TemplatesPanel/TemplateItem.tsx
+- [x] T024 [P] [US1] Create TemplateItem styles in src/components/TemplatesPanel/TemplateItem.module.css
+- [x] T025 [US1] Create TemplatesPanel component (CollapsibleSection, For loop over templates) in src/components/TemplatesPanel/TemplatesPanel.tsx
+- [x] T026 [US1] Create TemplatesPanel styles in src/components/TemplatesPanel/TemplatesPanel.module.css
+- [x] T027 [US1] Add TemplatesPanel to App.tsx sidebar (above HierarchyPanel) in src/App.tsx
 
 - [ ] T028 [US1] **Commit**: Stage and commit User Story 1 changes
 

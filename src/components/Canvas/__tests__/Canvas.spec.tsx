@@ -31,18 +31,36 @@ vi.mock('../../../stores/gridStore', async () => {
   };
 });
 
-// Define mock store using vi.hoisted so it's available in vi.mock
+// Define mock stores using vi.hoisted so they're available in vi.mock
 const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: null as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
 }));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
+}));
+
+function setMockDocument(doc: unknown, activeTemplateId: string | null = 'MainView') {
+  mockDocumentStore.document = doc;
+  mockTemplateStore.activeTemplateId = activeTemplateId;
+}
 
 describe('Canvas', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
+    mockTemplateStore.activeTemplateId = 'MainView';
   });
 
   // Note: cleanup() and resetCanvas() are handled automatically by src/__tests__/setup.ts
@@ -92,7 +110,7 @@ describe('Canvas', () => {
 
   describe('Given document with a template (US1 - basic rendering)', () => {
     it('should render SVG canvas element', () => {
-      mockDocumentStore.document = {
+      setMockDocument({
         'vstgui-ui-description': {
           version: '1',
           templates: {
@@ -105,7 +123,7 @@ describe('Canvas', () => {
             },
           },
         },
-      };
+      });
 
       render(() => <Canvas />);
 

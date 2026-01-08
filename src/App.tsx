@@ -1,5 +1,6 @@
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
+import { TemplatesPanel } from './components/TemplatesPanel';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
 import { FontsPanel } from './components/FontsPanel';
@@ -10,9 +11,9 @@ import { VariablesPanel } from './components/VariablesPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
-import { documentStore } from './stores/documentStore';
+import { documentStore, getTemplate } from './stores/documentStore';
+import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
-import type { TemplateDefinition } from './types/uidesc';
 import './styles/tokens.css';
 
 export default function App() {
@@ -20,15 +21,13 @@ export default function App() {
     const viewportWidth = window.innerWidth - 64;
     const viewportHeight = window.innerHeight - 200;
 
-    const doc = documentStore.document;
-    const vstgui = doc?.['vstgui-ui-description'];
-    const templates = vstgui?.templates;
-    if (!templates) return;
+    const activeId = templateStore.activeTemplateId;
+    if (!activeId) return;
 
-    const firstTemplate = Object.values(templates)[0] as TemplateDefinition | undefined;
-    if (!firstTemplate?.attributes?.size) return;
+    const activeTemplate = getTemplate(activeId);
+    if (!activeTemplate?.attributes?.size) return;
 
-    const [width, height] = firstTemplate.attributes.size.split(',').map((s) => Number.parseInt(s.trim(), 10));
+    const [width, height] = activeTemplate.attributes.size.split(',').map((s) => Number.parseInt(s.trim(), 10));
     if (Number.isNaN(width) || Number.isNaN(height)) return;
 
     fitToView({ width: viewportWidth, height: viewportHeight }, { width, height });
@@ -42,6 +41,7 @@ export default function App() {
           <div style={{ display: 'flex', "min-height": '100vh' }}>
             <div style={{ display: 'flex', "flex-direction": 'column', width: '240px', "min-width": '200px', "max-width": '320px', "border-right": '1px solid var(--color-border, #e0e0e0)', "flex-shrink": 0 }}>
               <ViewPalette />
+              <TemplatesPanel />
               <HierarchyPanel />
               <ColorsPanel />
               <FontsPanel />

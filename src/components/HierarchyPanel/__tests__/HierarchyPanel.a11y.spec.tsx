@@ -9,13 +9,26 @@ const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'MainView' as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
+}));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
 }));
 
 describe('HierarchyPanel accessibility', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
+    mockTemplateStore.activeTemplateId = 'MainView';
     testInRoot(() => {
       resetSelection();
       resetHierarchy();

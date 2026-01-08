@@ -10,6 +10,7 @@ import type {
   VSTGUIUIDescription,
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
+import { setActiveTemplate, resetTemplateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
   if (!size) {
@@ -69,15 +70,24 @@ function readFileAsText(file: File): Promise<string> {
  * Parse the content and update parse state
  * FR-000: Automatically triggered after successful file upload
  */
+function selectFirstTemplate(doc: VSTGUIUIDescription): void {
+  const templates = doc['vstgui-ui-description']?.templates;
+  if (templates) {
+    const templateNames = Object.keys(templates);
+    if (templateNames.length > 0) {
+      setActiveTemplate(templateNames[0]);
+    }
+  }
+}
+
 function parseContent(content: string): void {
-  // Set parsing state
   setStore({ parseState: 'parsing' });
 
   const result = parseUidesc(content);
 
   if (result.success) {
-    // FR-009: Reset canvas (pan and zoom) on new document load
     resetCanvas();
+    resetTemplateStore();
 
     setStore({
       parseState: 'valid',
@@ -85,6 +95,8 @@ function parseContent(content: string): void {
       parseErrors: null,
       detectedFormat: result.format,
     });
+
+    selectFirstTemplate(result.document);
   } else {
     setStore({
       parseState: 'invalid',
@@ -158,11 +170,9 @@ export async function loadFile(file: File): Promise<void> {
   }
 }
 
-/**
- * Reset the store to initial state
- */
 export function reset(): void {
   setStore({ ...initialState });
+  resetTemplateStore();
 }
 
 /**
@@ -180,12 +190,14 @@ export function setDragging(isDragging: boolean): void {
 export const documentStore = store;
 
 export function setDocumentForTest(doc: VSTGUIUIDescription): void {
+  resetTemplateStore();
   setStore({
     document: doc,
     parseState: 'valid',
     parseErrors: null,
     detectedFormat: 'json',
   });
+  selectFirstTemplate(doc);
 }
 
 export function getView(viewId: string): ViewNode | null {

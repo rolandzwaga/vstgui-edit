@@ -1,0 +1,14 @@
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface, #fff);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}

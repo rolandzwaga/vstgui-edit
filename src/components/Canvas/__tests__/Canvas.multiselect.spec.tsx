@@ -9,13 +9,24 @@ import { resetSelection, selectionStore } from '../../../stores/selectionStore';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
-// Mock documentStore with vi.hoisted pattern
 const mockDocumentStore = vi.hoisted(() => ({
   document: null as unknown,
 }));
 
+const mockTemplateStore = vi.hoisted(() => ({
+  activeTemplateId: 'TestTemplate' as string | null,
+}));
+
 vi.mock('../../../stores/documentStore', () => ({
   documentStore: mockDocumentStore,
+  getTemplate: (name: string) => {
+    const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
+    return doc?.['vstgui-ui-description']?.templates?.[name];
+  },
+}));
+
+vi.mock('../../../stores/templateStore', () => ({
+  templateStore: mockTemplateStore,
 }));
 
 const createMockDocument = (views: Array<{ id: string; x: number; y: number; w: number; h: number }>) => ({

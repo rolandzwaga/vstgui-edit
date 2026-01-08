@@ -1,13 +1,14 @@
 import { type Accessor, createMemo } from 'solid-js';
 import { parseSize } from '../../domain/canvas/coordinates';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
-import { documentStore } from '../../stores/documentStore';
+import { documentStore, getTemplate } from '../../stores/documentStore';
 import { selectionStore } from '../../stores/selectionStore';
+import { templateStore } from '../../stores/templateStore';
 import type { RenderableView, TemplateBounds } from '../../types/canvas';
 import type { TemplateDefinition } from '../../types/uidesc';
 
 export interface UseCanvasDataResult {
-  firstTemplate: Accessor<[string, TemplateDefinition] | null>;
+  activeTemplate: Accessor<[string, TemplateDefinition] | null>;
   renderableViews: Accessor<RenderableView[]>;
   templateBounds: Accessor<TemplateBounds | null>;
   selectedViews: Accessor<RenderableView[]>;
@@ -16,28 +17,18 @@ export interface UseCanvasDataResult {
 }
 
 export function useCanvasData(): UseCanvasDataResult {
-  const templates = () => {
-    const doc = documentStore.document;
-    if (!doc) return null;
+  const activeTemplate = createMemo((): [string, TemplateDefinition] | null => {
+    const activeId = templateStore.activeTemplateId;
+    if (!activeId) return null;
 
-    const vstgui = doc['vstgui-ui-description'];
-    if (!vstgui) return null;
+    const template = getTemplate(activeId);
+    if (!template) return null;
 
-    return vstgui.templates ?? null;
-  };
-
-  const firstTemplate = createMemo((): [string, TemplateDefinition] | null => {
-    const t = templates();
-    if (!t) return null;
-
-    const entries = Object.entries(t) as [string, TemplateDefinition][];
-    if (entries.length === 0) return null;
-
-    return entries[0];
+    return [activeId, template];
   });
 
   const renderableViews = createMemo((): RenderableView[] => {
-    const template = firstTemplate();
+    const template = activeTemplate();
     if (!template) return [];
 
     const doc = documentStore.document;
@@ -51,7 +42,7 @@ export function useCanvasData(): UseCanvasDataResult {
   });
 
   const templateBounds = createMemo((): TemplateBounds | null => {
-    const template = firstTemplate();
+    const template = activeTemplate();
     if (!template) return null;
 
     const [, view] = template;
@@ -63,7 +54,7 @@ export function useCanvasData(): UseCanvasDataResult {
     };
   });
 
-  const isEmpty = () => firstTemplate() === null;
+  const isEmpty = () => activeTemplate() === null;
 
   const selectedViews = createMemo((): RenderableView[] => {
     const views = renderableViews();
@@ -78,7 +69,7 @@ export function useCanvasData(): UseCanvasDataResult {
   });
 
   return {
-    firstTemplate,
+    activeTemplate,
     renderableViews,
     templateBounds,
     selectedViews,

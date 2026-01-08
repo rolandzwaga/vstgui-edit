@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import { resetSelection } from './selectionStore';
 
 const [activeTemplateId, setActiveTemplateIdSignal] = createSignal<string | null>(null);
 
@@ -9,6 +10,10 @@ export const templateStore = {
 };
 
 export function setActiveTemplate(templateId: string | null): void {
+  const currentId = activeTemplateId();
+  if (currentId !== templateId) {
+    resetSelection();
+  }
   setActiveTemplateIdSignal(templateId);
 }
 

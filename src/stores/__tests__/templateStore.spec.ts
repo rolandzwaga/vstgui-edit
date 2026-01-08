@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import { templateStore, setActiveTemplate, resetTemplateStore } from '../templateStore';
+import { select, selectionStore, resetSelection } from '../selectionStore';
 
 describe('templateStore', () => {
   beforeEach(() => {
     resetTemplateStore();
+    resetSelection();
   });
 
   describe('initial state', () => {
@@ -36,6 +38,30 @@ describe('templateStore', () => {
         setActiveTemplate('MainView');
         setActiveTemplate(null);
         expect(templateStore.activeTemplateId).toBeNull();
+      });
+    });
+
+    it('should clear selection when template changes', () => {
+      testInRoot(() => {
+        select('view-1');
+        expect(selectionStore.selectedIds.size).toBe(1);
+
+        setActiveTemplate('MainView');
+        setActiveTemplate('SettingsView');
+
+        expect(selectionStore.selectedIds.size).toBe(0);
+      });
+    });
+
+    it('should not clear selection when setting same template', () => {
+      testInRoot(() => {
+        setActiveTemplate('MainView');
+        select('view-1');
+        expect(selectionStore.selectedIds.size).toBe(1);
+
+        setActiveTemplate('MainView');
+
+        expect(selectionStore.selectedIds.size).toBe(1);
       });
     });
   });
