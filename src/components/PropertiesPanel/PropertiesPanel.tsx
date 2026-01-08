@@ -74,7 +74,7 @@ export const PropertiesPanel: Component = () => {
     const viewAttributes = views.map((v) => v.attributes as Record<string, unknown>);
     const classNames = views.map((v) => (v.attributes.class as string) ?? 'CViewContainer');
 
-    return mergeSelections(viewAttributes, classNames, { useSchema: true });
+    return mergeSelections(viewAttributes, classNames);
   });
 
   const documentColors = createMemo(() => {

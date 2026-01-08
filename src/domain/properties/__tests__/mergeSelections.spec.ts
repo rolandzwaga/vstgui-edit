@@ -27,13 +27,13 @@ describe('mergeSelections', () => {
     });
 
     it('should have no mixed values for single view', () => {
-      const attrs = [{ class: 'CView', origin: '0, 0', 'background-color': '#FFF' }];
+      const attrs = [{ class: 'CView', origin: '0, 0' }];
       const classes = ['CView'];
 
       const result = mergeSelections(attrs, classes);
-      const allAttrs = result.groups.flatMap((g) => g.attributes);
+      const setAttrs = result.groups.flatMap((g) => g.attributes).filter((a) => !a.isUnset);
 
-      expect(allAttrs.every((a) => !a.isMixed)).toBe(true);
+      expect(setAttrs.every((a) => !a.isMixed)).toBe(true);
     });
   });
 
@@ -95,15 +95,27 @@ describe('mergeSelections', () => {
       expect(classAttr?.isMixed).toBe(true);
       expect(classAttr?.value).toBeNull();
     });
+
+    it('should use common base class attributes for mixed selection', () => {
+      const attrs = [{ class: 'CTextButton' }, { class: 'CTextLabel' }];
+      const classes = ['CTextButton', 'CTextLabel'];
+
+      const result = mergeSelections(attrs, classes);
+      const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
+
+      expect(allAttrNames).toContain('origin');
+      expect(allAttrNames).toContain('size');
+      expect(allAttrNames).toContain('control-tag');
+    });
   });
 
   describe('shared vs mixed values', () => {
     it('should show shared value when all views have same value', () => {
       const attrs = [
-        { class: 'CView', 'background-color': '#FF0000' },
-        { class: 'CView', 'background-color': '#FF0000' },
+        { class: 'CViewContainer', 'background-color': '#FF0000' },
+        { class: 'CViewContainer', 'background-color': '#FF0000' },
       ];
-      const classes = ['CView', 'CView'];
+      const classes = ['CViewContainer', 'CViewContainer'];
 
       const result = mergeSelections(attrs, classes);
       const appearanceGroup = result.groups.find((g) => g.id === 'appearance');
@@ -144,128 +156,14 @@ describe('mergeSelections', () => {
       expect(tooltip?.isMixed).toBe(true);
       expect(tooltip?.value).toBeNull();
     });
-
-    it('should not include attribute if no views have it', () => {
-      const attrs = [{ class: 'CView' }, { class: 'CView' }];
-      const classes = ['CView', 'CView'];
-
-      const result = mergeSelections(attrs, classes);
-      const textGroup = result.groups.find((g) => g.id === 'text');
-
-      expect(textGroup).toBeUndefined();
-    });
   });
 
-  describe('attribute merging from all views', () => {
-    it('should include all attributes from all views', () => {
-      const attrs = [
-        { class: 'CView', origin: '0, 0' },
-        { class: 'CView', size: '100, 100' },
-        { class: 'CView', 'background-color': '#FFF' },
-      ];
-      const classes = ['CView', 'CView', 'CView'];
-
-      const result = mergeSelections(attrs, classes);
-      const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
-
-      expect(allAttrNames).toContain('class');
-      expect(allAttrNames).toContain('origin');
-      expect(allAttrNames).toContain('size');
-      expect(allAttrNames).toContain('background-color');
-    });
-
-    it('should mark attributes as mixed if not all views have them', () => {
-      const attrs = [
-        { class: 'CView', origin: '0, 0' },
-        { class: 'CView', size: '100, 100' },
-      ];
-      const classes = ['CView', 'CView'];
-
-      const result = mergeSelections(attrs, classes);
-      const geometryGroup = result.groups.find((g) => g.id === 'geometry');
-
-      const origin = geometryGroup?.attributes.find((a) => a.name === 'origin');
-      const size = geometryGroup?.attributes.find((a) => a.name === 'size');
-
-      expect(origin?.isMixed).toBe(true);
-      expect(size?.isMixed).toBe(true);
-    });
-  });
-
-  describe('group sorting and organization', () => {
-    it('should sort groups by priority', () => {
-      const attrs = [
-        {
-          class: 'CView',
-          'mouse-enabled': 'true',
-          origin: '0, 0',
-          'background-color': '#FFF',
-          title: 'Test',
-        },
-      ];
-      const classes = ['CView'];
-
-      const result = mergeSelections(attrs, classes);
-      const groupIds = result.groups.map((g) => g.id);
-
-      expect(groupIds).toEqual(['identity', 'geometry', 'appearance', 'text', 'behavior']);
-    });
-
-    it('should sort attributes within groups alphabetically', () => {
-      const attrs = [
-        {
-          class: 'CView',
-          size: '100, 100',
-          'min-size': '50, 50',
-          origin: '0, 0',
-        },
-      ];
-      const classes = ['CView'];
-
-      const result = mergeSelections(attrs, classes);
-      const geometryGroup = result.groups.find((g) => g.id === 'geometry');
-      const names = geometryGroup?.attributes.map((a) => a.name);
-
-      expect(names).toEqual(['min-size', 'origin', 'size']);
-    });
-  });
-
-  describe('large selection (50+ views)', () => {
-    it('should handle 50 views efficiently', () => {
-      const attrs = Array.from({ length: 50 }, (_, i) => ({
-        class: 'CView',
-        origin: `${i * 10}, ${i * 10}`,
-        'background-color': '#FF0000',
-      }));
-      const classes = Array.from({ length: 50 }, () => 'CView');
-
-      const startTime = performance.now();
-      const result = mergeSelections(attrs, classes);
-      const endTime = performance.now();
-
-      expect(result.selectionCount).toBe(50);
-      expect(result.sameClass).toBe(true);
-      expect(endTime - startTime).toBeLessThan(100);
-
-      const bgColor = result.groups
-        .find((g) => g.id === 'appearance')
-        ?.attributes.find((a) => a.name === 'background-color');
-      expect(bgColor?.isMixed).toBe(false);
-      expect(bgColor?.value).toBe('#FF0000');
-
-      const origin = result.groups
-        .find((g) => g.id === 'geometry')
-        ?.attributes.find((a) => a.name === 'origin');
-      expect(origin?.isMixed).toBe(true);
-    });
-  });
-
-  describe('schema-driven attributes (useSchema=true)', () => {
-    it('should show all CTextLabel schema attributes even with minimal instance', () => {
+  describe('schema-driven behavior', () => {
+    it('should show all schema attributes even with minimal instance', () => {
       const attrs = [{ class: 'CTextLabel', origin: '10, 20', size: '100, 30' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
 
       expect(allAttrNames).toContain('font');
@@ -279,7 +177,7 @@ describe('mergeSelections', () => {
       const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
 
       expect(fontAttr?.isUnset).toBe(true);
@@ -290,7 +188,7 @@ describe('mergeSelections', () => {
       const attrs = [{ class: 'CTextLabel', origin: '10, 20', font: 'MyFont' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
       const originAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'origin');
 
@@ -303,7 +201,7 @@ describe('mergeSelections', () => {
       const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const allAttrs = result.groups.flatMap((g) => g.attributes);
 
       const originAttr = allAttrs.find((a) => a.name === 'origin');
@@ -319,44 +217,48 @@ describe('mergeSelections', () => {
       const attrs = [{ class: 'CTextLabel' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
-      const alignAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'text-alignment');
+      const result = mergeSelections(attrs, classes);
+      const alignAttr = result.groups
+        .flatMap((g) => g.attributes)
+        .find((a) => a.name === 'text-alignment');
 
       expect(alignAttr?.enumValues).toContain('left');
       expect(alignAttr?.enumValues).toContain('center');
       expect(alignAttr?.enumValues).toContain('right');
     });
 
-    it('should default to CViewContainer for view without class', () => {
+    it('should show CViewContainer attributes for view without class', () => {
       const attrs = [{ origin: '0, 0', size: '100, 100' }];
       const classes = ['CViewContainer'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
 
       expect(allAttrNames).toContain('background-color');
       expect(allAttrNames).toContain('background-color-draw-style');
     });
 
-    it('should still show deleted color reference attribute as unset', () => {
+    it('should show unset attribute even when value was deleted', () => {
       const attrs = [{ class: 'CTextLabel', origin: '10, 20' }];
       const classes = ['CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
-      const fontColorAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font-color');
+      const result = mergeSelections(attrs, classes);
+      const fontColorAttr = result.groups
+        .flatMap((g) => g.attributes)
+        .find((a) => a.name === 'font-color');
 
       expect(fontColorAttr).toBeDefined();
       expect(fontColorAttr?.isUnset).toBe(true);
     });
 
-    it('should handle multi-selection with schema', () => {
+    it('should handle multi-selection correctly', () => {
       const attrs = [
         { class: 'CTextLabel', origin: '10, 20', font: 'Font1' },
         { class: 'CTextLabel', origin: '50, 60', font: 'Font1' },
       ];
       const classes = ['CTextLabel', 'CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
 
       expect(fontAttr?.isMixed).toBe(false);
@@ -365,16 +267,82 @@ describe('mergeSelections', () => {
     });
 
     it('should mark as mixed when one view has value and one does not', () => {
-      const attrs = [
-        { class: 'CTextLabel', font: 'Font1' },
-        { class: 'CTextLabel' },
-      ];
+      const attrs = [{ class: 'CTextLabel', font: 'Font1' }, { class: 'CTextLabel' }];
       const classes = ['CTextLabel', 'CTextLabel'];
 
-      const result = mergeSelections(attrs, classes, { useSchema: true });
+      const result = mergeSelections(attrs, classes);
       const fontAttr = result.groups.flatMap((g) => g.attributes).find((a) => a.name === 'font');
 
       expect(fontAttr?.isMixed).toBe(true);
+    });
+  });
+
+  describe('group sorting and organization', () => {
+    it('should sort groups by priority', () => {
+      const attrs = [{ class: 'CView', 'mouse-enabled': 'true', origin: '0, 0' }];
+      const classes = ['CView'];
+
+      const result = mergeSelections(attrs, classes);
+      const groupIds = result.groups.map((g) => g.id);
+
+      expect(groupIds[0]).toBe('identity');
+      expect(groupIds[1]).toBe('geometry');
+      expect(groupIds.indexOf('appearance')).toBeGreaterThan(groupIds.indexOf('geometry'));
+    });
+
+    it('should sort attributes within groups alphabetically', () => {
+      const attrs = [{ class: 'CView', size: '100, 100', origin: '0, 0' }];
+      const classes = ['CView'];
+
+      const result = mergeSelections(attrs, classes);
+      const geometryGroup = result.groups.find((g) => g.id === 'geometry');
+      const names = geometryGroup?.attributes.map((a) => a.name) ?? [];
+
+      for (let i = 1; i < names.length; i++) {
+        expect(names[i].localeCompare(names[i - 1])).toBeGreaterThanOrEqual(0);
+      }
+    });
+  });
+
+  describe('performance', () => {
+    it('should handle 50 views efficiently', () => {
+      const attrs = Array.from({ length: 50 }, (_, i) => ({
+        class: 'CView',
+        origin: `${i * 10}, ${i * 10}`,
+      }));
+      const classes = Array.from({ length: 50 }, () => 'CView');
+
+      const startTime = performance.now();
+      const result = mergeSelections(attrs, classes);
+      const endTime = performance.now();
+
+      expect(result.selectionCount).toBe(50);
+      expect(result.sameClass).toBe(true);
+      expect(endTime - startTime).toBeLessThan(100);
+
+      const origin = result.groups
+        .find((g) => g.id === 'geometry')
+        ?.attributes.find((a) => a.name === 'origin');
+      expect(origin?.isMixed).toBe(true);
+    });
+  });
+
+  describe('non-schema attributes', () => {
+    it('should include custom attributes not in schema', () => {
+      const attrs = [{ class: 'CView', origin: '0, 0', 'my-custom-attr': 'custom-value' }];
+      const classes = ['CView'];
+
+      const result = mergeSelections(attrs, classes);
+      const allAttrNames = result.groups.flatMap((g) => g.attributes.map((a) => a.name));
+
+      expect(allAttrNames).toContain('my-custom-attr');
+
+      const customAttr = result.groups
+        .flatMap((g) => g.attributes)
+        .find((a) => a.name === 'my-custom-attr');
+      expect(customAttr?.value).toBe('custom-value');
+      expect(customAttr?.editorType).toBe('text');
+      expect(customAttr?.isUnset).toBe(false);
     });
   });
 });
