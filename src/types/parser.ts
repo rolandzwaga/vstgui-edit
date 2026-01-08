@@ -18,27 +18,14 @@ export type FormatType = 'json' | 'xml' | 'unknown';
  */
 export type ParseState = 'idle' | 'parsing' | 'valid' | 'invalid';
 
-/**
- * Validation error with location information
- */
 export interface ValidationError {
-  /** Error category */
   type: 'syntax' | 'schema' | 'format';
-
-  /** Human-readable error message */
   message: string;
-
-  /** JSON pointer path (e.g., "/vstgui-ui-description/colors/Background") */
   path?: string;
-
-  /** For XML: original element path */
   xmlPath?: string;
-
-  /** Line number if available (1-indexed) */
   line?: number;
-
-  /** Column number if available (1-indexed) */
   column?: number;
+  data?: string;
 }
 
 /**

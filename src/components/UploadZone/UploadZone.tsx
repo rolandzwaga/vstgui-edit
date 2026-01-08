@@ -1,6 +1,9 @@
-import { Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { documentStore, loadFile, setDragging, reset } from '../../stores/documentStore';
 import styles from './UploadZone.module.css';
+
+const hasParseErrors = () =>
+  documentStore.parseState === 'invalid' && documentStore.parseErrors && documentStore.parseErrors.length > 0;
 
 export function UploadZone() {
   let fileInputRef: HTMLInputElement | undefined;
@@ -79,7 +82,7 @@ export function UploadZone() {
         <p class={styles.subtitle}>Reading file contents</p>
       </Show>
 
-      <Show when={documentStore.uploadState === 'success'}>
+      <Show when={documentStore.uploadState === 'success' && !hasParseErrors()}>
         <svg class={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M9 12l2 2 4-4" />
           <circle cx="12" cy="12" r="10" />
@@ -88,6 +91,37 @@ export function UploadZone() {
         <p class={styles.filename}>{documentStore.metadata?.filename}</p>
         <button class={styles.button} onClick={handleButtonClick} type="button">
           Upload different file
+        </button>
+      </Show>
+
+      <Show when={hasParseErrors()}>
+        <svg class={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <p class={styles.title}>Parse failed</p>
+        <p class={styles.filename}>{documentStore.metadata?.filename}</p>
+        <div class={styles.parseErrors} role="alert">
+          <For each={documentStore.parseErrors}>
+            {(error) => (
+              <div class={styles.parseError}>
+                <div class={styles.errorHeader}>
+                  <span class={styles.errorType}>[{error.type}]</span>
+                  <span class={styles.errorMsg}>{error.message}</span>
+                </div>
+                <Show when={error.path}>
+                  <div class={styles.errorPath}>Path: {error.path}</div>
+                </Show>
+                <Show when={error.data}>
+                  <div class={styles.errorData}>Data: {error.data}</div>
+                </Show>
+              </div>
+            )}
+          </For>
+        </div>
+        <button class={styles.dismissButton} onClick={handleDismissError} type="button">
+          Try again
         </button>
       </Show>
 
