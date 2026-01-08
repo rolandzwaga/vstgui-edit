@@ -1303,6 +1303,31 @@ export function restoreControlTagReference(viewId: string, value: string): boole
   return true;
 }
 
+export function updateColorName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.colors?.[oldName]) return false;
+
+  const colorValue = vstgui.colors[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.colors) return;
+
+      delete draftVstgui.colors[oldName];
+      draftVstgui.colors[newName] = colorValue;
+    })
+  );
+
+  return true;
+}
+
 export function updateColorValue(name: string, newValue: string): string | null {
   const doc = store.document;
   if (!doc) return null;

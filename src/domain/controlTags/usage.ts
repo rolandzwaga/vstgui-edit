@@ -1,4 +1,4 @@
-import type { VSTGUIUIDescription, ViewNode } from '../../types/uidesc';
+import type { ViewNode, VSTGUIUIDescription } from '../../types/uidesc';
 
 export const CONTROL_TAG_ATTRIBUTE = 'control-tag';
 

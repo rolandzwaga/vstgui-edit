@@ -6,11 +6,11 @@ export {
   initControlTagHistoryOperations,
   type RemovedControlTagReference,
 } from './historyOperations';
-export { CONTROL_TAG_ATTRIBUTE, findControlTagUsages, type ControlTagUsage } from './usage';
+export { CONTROL_TAG_ATTRIBUTE, type ControlTagUsage, findControlTagUsages } from './usage';
 export {
   generateUniqueTagName,
   getNextAvailableTagId,
+  type ValidationResult,
   validateTagId,
   validateTagName,
-  type ValidationResult,
 } from './validation';
