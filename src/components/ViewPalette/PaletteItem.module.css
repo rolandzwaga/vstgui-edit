@@ -9,7 +9,7 @@
 }
 
 .item:hover {
-  background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
+  background-color: var(--color-surface-hover, rgb(0 0 0 / 0.05));
 }
 
 .item:active {

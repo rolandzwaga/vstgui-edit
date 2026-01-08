@@ -8,7 +8,7 @@
 }
 
 .row:hover {
-  background: var(--color-bg-hover, rgba(0, 0, 0, 0.03));
+  background: var(--color-bg-hover, rgb(0 0 0 / 0.03));
 }
 
 .name {
@@ -31,7 +31,7 @@
 }
 
 .copyable:hover {
-  color: var(--color-primary, #0066cc);
+  color: var(--color-primary, #06c);
   text-decoration: underline;
 }
 

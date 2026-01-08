@@ -1,12 +1,24 @@
 {
-  "plugins": [
-    "stylelint-value-no-unknown-custom-properties"
-  ],
+  "extends": ["stylelint-config-standard"],
+  "plugins": ["stylelint-value-no-unknown-custom-properties"],
   "rules": {
-    "csstools/value-no-unknown-custom-properties": [true, {
-      "importFrom": [
-        "./src/styles/tokens.css"
-      ]
-    }]
+    "csstools/value-no-unknown-custom-properties": [
+      true,
+      {
+        "importFrom": ["./src/styles/tokens.css"]
+      }
+    ],
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "alpha-value-notation": null,
+    "declaration-empty-line-before": null,
+    "no-descending-specificity": null,
+    "import-notation": null,
+    "property-no-vendor-prefix": [
+      true,
+      {
+        "ignoreProperties": ["appearance"]
+      }
+    ]
   }
 }

@@ -74,8 +74,8 @@
 }
 
 .input:focus {
-  border-color: var(--color-focus, #0066cc);
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+  border-color: var(--color-focus, #06c);
+  box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
 }
 
 .inputError {
@@ -83,7 +83,7 @@
 }
 
 .inputError:focus {
-  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+  box-shadow: 0 0 0 2px rgb(220 53 69 / 0.2);
 }
 
 .error {
@@ -100,8 +100,8 @@
   padding: 0 5px;
   border: none;
   border-radius: 9px;
-  background-color: var(--color-info-light, rgba(0, 102, 204, 0.1));
-  color: var(--color-info, #0066cc);
+  background-color: var(--color-info-light, rgb(0 102 204 / 0.1));
+  color: var(--color-info, #06c);
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
@@ -110,12 +110,12 @@
 }
 
 .usageBadge:hover {
-  background-color: var(--color-info, #0066cc);
+  background-color: var(--color-info, #06c);
   color: white;
 }
 
 .usageBadge:focus-visible {
-  outline: 2px solid var(--color-focus, #0066cc);
+  outline: 2px solid var(--color-focus, #06c);
   outline-offset: 1px;
 }
 
@@ -136,12 +136,12 @@
 }
 
 .deleteButton:hover {
-  background-color: var(--color-error-light, rgba(220, 53, 69, 0.1));
+  background-color: var(--color-error-light, rgb(220 53 69 / 0.1));
   color: var(--color-error, #dc3545);
 }
 
 .deleteButton:focus-visible {
-  outline: 2px solid var(--color-focus, #0066cc);
+  outline: 2px solid var(--color-focus, #06c);
   outline-offset: 1px;
 }
 
@@ -186,8 +186,8 @@
 }
 
 .propertyInput:focus {
-  border-color: var(--color-focus, #0066cc);
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+  border-color: var(--color-focus, #06c);
+  box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
 }
 
 .sizeInputContainer {
@@ -226,13 +226,13 @@
 }
 
 .styleButton:hover {
-  border-color: var(--color-focus, #0066cc);
-  color: var(--color-focus, #0066cc);
+  border-color: var(--color-focus, #06c);
+  color: var(--color-focus, #06c);
 }
 
 .styleButton.styleActive {
-  background-color: var(--color-focus, #0066cc);
-  border-color: var(--color-focus, #0066cc);
+  background-color: var(--color-focus, #06c);
+  border-color: var(--color-focus, #06c);
   color: white;
 }
 

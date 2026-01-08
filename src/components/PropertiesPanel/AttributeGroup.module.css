@@ -25,7 +25,7 @@
 }
 
 .clickable:hover {
-  background: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
+  background: var(--color-bg-hover, rgb(0 0 0 / 0.05));
 }
 
 .chevron {

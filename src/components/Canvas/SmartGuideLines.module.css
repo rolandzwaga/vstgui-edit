@@ -3,7 +3,7 @@
 }
 
 .spacingLabelBg {
-  fill: var(--color-smart-guide-label-bg, rgba(0, 0, 0, 0.8));
+  fill: var(--color-smart-guide-label-bg, rgb(0 0 0 / 0.8));
 }
 
 .spacingLabelText {

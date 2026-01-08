@@ -16,7 +16,7 @@
 .confirmDialog {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0 0 0 / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,7 +28,7 @@
   border-radius: 8px;
   padding: 16px;
   max-width: 280px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
 }
 
 .confirmMessage {
@@ -75,7 +75,7 @@
 .usagePopover {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0 0 0 / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,7 +88,7 @@
   padding: 12px;
   max-width: 280px;
   max-height: 300px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -122,7 +122,7 @@
 }
 
 .closeButton:hover {
-  background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
+  background-color: var(--color-surface-hover, rgb(0 0 0 / 0.05));
 }
 
 .usageList {

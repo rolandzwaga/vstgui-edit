@@ -7,11 +7,11 @@
 }
 
 .row:hover {
-  background-color: var(--color-surface-hover, rgba(0, 0, 0, 0.05));
+  background-color: var(--color-surface-hover, rgb(0 0 0 / 0.05));
 }
 
 .row:focus {
-  outline: 2px solid var(--color-focus, #0066cc);
+  outline: 2px solid var(--color-focus, #06c);
   outline-offset: -2px;
 }
 
@@ -20,7 +20,7 @@
 }
 
 .row:focus-visible {
-  outline: 2px solid var(--color-focus, #0066cc);
+  outline: 2px solid var(--color-focus, #06c);
   outline-offset: -2px;
 }
 
@@ -100,12 +100,12 @@
 }
 
 .dropTarget {
-  background-color: var(--color-primary, #0066cc);
+  background-color: var(--color-primary, #06c);
   color: #fff;
 }
 
 .dropTarget:hover {
-  background-color: var(--color-primary, #0066cc);
+  background-color: var(--color-primary, #06c);
 }
 
 .dropInvalid {
@@ -129,7 +129,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-primary, #0066cc);
+  background-color: var(--color-primary, #06c);
 }
 
 .dropAfter {
@@ -143,5 +143,5 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-primary, #0066cc);
+  background-color: var(--color-primary, #06c);
 }
