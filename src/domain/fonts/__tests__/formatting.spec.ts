@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest';
+import type { FontDefinition } from '../../../types/uidesc';
 import {
-  truncateFontName,
   formatFontSize,
   summarizeFontProperties,
+  truncateFontName,
 } from '../formatting';
-import type { FontDefinition } from '../../../types/uidesc';
 
 describe('truncateFontName', () => {
   test('returns name unchanged if under max length', () => {

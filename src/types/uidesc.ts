@@ -38,10 +38,18 @@ export interface FontDefinition {
 /** Fonts definitions map */
 export type FontsDefinition = Record<string, FontDefinition>;
 
+/** Embedded bitmap data */
+export interface BitmapData {
+  encoding: 'base64';
+  data: string;
+}
+
 /** Bitmap definition */
 export interface BitmapDefinition {
   path: string;
-  'nine-part-tiled-offsets'?: string;
+  'scale-factor'?: string;
+  'nineparttiled-offsets'?: string;
+  data?: BitmapData;
 }
 
 /** Bitmaps definitions map */

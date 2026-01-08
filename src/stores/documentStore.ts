@@ -1248,7 +1248,7 @@ export function deleteColor(
   return { oldValue, removedReferences };
 }
 
-import type { FontDefinition } from '../types/uidesc';
+import type { BitmapDefinition, FontDefinition } from '../types/uidesc';
 
 const FONT_ATTRIBUTES = ['font'];
 
@@ -1395,4 +1395,180 @@ export function deleteFont(
   );
 
   return { font, removedReferences };
+}
+
+const BITMAP_ATTRIBUTES = [
+  'bitmap',
+  'disabled-bitmap',
+  'handle-bitmap',
+  'off-bitmap',
+  'icon',
+  'icon-highlighted',
+  'splash-bitmap',
+];
+
+export interface RemovedBitmapReference {
+  viewId: string;
+  attribute: string;
+  value: string;
+}
+
+function removeBitmapReferencesFromView(
+  view: ViewNode,
+  bitmapName: string,
+  viewId: string,
+  removed: RemovedBitmapReference[]
+): void {
+  for (const attr of BITMAP_ATTRIBUTES) {
+    const value = view.attributes[attr];
+    if (typeof value === 'string' && (value === bitmapName || value === `~ ${bitmapName}`)) {
+      removed.push({ viewId, attribute: attr, value });
+      delete view.attributes[attr];
+    }
+  }
+
+  if (view.children) {
+    for (const [key, child] of Object.entries(view.children)) {
+      removeBitmapReferencesFromView(child, bitmapName, `${viewId}-${key}`, removed);
+    }
+  }
+}
+
+export function getBitmaps(): Record<string, string | BitmapDefinition> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.bitmaps;
+}
+
+export function addBitmap(name: string, bitmap: BitmapDefinition | string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui.bitmaps) {
+        draftVstgui.bitmaps = {};
+      }
+      draftVstgui.bitmaps[name] = typeof bitmap === 'string' ? bitmap : { ...bitmap };
+    })
+  );
+
+  return true;
+}
+
+export function updateBitmapName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.bitmaps?.[oldName]) return false;
+
+  const bitmapDef = vstgui.bitmaps[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.bitmaps) return;
+
+      delete draftVstgui.bitmaps[oldName];
+      draftVstgui.bitmaps[newName] = bitmapDef;
+    })
+  );
+
+  return true;
+}
+
+export function updateBitmapProperty(
+  name: string,
+  prop: string,
+  value: string
+): string | undefined | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.bitmaps?.[name]) return null;
+
+  const bitmap = vstgui.bitmaps[name];
+  if (typeof bitmap === 'string') {
+    if (prop === 'path') {
+      setStore(
+        produce(draft => {
+          const draftDoc = draft.document;
+          if (!draftDoc) return;
+
+          const draftVstgui = draftDoc['vstgui-ui-description'];
+          if (!draftVstgui?.bitmaps) return;
+
+          draftVstgui.bitmaps[name] = value;
+        })
+      );
+      return bitmap;
+    }
+    return null;
+  }
+
+  const oldValue = bitmap[prop as keyof BitmapDefinition] as string | undefined;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.bitmaps?.[name]) return;
+
+      const bitmapRecord = draftVstgui.bitmaps[name];
+      if (typeof bitmapRecord === 'string') return;
+
+      (bitmapRecord as unknown as Record<string, string>)[prop] = value;
+    })
+  );
+
+  return oldValue;
+}
+
+export function deleteBitmap(
+  name: string
+): { bitmap: string | BitmapDefinition; removedReferences: RemovedBitmapReference[] } | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.bitmaps?.[name]) return null;
+
+  const bitmap = vstgui.bitmaps[name];
+  const bitmapCopy = typeof bitmap === 'string' ? bitmap : { ...bitmap };
+  const removedReferences: RemovedBitmapReference[] = [];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.bitmaps) return;
+
+      if (draftVstgui.templates) {
+        for (const [templateName, template] of Object.entries(draftVstgui.templates)) {
+          removeBitmapReferencesFromView(template, name, templateName, removedReferences);
+        }
+      }
+
+      delete draftVstgui.bitmaps[name];
+    })
+  );
+
+  return { bitmap: bitmapCopy, removedReferences };
 }

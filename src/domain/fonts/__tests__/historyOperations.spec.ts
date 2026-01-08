@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { FontDefinition } from '../../../types/uidesc';
 import {
   createAddFontOperation,
   createDeleteFontOperation,
@@ -6,7 +7,6 @@ import {
   createEditFontPropertyOperation,
   initFontHistoryOperations,
 } from '../historyOperations';
-import type { FontDefinition } from '../../../types/uidesc';
 
 const mockAddFont = vi.fn();
 const mockDeleteFont = vi.fn(() => ({ removedReferences: [] }));
