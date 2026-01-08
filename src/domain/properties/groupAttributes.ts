@@ -69,6 +69,8 @@ export function groupAttributes(attributes: Record<string, unknown>): AttributeG
       value: stringValue,
       isMixed: false,
       isCopyable: stringValue !== '',
+      isUnset: false,
+      editorType: 'text',
     });
   }
 

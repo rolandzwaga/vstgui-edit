@@ -81,6 +81,8 @@ export function mergeSelections(
       value,
       isMixed,
       isCopyable,
+      isUnset: false,
+      editorType: 'text',
     });
   }
 

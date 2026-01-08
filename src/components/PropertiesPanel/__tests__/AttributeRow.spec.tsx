@@ -9,6 +9,8 @@ describe('AttributeRow', () => {
     value: '10, 20',
     isMixed: false,
     isCopyable: true,
+    isUnset: false,
+    editorType: 'text',
     ...overrides,
   });
 

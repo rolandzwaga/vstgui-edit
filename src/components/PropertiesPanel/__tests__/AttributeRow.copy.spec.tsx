@@ -9,6 +9,8 @@ describe('AttributeRow - Copy functionality', () => {
     value: '10, 20',
     isMixed: false,
     isCopyable: true,
+    isUnset: false,
+    editorType: 'text',
     ...overrides,
   });
 
