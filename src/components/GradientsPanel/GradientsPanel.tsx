@@ -145,6 +145,7 @@ export const GradientsPanel: Component = () => {
     <div class={styles.panel} data-testid="gradients-panel">
       <CollapsibleSection
         title="Gradients"
+        defaultExpanded={false}
         headerActions={<AddGradientButton onClick={handleAddGradient} disabled={!hasDocument()} />}
       >
         <Show when={hasGradients()} fallback={<EmptyState />}>

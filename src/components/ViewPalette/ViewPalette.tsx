@@ -13,7 +13,7 @@ export const ViewPalette: Component = () => {
 
   return (
     <div class={styles.panel} data-testid="view-palette">
-      <CollapsibleSection title="Views">
+      <CollapsibleSection title="Views" defaultExpanded={false}>
         <div class={styles.searchContainer}>
           <input
             type="text"

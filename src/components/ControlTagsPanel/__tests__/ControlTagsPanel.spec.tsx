@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { ControlTagsPanel } from '../ControlTagsPanel';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -29,14 +29,20 @@ vi.mock('../../../domain/controlTags/usage', () => ({
   findControlTagUsages: vi.fn(() => []),
 }));
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Control Tags/i });
+  await fireEvent.click(header);
+}
+
 describe('ControlTagsPanel', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
   });
 
   describe('given no document loaded', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('control-tags-empty-state')).toBeInTheDocument();
       expect(screen.getByText('No control tags defined')).toBeInTheDocument();
@@ -44,7 +50,7 @@ describe('ControlTagsPanel', () => {
   });
 
   describe('given document with no control-tags section', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -53,13 +59,14 @@ describe('ControlTagsPanel', () => {
       };
 
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('control-tags-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with empty control-tags', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -69,13 +76,14 @@ describe('ControlTagsPanel', () => {
       };
 
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('control-tags-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with control-tags', () => {
-    it('should render control tag items', () => {
+    it('should render control tag items', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -89,6 +97,7 @@ describe('ControlTagsPanel', () => {
       };
 
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       expect(screen.queryByTestId('control-tags-empty-state')).not.toBeInTheDocument();
       expect(screen.getByText('Volume')).toBeInTheDocument();
@@ -96,7 +105,7 @@ describe('ControlTagsPanel', () => {
       expect(screen.getByText('Bypass')).toBeInTheDocument();
     });
 
-    it('should display tag IDs', () => {
+    it('should display tag IDs', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -109,6 +118,7 @@ describe('ControlTagsPanel', () => {
       };
 
       render(() => <ControlTagsPanel />);
+      await expandSection();
 
       const tagIdElements = screen.getAllByTestId('control-tag-id');
       expect(tagIdElements).toHaveLength(2);

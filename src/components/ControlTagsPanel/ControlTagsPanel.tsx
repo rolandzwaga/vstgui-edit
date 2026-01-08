@@ -122,6 +122,7 @@ export const ControlTagsPanel: Component = () => {
     <div class={styles.panel} data-testid="control-tags-panel">
       <CollapsibleSection
         title="Control Tags"
+        defaultExpanded={false}
         headerActions={<AddControlTagButton onClick={handleOpenAddDialog} disabled={!hasDocument()} />}
       >
         <Show when={hasControlTags()} fallback={<EmptyState />}>

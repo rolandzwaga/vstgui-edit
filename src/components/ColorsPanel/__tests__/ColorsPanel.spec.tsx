@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { ColorsPanel } from '../ColorsPanel';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -16,14 +16,20 @@ vi.mock('../../../stores/documentStore', () => ({
   },
 }));
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Colors/i });
+  await fireEvent.click(header);
+}
+
 describe('ColorsPanel', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
   });
 
   describe('given no document loaded', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       render(() => <ColorsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('colors-empty-state')).toBeInTheDocument();
       expect(screen.getByText('No colors defined')).toBeInTheDocument();
@@ -31,7 +37,7 @@ describe('ColorsPanel', () => {
   });
 
   describe('given document with no colors section', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -40,13 +46,14 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('colors-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with empty colors', () => {
-    it('should render empty state', () => {
+    it('should render empty state', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -56,13 +63,14 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       expect(screen.getByTestId('colors-empty-state')).toBeInTheDocument();
     });
   });
 
   describe('given document with colors', () => {
-    it('should render color items', () => {
+    it('should render color items', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -75,13 +83,14 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       expect(screen.queryByTestId('colors-empty-state')).not.toBeInTheDocument();
       expect(screen.getByText('Primary')).toBeInTheDocument();
       expect(screen.getByText('Secondary')).toBeInTheDocument();
     });
 
-    it('should render color values', () => {
+    it('should render color values', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -93,6 +102,7 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       expect(screen.getByText('#ff0000ff')).toBeInTheDocument();
     });
@@ -131,7 +141,7 @@ describe('ColorsPanel', () => {
   });
 
   describe('given ARIA attributes (accessibility)', () => {
-    it('should have role="list" for colors list', () => {
+    it('should have role="list" for colors list', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -143,12 +153,13 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       const list = screen.getByRole('list');
       expect(list).toBeInTheDocument();
     });
 
-    it('should have aria-label for colors list', () => {
+    it('should have aria-label for colors list', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -160,6 +171,7 @@ describe('ColorsPanel', () => {
       };
 
       render(() => <ColorsPanel />);
+      await expandSection();
 
       const list = screen.getByRole('list');
       expect(list).toHaveAttribute('aria-label', 'Color definitions');

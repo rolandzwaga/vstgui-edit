@@ -112,6 +112,7 @@ export const VariablesPanel: Component = () => {
     <div class={styles.panel} data-testid="variables-panel">
       <CollapsibleSection
         title="Variables"
+        defaultExpanded={false}
         headerActions={<AddVariableButton onClick={handleAddVariable} disabled={!hasDocument()} />}
       >
         <Show when={hasVariables()} fallback={<EmptyState />}>

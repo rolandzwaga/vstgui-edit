@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { select, resetSelection } from '../../../stores/selectionStore';
 import { resetHierarchy, isExpanded } from '../../../stores/hierarchyStore';
@@ -26,6 +26,11 @@ vi.mock('../../../stores/templateStore', () => ({
   templateStore: mockTemplateStore,
 }));
 
+async function expandPanelSection() {
+  const header = screen.getByRole('button', { name: /Hierarchy/i });
+  await fireEvent.click(header);
+}
+
 describe('HierarchyPanel canvas-to-tree sync', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
@@ -37,7 +42,7 @@ describe('HierarchyPanel canvas-to-tree sync', () => {
   });
 
   describe('given canvas selection changes', () => {
-    it('should show selected state in tree', () => {
+    it('should show selected state in tree', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -50,6 +55,7 @@ describe('HierarchyPanel canvas-to-tree sync', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       testInRoot(() => {
         select('MainView');
@@ -80,6 +86,7 @@ describe('HierarchyPanel canvas-to-tree sync', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       testInRoot(() => {
         resetHierarchy();
@@ -96,7 +103,7 @@ describe('HierarchyPanel canvas-to-tree sync', () => {
   });
 
   describe('given multi-selection on canvas', () => {
-    it('should show all selected nodes in tree', () => {
+    it('should show all selected nodes in tree', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -113,6 +120,7 @@ describe('HierarchyPanel canvas-to-tree sync', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       testInRoot(() => {
         select('MainView-button');

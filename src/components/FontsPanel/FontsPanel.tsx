@@ -124,6 +124,7 @@ export const FontsPanel: Component = () => {
     <div class={styles.panel} data-testid="fonts-panel">
       <CollapsibleSection
         title="Fonts"
+        defaultExpanded={false}
         headerActions={<AddFontButton onClick={handleAddFont} disabled={!hasDocument()} />}
       >
         <Show when={hasFonts()} fallback={<EmptyState />}>

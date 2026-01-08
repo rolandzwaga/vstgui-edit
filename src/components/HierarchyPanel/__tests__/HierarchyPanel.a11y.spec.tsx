@@ -25,6 +25,11 @@ vi.mock('../../../stores/templateStore', () => ({
   templateStore: mockTemplateStore,
 }));
 
+async function expandPanelSection() {
+  const header = screen.getByRole('button', { name: /Hierarchy/i });
+  await fireEvent.click(header);
+}
+
 describe('HierarchyPanel accessibility', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
@@ -36,7 +41,7 @@ describe('HierarchyPanel accessibility', () => {
   });
 
   describe('given keyboard navigation', () => {
-    it('should allow Tab to focus tree nodes', () => {
+    it('should allow Tab to focus tree nodes', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -49,6 +54,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       expect(row).toHaveAttribute('tabindex', '0');
@@ -67,6 +73,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       row.focus();
@@ -90,6 +97,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       row.focus();
@@ -116,6 +124,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
 
@@ -150,6 +159,7 @@ describe('HierarchyPanel accessibility', () => {
       });
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       expect(row).toHaveAttribute('aria-expanded', 'true');
@@ -181,6 +191,7 @@ describe('HierarchyPanel accessibility', () => {
       });
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       expect(row).toHaveAttribute('aria-expanded', 'true');
@@ -207,6 +218,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
 
@@ -233,6 +245,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       expect(row).not.toHaveAttribute('aria-expanded');
@@ -257,6 +270,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       fireEvent.keyDown(row, { key: 'Tab' });
@@ -268,7 +282,7 @@ describe('HierarchyPanel accessibility', () => {
   });
 
   describe('given focus styles', () => {
-    it('should have visible focus indicator', () => {
+    it('should have visible focus indicator', async () => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
           version: '1',
@@ -281,6 +295,7 @@ describe('HierarchyPanel accessibility', () => {
       };
 
       render(() => <HierarchyPanel />);
+      await expandPanelSection();
 
       const row = screen.getByTestId('tree-node-MainView');
       row.focus();

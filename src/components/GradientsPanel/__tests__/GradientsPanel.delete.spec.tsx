@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { GradientColorStop } from '../../../types/uidesc';
 import { GradientsPanel } from '../GradientsPanel';
@@ -43,6 +43,11 @@ vi.mock('../../../domain/gradients/usage', () => ({
   findGradientUsages: mockFindGradientUsages,
 }));
 
+async function expandSection() {
+  const header = screen.getByRole('button', { name: /Gradients/i });
+  await fireEvent.click(header);
+}
+
 describe('GradientsPanel - Delete', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,6 +59,7 @@ describe('GradientsPanel - Delete', () => {
     it('should delete immediately without confirmation', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('gradient-item');
       await user.hover(item);
@@ -76,6 +82,7 @@ describe('GradientsPanel - Delete', () => {
     it('should show confirmation dialog', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('gradient-item');
       await user.hover(item);
@@ -97,6 +104,7 @@ describe('GradientsPanel - Delete', () => {
 
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('gradient-item');
       await user.hover(item);
@@ -110,6 +118,7 @@ describe('GradientsPanel - Delete', () => {
     it('should delete when confirm button clicked', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('gradient-item');
       await user.hover(item);
@@ -127,6 +136,7 @@ describe('GradientsPanel - Delete', () => {
     it('should close dialog when cancel button clicked', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const item = screen.getByTestId('gradient-item');
       await user.hover(item);
@@ -150,8 +160,9 @@ describe('GradientsPanel - Delete', () => {
       ]);
     });
 
-    it('should show usage badge with count', () => {
+    it('should show usage badge with count', async () => {
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const badge = screen.getByTestId('usage-badge');
       expect(badge).toHaveTextContent('2');
@@ -160,6 +171,7 @@ describe('GradientsPanel - Delete', () => {
     it('should open usage popover when badge clicked', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const badge = screen.getByTestId('usage-badge');
       await user.click(badge);
@@ -171,6 +183,7 @@ describe('GradientsPanel - Delete', () => {
     it('should show usage details in popover', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const badge = screen.getByTestId('usage-badge');
       await user.click(badge);
@@ -182,6 +195,7 @@ describe('GradientsPanel - Delete', () => {
     it('should close popover when close button clicked', async () => {
       const user = userEvent.setup();
       render(() => <GradientsPanel />);
+      await expandSection();
 
       const badge = screen.getByTestId('usage-badge');
       await user.click(badge);

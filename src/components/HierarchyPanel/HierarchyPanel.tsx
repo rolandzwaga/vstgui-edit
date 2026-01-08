@@ -52,7 +52,7 @@ export const HierarchyPanel: Component = () => {
   return (
     <HierarchyDragProvider>
       <div class={styles.panel} data-testid="hierarchy-panel">
-        <CollapsibleSection title="Hierarchy">
+        <CollapsibleSection title="Hierarchy" defaultExpanded={false}>
           <Show when={tree()} fallback={<EmptyState />}>
             {(treeNode) => (
               <div role="tree" aria-label="View hierarchy" class={styles.tree}>
