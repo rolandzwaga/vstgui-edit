@@ -1128,6 +1128,192 @@ export function addColor(name: string, value: string): boolean {
 }
 
 // ============================================================================
+// Variables Functions
+// ============================================================================
+
+export interface RemovedVariableReference {
+  viewId: string;
+  attribute: string;
+  value: string;
+}
+
+export function getVariables(): Record<string, string> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.variables;
+}
+
+export function addVariable(name: string, value: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui.variables) {
+        draftVstgui.variables = {};
+      }
+      draftVstgui.variables[name] = value;
+    })
+  );
+
+  return true;
+}
+
+export function updateVariableName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.variables || !(oldName in vstgui.variables)) return false;
+
+  const value = vstgui.variables[oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.variables) return;
+
+      delete draftVstgui.variables[oldName];
+      draftVstgui.variables[newName] = value;
+    })
+  );
+
+  return true;
+}
+
+export function updateVariableValue(name: string, newValue: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.variables || !(name in vstgui.variables)) return null;
+
+  const oldValue = vstgui.variables[name];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.variables) return;
+
+      draftVstgui.variables[name] = newValue;
+    })
+  );
+
+  return oldValue;
+}
+
+function removeVariableReferencesFromView(
+  view: ViewNode,
+  variableName: string,
+  viewId: string,
+  removed: RemovedVariableReference[]
+): void {
+  const exactPattern = new RegExp(
+    `var\\.${escapeRegExpForVariables(variableName)}(?![A-Za-z0-9_-])`
+  );
+
+  for (const [attr, value] of Object.entries(view.attributes)) {
+    if (typeof value === 'string' && exactPattern.test(value)) {
+      removed.push({ viewId, attribute: attr, value });
+      delete view.attributes[attr];
+    }
+  }
+
+  if (view.children) {
+    for (const [key, child] of Object.entries(view.children)) {
+      removeVariableReferencesFromView(child, variableName, `${viewId}-${key}`, removed);
+    }
+  }
+}
+
+function escapeRegExpForVariables(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function deleteVariable(
+  name: string
+): { value: string; removedReferences: RemovedVariableReference[] } | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.variables?.[name]) return null;
+
+  const value = vstgui.variables[name];
+  const removedReferences: RemovedVariableReference[] = [];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.variables) return;
+
+      if (draftVstgui.templates) {
+        for (const [templateName, template] of Object.entries(draftVstgui.templates)) {
+          removeVariableReferencesFromView(template, name, templateName, removedReferences);
+        }
+      }
+
+      delete draftVstgui.variables[name];
+    })
+  );
+
+  return { value, removedReferences };
+}
+
+export function restoreVariableReference(
+  viewId: string,
+  attribute: string,
+  value: string
+): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) return false;
+
+  const templateEntries = Object.entries(vstgui.templates);
+  if (templateEntries.length === 0) return false;
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+  if (!view) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes[attribute] = value;
+      }
+    })
+  );
+
+  return true;
+}
+
+// ============================================================================
 // Control Tags Functions
 // ============================================================================
 

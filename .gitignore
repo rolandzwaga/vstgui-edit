@@ -147,4 +147,6 @@ vite.config.ts.timestamp-*
 # Claude Code local settings
 .claude/settings.local.json
 
-.opencode/editor.uidesc
+.opencode/
+
+editor.uidesc

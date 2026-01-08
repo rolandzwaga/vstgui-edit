@@ -40,7 +40,11 @@ export interface HistoryOperation {
     | 'add-control-tag'
     | 'edit-control-tag-name'
     | 'edit-control-tag-id'
-    | 'delete-control-tag';
+    | 'delete-control-tag'
+    | 'add-variable'
+    | 'edit-variable-name'
+    | 'edit-variable-value'
+    | 'delete-variable';
   description: string;
   undo: () => void;
   redo: () => void;
