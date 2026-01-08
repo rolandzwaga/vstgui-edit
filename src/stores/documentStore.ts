@@ -1127,6 +1127,182 @@ export function addColor(name: string, value: string): boolean {
   return true;
 }
 
+// ============================================================================
+// Control Tags Functions
+// ============================================================================
+
+export interface RemovedControlTagReference {
+  viewId: string;
+  attribute: string;
+  value: string;
+}
+
+export function getControlTags(): Record<string, string> | undefined {
+  const doc = store.document;
+  if (!doc) return undefined;
+
+  const vstgui = doc['vstgui-ui-description'];
+  return vstgui?.['control-tags'];
+}
+
+export function addControlTag(name: string, tagId: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui) return;
+
+      if (!draftVstgui['control-tags']) {
+        draftVstgui['control-tags'] = {};
+      }
+      draftVstgui['control-tags'][name] = tagId;
+    })
+  );
+
+  return true;
+}
+
+export function updateControlTagName(oldName: string, newName: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.['control-tags']?.[oldName]) return false;
+
+  const tagId = vstgui['control-tags'][oldName];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.['control-tags']) return;
+
+      delete draftVstgui['control-tags'][oldName];
+      draftVstgui['control-tags'][newName] = tagId;
+    })
+  );
+
+  return true;
+}
+
+export function updateControlTagId(name: string, newTagId: string): string | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.['control-tags']?.[name]) return null;
+
+  const oldTagId = vstgui['control-tags'][name];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.['control-tags']) return;
+
+      draftVstgui['control-tags'][name] = newTagId;
+    })
+  );
+
+  return oldTagId;
+}
+
+function removeControlTagReferencesFromView(
+  view: ViewNode,
+  tagName: string,
+  viewId: string,
+  removed: RemovedControlTagReference[]
+): void {
+  if (view.attributes['control-tag'] === tagName) {
+    removed.push({
+      viewId,
+      attribute: 'control-tag',
+      value: tagName,
+    });
+    delete view.attributes['control-tag'];
+  }
+
+  if (view.children) {
+    for (const [key, child] of Object.entries(view.children)) {
+      removeControlTagReferencesFromView(child, tagName, `${viewId}-${key}`, removed);
+    }
+  }
+}
+
+export function deleteControlTag(
+  name: string
+): { tagId: string; removedReferences: RemovedControlTagReference[] } | null {
+  const doc = store.document;
+  if (!doc) return null;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.['control-tags']?.[name]) return null;
+
+  const tagId = vstgui['control-tags'][name];
+  const removedReferences: RemovedControlTagReference[] = [];
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.['control-tags']) return;
+
+      if (draftVstgui.templates) {
+        for (const [templateName, template] of Object.entries(draftVstgui.templates)) {
+          removeControlTagReferencesFromView(template, name, templateName, removedReferences);
+        }
+      }
+
+      delete draftVstgui['control-tags'][name];
+    })
+  );
+
+  return { tagId, removedReferences };
+}
+
+export function restoreControlTagReference(viewId: string, value: string): boolean {
+  const doc = store.document;
+  if (!doc) return false;
+
+  const vstgui = doc['vstgui-ui-description'];
+  if (!vstgui?.templates) return false;
+
+  const templateEntries = Object.entries(vstgui.templates);
+  if (templateEntries.length === 0) return false;
+
+  const [templateId, templateView] = templateEntries[0];
+  const view = findViewInTree(templateView, viewId, templateId);
+  if (!view) return false;
+
+  setStore(
+    produce(draft => {
+      const draftDoc = draft.document;
+      if (!draftDoc) return;
+
+      const draftVstgui = draftDoc['vstgui-ui-description'];
+      if (!draftVstgui?.templates) return;
+
+      const draftView = findViewInTree(draftVstgui.templates[templateId], viewId, templateId);
+      if (draftView) {
+        draftView.attributes['control-tag'] = value;
+      }
+    })
+  );
+
+  return true;
+}
+
 export function updateColorName(oldName: string, newName: string): boolean {
   const doc = store.document;
   if (!doc) return false;
@@ -1134,7 +1310,7 @@ export function updateColorName(oldName: string, newName: string): boolean {
   const vstgui = doc['vstgui-ui-description'];
   if (!vstgui?.colors?.[oldName]) return false;
 
-  const value = vstgui.colors[oldName];
+  const colorValue = vstgui.colors[oldName];
 
   setStore(
     produce(draft => {
@@ -1145,7 +1321,7 @@ export function updateColorName(oldName: string, newName: string): boolean {
       if (!draftVstgui?.colors) return;
 
       delete draftVstgui.colors[oldName];
-      draftVstgui.colors[newName] = value;
+      draftVstgui.colors[newName] = colorValue;
     })
   );
 

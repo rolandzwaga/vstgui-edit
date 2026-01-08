@@ -36,7 +36,11 @@ export interface HistoryOperation {
     | 'add-gradient'
     | 'edit-gradient-name'
     | 'edit-gradient-stops'
-    | 'delete-gradient';
+    | 'delete-gradient'
+    | 'add-control-tag'
+    | 'edit-control-tag-name'
+    | 'edit-control-tag-id'
+    | 'delete-control-tag';
   description: string;
   undo: () => void;
   redo: () => void;
