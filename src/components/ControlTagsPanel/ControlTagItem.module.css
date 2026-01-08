@@ -67,6 +67,22 @@
   transition: background-color 0.15s ease;
 }
 
+.unusedBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 9px;
+  background-color: var(--color-error-light, rgb(220 53 69 / 0.1));
+  color: var(--color-error, #dc3545);
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
 .usageBadge:hover {
   background-color: var(--color-info, #06c);
   color: white;

@@ -204,7 +204,14 @@ export const ControlTagItem: Component<ControlTagItemProps> = (props) => {
           </div>
         </Show>
       </div>
-      <Show when={props.usageCount && props.usageCount > 0}>
+      <Show
+        when={props.usageCount && props.usageCount > 0}
+        fallback={
+          <span class={styles.unusedBadge} data-testid="unused-badge" aria-label="Unused">
+            0
+          </span>
+        }
+      >
         <button
           type="button"
           class={styles.usageBadge}
