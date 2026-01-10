@@ -227,52 +227,52 @@ A user sees an alignment section in the toolbar with clearly labeled buttons sho
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-014 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015a | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015b | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015c | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015d | ⬜ PENDING | [Test or file that verifies this] |
-| FR-016 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-017 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-018 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-019 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-020 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-021 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-022 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-023 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-024 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-025 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-026 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-027 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-027a | ⬜ PENDING | [Test or file that verifies this] |
-| FR-028 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-029 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-030 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-031 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-032 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-033 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-034 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
-| SC-006 | ⬜ PENDING | [Measurement or test result] |
-| SC-007 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | `alignViews.spec.ts` - "aligns all views to leftmost left edge" |
+| FR-002 | ✅ MET | `alignViews.spec.ts` - "aligns all views to horizontal center of bounding box" |
+| FR-003 | ✅ MET | `alignViews.spec.ts` - "aligns all views to rightmost right edge" |
+| FR-004 | ✅ MET | `alignViews.spec.ts` - "aligns all views to topmost top edge" |
+| FR-005 | ✅ MET | `alignViews.spec.ts` - "aligns all views to vertical center of bounding box" |
+| FR-006 | ✅ MET | `alignViews.spec.ts` - "aligns all views to bottommost bottom edge" |
+| FR-007 | ✅ MET | `alignViews.spec.ts` - "single-view alignment to parent" describe block |
+| FR-008 | ✅ MET | `alignViews.spec.ts` - "aligns center to parent center" |
+| FR-009 | ✅ MET | `alignViews.spec.ts` - "aligns middle to parent middle" |
+| FR-010 | ✅ MET | `alignViews.spec.ts` - "aligns left/right/top/bottom edge to parent" tests |
+| FR-011 | ✅ MET | `distributeViews.spec.ts` - "distributes 3 views with equal gaps" |
+| FR-012 | ✅ MET | `distributeViews.spec.ts` - "distributes 3 views vertically with equal gaps" |
+| FR-013 | ✅ MET | `distributeViews.spec.ts` - "keeps outer views fixed" |
+| FR-014 | ✅ MET | `distributeViews.spec.ts` - "returns empty array for less than 3 views" |
+| FR-015 | ✅ MET | `alignmentToolbarStore.spec.ts` - "starts in docked state" |
+| FR-015a | ⚠️ PARTIAL | Store supports undock; 20px drag threshold not yet implemented in UI |
+| FR-015b | ✅ MET | `alignmentToolbarStore.spec.ts` - "updateFloatingPosition" tests |
+| FR-015c | ✅ MET | `alignmentToolbarStore.spec.ts` - "dock()" sets isDocked to true |
+| FR-015d | ✅ MET | `alignmentToolbarStore.spec.ts` - "restores floating position (400, 100) from localStorage" |
+| FR-016 | ✅ MET | `AlignmentToolbar.spec.tsx` - "groups buttons correctly" |
+| FR-017 | ✅ MET | `AlignmentToolbar.spec.tsx` - "groups buttons correctly" |
+| FR-018 | ✅ MET | `AlignmentToolbar.spec.tsx` - "groups buttons correctly" |
+| FR-019 | ✅ MET | `AlignmentIcons.tsx` - 8 SVG icons implemented |
+| FR-020 | ✅ MET | `AlignmentToolbar.spec.tsx` - "shows keyboard shortcut in tooltip" tests |
+| FR-021 | ✅ MET | `AlignmentToolbar.spec.tsx` - "disables all buttons when no selection" |
+| FR-022 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+L returns true and triggers align left" |
+| FR-023 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+C returns true and triggers align center" |
+| FR-024 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+R returns true and triggers align right" |
+| FR-025 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+T returns true and triggers align top" |
+| FR-026 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+M returns true and triggers align middle" |
+| FR-027 | ✅ MET | `shortcuts.spec.ts` - "Ctrl+Shift+B returns true and triggers align bottom" |
+| FR-027a | ✅ MET | `shortcuts.spec.ts` - "returns false for unrelated keys" (no distribution shortcuts) |
+| FR-028 | ✅ MET | `AlignmentToolbar.integration.spec.tsx` - "restores original positions on undo" |
+| FR-029 | ✅ MET | `AlignmentToolbar.integration.spec.tsx` - "reapplies alignment on redo" |
+| FR-030 | ✅ MET | `historyOperations.spec.ts` - "generates correct text for left/center/right alignment" |
+| FR-031 | ✅ MET | `alignViews.spec.ts` - "returns empty array if views already aligned" |
+| FR-032 | ✅ MET | `AlignmentToolbar.spec.tsx` - "has aria-label" test |
+| FR-033 | ✅ MET | `shortcuts.spec.ts` - keyboard shortcut handler integration |
+| FR-034 | ✅ MET | `AlignmentToolbar.spec.tsx` - "has role=toolbar"`, buttons are focusable |
+| SC-001 | ✅ MET | `AlignmentToolbar.integration.spec.tsx` - "selects views, clicks button, verifies positions change" |
+| SC-002 | ✅ MET | `alignViews.spec.ts` - single-view alignment tests (center H + V) |
+| SC-003 | ✅ MET | `AlignmentToolbar.integration.spec.tsx` - "distributes 3+ views with undo support" |
+| SC-004 | ✅ MET | `historyOperations.spec.ts` - undo/redo operations are synchronous |
+| SC-005 | ✅ MET | `AlignmentToolbar.spec.tsx` - disabled state tests with visual feedback |
+| SC-006 | ✅ MET | `shortcuts.spec.ts` - 6 alignment shortcuts; no distribution shortcuts |
+| SC-007 | ✅ MET | `AlignmentToolbar.tsx` - static render, no async loading |
 
 **CRITICAL**: Any NOT MET requires explicit user approval before claiming completion.
 
