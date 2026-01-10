@@ -2,7 +2,9 @@ import { type Component, createEffect, createSignal, For, onCleanup, onMount, Sh
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { documentStore, markClean, setFileHandle } from '../../stores/documentStore';
 import {
+  cancelFormatChange,
   closeDropdown,
+  confirmFormatChange,
   initializeFormat,
   openDropdown,
   saveFormatStore,
@@ -16,6 +18,7 @@ import {
   saveToFileHandle,
   showSaveFilePicker,
 } from '../../services/fileService';
+import { FormatChangeDialog } from './FormatChangeDialog';
 import styles from './SaveButton.module.css';
 
 export interface SaveButtonProps {
@@ -137,6 +140,11 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Don't handle keys when dialog is open
+    if (saveFormatStore.isConfirmDialogOpen) {
+      return;
+    }
+
     // Ctrl+S to save
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -164,69 +172,93 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
     selectFormat(format);
   };
 
+  const handleConfirmFormatChange = () => {
+    confirmFormatChange();
+    chevronRef?.focus();
+  };
+
+  const handleCancelFormatChange = () => {
+    cancelFormatChange();
+    chevronRef?.focus();
+  };
+
   const isDisabled = () => !documentStore.isDirty || isSaving();
 
   const formatLabel = () => saveFormatStore.selectedFormat.toUpperCase();
 
-  return (
-    <div
-      ref={containerRef}
-      class={`${styles.container} ${props.class ?? ''}`}
-      role="group"
-      aria-label="Save options"
-    >
-      <button
-        type="button"
-        class={`${styles.mainButton} ${isSaving() ? styles.saving : ''}`}
-        onClick={handleSave}
-        disabled={isDisabled()}
-        aria-label={isSaving() ? 'Saving...' : `Save (${formatLabel()}) (Ctrl+S)`}
-        title="Save (Ctrl+S)"
-      >
-        <Show when={isSaving()} fallback={<SaveIcon />}>
-          <span class={styles.spinner} />
-        </Show>
-        Save ({formatLabel()})
-      </button>
-      <div class={styles.separator} />
-      <button
-        ref={chevronRef}
-        type="button"
-        class={styles.chevronButton}
-        onClick={handleChevronClick}
-        disabled={isDisabled()}
-        aria-haspopup="menu"
-        aria-expanded={saveFormatStore.isDropdownOpen}
-        aria-label="Select save format"
-      >
-        <ChevronIcon />
-      </button>
+  // Get original format for dialog
+  const originalFormat = () => documentStore.originalFormat ?? 'json';
 
-      {/* Dropdown menu */}
-      <Show when={saveFormatStore.isDropdownOpen}>
-        <div
-          ref={dropdownRef}
-          class={styles.dropdown}
-          role="menu"
-          aria-label="Save format options"
+  return (
+    <>
+      <div
+        ref={containerRef}
+        class={`${styles.container} ${props.class ?? ''}`}
+        role="group"
+        aria-label="Save options"
+      >
+        <button
+          type="button"
+          class={`${styles.mainButton} ${isSaving() ? styles.saving : ''}`}
+          onClick={handleSave}
+          disabled={isDisabled()}
+          aria-label={isSaving() ? 'Saving...' : `Save (${formatLabel()}) (Ctrl+S)`}
+          title="Save (Ctrl+S)"
         >
-          <For each={FORMAT_OPTIONS}>
-            {(option) => (
-              <button
-                type="button"
-                class={`${styles.dropdownItem} ${
-                  saveFormatStore.selectedFormat === option.value ? styles.dropdownItemActive : ''
-                }`}
-                role="menuitem"
-                onClick={() => handleFormatSelect(option.value)}
-              >
-                {option.label}
-              </button>
-            )}
-          </For>
-        </div>
-      </Show>
-    </div>
+          <Show when={isSaving()} fallback={<SaveIcon />}>
+            <span class={styles.spinner} />
+          </Show>
+          Save ({formatLabel()})
+        </button>
+        <div class={styles.separator} />
+        <button
+          ref={chevronRef}
+          type="button"
+          class={styles.chevronButton}
+          onClick={handleChevronClick}
+          disabled={isDisabled()}
+          aria-haspopup="menu"
+          aria-expanded={saveFormatStore.isDropdownOpen}
+          aria-label="Select save format"
+        >
+          <ChevronIcon />
+        </button>
+
+        {/* Dropdown menu */}
+        <Show when={saveFormatStore.isDropdownOpen}>
+          <div
+            ref={dropdownRef}
+            class={styles.dropdown}
+            role="menu"
+            aria-label="Save format options"
+          >
+            <For each={FORMAT_OPTIONS}>
+              {(option) => (
+                <button
+                  type="button"
+                  class={`${styles.dropdownItem} ${
+                    saveFormatStore.selectedFormat === option.value ? styles.dropdownItemActive : ''
+                  }`}
+                  role="menuitem"
+                  onClick={() => handleFormatSelect(option.value)}
+                >
+                  {option.label}
+                </button>
+              )}
+            </For>
+          </div>
+        </Show>
+      </div>
+
+      {/* Format change confirmation dialog */}
+      <FormatChangeDialog
+        isOpen={saveFormatStore.isConfirmDialogOpen}
+        originalFormat={originalFormat()}
+        newFormat={saveFormatStore.pendingFormat ?? 'json'}
+        onConfirm={handleConfirmFormatChange}
+        onCancel={handleCancelFormatChange}
+      />
+    </>
   );
 };
 
