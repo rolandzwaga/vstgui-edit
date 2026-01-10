@@ -76,7 +76,8 @@ export function generateTicks(range: VisibleRange, intervals: TickIntervals): Ti
     const roundedPos = Math.round(pos * 1000) / 1000;
 
     // Check if this is a major tick
-    const isMajor = Math.abs(roundedPos % major) < 0.001 || Math.abs((roundedPos % major) - major) < 0.001;
+    const isMajor =
+      Math.abs(roundedPos % major) < 0.001 || Math.abs((roundedPos % major) - major) < 0.001;
 
     if (isMajor) {
       ticks.push({

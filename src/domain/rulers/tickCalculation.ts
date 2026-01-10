@@ -49,7 +49,7 @@ export function calculateTickIntervals(
   // This keeps intervals at nice values: 25, 50, 100, 200, 400, etc.
   const ratio = canvasInterval / baseInterval;
   const power = Math.round(Math.log2(ratio));
-  canvasInterval = baseInterval * Math.pow(2, power);
+  canvasInterval = baseInterval * 2 ** power;
 
   // Ensure minimum screen spacing is maintained
   let screenSpacing = canvasInterval * zoomLevel;

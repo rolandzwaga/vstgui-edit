@@ -1,0 +1,48 @@
+/**
+ * RulerOrigin Styles
+ *
+ * Origin indicator at top-left corner where rulers meet.
+ */
+
+.origin {
+  width: var(--ruler-thickness);
+  height: var(--ruler-thickness);
+  background: var(--ruler-origin-background);
+  border-right: 1px solid var(--ruler-border-color);
+  border-bottom: 1px solid var(--ruler-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.crosshair {
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--ruler-tick-major-color);
+}
+
+.crosshair::before {
+  /* Vertical line */
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.crosshair::after {
+  /* Horizontal line */
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
