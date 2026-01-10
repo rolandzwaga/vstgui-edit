@@ -27,7 +27,7 @@ import {
   cancelRepositionDrag,
   resetGuidesStore,
 } from '../guidesStore';
-import { historyStore, clearHistory } from '../historyStore';
+import { historyStore, clearHistory, undo } from '../historyStore';
 
 describe('guidesStore', () => {
   beforeEach(() => {
@@ -282,6 +282,49 @@ describe('guidesStore', () => {
           clearHistory();
           clearAllGuidesWithHistory();
           expect(historyStore.canUndo).toBe(false);
+        });
+      });
+
+      test('undo restores all cleared guides (FR-022)', () => {
+        testInRoot(() => {
+          resetGuidesStore();
+          clearHistory();
+
+          // Add multiple guides
+          addGuide('horizontal', 100);
+          addGuide('vertical', 200);
+          addGuide('horizontal', 300);
+          expect(guidesStore.guides).toHaveLength(3);
+
+          // Clear all guides
+          clearAllGuidesWithHistory();
+          expect(guidesStore.guides).toHaveLength(0);
+
+          // Undo should restore all guides
+          undo();
+          expect(guidesStore.guides).toHaveLength(3);
+
+          // Verify guide data is restored correctly
+          const positions = guidesStore.guides.map(g => g.position).sort((a, b) => a - b);
+          expect(positions).toEqual([100, 200, 300]);
+        });
+      });
+
+      test('ready for new guides after clearing', () => {
+        testInRoot(() => {
+          resetGuidesStore();
+          clearHistory();
+
+          // Add and clear guides
+          addGuide('horizontal', 100);
+          clearAllGuidesWithHistory();
+          expect(guidesStore.guides).toHaveLength(0);
+
+          // Should be able to add new guides
+          addGuide('vertical', 250);
+          expect(guidesStore.guides).toHaveLength(1);
+          expect(guidesStore.guides[0].orientation).toBe('vertical');
+          expect(guidesStore.guides[0].position).toBe(250);
         });
       });
     });

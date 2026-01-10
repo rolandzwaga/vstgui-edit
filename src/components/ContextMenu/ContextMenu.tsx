@@ -1,6 +1,7 @@
 import { createEffect, onCleanup, Show, type Component } from 'solid-js';
 import { contextMenuStore, hideContextMenu } from '../../stores/contextMenuStore';
 import { selectionStore } from '../../stores/selectionStore';
+import { guidesStore, clearAllGuidesWithHistory } from '../../stores/guidesStore';
 import styles from './ContextMenu.module.css';
 
 export interface ContextMenuProps {
@@ -11,6 +12,7 @@ export const ContextMenu: Component<ContextMenuProps> = (props) => {
   let menuRef: HTMLDivElement | undefined;
 
   const hasSelection = () => selectionStore.selectedIds.size > 0;
+  const hasGuides = () => guidesStore.guides.length > 0;
 
   const handleMenuMouseDown = (e: MouseEvent) => {
     e.stopPropagation();
@@ -25,6 +27,14 @@ export const ContextMenu: Component<ContextMenuProps> = (props) => {
       return;
     }
     props.onDelete();
+    hideContextMenu();
+  };
+
+  const handleClearAllGuides = () => {
+    if (!hasGuides()) {
+      return;
+    }
+    clearAllGuidesWithHistory();
     hideContextMenu();
   };
 
@@ -74,6 +84,17 @@ export const ContextMenu: Component<ContextMenuProps> = (props) => {
           onClick={handleDelete}
         >
           Delete
+        </button>
+        <div class={styles.divider} />
+        <button
+          type="button"
+          class={styles.menuItem}
+          role="menuitem"
+          aria-disabled={!hasGuides()}
+          data-testid="clear-all-guides"
+          onClick={handleClearAllGuides}
+        >
+          Clear All Guides
         </button>
       </div>
     </Show>
