@@ -1,0 +1,158 @@
+/**
+ * AlignmentToolbar Styles
+ *
+ * Styles for alignment toolbar buttons and floating panel.
+ */
+
+/* Toolbar container */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1);
+}
+
+/* Button group with separator */
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.buttonGroup:not(:last-child)::after {
+  content: '';
+  width: 1px;
+  height: 20px;
+  background-color: var(--color-border);
+  margin-left: var(--spacing-1);
+}
+
+/* Individual button styles */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-base);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--color-neutral-100);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.button:active:not(:disabled) {
+  background-color: var(--color-neutral-200);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 1px;
+}
+
+.button:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Floating panel styles */
+.floatingPanel {
+  position: fixed;
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.floatingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-neutral-100);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.floatingHeader:active {
+  cursor: grabbing;
+}
+
+.floatingTitle {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.dockButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.dockButton:hover {
+  background-color: var(--color-neutral-200);
+  color: var(--color-text-primary);
+}
+
+.floatingContent {
+  padding: var(--spacing-2);
+}
+
+/* Drag handle styles */
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 24px;
+  cursor: grab;
+  color: var(--color-text-muted);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.dragHandleIcon {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dragHandleDot {
+  width: 3px;
+  height: 3px;
+  background-color: currentColor;
+  border-radius: 50%;
+}
+
+.dragHandleRow {
+  display: flex;
+  gap: 2px;
+}
