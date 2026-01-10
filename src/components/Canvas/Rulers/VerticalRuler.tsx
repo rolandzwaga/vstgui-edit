@@ -71,17 +71,17 @@ export function VerticalRuler(props: VerticalRulerProps) {
   };
 
   // Handle context menu to create guide at click position
+  // Left ruler shows Y coordinates, so create horizontal guide at clicked Y
   const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
 
-    // Get click position in canvas coordinates
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const screenX = e.clientX - rect.left;
-    const canvasX = Math.round(
-      screenToCanvasPosition(screenX, canvasStore.panOffset.x, canvasStore.zoomLevel)
+    const screenY = e.clientY - rect.top;
+    const canvasY = Math.round(
+      screenToCanvasPosition(screenY, canvasStore.panOffset.y, canvasStore.zoomLevel)
     );
 
-    addGuideWithHistory('vertical', canvasX);
+    addGuideWithHistory('horizontal', canvasY);
   };
 
   return (

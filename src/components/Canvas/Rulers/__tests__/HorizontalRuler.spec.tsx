@@ -174,7 +174,7 @@ describe('HorizontalRuler', () => {
   });
 
   describe('right-click to create guide (FR-016)', () => {
-    test('right-click creates horizontal guide at click position', () => {
+    test('right-click creates vertical guide at click X position', () => {
       render(() => (
         <HorizontalRuler width={400} cursorPosition={null} templateWidth={600} />
       ));
@@ -184,13 +184,12 @@ describe('HorizontalRuler', () => {
         expect(guidesStore.guides.length).toBe(0);
       });
 
-      // Simulate right-click at Y=50 (relative to ruler)
-      fireEvent.contextMenu(ruler, { clientY: 50 });
+      // Top ruler shows X coords, so right-click creates vertical guide at that X
+      fireEvent.contextMenu(ruler, { clientX: 150 });
 
       testInRoot(() => {
         expect(guidesStore.guides.length).toBe(1);
-        expect(guidesStore.guides[0].orientation).toBe('horizontal');
-        // Position is calculated from click Y position
+        expect(guidesStore.guides[0].orientation).toBe('vertical');
         expect(typeof guidesStore.guides[0].position).toBe('number');
       });
     });
