@@ -494,6 +494,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 034-lock-hide-views: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
 
 | Date | Feature | Summary |
 |------|---------|---------|

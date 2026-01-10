@@ -6,6 +6,7 @@ import { canPaste } from '../../../domain/canvas/viewOperations';
 import { resetClipboard } from '../../../stores/clipboardStore';
 import { documentStore, reset as resetDocument, setDocumentForTest } from '../../../stores/documentStore';
 import { clearHistory, historyStore, undo } from '../../../stores/historyStore';
+import { isLocked, lockViews, resetLockHideStore } from '../../../stores/lockHideStore';
 import { resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
 import { type CancelCallbacks, useCanvasKeyboard } from '../useCanvasKeyboard';
 
@@ -23,6 +24,7 @@ describe('useCanvasKeyboard', () => {
       clearHistory();
       resetSelection();
       resetClipboard();
+      resetLockHideStore();
     });
     vi.clearAllMocks();
   });
@@ -803,6 +805,462 @@ describe('useCanvasKeyboard', () => {
         const templateAfterUndo = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
         expect(templateAfterUndo?.children?.['0']).toBeDefined();
         expect(templateAfterUndo?.children?.['0']?.attributes.class).toBe('CTextLabel');
+      });
+    });
+  });
+
+  describe('Ctrl+L lock handling', () => {
+    function createKeyboardEventWithModifiers(
+      key: string,
+      modifiers: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean } = {}
+    ): KeyboardEvent {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: modifiers.ctrlKey ?? false,
+        metaKey: modifiers.metaKey ?? false,
+        shiftKey: modifiers.shiftKey ?? false,
+      });
+      Object.defineProperty(event, 'target', {
+        value: document.body,
+        writable: false,
+      });
+      return event;
+    }
+
+    it('should lock selected view on Ctrl+L', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isLocked('MainView-0')).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isLocked('MainView-0')).toBe(true);
+      });
+    });
+
+    it('should lock multiple selected views on Ctrl+L', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isLocked('MainView-0')).toBe(true);
+        expect(isLocked('MainView-1')).toBe(true);
+      });
+    });
+
+    it('should push lock operation to history', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(historyStore.canUndo).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(true);
+        expect(historyStore.undoDescription).toContain('Lock');
+      });
+    });
+
+    it('should not lock when no views are selected', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(false);
+        expect(isLocked('MainView-0')).toBe(false);
+      });
+    });
+
+    it('should support undo after lock', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isLocked('MainView-0')).toBe(true);
+
+        undo();
+
+        expect(isLocked('MainView-0')).toBe(false);
+      });
+    });
+
+    it('should not delete locked views on Delete key', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0']);
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true });
+        Object.defineProperty(event, 'target', { value: document.body, writable: false });
+        handleKeyDown(event);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        // Locked view should NOT be deleted
+        expect(template?.children?.['0']).toBeDefined();
+        // Unlocked view SHOULD be deleted
+        expect(template?.children?.['1']).toBeUndefined();
+      });
+    });
+
+    it('should not nudge locked views on arrow keys', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel', origin: '100, 100' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0']);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0', relativeX: 100, relativeY: 100 }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true });
+        Object.defineProperty(event, 'target', { value: document.body, writable: false });
+        handleKeyDown(event);
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.['MainView'];
+        // Origin should not change because view is locked
+        expect(template?.children?.['0']?.attributes.origin).toBe('100, 100');
+        // No operation should be pushed to history
+        expect(historyStore.canUndo).toBe(false);
+      });
+    });
+  });
+
+  describe('Ctrl+L toggle lock handling', () => {
+    function createKeyboardEventWithModifiers(
+      key: string,
+      modifiers: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean } = {}
+    ): KeyboardEvent {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: modifiers.ctrlKey ?? false,
+        metaKey: modifiers.metaKey ?? false,
+        shiftKey: modifiers.shiftKey ?? false,
+      });
+      Object.defineProperty(event, 'target', {
+        value: document.body,
+        writable: false,
+      });
+      return event;
+    }
+
+    it('should unlock selected view on Ctrl+L when already locked', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0']);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isLocked('MainView-0')).toBe(true);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isLocked('MainView-0')).toBe(false);
+      });
+    });
+
+    it('should push unlock operation to history when unlocking', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0']);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(historyStore.canUndo).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(true);
+        expect(historyStore.undoDescription).toContain('Unlock');
+      });
+    });
+
+    it('should lock all views when some are unlocked in multi-selection', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0']); // Only lock one
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isLocked('MainView-0')).toBe(true);
+        expect(isLocked('MainView-1')).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        // Both should be locked now (since not all were locked, it locks all)
+        expect(isLocked('MainView-0')).toBe(true);
+        expect(isLocked('MainView-1')).toBe(true);
+        expect(historyStore.undoDescription).toContain('Lock');
+      });
+    });
+
+    it('should unlock all views when all are locked in multi-selection', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        lockViews(['MainView-0', 'MainView-1']);
+        selectAll(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isLocked('MainView-0')).toBe(true);
+        expect(isLocked('MainView-1')).toBe(true);
+
+        const event = createKeyboardEventWithModifiers('l', { ctrlKey: true });
+        handleKeyDown(event);
+
+        // Both should be unlocked now (since all were locked, it unlocks all)
+        expect(isLocked('MainView-0')).toBe(false);
+        expect(isLocked('MainView-1')).toBe(false);
+        expect(historyStore.undoDescription).toContain('Unlock');
       });
     });
   });

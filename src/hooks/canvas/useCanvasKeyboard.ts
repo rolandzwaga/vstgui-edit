@@ -20,6 +20,7 @@ import {
   createGroupHistoryOperation,
   createUngroupHistoryOperation,
 } from '../../domain/hierarchy/groupOperations';
+import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { getParentId, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
@@ -31,6 +32,11 @@ import {
   toggleGuidesVisibility,
 } from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
+import {
+  isLocked,
+  lockSelectedWithHistory,
+  unlockSelectedWithHistory,
+} from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
@@ -178,6 +184,24 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       return;
     }
 
+    // Ctrl+L - Toggle lock for selected views (lock if any unlocked, unlock if all locked)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l' && !e.shiftKey) {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+      e.preventDefault();
+
+      // Check if all selected views are locked
+      const allLocked = Array.from(selectedIds).every(id => isLocked(id));
+      if (allLocked) {
+        unlockSelectedWithHistory(selectedIds);
+      } else {
+        lockSelectedWithHistory(selectedIds);
+      }
+      return;
+    }
+
     if (e.key === 'Escape') {
       // Cancel guide creation drag first
       if (guidesStore.creationDrag) {
@@ -224,6 +248,13 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         return;
       }
 
+      // Filter out locked views from nudge operation
+      const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
+      if (unlockedIds.length === 0) {
+        // All selected views are locked, do nothing
+        return;
+      }
+
       e.preventDefault();
       const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
       let delta = { x: 0, y: 0 };
@@ -247,9 +278,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const originalOrigins: Record<string, { x: number; y: number }> = {};
       const newOrigins: Record<string, { x: number; y: number }> = {};
       const viewIds: string[] = [];
+      const unlockedIdSet = new Set(unlockedIds);
 
       for (const view of views) {
-        if (selectedIds.has(view.id)) {
+        if (unlockedIdSet.has(view.id)) {
           viewIds.push(view.id);
           originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
           newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);
@@ -273,7 +305,17 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       if (selectedIds.size === 0) {
         return;
       }
+
+      // Filter out locked views from deletion
+      const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
+      if (unlockedIds.length === 0) {
+        // All selected views are locked, do nothing
+        return;
+      }
+
       e.preventDefault();
+      // Temporarily select only unlocked views for deletion
+      selectAll(unlockedIds);
       const removed = deleteSelectedViews();
       if (removed.length > 0) {
         const operation = createDeleteOperation(removed);
