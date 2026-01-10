@@ -3,8 +3,8 @@
  * Factory functions for creating guide-related history operations
  */
 
-import type { HistoryOperation } from '../../types/history';
 import type { CustomGuide, GuideOrientation } from '../../types/guides';
+import type { HistoryOperation } from '../../types/history';
 
 /**
  * History operation type for guide creation.

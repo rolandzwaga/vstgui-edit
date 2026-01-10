@@ -5,20 +5,20 @@
  * - Template lifecycle (guides cleared on reset)
  * - Undo/redo functionality with historyStore
  */
-import { describe, expect, test, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { reset as resetDocumentStore } from '../../../stores/documentStore';
 import {
-  guidesStore,
-  resetGuidesStore,
   addGuide,
   addGuideWithHistory,
-  deleteGuideWithHistory,
-  repositionGuideWithHistory,
   clearAllGuidesWithHistory,
+  deleteGuideWithHistory,
+  guidesStore,
+  repositionGuideWithHistory,
+  resetGuidesStore,
   startCreationDrag,
 } from '../../../stores/guidesStore';
-import { historyStore, clearHistory, undo, redo } from '../../../stores/historyStore';
+import { clearHistory, historyStore, redo, undo } from '../../../stores/historyStore';
 
 describe('guides integration', () => {
   beforeEach(() => {

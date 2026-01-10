@@ -25,9 +25,9 @@ import { getParentId, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import {
-  guidesStore,
   cancelCreationDrag,
   cancelRepositionDrag,
+  guidesStore,
   toggleGuidesVisibility,
 } from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';

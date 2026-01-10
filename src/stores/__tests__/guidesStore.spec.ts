@@ -1,33 +1,33 @@
 /**
  * Tests for guidesStore
  */
-import { describe, expect, test, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
-  guidesStore,
   addGuide,
-  deleteGuide,
-  repositionGuide,
-  clearAllGuides,
   addGuideWithHistory,
-  deleteGuideWithHistory,
-  repositionGuideWithHistory,
-  clearAllGuidesWithHistory,
-  toggleGuidesVisibility,
-  setGuidesVisibility,
-  toggleGuidesSnap,
-  setGuidesSnap,
-  startCreationDrag,
-  updateCreationDrag,
-  completeCreationDrag,
   cancelCreationDrag,
-  startRepositionDrag,
-  updateRepositionDrag,
-  completeRepositionDrag,
   cancelRepositionDrag,
+  clearAllGuides,
+  clearAllGuidesWithHistory,
+  completeCreationDrag,
+  completeRepositionDrag,
+  deleteGuide,
+  deleteGuideWithHistory,
+  guidesStore,
+  repositionGuide,
+  repositionGuideWithHistory,
   resetGuidesStore,
+  setGuidesSnap,
+  setGuidesVisibility,
+  startCreationDrag,
+  startRepositionDrag,
+  toggleGuidesSnap,
+  toggleGuidesVisibility,
+  updateCreationDrag,
+  updateRepositionDrag,
 } from '../guidesStore';
-import { historyStore, clearHistory, undo } from '../historyStore';
+import { clearHistory, historyStore, undo } from '../historyStore';
 
 describe('guidesStore', () => {
   beforeEach(() => {

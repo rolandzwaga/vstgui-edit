@@ -5,53 +5,51 @@
 
 // Guide operations (CRUD)
 export {
-  MAX_GUIDES,
+  addGuideToCollection,
+  canAddGuide,
+  createGuide,
+  findGuideByPosition,
   GUIDE_HIT_TOLERANCE,
   generateGuideId,
-  roundGuidePosition,
-  createGuide,
-  guideExistsAtPosition,
-  findGuideByPosition,
-  addGuideToCollection,
-  removeGuideFromCollection,
-  updateGuidePosition,
-  canAddGuide,
   getHorizontalGuides,
   getVerticalGuides,
+  guideExistsAtPosition,
+  MAX_GUIDES,
+  removeGuideFromCollection,
+  roundGuidePosition,
   sortGuidesByPosition,
+  updateGuidePosition,
 } from './guideOperations';
-
-// History operations
-export {
-  GUIDE_CREATE_TYPE,
-  GUIDE_DELETE_TYPE,
-  GUIDE_REPOSITION_TYPE,
-  GUIDE_CLEAR_ALL_TYPE,
-  formatGuideCreateDescription,
-  formatGuideDeleteDescription,
-  formatGuideRepositionDescription,
-  formatGuideClearAllDescription,
-  createGuideCreateOperation,
-  createGuideDeleteOperation,
-  createGuideRepositionOperation,
-  createGuideClearAllOperation,
-} from './historyOperations';
+// Re-export types for snap results
+export type {
+  ApplySnapToMoveWithGuidesResult,
+  ApplySnapToResizeWithGuidesResult,
+  SnapPointWithGuidesResult,
+} from './guideSnap';
 
 // Guide snap functions
 export {
-  filterGuidesByOrientation,
-  findClosestGuide,
-  snapToGuide,
-  snapToNearest,
-  snapPointWithGuides,
-  snapEdgesWithGuides,
   applySnapToMoveWithGuides,
   applySnapToResizeWithGuides,
+  filterGuidesByOrientation,
+  findClosestGuide,
+  snapEdgesWithGuides,
+  snapPointWithGuides,
+  snapToGuide,
+  snapToNearest,
 } from './guideSnap';
-
-// Re-export types for snap results
-export type {
-  SnapPointWithGuidesResult,
-  ApplySnapToMoveWithGuidesResult,
-  ApplySnapToResizeWithGuidesResult,
-} from './guideSnap';
+// History operations
+export {
+  createGuideClearAllOperation,
+  createGuideCreateOperation,
+  createGuideDeleteOperation,
+  createGuideRepositionOperation,
+  formatGuideClearAllDescription,
+  formatGuideCreateDescription,
+  formatGuideDeleteDescription,
+  formatGuideRepositionDescription,
+  GUIDE_CLEAR_ALL_TYPE,
+  GUIDE_CREATE_TYPE,
+  GUIDE_DELETE_TYPE,
+  GUIDE_REPOSITION_TYPE,
+} from './historyOperations';

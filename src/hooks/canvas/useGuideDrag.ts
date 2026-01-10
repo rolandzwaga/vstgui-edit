@@ -6,18 +6,16 @@
  */
 
 import { createEffect, onCleanup } from 'solid-js';
-import { screenToCanvasPosition } from '../../domain/rulers';
+import { RULER_THICKNESS, screenToCanvasPosition } from '../../domain/rulers';
 import { canvasStore } from '../../stores/canvasStore';
 import {
-  guidesStore,
-  updateCreationDrag,
   completeCreationDrag,
-  cancelCreationDrag,
-  updateRepositionDrag,
   completeRepositionDrag,
+  guidesStore,
   repositionGuide,
+  updateCreationDrag,
+  updateRepositionDrag,
 } from '../../stores/guidesStore';
-import { RULER_THICKNESS } from '../../domain/rulers';
 
 export interface UseGuideDragOptions {
   /** Reference to the canvas wrapper element for bounds calculation */
@@ -50,15 +48,16 @@ export function useGuideDrag(options: UseGuideDragOptions): UseGuideDragResult {
 
     const rect = wrapper.getBoundingClientRect();
     return (
-      clientX >= rect.left &&
-      clientX <= rect.right &&
-      clientY >= rect.top &&
-      clientY <= rect.bottom
+      clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
     );
   };
 
   // Check if point is over a ruler
-  const isOverRuler = (clientX: number, clientY: number, orientation: 'horizontal' | 'vertical'): boolean => {
+  const isOverRuler = (
+    clientX: number,
+    clientY: number,
+    orientation: 'horizontal' | 'vertical'
+  ): boolean => {
     const wrapper = canvasWrapperRef();
     if (!wrapper) return false;
 
@@ -111,7 +110,7 @@ export function useGuideDrag(options: UseGuideDragOptions): UseGuideDragResult {
         updateCreationDrag(position, overCanvas);
       };
 
-      creationUpHandler = (e: MouseEvent) => {
+      creationUpHandler = (_e: MouseEvent) => {
         completeCreationDrag();
         removeCreationListeners();
       };
@@ -157,7 +156,7 @@ export function useGuideDrag(options: UseGuideDragOptions): UseGuideDragResult {
         }
       };
 
-      repositionUpHandler = (e: MouseEvent) => {
+      repositionUpHandler = (_e: MouseEvent) => {
         completeRepositionDrag();
         removeRepositionListeners();
       };

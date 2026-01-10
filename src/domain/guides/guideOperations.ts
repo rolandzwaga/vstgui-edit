@@ -62,9 +62,7 @@ export function guideExistsAtPosition(
   position: number
 ): boolean {
   const roundedPosition = roundGuidePosition(position);
-  return guides.some(
-    (g) => g.orientation === orientation && g.position === roundedPosition
-  );
+  return guides.some(g => g.orientation === orientation && g.position === roundedPosition);
 }
 
 /**
@@ -81,9 +79,7 @@ export function findGuideByPosition(
   position: number
 ): CustomGuide | undefined {
   const roundedPosition = roundGuidePosition(position);
-  return guides.find(
-    (g) => g.orientation === orientation && g.position === roundedPosition
-  );
+  return guides.find(g => g.orientation === orientation && g.position === roundedPosition);
 }
 
 /**
@@ -119,12 +115,12 @@ export function removeGuideFromCollection(
   guides: CustomGuide[],
   id: string
 ): [CustomGuide[], CustomGuide | null] {
-  const guide = guides.find((g) => g.id === id);
+  const guide = guides.find(g => g.id === id);
   if (!guide) {
     return [guides, null];
   }
 
-  return [guides.filter((g) => g.id !== id), guide];
+  return [guides.filter(g => g.id !== id), guide];
 }
 
 /**
@@ -141,7 +137,7 @@ export function updateGuidePosition(
   newPosition: number
 ): [CustomGuide[], boolean] {
   const roundedPosition = roundGuidePosition(newPosition);
-  const guide = guides.find((g) => g.id === id);
+  const guide = guides.find(g => g.id === id);
 
   if (!guide) {
     return [guides, false];
@@ -151,9 +147,7 @@ export function updateGuidePosition(
     return [guides, false];
   }
 
-  const newGuides = guides.map((g) =>
-    g.id === id ? { ...g, position: roundedPosition } : g
-  );
+  const newGuides = guides.map(g => (g.id === id ? { ...g, position: roundedPosition } : g));
 
   return [newGuides, true];
 }
@@ -189,14 +183,14 @@ export function canAddGuide(
  * Get horizontal guides only.
  */
 export function getHorizontalGuides(guides: CustomGuide[]): CustomGuide[] {
-  return guides.filter((g) => g.orientation === 'horizontal');
+  return guides.filter(g => g.orientation === 'horizontal');
 }
 
 /**
  * Get vertical guides only.
  */
 export function getVerticalGuides(guides: CustomGuide[]): CustomGuide[] {
-  return guides.filter((g) => g.orientation === 'vertical');
+  return guides.filter(g => g.orientation === 'vertical');
 }
 
 /**

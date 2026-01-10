@@ -1,22 +1,22 @@
 /**
  * Tests for guide historyOperations domain functions
  */
-import { describe, test, expect, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
+import type { CustomGuide } from '../../../types/guides';
 import {
+  createGuideClearAllOperation,
   createGuideCreateOperation,
   createGuideDeleteOperation,
   createGuideRepositionOperation,
-  createGuideClearAllOperation,
-  GUIDE_CREATE_TYPE,
-  GUIDE_DELETE_TYPE,
-  GUIDE_REPOSITION_TYPE,
-  GUIDE_CLEAR_ALL_TYPE,
+  formatGuideClearAllDescription,
   formatGuideCreateDescription,
   formatGuideDeleteDescription,
   formatGuideRepositionDescription,
-  formatGuideClearAllDescription,
+  GUIDE_CLEAR_ALL_TYPE,
+  GUIDE_CREATE_TYPE,
+  GUIDE_DELETE_TYPE,
+  GUIDE_REPOSITION_TYPE,
 } from '../historyOperations';
-import type { CustomGuide } from '../../../types/guides';
 
 describe('historyOperations', () => {
   describe('type constants', () => {

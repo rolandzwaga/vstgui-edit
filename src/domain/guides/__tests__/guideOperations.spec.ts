@@ -1,23 +1,23 @@
 /**
  * Tests for guideOperations domain functions
  */
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { CustomGuide } from '../../../types/guides';
 import {
-  generateGuideId,
-  createGuide,
-  guideExistsAtPosition,
-  findGuideByPosition,
   addGuideToCollection,
-  removeGuideFromCollection,
-  updateGuidePosition,
   canAddGuide,
-  roundGuidePosition,
+  createGuide,
+  findGuideByPosition,
+  generateGuideId,
   getHorizontalGuides,
   getVerticalGuides,
-  sortGuidesByPosition,
+  guideExistsAtPosition,
   MAX_GUIDES,
+  removeGuideFromCollection,
+  roundGuidePosition,
+  sortGuidesByPosition,
+  updateGuidePosition,
 } from '../guideOperations';
-import type { CustomGuide } from '../../../types/guides';
 
 describe('guideOperations', () => {
   describe('generateGuideId', () => {

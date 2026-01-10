@@ -4,25 +4,25 @@
  */
 
 import { createSignal } from 'solid-js';
-import type {
-  CustomGuide,
-  GuideCreationDrag,
-  GuideRepositionDrag,
-  GuideOrientation,
-} from '../types/guides';
 import {
   addGuideToCollection,
-  removeGuideFromCollection,
-  updateGuidePosition,
   getHorizontalGuides,
   getVerticalGuides,
+  removeGuideFromCollection,
+  updateGuidePosition,
 } from '../domain/guides/guideOperations';
 import {
+  createGuideClearAllOperation,
   createGuideCreateOperation,
   createGuideDeleteOperation,
   createGuideRepositionOperation,
-  createGuideClearAllOperation,
 } from '../domain/guides/historyOperations';
+import type {
+  CustomGuide,
+  GuideCreationDrag,
+  GuideOrientation,
+  GuideRepositionDrag,
+} from '../types/guides';
 import { pushOperation } from './historyStore';
 
 // Signals for core state
@@ -61,7 +61,7 @@ export const guidesStore = {
     return getVerticalGuides(guides());
   },
   getGuideById(id: string): CustomGuide | undefined {
-    return guides().find((g) => g.id === id);
+    return guides().find(g => g.id === id);
   },
 };
 
@@ -201,7 +201,7 @@ export function clearAllGuidesWithHistory(): void {
  * Toggle guide visibility (Ctrl+;).
  */
 export function toggleGuidesVisibility(): void {
-  setIsVisible((current) => !current);
+  setIsVisible(current => !current);
 }
 
 /**
@@ -215,7 +215,7 @@ export function setGuidesVisibility(visible: boolean): void {
  * Toggle guide snapping.
  */
 export function toggleGuidesSnap(): void {
-  setIsSnapEnabledSignal((current) => !current);
+  setIsSnapEnabledSignal(current => !current);
 }
 
 /**

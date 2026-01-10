@@ -1,19 +1,19 @@
 /**
  * Tests for guideSnap domain functions
  */
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
+import type { Point, Size } from '../../../types/canvas';
+import type { CustomGuide } from '../../../types/guides';
 import {
-  snapToGuide,
-  snapToNearest,
-  snapPointWithGuides,
-  snapEdgesWithGuides,
   applySnapToMoveWithGuides,
   applySnapToResizeWithGuides,
   filterGuidesByOrientation,
   findClosestGuide,
+  snapEdgesWithGuides,
+  snapPointWithGuides,
+  snapToGuide,
+  snapToNearest,
 } from '../guideSnap';
-import type { CustomGuide } from '../../../types/guides';
-import type { Point, Size } from '../../../types/canvas';
 
 describe('guideSnap', () => {
   const horizontalGuides: CustomGuide[] = [

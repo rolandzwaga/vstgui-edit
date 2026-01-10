@@ -4,8 +4,8 @@
  */
 
 import type { Point, Size } from '../../types/canvas';
-import type { SnapEdgesResult, SnapResult } from '../../types/snap';
 import type { CustomGuide, GuideOrientation } from '../../types/guides';
+import type { SnapEdgesResult, SnapResult } from '../../types/snap';
 
 /**
  * Minimum view size constraint.
@@ -19,7 +19,7 @@ export function filterGuidesByOrientation(
   guides: CustomGuide[],
   orientation: GuideOrientation
 ): CustomGuide[] {
-  return guides.filter((g) => g.orientation === orientation);
+  return guides.filter(g => g.orientation === orientation);
 }
 
 /**
@@ -190,9 +190,25 @@ export function snapPointWithGuides(
   guidesEnabled: boolean
 ): SnapPointWithGuidesResult {
   // X coordinate snaps to vertical guides (they have fixed X)
-  const x = snapToNearest(point.x, gridSize, guides, 'vertical', threshold, gridEnabled, guidesEnabled);
+  const x = snapToNearest(
+    point.x,
+    gridSize,
+    guides,
+    'vertical',
+    threshold,
+    gridEnabled,
+    guidesEnabled
+  );
   // Y coordinate snaps to horizontal guides (they have fixed Y)
-  const y = snapToNearest(point.y, gridSize, guides, 'horizontal', threshold, gridEnabled, guidesEnabled);
+  const y = snapToNearest(
+    point.y,
+    gridSize,
+    guides,
+    'horizontal',
+    threshold,
+    gridEnabled,
+    guidesEnabled
+  );
 
   const snappedGuideIds: string[] = [];
   if (x.snappedTo === 'guide' && x.guideId) {
@@ -252,13 +268,37 @@ export function snapEdgesWithGuides(
       ? snapToNearest(leftEdge, gridSize, guides, 'vertical', threshold, gridEnabled, guidesEnabled)
       : null,
     right: affected.right
-      ? snapToNearest(rightEdge, gridSize, guides, 'vertical', threshold, gridEnabled, guidesEnabled)
+      ? snapToNearest(
+          rightEdge,
+          gridSize,
+          guides,
+          'vertical',
+          threshold,
+          gridEnabled,
+          guidesEnabled
+        )
       : null,
     top: affected.top
-      ? snapToNearest(topEdge, gridSize, guides, 'horizontal', threshold, gridEnabled, guidesEnabled)
+      ? snapToNearest(
+          topEdge,
+          gridSize,
+          guides,
+          'horizontal',
+          threshold,
+          gridEnabled,
+          guidesEnabled
+        )
       : null,
     bottom: affected.bottom
-      ? snapToNearest(bottomEdge, gridSize, guides, 'horizontal', threshold, gridEnabled, guidesEnabled)
+      ? snapToNearest(
+          bottomEdge,
+          gridSize,
+          guides,
+          'horizontal',
+          threshold,
+          gridEnabled,
+          guidesEnabled
+        )
       : null,
   };
 }
