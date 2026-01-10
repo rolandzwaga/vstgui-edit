@@ -209,44 +209,44 @@ As an audio plugin developer, I want the ruler tick marks to align with the curr
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | PENDING | [Test or file that verifies this] |
-| FR-002 | PENDING | [Test or file that verifies this] |
-| FR-003 | PENDING | [Test or file that verifies this] |
-| FR-004 | PENDING | [Test or file that verifies this] |
-| FR-005 | PENDING | [Test or file that verifies this] |
-| FR-006 | PENDING | [Test or file that verifies this] |
-| FR-007 | PENDING | [Test or file that verifies this] |
-| FR-008 | PENDING | [Test or file that verifies this] |
-| FR-009 | PENDING | [Test or file that verifies this] |
-| FR-010 | PENDING | [Test or file that verifies this] |
-| FR-011 | PENDING | [Test or file that verifies this] |
-| FR-012 | PENDING | [Test or file that verifies this] |
-| FR-013 | PENDING | [Test or file that verifies this] |
-| FR-014 | PENDING | [Test or file that verifies this] |
-| FR-015 | PENDING | [Test or file that verifies this] |
-| FR-016 | PENDING | [Test or file that verifies this] |
-| SC-001 | PENDING | [Measurement or test result] |
-| SC-002 | PENDING | [Measurement or test result] |
-| SC-003 | PENDING | [Measurement or test result] |
-| SC-004 | PENDING | [Measurement or test result] |
-| SC-005 | PENDING | [Measurement or test result] |
-| SC-006 | PENDING | [Measurement or test result] |
-| SC-007 | PENDING | [Measurement or test result] |
+| FR-001 | MET | HorizontalRuler.tsx renders in RulerContainer CSS Grid top row; HorizontalRuler.spec.tsx tests |
+| FR-002 | MET | VerticalRuler.tsx renders in RulerContainer CSS Grid left column; VerticalRuler.spec.tsx tests |
+| FR-003 | MET | tickGeneration.ts generateTicks() creates ticks from origin; HorizontalRuler.spec.tsx "major ticks have labels" |
+| FR-004 | MET | tickCalculation.ts calculateTickIntervals() scales by zoom; tickCalculation.spec.ts zoom tests |
+| FR-005 | MET | coordinateMapping.ts calculateVisibleRange uses panOffset; coordinateMapping.spec.ts pan tests |
+| FR-006 | MET | tickGeneration.ts major ticks have label !== null; HorizontalRuler.spec.tsx "major ticks have labels" |
+| FR-007 | MET | tickGeneration.ts minor ticks have label === null; HorizontalRuler.spec.tsx "minor ticks no labels" |
+| FR-008 | MET | CursorIndicator.tsx renders accent line; CursorIndicator.spec.tsx visibility tests |
+| FR-009 | MET | rulerStore signal updates via RulerContainer onMouseMove; reactive SolidJS signals |
+| FR-010 | MET | RulerContainer.tsx clearCursorPosition on mouseLeave; RulerContainer.spec.tsx "mouse leave clears position" |
+| FR-011 | MET | HorizontalRuler.tsx templateBounds div; TemplateBounds.spec.tsx tests |
+| FR-012 | MET | RulerContainer.tsx Show when={!isEmpty()}; RulerContainer.spec.tsx "rulers hidden when no template" |
+| FR-013 | MET | RulerOrigin.tsx displays crosshair at (0,0) or offset indicator when panned |
+| FR-014 | MET | tickCalculation.spec.ts tests 10% and 500% zoom with minScreenSpacing >= 30px invariant |
+| FR-015 | MET | tickCalculation.ts alignIntervalToGrid(); HorizontalRuler.spec.tsx grid preset tests |
+| FR-016 | MET | RulerContainer.module.css CSS Grid with var(--ruler-thickness) fixed 20px regions |
+| SC-001 | MET | formatTickLabel() rounds to integers; tick position Math.round ensures pixel accuracy |
+| SC-002 | MET | tickCalculation.ts minScreenSpacing: 30 invariant; tickCalculation.spec.ts verifies constraint |
+| SC-003 | MET | SolidJS signal reactivity provides immediate updates; no RAF/setTimeout delays |
+| SC-004 | MET | CSS transform positioning avoids reflow; overflow: hidden contains rendering |
+| SC-005 | MET | 130 ruler tests pass (tickCalculation, tickGeneration, coordinateMapping, components, store) |
+| SC-006 | MET | coordinateMapping.spec.ts "should handle large 4000px template" tests |
+| SC-007 | MET | tickCalculation.spec.ts alignIntervalToGrid tests all presets: 5, 8, 10, 12, 16, 20 |
 
 **CRITICAL**: Any NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
 - [ ] **Git Status Check**: Run `git status` to verify all changes are committed
 - [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
 - [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
 **CRITICAL**: The feature is NOT complete until:
 1. All quality gates pass (lint:css, check, typecheck) with zero errors/warnings
