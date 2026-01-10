@@ -115,11 +115,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
-      e.preventDefault();
       const duplicated = duplicateSelectedViews();
       if (duplicated.length > 0) {
         const operation = createDuplicateOperation(duplicated);
@@ -160,11 +160,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && !e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size < 2) {
         return;
       }
-      e.preventDefault();
 
       const operation = createGroupHistoryOperation([...selectedIds]);
       if (operation) {
@@ -174,11 +174,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size !== 1) {
         return;
       }
-      e.preventDefault();
 
       const operation = createUngroupHistoryOperation([...selectedIds][0]);
       if (operation) {
@@ -189,11 +189,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
 
     // Ctrl+L - Toggle lock for selected views (lock if any unlocked, unlock if all locked)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l' && !e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
-      e.preventDefault();
 
       // Check if all selected views are locked
       const allLocked = Array.from(selectedIds).every(id => isLocked(id));
@@ -207,11 +207,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
 
     // Ctrl+H - Toggle hide for selected views
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h' && !e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
-      e.preventDefault();
       toggleHideSelectedWithHistory(selectedIds);
       // Clear selection after hiding since the views are no longer visible
       const allHidden = Array.from(selectedIds).every(id => isHidden(id));
@@ -269,6 +269,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key.startsWith('Arrow') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
@@ -280,8 +281,6 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         // All selected views are locked, do nothing
         return;
       }
-
-      e.preventDefault();
       const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
       let delta = { x: 0, y: 0 };
 
@@ -327,6 +326,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
@@ -338,8 +338,6 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         // All selected views are locked, do nothing
         return;
       }
-
-      e.preventDefault();
       // Temporarily select only unlocked views for deletion
       selectAll(unlockedIds);
       const removed = deleteSelectedViews();
