@@ -4,13 +4,9 @@
  * Functions for creating undo/redo operations from alignment results.
  */
 
+import type { AlignmentResult, AlignmentType, DistributionDirection } from '../../types/alignment';
 import type { Point } from '../../types/canvas';
 import type { HistoryOperation } from '../../types/history';
-import type {
-  AlignmentResult,
-  AlignmentType,
-  DistributionDirection,
-} from '../../types/alignment';
 
 /**
  * Generates description for alignment operation.

@@ -5,8 +5,8 @@
  */
 
 import { createStore } from 'solid-js/store';
-import type { Point } from '../types/canvas';
 import type { AlignmentToolbarState } from '../types/alignment';
+import type { Point } from '../types/canvas';
 
 /**
  * localStorage key for persisting toolbar state.

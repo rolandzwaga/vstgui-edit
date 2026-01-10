@@ -4,19 +4,18 @@
  * Provides alignment and distribution functionality for views.
  */
 
-// Bounds calculation
-export {
-  calculateParentBounds,
-  calculateSelectionBounds,
-  viewToBounds,
-} from './calculateBounds';
-
 // Alignment functions
 export {
   alignViews,
   calculateAlignedPosition,
   getAlignmentReference,
 } from './alignViews';
+// Bounds calculation
+export {
+  calculateParentBounds,
+  calculateSelectionBounds,
+  viewToBounds,
+} from './calculateBounds';
 
 // Distribution functions
 export { calculateEqualGap, distributeViews } from './distributeViews';

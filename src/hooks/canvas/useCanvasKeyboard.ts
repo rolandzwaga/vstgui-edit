@@ -5,7 +5,6 @@ import {
   getAlignmentDescription,
   handleAlignmentShortcut,
 } from '../../domain/alignment';
-import type { AlignmentType } from '../../types/alignment';
 import { applyDelta, createMoveOperation } from '../../domain/canvas/move';
 import {
   copySelectedViews,
@@ -30,6 +29,7 @@ import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
+import type { AlignmentType } from '../../types/alignment';
 import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 
@@ -267,7 +267,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     // Handle Ctrl+Shift+{L,C,R,T,M,B} alignment shortcuts
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
       const views = renderableViews();
-      const viewMap = new Map(views.map((v) => [v.id, v]));
+      const viewMap = new Map(views.map(v => [v.id, v]));
       const getView = (id: string) => viewMap.get(id) ?? null;
 
       const handleAlign = (type: AlignmentType, selectedIdArray: string[]) => {

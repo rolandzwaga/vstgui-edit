@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleAlignmentShortcut } from '../shortcuts';
 import type { AlignmentType } from '../../../types/alignment';
+import { handleAlignmentShortcut } from '../shortcuts';
 
 describe('handleAlignmentShortcut', () => {
   const createKeyboardEvent = (

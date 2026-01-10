@@ -4,12 +4,8 @@
  * Functions for distributing views with equal spacing.
  */
 
+import type { AlignmentResult, DistributionDirection, ViewBounds } from '../../types/alignment';
 import type { RenderableView } from '../../types/canvas';
-import type {
-  AlignmentResult,
-  DistributionDirection,
-  ViewBounds,
-} from '../../types/alignment';
 import { viewToBounds } from './calculateBounds';
 
 /**
@@ -19,18 +15,15 @@ import { viewToBounds } from './calculateBounds';
  * @param direction - Distribution direction
  * @returns Gap size in pixels
  */
-export function calculateEqualGap(
-  views: ViewBounds[],
-  direction: DistributionDirection
-): number {
+export function calculateEqualGap(views: ViewBounds[], direction: DistributionDirection): number {
   if (views.length < 2) {
     return 0;
   }
 
   if (direction === 'horizontal') {
     // Calculate total span (from leftmost left to rightmost right)
-    const leftMost = Math.min(...views.map((v) => v.left));
-    const rightMost = Math.max(...views.map((v) => v.right));
+    const leftMost = Math.min(...views.map(v => v.left));
+    const rightMost = Math.max(...views.map(v => v.right));
     const totalSpan = rightMost - leftMost;
 
     // Calculate sum of view widths
@@ -40,8 +33,8 @@ export function calculateEqualGap(
     return (totalSpan - totalWidth) / (views.length - 1);
   } else {
     // Calculate total span (from topmost top to bottommost bottom)
-    const topMost = Math.min(...views.map((v) => v.top));
-    const bottomMost = Math.max(...views.map((v) => v.bottom));
+    const topMost = Math.min(...views.map(v => v.top));
+    const bottomMost = Math.max(...views.map(v => v.bottom));
     const totalSpan = bottomMost - topMost;
 
     // Calculate sum of view heights
@@ -95,7 +88,7 @@ export function distributeViews(
   }
 
   // Convert to bounds and pair with original views
-  const viewsWithBounds = views.map((view) => ({
+  const viewsWithBounds = views.map(view => ({
     view,
     bounds: viewToBounds(view),
   }));
@@ -108,7 +101,7 @@ export function distributeViews(
   }
 
   // Calculate equal gap
-  const bounds = viewsWithBounds.map((vb) => vb.bounds);
+  const bounds = viewsWithBounds.map(vb => vb.bounds);
   const gap = calculateEqualGap(bounds, direction);
 
   const results: AlignmentResult[] = [];

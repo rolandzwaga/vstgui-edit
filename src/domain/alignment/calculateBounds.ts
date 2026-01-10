@@ -4,8 +4,8 @@
  * Functions for calculating bounding boxes of views and selections.
  */
 
-import type { RenderableView } from '../../types/canvas';
 import type { SelectionBounds, ViewBounds } from '../../types/alignment';
+import type { RenderableView } from '../../types/canvas';
 
 /**
  * Converts a RenderableView to ViewBounds.
@@ -55,10 +55,10 @@ export function calculateSelectionBounds(
 
   const bounds = views.map(viewToBounds);
 
-  const left = Math.min(...bounds.map((b) => b.left));
-  const right = Math.max(...bounds.map((b) => b.right));
-  const top = Math.min(...bounds.map((b) => b.top));
-  const bottom = Math.max(...bounds.map((b) => b.bottom));
+  const left = Math.min(...bounds.map(b => b.left));
+  const right = Math.max(...bounds.map(b => b.right));
+  const top = Math.min(...bounds.map(b => b.top));
+  const bottom = Math.max(...bounds.map(b => b.bottom));
 
   const width = right - left;
   const height = bottom - top;

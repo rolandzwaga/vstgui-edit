@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createMockRenderableView } from '../../../__tests__/helpers/fixtures';
-import type { RenderableView } from '../../../types/canvas';
 import type { SelectionBounds, ViewBounds } from '../../../types/alignment';
+import type { RenderableView } from '../../../types/canvas';
 import {
   alignViews,
   calculateAlignedPosition,

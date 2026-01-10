@@ -8,13 +8,7 @@ import type { Point } from './canvas';
 /**
  * Types of horizontal and vertical alignment operations.
  */
-export type AlignmentType =
-  | 'left'
-  | 'center'
-  | 'right'
-  | 'top'
-  | 'middle'
-  | 'bottom';
+export type AlignmentType = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
 
 /**
  * Direction for distribution operations.

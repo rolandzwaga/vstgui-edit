@@ -5,8 +5,6 @@
  */
 
 export { AlignmentButton } from './AlignmentButton';
-export { AlignmentToolbar } from './AlignmentToolbar';
-export type { AlignmentToolbarProps } from './AlignmentToolbar';
 export {
   AlignBottomIcon,
   AlignCenterIcon,
@@ -17,4 +15,6 @@ export {
   DistributeHorizontalIcon,
   DistributeVerticalIcon,
 } from './AlignmentIcons';
+export type { AlignmentToolbarProps } from './AlignmentToolbar';
+export { AlignmentToolbar } from './AlignmentToolbar';
 export { DragHandle } from './DragHandle';

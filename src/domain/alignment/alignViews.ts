@@ -4,13 +4,13 @@
  * Functions for aligning views to common edges/centers.
  */
 
-import type { Point, RenderableView } from '../../types/canvas';
 import type {
   AlignmentResult,
   AlignmentType,
   SelectionBounds,
   ViewBounds,
 } from '../../types/alignment';
+import type { Point, RenderableView } from '../../types/canvas';
 import { calculateParentBounds, calculateSelectionBounds, viewToBounds } from './calculateBounds';
 
 /**
@@ -245,8 +245,8 @@ function calculateSingleViewAlignedPosition(
  */
 function alignMultipleViews(views: RenderableView[], type: AlignmentType): AlignmentResult[] {
   const selectionBounds = calculateSelectionBounds(
-    views.map((v) => v.id),
-    (id) => views.find((v) => v.id === id) ?? null
+    views.map(v => v.id),
+    id => views.find(v => v.id === id) ?? null
   );
 
   if (selectionBounds === null) {
