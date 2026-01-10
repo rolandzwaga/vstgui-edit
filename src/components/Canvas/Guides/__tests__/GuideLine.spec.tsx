@@ -13,6 +13,8 @@ import {
   startRepositionDrag,
   updateRepositionDrag,
   completeRepositionDrag,
+  cancelRepositionDrag,
+  repositionGuide,
 } from '../../../../stores/guidesStore';
 import { testInRoot } from '../../../../__tests__/helpers/solidjs';
 import type { CustomGuide } from '../../../../types/guides';
@@ -295,6 +297,123 @@ describe('GuideLine', () => {
         // Other guides should still exist
         expect(guidesStore.guides.find(g => g.id === guideIds[0])).toBeDefined();
         expect(guidesStore.guides.find(g => g.id === guideIds[2])).toBeDefined();
+      });
+    });
+  });
+
+  describe('drag to reposition (FR-017)', () => {
+    test('mousedown starts reposition drag', () => {
+      const onMouseDown = vi.fn();
+      render(() => (
+        <svg data-testid="canvas" width={800} height={600}>
+          <GuideLine
+            guide={horizontalGuide}
+            canvasWidth={800}
+            canvasHeight={600}
+            onMouseDown={onMouseDown}
+          />
+        </svg>
+      ));
+
+      const guide = screen.getByTestId('guide-guide-h1');
+      fireEvent.mouseDown(guide, { button: 0 });
+
+      expect(onMouseDown).toHaveBeenCalledWith('guide-h1', expect.any(MouseEvent));
+    });
+
+    test('mousedown with non-primary button does not start drag', () => {
+      const onMouseDown = vi.fn();
+      render(() => (
+        <svg data-testid="canvas" width={800} height={600}>
+          <GuideLine
+            guide={horizontalGuide}
+            canvasWidth={800}
+            canvasHeight={600}
+            onMouseDown={onMouseDown}
+          />
+        </svg>
+      ));
+
+      const guide = screen.getByTestId('guide-guide-h1');
+      fireEvent.mouseDown(guide, { button: 2 }); // Right click
+
+      expect(onMouseDown).not.toHaveBeenCalled();
+    });
+
+    test('reposition drag via store lifecycle', () => {
+      // Add a guide to the store
+      testInRoot(() => {
+        addGuide('horizontal', 100);
+      });
+
+      let guideId: string | undefined;
+      testInRoot(() => {
+        guideId = guidesStore.guides[0]?.id;
+        expect(guidesStore.guides[0].position).toBe(100);
+      });
+
+      // Simulate the reposition drag lifecycle via store
+      testInRoot(() => {
+        // Start reposition drag
+        startRepositionDrag(guideId!, 100);
+        expect(guidesStore.repositionDrag).not.toBeNull();
+        expect(guidesStore.repositionDrag?.guideId).toBe(guideId);
+        expect(guidesStore.repositionDrag?.originalPosition).toBe(100);
+
+        // Update position during drag
+        updateRepositionDrag(200, false);
+        expect(guidesStore.repositionDrag?.currentPosition).toBe(200);
+
+        // Complete the drag
+        const result = completeRepositionDrag();
+        expect(result).toBe('repositioned');
+        expect(guidesStore.repositionDrag).toBeNull();
+      });
+    });
+  });
+
+  describe('reposition cancel with Escape (FR-018)', () => {
+    test('cancel reposition restores original position', () => {
+      // Add a guide to the store
+      testInRoot(() => {
+        addGuide('vertical', 150);
+      });
+
+      let guideId: string | undefined;
+      testInRoot(() => {
+        guideId = guidesStore.guides[0]?.id;
+        expect(guidesStore.guides[0].position).toBe(150);
+      });
+
+      // Simulate reposition drag then cancel
+      testInRoot(() => {
+        // Start reposition drag
+        startRepositionDrag(guideId!, 150);
+
+        // Move guide to new position
+        updateRepositionDrag(300, false);
+        // Simulate live update (as done in useGuideDrag)
+        repositionGuide(guideId!, 300);
+        expect(guidesStore.guides[0].position).toBe(300);
+
+        // Cancel the drag (simulates Escape key)
+        cancelRepositionDrag();
+
+        // Position should be restored to original
+        expect(guidesStore.guides[0].position).toBe(150);
+        expect(guidesStore.repositionDrag).toBeNull();
+      });
+    });
+
+    test('cancel reposition when no drag active does nothing', () => {
+      testInRoot(() => {
+        addGuide('horizontal', 200);
+        expect(guidesStore.repositionDrag).toBeNull();
+
+        // Cancel when no drag - should do nothing
+        cancelRepositionDrag();
+
+        expect(guidesStore.guides[0].position).toBe(200);
       });
     });
   });
