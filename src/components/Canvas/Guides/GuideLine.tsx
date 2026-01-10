@@ -70,6 +70,7 @@ export function GuideLine(props: GuideLineProps) {
   return (
     <g
       data-testid={`guide-${props.guide.id}`}
+      data-orientation={props.guide.orientation}
       class={styles.guideLine}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
