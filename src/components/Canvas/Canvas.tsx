@@ -33,7 +33,7 @@ import { DragPreview } from './DragPreview';
 import { ResizePreview } from './ResizePreview';
 import { DimensionIndicator } from './DimensionIndicator';
 import { SmartGuideLines } from './SmartGuideLines';
-import { GuidePreview } from './Guides';
+import { GuidesOverlay } from './Guides';
 import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
@@ -174,7 +174,7 @@ export const Canvas: Component = () => {
             <DragPreview views={selectedViews()} />
             <ResizePreview />
             <SmartGuideLines />
-            <GuidePreview
+            <GuidesOverlay
               canvasWidth={templateBounds()?.width ?? 100}
               canvasHeight={templateBounds()?.height ?? 100}
             />

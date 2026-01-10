@@ -1,0 +1,21 @@
+/**
+ * GuideLine Styles
+ * Styles for individual custom guide lines
+ */
+
+.guideLine {
+  cursor: ns-resize;
+}
+
+.guideLine[data-orientation="vertical"] {
+  cursor: ew-resize;
+}
+
+.line {
+  pointer-events: none;
+}
+
+.hitArea {
+  pointer-events: stroke;
+  cursor: inherit;
+}
