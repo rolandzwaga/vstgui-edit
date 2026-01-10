@@ -21,6 +21,8 @@ export interface GuideLineProps {
   onClick?: (guideId: string) => void;
   /** Optional: callback when mousedown for reposition drag */
   onMouseDown?: (guideId: string, e: MouseEvent) => void;
+  /** Optional: callback when guide is double-clicked (for deletion) */
+  onDblClick?: (guideId: string) => void;
 }
 
 export function GuideLine(props: GuideLineProps) {
@@ -46,6 +48,13 @@ export function GuideLine(props: GuideLineProps) {
     }
   };
 
+  const handleDblClick = (e: MouseEvent) => {
+    if (props.onDblClick) {
+      e.stopPropagation();
+      props.onDblClick(props.guide.id);
+    }
+  };
+
   const isHorizontal = () => props.guide.orientation === 'horizontal';
 
   return (
@@ -54,6 +63,7 @@ export function GuideLine(props: GuideLineProps) {
       class={styles.guideLine}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
+      onDblClick={handleDblClick}
     >
       {isHorizontal() ? (
         <line

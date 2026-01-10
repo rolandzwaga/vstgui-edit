@@ -6,7 +6,7 @@
  */
 
 import { For, Show } from 'solid-js';
-import { guidesStore, startRepositionDrag } from '../../../stores/guidesStore';
+import { guidesStore, startRepositionDrag, deleteGuideWithHistory } from '../../../stores/guidesStore';
 import { GuideLine } from './GuideLine';
 import { GuidePreview } from './GuidePreview';
 
@@ -25,6 +25,10 @@ export function GuidesOverlay(props: GuidesOverlayProps) {
     }
   };
 
+  const handleGuideDblClick = (guideId: string) => {
+    deleteGuideWithHistory(guideId);
+  };
+
   return (
     <g data-testid="guides-overlay">
       {/* Render all guides when visible */}
@@ -36,6 +40,7 @@ export function GuidesOverlay(props: GuidesOverlayProps) {
               canvasWidth={props.canvasWidth}
               canvasHeight={props.canvasHeight}
               onMouseDown={handleGuideMouseDown}
+              onDblClick={handleGuideDblClick}
             />
           )}
         </For>
