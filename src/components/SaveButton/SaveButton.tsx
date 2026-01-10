@@ -1,11 +1,15 @@
-import { type Component, createSignal, onCleanup, onMount, Show } from 'solid-js';
+import { type Component, createEffect, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
+import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { documentStore, markClean, setFileHandle } from '../../stores/documentStore';
 import {
   closeDropdown,
   initializeFormat,
+  openDropdown,
   saveFormatStore,
+  selectFormat,
 } from '../../stores/saveFormatStore';
 import { serializeToJson, serializeToXml } from '../../domain/serializer';
+import type { SaveFormat } from '../../domain/serializer/types';
 import {
   downloadDocument,
   hasFileSystemAccess,
@@ -18,8 +22,21 @@ export interface SaveButtonProps {
   class?: string;
 }
 
+interface FormatOption {
+  value: SaveFormat;
+  label: string;
+}
+
+const FORMAT_OPTIONS: FormatOption[] = [
+  { value: 'json', label: 'JSON' },
+  { value: 'xml', label: 'XML' },
+];
+
 export const SaveButton: Component<SaveButtonProps> = (props) => {
   const [isSaving, setIsSaving] = createSignal(false);
+  let containerRef: HTMLDivElement | undefined;
+  let dropdownRef: HTMLDivElement | undefined;
+  let chevronRef: HTMLButtonElement | undefined;
 
   // Initialize format when document changes
   const initFormat = () => {
@@ -32,11 +49,40 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
   onMount(() => {
     initFormat();
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClickOutside);
   });
 
   onCleanup(() => {
     document.removeEventListener('keydown', handleKeyDown);
+    document.removeEventListener('click', handleClickOutside);
   });
+
+  // Position dropdown when it opens
+  createEffect(() => {
+    if (saveFormatStore.isDropdownOpen && containerRef && dropdownRef) {
+      computePosition(containerRef, dropdownRef, {
+        placement: 'bottom-start',
+        middleware: [offset(4), flip(), shift({ padding: 8 })],
+      }).then(({ x, y }) => {
+        if (dropdownRef) {
+          dropdownRef.style.left = `${x}px`;
+          dropdownRef.style.top = `${y}px`;
+        }
+      });
+    }
+  });
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (
+      saveFormatStore.isDropdownOpen &&
+      containerRef &&
+      !containerRef.contains(e.target as Node) &&
+      dropdownRef &&
+      !dropdownRef.contains(e.target as Node)
+    ) {
+      closeDropdown();
+    }
+  };
 
   const getSerializedContent = (): string => {
     const doc = documentStore.document;
@@ -91,19 +137,31 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    // Ctrl+S to save
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
       handleSave();
+      return;
+    }
+
+    // Escape to close dropdown
+    if (e.key === 'Escape' && saveFormatStore.isDropdownOpen) {
+      e.preventDefault();
+      closeDropdown();
+      chevronRef?.focus();
     }
   };
 
   const handleChevronClick = () => {
-    // Toggle dropdown - implementation will be added in US2
     if (saveFormatStore.isDropdownOpen) {
       closeDropdown();
     } else {
-      // openDropdown will be called - for now just placeholder
+      openDropdown();
     }
+  };
+
+  const handleFormatSelect = (format: SaveFormat) => {
+    selectFormat(format);
   };
 
   const isDisabled = () => !documentStore.isDirty || isSaving();
@@ -111,7 +169,12 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
   const formatLabel = () => saveFormatStore.selectedFormat.toUpperCase();
 
   return (
-    <div class={`${styles.container} ${props.class ?? ''}`} role="group" aria-label="Save options">
+    <div
+      ref={containerRef}
+      class={`${styles.container} ${props.class ?? ''}`}
+      role="group"
+      aria-label="Save options"
+    >
       <button
         type="button"
         class={`${styles.mainButton} ${isSaving() ? styles.saving : ''}`}
@@ -127,6 +190,7 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
       </button>
       <div class={styles.separator} />
       <button
+        ref={chevronRef}
         type="button"
         class={styles.chevronButton}
         onClick={handleChevronClick}
@@ -137,6 +201,31 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
       >
         <ChevronIcon />
       </button>
+
+      {/* Dropdown menu */}
+      <Show when={saveFormatStore.isDropdownOpen}>
+        <div
+          ref={dropdownRef}
+          class={styles.dropdown}
+          role="menu"
+          aria-label="Save format options"
+        >
+          <For each={FORMAT_OPTIONS}>
+            {(option) => (
+              <button
+                type="button"
+                class={`${styles.dropdownItem} ${
+                  saveFormatStore.selectedFormat === option.value ? styles.dropdownItemActive : ''
+                }`}
+                role="menuitem"
+                onClick={() => handleFormatSelect(option.value)}
+              >
+                {option.label}
+              </button>
+            )}
+          </For>
+        </div>
+      </Show>
     </div>
   );
 };

@@ -185,4 +185,36 @@ describe('SaveButton', () => {
       expect(mainButton.textContent).toContain('JSON');
     });
   });
+
+  describe('dropdown behavior', () => {
+    test('chevron click opens dropdown', async () => {
+      const user = userEvent.setup();
+      const { openDropdown } = await import('../../../stores/saveFormatStore');
+
+      render(() => <SaveButton />);
+      const chevronButton = getChevronButton();
+      await user.click(chevronButton);
+
+      expect(openDropdown).toHaveBeenCalled();
+    });
+
+    test('clicking main button while dropdown is open closes dropdown and triggers save', async () => {
+      const user = userEvent.setup();
+      const { closeDropdown, saveFormatStore } = await import('../../../stores/saveFormatStore');
+      const { downloadDocument } = await import('../../../services/fileService');
+
+      // Mock dropdown as open
+      Object.defineProperty(saveFormatStore, 'isDropdownOpen', {
+        value: true,
+        configurable: true,
+      });
+
+      render(() => <SaveButton />);
+      const mainButton = getMainButton();
+      await user.click(mainButton);
+
+      expect(closeDropdown).toHaveBeenCalled();
+      expect(downloadDocument).toHaveBeenCalled();
+    });
+  });
 });
