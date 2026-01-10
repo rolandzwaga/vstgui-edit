@@ -18,6 +18,7 @@ import { pushOperation } from '../../stores/historyStore';
 import { marqueeStore } from '../../stores/marqueeStore';
 import { dragStore } from '../../stores/dragStore';
 import { resizeStore } from '../../stores/resizeStore';
+import { setCursorPosition, clearCursorPosition } from '../../stores/rulerStore';
 import { ContextMenu } from '../ContextMenu';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
@@ -79,11 +80,13 @@ export const Canvas: Component = () => {
     handleTooltipMouseMove(e);
     const point = getCanvasPoint(e.clientX, e.clientY);
     setCanvasMousePosition(point);
+    setCursorPosition(point);
   };
 
   const handleCanvasMouseLeave = () => {
     handleTooltipMouseLeave();
     setCanvasMousePosition(null);
+    clearCursorPosition();
   };
 
   const { isDraggingOver, handleDragOver, handleDragLeave, handleDrop } = useCanvasDrop({
