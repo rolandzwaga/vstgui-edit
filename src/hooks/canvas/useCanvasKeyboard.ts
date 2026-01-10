@@ -311,6 +311,13 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       }
     }
 
+    // Handle Ctrl+; for toggling guide visibility (must be before the ctrl/meta/alt early return)
+    if (e.key === ';' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      toggleGuidesVisibility();
+      return;
+    }
+
     if (e.ctrlKey || e.metaKey || e.altKey) {
       return;
     }
@@ -329,9 +336,6 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       toggleSnap();
     } else if (e.key === 's' || e.key === 'S') {
       toggleSmartGuides();
-    } else if (e.key === ';' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      toggleGuidesVisibility();
     }
   };
 
