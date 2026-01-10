@@ -4,16 +4,17 @@ import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import { applyDeltaToAll, createMoveOperation } from '../../domain/canvas/move';
 import { createResizeOperation } from '../../domain/canvas/resize';
 import { calculateSmartGuides, getViewBounds } from '../../domain/canvas/smartGuides';
+import { getEffectiveThreshold } from '../../domain/canvas/snap';
 import {
-  applySnapToMove,
-  applySnapToResize,
-  getEffectiveThreshold,
-} from '../../domain/canvas/snap';
+  applySnapToMoveWithGuides,
+  applySnapToResizeWithGuides,
+} from '../../domain/guides/guideSnap';
 import { canvasStore } from '../../stores/canvasStore';
 import { showContextMenu } from '../../stores/contextMenuStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
 import { gridStore } from '../../stores/gridStore';
+import { guidesStore } from '../../stores/guidesStore';
 import { pushOperation } from '../../stores/historyStore';
 import {
   activateMarquee,
@@ -145,15 +146,20 @@ export function useCanvasInteractions(
       const handle = resizeStore.activeHandle;
 
       if (originalOrigin && originalSize && handle) {
-        const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
-        if (shouldSnap) {
+        const gridSnapEnabled = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+        const guideSnapEnabled = guidesStore.isSnapEnabled && !e.altKey;
+
+        if (gridSnapEnabled || guideSnapEnabled) {
           const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
-          const snapResult = applySnapToResize(
+          const snapResult = applySnapToResizeWithGuides(
             newOrigin,
             newSize,
             handle,
             gridStore.size,
-            threshold
+            guidesStore.guides,
+            threshold,
+            gridSnapEnabled,
+            guideSnapEnabled
           );
           newOrigin = snapResult.origin;
           newSize = snapResult.size;
@@ -296,12 +302,22 @@ export function useCanvasInteractions(
       const viewIds = Object.keys(origins);
       let newOrigins = applyDeltaToAll(origins, delta);
 
-      const shouldSnap = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
-      if (shouldSnap) {
+      const gridSnapEnabled = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+      const guideSnapEnabled = guidesStore.isSnapEnabled && !e.altKey;
+
+      if (gridSnapEnabled || guideSnapEnabled) {
         const anchorId = viewIds[0];
         if (anchorId) {
           const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
-          const snapResult = applySnapToMove(newOrigins, anchorId, gridStore.size, threshold);
+          const snapResult = applySnapToMoveWithGuides(
+            newOrigins,
+            anchorId,
+            gridStore.size,
+            guidesStore.guides,
+            threshold,
+            gridSnapEnabled,
+            guideSnapEnabled
+          );
           newOrigins = snapResult.snappedOrigins;
         }
       }
