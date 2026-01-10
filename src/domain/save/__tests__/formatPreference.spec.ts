@@ -3,8 +3,8 @@ import {
   clearFormatPreference,
   getFormatPreference,
   isValidSaveFormat,
-  setFormatPreference,
   STORAGE_KEY,
+  setFormatPreference,
 } from '../formatPreference';
 
 describe('formatPreference', () => {
