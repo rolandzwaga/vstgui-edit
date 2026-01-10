@@ -189,6 +189,18 @@
   --color-item-selected-border: var(--color-primary-500);
   --color-item-readonly-bg: var(--color-neutral-50);
   --color-item-readonly-text: var(--color-neutral-500);
+
+  /* Ruler Colors */
+  --ruler-thickness: 20px;
+  --ruler-font-size: 10px;
+  --ruler-background: var(--color-neutral-100);
+  --ruler-border-color: var(--color-neutral-300);
+  --ruler-tick-color: var(--color-neutral-400);
+  --ruler-tick-major-color: var(--color-neutral-600);
+  --ruler-label-color: var(--color-neutral-700);
+  --ruler-cursor-indicator-color: var(--color-primary-500);
+  --ruler-template-bounds-color: rgba(59, 130, 246, 0.08);
+  --ruler-origin-background: var(--color-neutral-200);
 }
 
 @media (prefers-color-scheme: dark) {
