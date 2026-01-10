@@ -12,6 +12,7 @@ import type {
   VSTGUIUIDescription,
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
+import { resetGuidesStore } from './guidesStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -199,6 +200,7 @@ export async function loadFile(file: File): Promise<void> {
 export function reset(): void {
   setStore({ ...initialState });
   resetTemplateStore();
+  resetGuidesStore();
 }
 
 export function markDirty(): void {

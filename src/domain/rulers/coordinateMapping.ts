@@ -57,6 +57,25 @@ export function canvasToScreenPosition(
 }
 
 /**
+ * Convert screen position on ruler to canvas coordinate.
+ * Used for guide creation from ruler drag.
+ *
+ * @param screenValue - Screen position in pixels
+ * @param panOffset - Pan offset along this axis
+ * @param zoomLevel - Current zoom level
+ * @returns Canvas coordinate value
+ */
+export function screenToCanvasPosition(
+  screenValue: number,
+  panOffset: number,
+  zoomLevel: number
+): number {
+  // Inverse of canvasToScreenPosition:
+  // canvasValue = (screenPos - panOffset) / zoomLevel
+  return (screenValue - panOffset) / zoomLevel;
+}
+
+/**
  * Calculate screen positions for template bounds indicator.
  * Returns start (always at canvas origin) and end (at template extent).
  *

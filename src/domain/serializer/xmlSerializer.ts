@@ -26,7 +26,7 @@ function serializeView(view: ViewNode, indent: string): string {
   if (view.children && Object.keys(view.children).length > 0) {
     lines.push(`${indent}<view ${attrs}>`);
     for (const child of Object.values(view.children)) {
-      lines.push(serializeView(child, indent + '  '));
+      lines.push(serializeView(child, `${indent}  `));
     }
     lines.push(`${indent}</view>`);
   } else {

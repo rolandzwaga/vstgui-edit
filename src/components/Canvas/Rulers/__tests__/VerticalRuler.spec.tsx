@@ -1,13 +1,18 @@
-import { cleanup, render, screen } from '@solidjs/testing-library';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { testInRoot } from '../../../../__tests__/helpers/solidjs';
 import { resetCanvas, setZoom } from '../../../../stores/canvasStore';
 import { resetGrid } from '../../../../stores/gridStore';
+import { guidesStore, resetGuidesStore } from '../../../../stores/guidesStore';
 import { VerticalRuler } from '../VerticalRuler';
 
 describe('VerticalRuler', () => {
   beforeEach(() => {
     resetCanvas();
     resetGrid();
+    testInRoot(() => {
+      resetGuidesStore();
+    });
   });
 
   afterEach(() => {
@@ -108,6 +113,75 @@ describe('VerticalRuler', () => {
       // At 200% zoom with 400px height, visible range is 0-200 canvas pixels
       // Major ticks at 50px intervals = 0, 50, 100, 150, 200
       expect(majorTicks.length).toBe(5);
+    });
+  });
+
+  describe('drag-to-create guide', () => {
+    test('mousedown starts creation drag with vertical orientation', () => {
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).toBeNull();
+      });
+
+      fireEvent.mouseDown(ruler, { button: 0, clientX: 10 });
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).not.toBeNull();
+        expect(guidesStore.creationDrag?.orientation).toBe('vertical');
+      });
+    });
+
+    test('mousedown does not start drag on non-primary button', () => {
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      fireEvent.mouseDown(ruler, { button: 2 });
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).toBeNull();
+      });
+    });
+  });
+
+  describe('right-click to create guide (FR-016)', () => {
+    test('right-click creates horizontal guide at click Y position', () => {
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(0);
+      });
+
+      // Left ruler shows Y coords, so right-click creates horizontal guide at that Y
+      fireEvent.contextMenu(ruler, { clientY: 100 });
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(1);
+        expect(guidesStore.guides[0].orientation).toBe('horizontal');
+        expect(typeof guidesStore.guides[0].position).toBe('number');
+      });
+    });
+
+    test('right-click prevents default context menu', () => {
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+      ruler.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
     });
   });
 });

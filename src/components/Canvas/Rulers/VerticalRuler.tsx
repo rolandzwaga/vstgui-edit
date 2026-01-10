@@ -7,12 +7,14 @@
 
 import { createMemo, For, Show } from 'solid-js';
 import { canvasStore } from '../../../stores/canvasStore';
+import { startCreationDrag, addGuideWithHistory } from '../../../stores/guidesStore';
 import {
   calculateTemplateBoundsPosition,
   calculateTickIntervals,
   calculateVisibleRange,
   canvasToScreenPosition,
   generateTicks,
+  screenToCanvasPosition,
 } from '../../../domain/rulers';
 import type { VerticalRulerProps } from '../../../types/ruler';
 import { CursorIndicator } from './CursorIndicator';
@@ -49,11 +51,46 @@ export function VerticalRuler(props: VerticalRulerProps) {
     )
   );
 
+  // Handle mousedown to start guide creation drag
+  const handleMouseDown = (e: MouseEvent) => {
+    // Only respond to primary button
+    if (e.button !== 0) return;
+
+    // Get ruler element for position calculation
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    // Use X position relative to ruler for vertical guides
+    const screenX = e.clientX - rect.left;
+    // Convert to canvas coordinates
+    const canvasX = screenToCanvasPosition(
+      screenX,
+      canvasStore.panOffset.x,
+      canvasStore.zoomLevel
+    );
+
+    startCreationDrag('vertical', canvasX);
+  };
+
+  // Handle context menu to create guide at click position
+  // Left ruler shows Y coordinates, so create horizontal guide at clicked Y
+  const handleContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const screenY = e.clientY - rect.top;
+    const canvasY = Math.round(
+      screenToCanvasPosition(screenY, canvasStore.panOffset.y, canvasStore.zoomLevel)
+    );
+
+    addGuideWithHistory('horizontal', canvasY);
+  };
+
   return (
     <div
       class={styles.ruler}
       style={{ height: `${props.height}px` }}
       data-testid="vertical-ruler"
+      onMouseDown={handleMouseDown}
+      onContextMenu={handleContextMenu}
     >
       {/* Template bounds indicator */}
       <Show when={props.templateHeight > 0}>

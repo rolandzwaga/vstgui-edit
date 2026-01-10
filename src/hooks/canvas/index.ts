@@ -17,3 +17,8 @@ export {
 } from './useCanvasKeyboard';
 export { type UseCanvasPanResult, useCanvasPan } from './useCanvasPan';
 export { type UseCanvasZoomResult, useCanvasZoom } from './useCanvasZoom';
+export {
+  type UseGuideDragOptions,
+  type UseGuideDragResult,
+  useGuideDrag,
+} from './useGuideDrag';

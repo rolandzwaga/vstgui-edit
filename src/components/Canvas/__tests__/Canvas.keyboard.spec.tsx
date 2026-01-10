@@ -8,6 +8,12 @@ import { fireEvent, render, screen } from '@solidjs/testing-library';
 import { Canvas } from '../Canvas';
 import { resetSelection, select, selectionStore } from '../../../stores/selectionStore';
 import { resetCanvas } from '../../../stores/canvasStore';
+import {
+  guidesStore,
+  resetGuidesStore,
+  addGuide,
+  setGuidesVisibility,
+} from '../../../stores/guidesStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 
 const mockDocumentStore = vi.hoisted(() => ({
@@ -57,6 +63,7 @@ describe('Canvas Keyboard Shortcuts', () => {
     testInRoot(() => {
       resetSelection();
       resetCanvas();
+      resetGuidesStore();
     });
     mockDocumentStore.document = null;
     mockTemplateStore.activeTemplateId = 'TestTemplate';
@@ -300,6 +307,117 @@ describe('Canvas Keyboard Shortcuts', () => {
       testInRoot(() => {
         // Should have 4 selected views (root container + 3 child views)
         expect(selectionStore.selectedIds.size).toBe(4);
+      });
+    });
+  });
+
+  describe('Ctrl+; - Toggle Guide Visibility (FR-012)', () => {
+    it('should toggle guides visibility when Ctrl+; is pressed', () => {
+      mockDocumentStore.document = createMockDocument(1);
+
+      // Add a guide and verify initial visibility
+      testInRoot(() => {
+        addGuide('horizontal', 100);
+        expect(guidesStore.isVisible).toBe(true);
+      });
+
+      render(() => <Canvas />);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Press Ctrl+;
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        expect(guidesStore.isVisible).toBe(false);
+      });
+
+      // Press Ctrl+; again to toggle back
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        expect(guidesStore.isVisible).toBe(true);
+      });
+    });
+
+    it('should toggle guides visibility when Cmd+; is pressed (Mac)', () => {
+      mockDocumentStore.document = createMockDocument(1);
+
+      testInRoot(() => {
+        addGuide('vertical', 200);
+        expect(guidesStore.isVisible).toBe(true);
+      });
+
+      render(() => <Canvas />);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Press Cmd+; (metaKey for Mac)
+      fireEvent.keyDown(wrapper, { key: ';', metaKey: true });
+
+      testInRoot(() => {
+        expect(guidesStore.isVisible).toBe(false);
+      });
+    });
+
+    it('should preserve guides when toggling visibility', () => {
+      mockDocumentStore.document = createMockDocument(1);
+
+      testInRoot(() => {
+        addGuide('horizontal', 100);
+        addGuide('vertical', 200);
+        expect(guidesStore.guides.length).toBe(2);
+      });
+
+      render(() => <Canvas />);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Hide guides
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        expect(guidesStore.isVisible).toBe(false);
+        // Guides should still exist in store
+        expect(guidesStore.guides.length).toBe(2);
+      });
+
+      // Show guides again
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        expect(guidesStore.isVisible).toBe(true);
+        // Guides should still be there
+        expect(guidesStore.guides.length).toBe(2);
+      });
+    });
+
+    it('should disable snap when guides are hidden', () => {
+      mockDocumentStore.document = createMockDocument(1);
+
+      testInRoot(() => {
+        addGuide('horizontal', 100);
+        expect(guidesStore.isSnapEnabled).toBe(true);
+      });
+
+      render(() => <Canvas />);
+
+      const wrapper = screen.getByTestId('canvas-wrapper');
+
+      // Hide guides
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        // Snap should be disabled when hidden (FR-013)
+        expect(guidesStore.isSnapEnabled).toBe(false);
+      });
+
+      // Show guides again
+      fireEvent.keyDown(wrapper, { key: ';', ctrlKey: true });
+
+      testInRoot(() => {
+        // Snap should be re-enabled
+        expect(guidesStore.isSnapEnabled).toBe(true);
       });
     });
   });

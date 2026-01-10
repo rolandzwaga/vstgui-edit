@@ -1,28 +1,37 @@
 /**
- * Snap-to-Grid Types
- * Types for grid snapping during move and resize operations
+ * Snap Types
+ * Types for grid and guide snapping during move and resize operations
  */
 
 import type { Point } from './canvas';
 
 /**
  * Default snap threshold in pixels.
- * Views within this distance of a grid line will snap to it.
+ * Views within this distance of a grid line or guide will snap to it.
  */
 export const DEFAULT_SNAP_THRESHOLD = 5;
 
 /**
- * Result of snapping a single coordinate to the grid.
+ * Source of a snap operation result.
+ */
+export type SnapSource = 'grid' | 'guide' | 'none';
+
+/**
+ * Result of snapping a single coordinate to a grid line or guide.
  */
 export interface SnapResult {
-  /** Whether the coordinate was snapped to a grid line */
+  /** Whether the coordinate was snapped to a grid line or guide */
   snapped: boolean;
   /** The resulting coordinate (snapped or original) */
   value: number;
   /** Amount the coordinate was adjusted (0 if not snapped) */
   snapDelta: number;
-  /** The grid line coordinate snapped to (null if not snapped) */
+  /** The grid line coordinate snapped to (null if not snapped to grid) */
   gridLine: number | null;
+  /** What the value snapped to ('grid', 'guide', or 'none') */
+  snappedTo?: SnapSource;
+  /** ID of the guide that was snapped to (if snappedTo === 'guide') */
+  guideId?: string;
 }
 
 /**

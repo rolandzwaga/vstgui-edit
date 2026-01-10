@@ -6,6 +6,7 @@ import {
   useCanvasZoom,
   useCanvasKeyboard,
   useCanvasInteractions,
+  useGuideDrag,
 } from '../../hooks/canvas';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import {
@@ -32,6 +33,7 @@ import { DragPreview } from './DragPreview';
 import { ResizePreview } from './ResizePreview';
 import { DimensionIndicator } from './DimensionIndicator';
 import { SmartGuideLines } from './SmartGuideLines';
+import { GuidesOverlay } from './Guides';
 import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
@@ -67,6 +69,11 @@ export const Canvas: Component = () => {
   });
 
   let wrapperElement: HTMLDivElement | undefined;
+
+  // Initialize guide drag handling
+  useGuideDrag({
+    canvasWrapperRef: () => wrapperElement,
+  });
 
   const getCanvasPoint = (clientX: number, clientY: number) => {
     if (!wrapperElement) {
@@ -167,6 +174,10 @@ export const Canvas: Component = () => {
             <DragPreview views={selectedViews()} />
             <ResizePreview />
             <SmartGuideLines />
+            <GuidesOverlay
+              canvasWidth={templateBounds()?.width ?? 100}
+              canvasHeight={templateBounds()?.height ?? 100}
+            />
             <Show when={marqueeStore.isActive}>
               <MarqueeRectangle />
             </Show>
