@@ -89,10 +89,43 @@
 }
 
 .label {
+  flex: 1;
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.statusIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.lockIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-warning, #fbbf24);
+}
+
+.hideIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-muted, #888);
+}
+
+.row.hidden {
+  opacity: 0.5;
+}
+
+.row.hidden .label {
+  font-style: italic;
 }
 
 .dragging {
