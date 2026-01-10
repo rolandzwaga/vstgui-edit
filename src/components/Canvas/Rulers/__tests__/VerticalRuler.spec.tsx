@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { testInRoot } from '../../../../__tests__/helpers/solidjs';
 import { resetCanvas, setZoom } from '../../../../stores/canvasStore';
 import { resetGrid } from '../../../../stores/gridStore';
@@ -146,6 +146,107 @@ describe('VerticalRuler', () => {
       testInRoot(() => {
         expect(guidesStore.creationDrag).toBeNull();
       });
+    });
+  });
+
+  describe('context menu for precise guide positioning (FR-016)', () => {
+    test('right-click shows prompt for position', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue('150');
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      fireEvent.contextMenu(ruler);
+
+      expect(promptMock).toHaveBeenCalledWith('Enter vertical guide position (pixels):', expect.any(String));
+      promptMock.mockRestore();
+    });
+
+    test('entering valid number creates guide at position', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue('150');
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(0);
+      });
+
+      fireEvent.contextMenu(ruler);
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(1);
+        expect(guidesStore.guides[0].orientation).toBe('vertical');
+        expect(guidesStore.guides[0].position).toBe(150);
+      });
+
+      promptMock.mockRestore();
+    });
+
+    test('cancelling prompt does not create guide', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue(null);
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      fireEvent.contextMenu(ruler);
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(0);
+      });
+
+      promptMock.mockRestore();
+    });
+
+    test('entering invalid number does not create guide', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue('xyz');
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      fireEvent.contextMenu(ruler);
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(0);
+      });
+
+      promptMock.mockRestore();
+    });
+
+    test('entering empty string does not create guide', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue('');
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      fireEvent.contextMenu(ruler);
+
+      testInRoot(() => {
+        expect(guidesStore.guides.length).toBe(0);
+      });
+
+      promptMock.mockRestore();
+    });
+
+    test('right-click prevents default context menu', () => {
+      const promptMock = vi.spyOn(window, 'prompt').mockReturnValue(null);
+      render(() => (
+        <VerticalRuler height={400} cursorPosition={null} templateHeight={400} />
+      ));
+      const ruler = screen.getByTestId('vertical-ruler');
+
+      const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+      ruler.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      promptMock.mockRestore();
     });
   });
 });

@@ -299,6 +299,27 @@ describe('GuideLine', () => {
     });
   });
 
+  describe('context menu for precise repositioning (FR-016)', () => {
+    test('onContextMenu callback is called with guide id', () => {
+      const onContextMenu = vi.fn();
+      render(() => (
+        <svg data-testid="canvas" width={800} height={600}>
+          <GuideLine
+            guide={horizontalGuide}
+            canvasWidth={800}
+            canvasHeight={600}
+            onContextMenu={onContextMenu}
+          />
+        </svg>
+      ));
+
+      const guide = screen.getByTestId('guide-guide-h1');
+      fireEvent.contextMenu(guide);
+
+      expect(onContextMenu).toHaveBeenCalledWith('guide-h1', expect.any(MouseEvent));
+    });
+  });
+
   describe('drag-to-ruler delete (FR-015)', () => {
     test('dragging guide to ruler triggers deletion during reposition', () => {
       // Add a guide to the store

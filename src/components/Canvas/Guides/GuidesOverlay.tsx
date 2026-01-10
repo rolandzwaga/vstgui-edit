@@ -6,7 +6,12 @@
  */
 
 import { For, Show } from 'solid-js';
-import { guidesStore, startRepositionDrag, deleteGuideWithHistory } from '../../../stores/guidesStore';
+import {
+  guidesStore,
+  startRepositionDrag,
+  deleteGuideWithHistory,
+  repositionGuideWithHistory,
+} from '../../../stores/guidesStore';
 import { GuideLine } from './GuideLine';
 import { GuidePreview } from './GuidePreview';
 
@@ -29,6 +34,30 @@ export function GuidesOverlay(props: GuidesOverlayProps) {
     deleteGuideWithHistory(guideId);
   };
 
+  const handleGuideContextMenu = (guideId: string, _e: MouseEvent) => {
+    const guide = guidesStore.getGuideById(guideId);
+    if (!guide) return;
+
+    const orientationLabel = guide.orientation === 'horizontal' ? 'horizontal' : 'vertical';
+    const input = window.prompt(
+      `Enter new ${orientationLabel} guide position (pixels):`,
+      String(guide.position)
+    );
+
+    if (input === null || input.trim() === '') {
+      return;
+    }
+
+    const newPosition = parseFloat(input);
+    if (Number.isNaN(newPosition)) {
+      return;
+    }
+
+    if (newPosition !== guide.position) {
+      repositionGuideWithHistory(guideId, newPosition);
+    }
+  };
+
   return (
     <g data-testid="guides-overlay">
       {/* Render all guides when visible */}
@@ -41,6 +70,7 @@ export function GuidesOverlay(props: GuidesOverlayProps) {
               canvasHeight={props.canvasHeight}
               onMouseDown={handleGuideMouseDown}
               onDblClick={handleGuideDblClick}
+              onContextMenu={handleGuideContextMenu}
             />
           )}
         </For>
