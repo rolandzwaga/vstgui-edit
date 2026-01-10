@@ -206,6 +206,20 @@ npx tsc --noEmit                   # Type check
 | `cancelFormatChange()` | Cancel pending change, close dialog |
 | `resetSaveFormatStore()` | Reset to initial state |
 
+### alignmentToolbarStore (`src/stores/alignmentToolbarStore.ts`)
+**Purpose**: Alignment toolbar docked/floating state
+
+| Export | Description |
+|--------|-------------|
+| `alignmentToolbarStore` | State: `isDocked`, `floatingPosition` |
+| `dock()` | Dock toolbar back to main toolbar |
+| `undock(position)` | Float toolbar at given position |
+| `updateFloatingPosition(pos)` | Update position while dragging |
+| `loadAlignmentToolbarState()` | Load from localStorage |
+| `saveAlignmentToolbarState()` | Save to localStorage |
+| `resetAlignmentToolbarStore()` | Reset to initial docked state |
+| `STORAGE_KEY` | localStorage key: `'vstgui-edit:alignment-toolbar'` |
+
 ---
 
 ## Domain Utilities
@@ -260,6 +274,20 @@ npx tsc --noEmit                   # Type check
 | `clearFormatPreference()` | Remove format preference from localStorage |
 | `isValidSaveFormat(value)` | Type guard for SaveFormat |
 | `STORAGE_KEY` | localStorage key: `'vstgui-edit:save-format'` |
+
+### Alignment (`src/domain/alignment/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `calculateBounds.ts` | `viewToBounds(view)`, `calculateSelectionBounds(ids, getView)`, `calculateParentBounds(id, getParentId, getView)` |
+| `alignViews.ts` | `alignViews(ids, type, getView, getParentId)`, `getAlignmentReference(bounds, type)`, `calculateAlignedPosition(view, ref, type, origin)` |
+| `distributeViews.ts` | `distributeViews(ids, direction, getView)`, `calculateEqualGap(views, direction)` |
+| `historyOperations.ts` | `createAlignmentOperation(results, desc, updateFn)`, `getAlignmentDescription(count, type, isParent)`, `getDistributionDescription(count, dir)` |
+| `shortcuts.ts` | `handleAlignmentShortcut(event, selectedIds, onAlign?)` |
+
+**Keyboard Shortcuts** (Ctrl+Shift+...):
+- `L`: Align Left | `C`: Align Center | `R`: Align Right
+- `T`: Align Top | `M`: Align Middle | `B`: Align Bottom
 
 ---
 
@@ -425,6 +453,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-10 | 031-alignment-tools | Alignment toolbar, L/C/R/T/M/B alignment, H/V distribution, shortcuts, ~130 tests |
 | 01-10 | 030-json-save-format | Split save button, JSON/XML dropdown, confirmation dialog, 90 tests |
 | 01-07 | 016-property-editing | 8 editors, validation, history, 1622 tests |
 | 01-06 | 013-view-resize | 8 handles, Shift/Alt modifiers, 63 tests |

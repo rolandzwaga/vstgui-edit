@@ -78,6 +78,7 @@ export function useCanvasInteractions(
     if (target.closest('[data-testid="properties-panel"]')) return;
     if (target.closest('[data-testid="hierarchy-panel"]')) return;
     if (target.closest('[data-testid="context-menu"]')) return;
+    if (target.closest('[data-testid="alignment-toolbar"]')) return;
 
     if (selectionStore.selectedIds.size > 0) {
       clearSelection();

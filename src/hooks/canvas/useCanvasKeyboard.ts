@@ -1,4 +1,10 @@
 import type { Accessor } from 'solid-js';
+import {
+  alignViews,
+  createAlignmentOperation,
+  getAlignmentDescription,
+  handleAlignmentShortcut,
+} from '../../domain/alignment';
 import { applyDelta, createMoveOperation } from '../../domain/canvas/move';
 import {
   copySelectedViews,
@@ -15,7 +21,7 @@ import {
   createUngroupHistoryOperation,
 } from '../../domain/hierarchy/groupOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { updateViewOrigin } from '../../stores/documentStore';
+import { getParentId, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
@@ -23,6 +29,7 @@ import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
+import type { AlignmentType } from '../../types/alignment';
 import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
 
@@ -106,7 +113,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       return;
     }
 
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'c') {
       e.preventDefault();
       copySelectedViews();
       return;
@@ -255,6 +262,35 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         pushOperation(operation);
       }
       return;
+    }
+
+    // Handle Ctrl+Shift+{L,C,R,T,M,B} alignment shortcuts
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      const views = renderableViews();
+      const viewMap = new Map(views.map(v => [v.id, v]));
+      const getView = (id: string) => viewMap.get(id) ?? null;
+
+      const handleAlign = (type: AlignmentType, selectedIdArray: string[]) => {
+        const results = alignViews(selectedIdArray, type, getView, getParentId);
+        if (results.length === 0) return;
+
+        // Apply new positions
+        for (const result of results) {
+          updateViewOrigin(result.viewId, result.newOrigin);
+        }
+
+        // Create history operation
+        const isParentAlign = selectedIdArray.length === 1;
+        const description = getAlignmentDescription(results.length, type, isParentAlign);
+        const operation = createAlignmentOperation(results, description, updateViewOrigin);
+        pushOperation(operation);
+      };
+
+      const handled = handleAlignmentShortcut(e, selectionStore.selectedIds, handleAlign);
+      if (handled) {
+        e.preventDefault();
+        return;
+      }
     }
 
     if (e.ctrlKey || e.metaKey || e.altKey) {

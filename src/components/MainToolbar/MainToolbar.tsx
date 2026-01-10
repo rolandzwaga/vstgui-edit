@@ -1,7 +1,8 @@
 import type { Component } from 'solid-js';
+import { AlignmentToolbar } from '../AlignmentToolbar';
+import { GridToolbar } from '../GridToolbar';
 import { SaveButton } from '../SaveButton';
 import { ZoomToolbar } from '../ZoomToolbar';
-import { GridToolbar } from '../GridToolbar';
 import styles from './MainToolbar.module.css';
 
 export interface MainToolbarProps {
@@ -21,6 +22,7 @@ export const MainToolbar: Component<MainToolbarProps> = (props) => {
       <SaveButton />
       <ZoomToolbar onFitToView={props.onFitToView} />
       <GridToolbar />
+      <AlignmentToolbar />
     </div>
   );
 };
