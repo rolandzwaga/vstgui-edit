@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Mock } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { useMockDate } from '../../../__tests__/helpers/time';
 import {
   createHideOperation,

@@ -45,10 +45,7 @@ export function filterUnlockedViews(
 /**
  * Check if all views in a set are locked.
  */
-export function areAllLocked(
-  viewIds: Set<string>,
-  isLocked: (id: string) => boolean
-): boolean {
+export function areAllLocked(viewIds: Set<string>, isLocked: (id: string) => boolean): boolean {
   if (viewIds.size === 0) {
     return false;
   }
@@ -65,10 +62,7 @@ export function areAllLocked(
 /**
  * Check if any view in a set is locked.
  */
-export function isAnyLocked(
-  viewIds: Set<string>,
-  isLocked: (id: string) => boolean
-): boolean {
+export function isAnyLocked(viewIds: Set<string>, isLocked: (id: string) => boolean): boolean {
   for (const id of viewIds) {
     if (isLocked(id)) {
       return true;

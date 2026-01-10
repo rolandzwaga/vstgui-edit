@@ -33,7 +33,6 @@ import {
 } from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import {
-  hideSelectedWithHistory,
   isHidden,
   isLocked,
   lockSelectedWithHistory,

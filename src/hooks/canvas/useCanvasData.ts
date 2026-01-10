@@ -1,7 +1,8 @@
 import { type Accessor, createMemo } from 'solid-js';
 import { parseSize } from '../../domain/canvas/coordinates';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
-import { documentStore, getTemplate } from '../../stores/documentStore';
+import { documentStore, getParentId, getTemplate } from '../../stores/documentStore';
+import { isViewOrAncestorHidden } from '../../stores/lockHideStore';
 import { selectionStore } from '../../stores/selectionStore';
 import { templateStore } from '../../stores/templateStore';
 import type { RenderableView, TemplateBounds } from '../../types/canvas';
@@ -10,6 +11,7 @@ import type { TemplateDefinition } from '../../types/uidesc';
 export interface UseCanvasDataResult {
   activeTemplate: Accessor<[string, TemplateDefinition] | null>;
   renderableViews: Accessor<RenderableView[]>;
+  visibleViews: Accessor<RenderableView[]>;
   templateBounds: Accessor<TemplateBounds | null>;
   selectedViews: Accessor<RenderableView[]>;
   hoveredView: Accessor<RenderableView | null>;
@@ -39,6 +41,11 @@ export function useCanvasData(): UseCanvasDataResult {
       fonts: vstgui?.fonts,
       colors: vstgui?.colors,
     });
+  });
+
+  const visibleViews = createMemo((): RenderableView[] => {
+    const views = renderableViews();
+    return views.filter(view => !isViewOrAncestorHidden(view.id, getParentId));
   });
 
   const templateBounds = createMemo((): TemplateBounds | null => {
@@ -71,6 +78,7 @@ export function useCanvasData(): UseCanvasDataResult {
   return {
     activeTemplate,
     renderableViews,
+    visibleViews,
     templateBounds,
     selectedViews,
     hoveredView,

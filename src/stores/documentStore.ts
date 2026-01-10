@@ -13,6 +13,7 @@ import type {
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
 import { resetGuidesStore } from './guidesStore';
+import { resetLockHideStore } from './lockHideStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -201,6 +202,7 @@ export function reset(): void {
   setStore({ ...initialState });
   resetTemplateStore();
   resetGuidesStore();
+  resetLockHideStore();
 }
 
 export function markDirty(): void {

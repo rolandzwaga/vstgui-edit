@@ -9,6 +9,7 @@ import {
   applySnapToMoveWithGuides,
   applySnapToResizeWithGuides,
 } from '../../domain/guides/guideSnap';
+import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { canvasStore } from '../../stores/canvasStore';
 import { showContextMenu } from '../../stores/contextMenuStore';
 import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
@@ -16,6 +17,7 @@ import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragSt
 import { gridStore } from '../../stores/gridStore';
 import { guidesStore } from '../../stores/guidesStore';
 import { pushOperation } from '../../stores/historyStore';
+import { isLocked } from '../../stores/lockHideStore';
 import {
   activateMarquee,
   beginTracking,
@@ -51,6 +53,7 @@ import type { CancelCallbacks } from './useCanvasKeyboard';
 
 export interface UseCanvasInteractionsOptions {
   renderableViews: Accessor<RenderableView[]>;
+  visibleViews?: Accessor<RenderableView[]>;
 }
 
 export interface UseCanvasInteractionsResult {
@@ -64,7 +67,10 @@ export interface UseCanvasInteractionsResult {
 export function useCanvasInteractions(
   options: UseCanvasInteractionsOptions
 ): UseCanvasInteractionsResult {
-  const { renderableViews } = options;
+  const { renderableViews, visibleViews } = options;
+
+  // Use visibleViews for selection operations, fall back to renderableViews if not provided
+  const selectableViews = visibleViews ?? renderableViews;
 
   let wrapperRefValue: HTMLDivElement | undefined;
   const wrapperRef = (el: HTMLDivElement) => {
@@ -188,6 +194,11 @@ export function useCanvasInteractions(
   };
 
   const handleResizeStart = (handle: HandlePosition, view: RenderableView) => {
+    // Block resize on locked views
+    if (isLocked(view.id)) {
+      return;
+    }
+
     const point = getHandlePosition(handle, view);
     const origin = { x: view.relativeX, y: view.relativeY };
     const size = { width: view.width, height: view.height };
@@ -215,8 +226,12 @@ export function useCanvasInteractions(
     const selectedIds = selectionStore.selectedIds;
     const origins: Record<string, { x: number; y: number }> = {};
 
+    // Filter out locked views from drag operation
+    const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
+    const unlockedIdSet = new Set(unlockedIds);
+
     for (const view of views) {
-      if (selectedIds.has(view.id)) {
+      if (unlockedIdSet.has(view.id)) {
         origins[view.id] = { x: view.relativeX, y: view.relativeY };
       }
     }
@@ -392,7 +407,7 @@ export function useCanvasInteractions(
     }
 
     const marqueeRect = normalizeRect(start, current);
-    const views = renderableViews();
+    const views = selectableViews();
     const intersectingIds = findIntersectingViews(marqueeRect, views);
 
     if (marqueeStore.isAdditive) {

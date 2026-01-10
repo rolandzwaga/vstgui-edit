@@ -4,21 +4,12 @@
  */
 
 export {
-  areAllLocked,
-  calculateLockStateInfo,
-  filterUnlockedViews,
-  getLockMenuItem,
-  isAnyLocked,
-} from './lockOperations';
-
-export {
   calculateHideStateInfo,
   filterVisibleViews,
   getAllHiddenIds,
   getHideMenuItem,
   shouldViewBeHidden,
 } from './hideOperations';
-
 export {
   createHideOperation,
   createLockOperation,
@@ -29,3 +20,10 @@ export {
   formatShowAllDescription,
   formatUnlockDescription,
 } from './historyOperations';
+export {
+  areAllLocked,
+  calculateLockStateInfo,
+  filterUnlockedViews,
+  getLockMenuItem,
+  isAnyLocked,
+} from './lockOperations';

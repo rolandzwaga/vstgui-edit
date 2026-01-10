@@ -248,6 +248,26 @@ npx tsc --noEmit                   # Type check
 | `resetAlignmentToolbarStore()` | Reset to initial docked state |
 | `STORAGE_KEY` | localStorage key: `'vstgui-edit:alignment-toolbar'` |
 
+### lockHideStore (`src/stores/lockHideStore.ts`)
+**Purpose**: Lock and hide state for views (editor-only, not persisted)
+
+| Export | Description |
+|--------|-------------|
+| `lockHideStore` | State: `lockedIds` (Set), `hiddenIds` (Set) |
+| `isLocked(id)` | Check if view is locked |
+| `isHidden(id)` | Check if view is hidden |
+| `isViewOrAncestorHidden(id, getParentId)` | Check if view or ancestor is hidden |
+| `getLockStateInfo(ids)` | Get lock state for selection (allLocked, anyLocked, noneLocked) |
+| `getHideStateInfo(ids)` | Get hide state for selection (allHidden, anyHidden, noneHidden) |
+| `lockViews(ids)/unlockViews(ids)` | Lock/unlock without history |
+| `hideViews(ids)/showViews(ids)` | Hide/show without history |
+| `showAllViews()` | Show all hidden views |
+| `lockSelectedWithHistory(ids)` | Lock with undo support (Ctrl+L) |
+| `unlockSelectedWithHistory(ids)` | Unlock with undo support |
+| `toggleHideSelectedWithHistory(ids)` | Toggle hide with undo support (Ctrl+H) |
+| `showAllWithHistory()` | Show all with undo support (Ctrl+Shift+H) |
+| `resetLockHideStore()` | Reset on document load |
+
 ---
 
 ## Domain Utilities
@@ -310,6 +330,14 @@ npx tsc --noEmit                   # Type check
 | `guideOperations.ts` | `generateGuideId`, `createGuide`, `addGuideToCollection`, `removeGuideFromCollection`, `updateGuidePosition`, `canAddGuide`, `MAX_GUIDES` (50) |
 | `guideSnap.ts` | `snapToGuide`, `snapToNearest`, `snapPointWithGuides`, `applySnapToMoveWithGuides`, `applySnapToResizeWithGuides` |
 | `historyOperations.ts` | `createGuideCreateOperation`, `createGuideDeleteOperation`, `createGuideRepositionOperation`, `createGuideClearAllOperation` |
+
+### Lock/Hide (`src/domain/lockHide/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `lockOperations.ts` | `calculateLockStateInfo`, `filterUnlockedViews`, `areAllLocked`, `isAnyLocked`, `getLockMenuItem` |
+| `hideOperations.ts` | `calculateHideStateInfo`, `shouldViewBeHidden`, `filterVisibleViews`, `getHideMenuItem` |
+| `historyOperations.ts` | `createLockOperation`, `createUnlockOperation`, `createHideOperation`, `createShowAllOperation` |
 
 ### Rulers (`src/domain/rulers/`)
 
@@ -494,10 +522,10 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
-- 034-lock-hide-views: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-11 | 034-lock-hide-views | Lock views (Ctrl+L), hide views (Ctrl+H), context menu, hierarchy icons, canvas filtering |
 | 01-10 | 033-custom-guides | Drag-from-ruler guides, snap-to-guides, Ctrl+; toggle, context menu positioning |
 | 01-10 | 032-rulers | Canvas rulers with tick marks, cursor indicator, template bounds, ~140 tests |
 | 01-10 | 031-alignment-tools | Alignment toolbar, L/C/R/T/M/B alignment, H/V distribution, shortcuts, ~130 tests |

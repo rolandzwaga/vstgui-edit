@@ -38,3 +38,13 @@
   background-color: var(--color-border);
   margin: var(--spacing-1) 0;
 }
+
+.menuLabel {
+  flex: 1;
+}
+
+.menuShortcut {
+  margin-left: var(--spacing-4);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
