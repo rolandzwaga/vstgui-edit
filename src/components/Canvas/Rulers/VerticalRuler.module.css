@@ -1,0 +1,55 @@
+/**
+ * VerticalRuler Styles
+ *
+ * Vertical ruler displayed along the left edge of the canvas.
+ */
+
+.ruler {
+  width: var(--ruler-thickness);
+  background: var(--ruler-background);
+  border-right: 1px solid var(--ruler-border-color);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.templateBounds {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: var(--ruler-template-bounds-color);
+  pointer-events: none;
+}
+
+.tickContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tick {
+  position: absolute;
+  left: 0;
+  height: 1px;
+  background: var(--ruler-tick-color);
+}
+
+.tickMajor {
+  width: 12px;
+  background: var(--ruler-tick-major-color);
+}
+
+.tickMinor {
+  width: 6px;
+}
+
+.label {
+  position: absolute;
+  left: 12px;
+  font-size: var(--ruler-font-size);
+  font-family: var(--font-family-mono);
+  color: var(--ruler-label-color);
+  transform: translateY(-50%);
+  white-space: nowrap;
+  line-height: 1;
+}

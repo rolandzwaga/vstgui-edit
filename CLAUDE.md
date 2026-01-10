@@ -206,6 +206,16 @@ npx tsc --noEmit                   # Type check
 | `cancelFormatChange()` | Cancel pending change, close dialog |
 | `resetSaveFormatStore()` | Reset to initial state |
 
+### rulerStore (`src/stores/rulerStore.ts`)
+**Purpose**: Cursor position state for ruler indicators
+
+| Export | Description |
+|--------|-------------|
+| `rulerStore` | State: `cursorPosition` (Point or null) |
+| `setCursorPosition(point)` | Set cursor position when mouse is over canvas |
+| `clearCursorPosition()` | Clear cursor position when mouse leaves canvas |
+| `resetRulerStore()` | Reset to initial state |
+
 ### alignmentToolbarStore (`src/stores/alignmentToolbarStore.ts`)
 **Purpose**: Alignment toolbar docked/floating state
 
@@ -274,6 +284,14 @@ npx tsc --noEmit                   # Type check
 | `clearFormatPreference()` | Remove format preference from localStorage |
 | `isValidSaveFormat(value)` | Type guard for SaveFormat |
 | `STORAGE_KEY` | localStorage key: `'vstgui-edit:save-format'` |
+
+### Rulers (`src/domain/rulers/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `tickCalculation.ts` | `calculateTickIntervals(zoom)`, `alignIntervalToGrid(interval, gridSize, enabled)`, `DEFAULT_TICK_CONFIG` |
+| `tickGeneration.ts` | `calculateVisibleRange(viewport, pan, zoom)`, `formatTickLabel(value)`, `generateTicks(range, intervals)` |
+| `coordinateMapping.ts` | `screenToCanvasCoordinates(x, y, pan, zoom)`, `canvasToScreenPosition(canvas, pan, zoom)`, `calculateTemplateBoundsPosition(extent, pan, zoom)`, `RULER_THICKNESS` (20px) |
 
 ### Alignment (`src/domain/alignment/`)
 
@@ -453,6 +471,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-10 | 032-rulers | Canvas rulers with tick marks, cursor indicator, template bounds, ~140 tests |
 | 01-10 | 031-alignment-tools | Alignment toolbar, L/C/R/T/M/B alignment, H/V distribution, shortcuts, ~130 tests |
 | 01-10 | 030-json-save-format | Split save button, JSON/XML dropdown, confirmation dialog, 90 tests |
 | 01-07 | 016-property-editing | 8 editors, validation, history, 1622 tests |

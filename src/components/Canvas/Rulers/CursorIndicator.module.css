@@ -1,0 +1,51 @@
+/**
+ * CursorIndicator Styles
+ *
+ * Accent line and tooltip showing current cursor position on ruler.
+ */
+
+.indicator {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.indicatorHorizontal {
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background: var(--ruler-cursor-indicator-color);
+}
+
+.indicatorVertical {
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--ruler-cursor-indicator-color);
+}
+
+.tooltip {
+  position: absolute;
+  padding: 2px 4px;
+  font-size: var(--ruler-font-size);
+  font-family: var(--font-family-mono);
+  background: var(--color-tooltip-background);
+  color: var(--color-tooltip-text);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.tooltipHorizontal {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 2px;
+}
+
+.tooltipVertical {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 2px;
+}

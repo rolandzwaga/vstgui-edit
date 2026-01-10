@@ -1,6 +1,7 @@
 import { createEffect, onCleanup } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
+import { RulerContainer } from './components/Canvas/Rulers';
 import { TemplatesPanel } from './components/TemplatesPanel';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
@@ -64,9 +65,13 @@ export default function App() {
               <ControlTagsPanel />
               <VariablesPanel />
             </div>
-            <div style={{ flex: 1, "min-width": 0 }}>
+            <div style={{ flex: 1, "min-width": 0, display: 'flex', "flex-direction": 'column' }}>
               <MainToolbar onFitToView={handleFitToView} />
-              <Canvas />
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <RulerContainer>
+                  <Canvas />
+                </RulerContainer>
+              </div>
             </div>
             <PropertiesPanel />
           </div>
