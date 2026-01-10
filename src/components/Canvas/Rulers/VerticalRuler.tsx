@@ -5,9 +5,10 @@
  * tick marks, labels, and template bounds indicator.
  */
 
-import { createMemo, For } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 import { canvasStore } from '../../../stores/canvasStore';
 import {
+  calculateTemplateBoundsPosition,
   calculateTickIntervals,
   calculateVisibleRange,
   canvasToScreenPosition,
@@ -39,12 +40,33 @@ export function VerticalRuler(props: VerticalRulerProps) {
     );
   });
 
+  // Calculate template bounds for shaded region
+  const templateBounds = createMemo(() =>
+    calculateTemplateBoundsPosition(
+      props.templateHeight,
+      canvasStore.panOffset.y,
+      canvasStore.zoomLevel
+    )
+  );
+
   return (
     <div
       class={styles.ruler}
       style={{ height: `${props.height}px` }}
       data-testid="vertical-ruler"
     >
+      {/* Template bounds indicator */}
+      <Show when={props.templateHeight > 0}>
+        <div
+          class={styles.templateBounds}
+          style={{
+            top: `${Math.max(0, templateBounds().start)}px`,
+            height: `${Math.max(0, Math.min(props.height, templateBounds().end) - Math.max(0, templateBounds().start))}px`,
+          }}
+          data-testid="template-bounds-vertical"
+        />
+      </Show>
+
       {/* Tick container */}
       <div class={styles.tickContainer}>
         <For each={ticks()}>
