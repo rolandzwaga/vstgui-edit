@@ -44,7 +44,11 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
   // Initialize format when document changes
   const initFormat = () => {
     if (documentStore.document) {
-      initializeFormat(documentStore.originalFormat);
+      // Convert FormatType to SaveFormat (treat 'unknown' as null)
+      const format = documentStore.originalFormat;
+      const saveFormat: SaveFormat | null =
+        format === 'json' || format === 'xml' ? format : null;
+      initializeFormat(saveFormat);
     }
   };
 
@@ -186,8 +190,11 @@ export const SaveButton: Component<SaveButtonProps> = (props) => {
 
   const formatLabel = () => saveFormatStore.selectedFormat.toUpperCase();
 
-  // Get original format for dialog
-  const originalFormat = () => documentStore.originalFormat ?? 'json';
+  // Get original format for dialog (treat 'unknown' as 'json')
+  const originalFormat = (): SaveFormat => {
+    const format = documentStore.originalFormat;
+    return format === 'json' || format === 'xml' ? format : 'json';
+  };
 
   return (
     <>
