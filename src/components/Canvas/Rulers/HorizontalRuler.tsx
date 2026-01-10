@@ -7,12 +7,14 @@
 
 import { createMemo, For, Show } from 'solid-js';
 import { canvasStore } from '../../../stores/canvasStore';
+import { startCreationDrag } from '../../../stores/guidesStore';
 import {
   calculateTemplateBoundsPosition,
   calculateTickIntervals,
   calculateVisibleRange,
   canvasToScreenPosition,
   generateTicks,
+  screenToCanvasPosition,
 } from '../../../domain/rulers';
 import type { HorizontalRulerProps } from '../../../types/ruler';
 import { CursorIndicator } from './CursorIndicator';
@@ -49,11 +51,31 @@ export function HorizontalRuler(props: HorizontalRulerProps) {
     )
   );
 
+  // Handle mousedown to start guide creation drag
+  const handleMouseDown = (e: MouseEvent) => {
+    // Only respond to primary button
+    if (e.button !== 0) return;
+
+    // Get ruler element for position calculation
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    // Use Y position relative to ruler for horizontal guides
+    const screenY = e.clientY - rect.top;
+    // Convert to canvas coordinates
+    const canvasY = screenToCanvasPosition(
+      screenY,
+      canvasStore.panOffset.y,
+      canvasStore.zoomLevel
+    );
+
+    startCreationDrag('horizontal', canvasY);
+  };
+
   return (
     <div
       class={styles.ruler}
       style={{ width: `${props.width}px` }}
       data-testid="horizontal-ruler"
+      onMouseDown={handleMouseDown}
     >
       {/* Template bounds indicator */}
       <Show when={props.templateWidth > 0}>

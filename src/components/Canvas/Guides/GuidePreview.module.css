@@ -1,0 +1,12 @@
+/**
+ * GuidePreview Styles
+ * Styles for the guide preview during drag-from-ruler creation
+ */
+
+.preview {
+  pointer-events: none;
+}
+
+.line {
+  opacity: 0.8;
+}

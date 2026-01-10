@@ -1,13 +1,18 @@
-import { cleanup, render, screen } from '@solidjs/testing-library';
+import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { testInRoot } from '../../../../__tests__/helpers/solidjs';
 import { resetCanvas, setZoom } from '../../../../stores/canvasStore';
 import { resetGrid } from '../../../../stores/gridStore';
+import { guidesStore, resetGuidesStore } from '../../../../stores/guidesStore';
 import { HorizontalRuler } from '../HorizontalRuler';
 
 describe('HorizontalRuler', () => {
   beforeEach(() => {
     resetCanvas();
     resetGrid();
+    testInRoot(() => {
+      resetGuidesStore();
+    });
   });
 
   afterEach(() => {
@@ -132,6 +137,39 @@ describe('HorizontalRuler', () => {
       // At 200% zoom with 400px width, visible range is 0-200 canvas pixels
       // Major ticks at 50px intervals = 0, 50, 100, 150, 200
       expect(majorTicks.length).toBe(5);
+    });
+  });
+
+  describe('drag-to-create guide', () => {
+    test('mousedown starts creation drag with horizontal orientation', () => {
+      render(() => (
+        <HorizontalRuler width={400} cursorPosition={null} templateWidth={600} />
+      ));
+      const ruler = screen.getByTestId('horizontal-ruler');
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).toBeNull();
+      });
+
+      fireEvent.mouseDown(ruler, { button: 0, clientY: 10 });
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).not.toBeNull();
+        expect(guidesStore.creationDrag?.orientation).toBe('horizontal');
+      });
+    });
+
+    test('mousedown does not start drag on non-primary button', () => {
+      render(() => (
+        <HorizontalRuler width={400} cursorPosition={null} templateWidth={600} />
+      ));
+      const ruler = screen.getByTestId('horizontal-ruler');
+
+      fireEvent.mouseDown(ruler, { button: 2 });
+
+      testInRoot(() => {
+        expect(guidesStore.creationDrag).toBeNull();
+      });
     });
   });
 });

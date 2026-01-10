@@ -24,6 +24,12 @@ import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore'
 import { getParentId, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
+import {
+  guidesStore,
+  cancelCreationDrag,
+  cancelRepositionDrag,
+  toggleGuidesVisibility,
+} from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
@@ -173,6 +179,18 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key === 'Escape') {
+      // Cancel guide creation drag first
+      if (guidesStore.creationDrag) {
+        cancelCreationDrag();
+        return;
+      }
+
+      // Cancel guide reposition drag
+      if (guidesStore.repositionDrag) {
+        cancelRepositionDrag();
+        return;
+      }
+
       if (resizeStore.isResizing) {
         cancelResize();
         cancelCallbacks.cancelResizeListeners();
@@ -311,6 +329,9 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       toggleSnap();
     } else if (e.key === 's' || e.key === 'S') {
       toggleSmartGuides();
+    } else if (e.key === ';' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      toggleGuidesVisibility();
     }
   };
 

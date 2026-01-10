@@ -19,6 +19,7 @@ export {
   canvasToScreenPosition,
   RULER_THICKNESS,
   screenToCanvasCoordinates,
+  screenToCanvasPosition,
 } from './coordinateMapping';
 // tickCalculation.ts exports
 export {
