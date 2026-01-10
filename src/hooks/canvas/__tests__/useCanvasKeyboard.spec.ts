@@ -6,7 +6,13 @@ import { canPaste } from '../../../domain/canvas/viewOperations';
 import { resetClipboard } from '../../../stores/clipboardStore';
 import { documentStore, reset as resetDocument, setDocumentForTest } from '../../../stores/documentStore';
 import { clearHistory, historyStore, undo } from '../../../stores/historyStore';
-import { isLocked, lockViews, resetLockHideStore } from '../../../stores/lockHideStore';
+import {
+  hideViews,
+  isHidden,
+  isLocked,
+  lockViews,
+  resetLockHideStore,
+} from '../../../stores/lockHideStore';
 import { resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
 import { type CancelCallbacks, useCanvasKeyboard } from '../useCanvasKeyboard';
 
@@ -1261,6 +1267,371 @@ describe('useCanvasKeyboard', () => {
         expect(isLocked('MainView-0')).toBe(false);
         expect(isLocked('MainView-1')).toBe(false);
         expect(historyStore.undoDescription).toContain('Unlock');
+      });
+    });
+  });
+
+  describe('Ctrl+H hide handling', () => {
+    function createKeyboardEventWithModifiers(
+      key: string,
+      modifiers: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean } = {}
+    ): KeyboardEvent {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: modifiers.ctrlKey ?? false,
+        metaKey: modifiers.metaKey ?? false,
+        shiftKey: modifiers.shiftKey ?? false,
+      });
+      Object.defineProperty(event, 'target', {
+        value: document.body,
+        writable: false,
+      });
+      return event;
+    }
+
+    it('should hide selected view on Ctrl+H', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isHidden('MainView-0')).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isHidden('MainView-0')).toBe(true);
+      });
+    });
+
+    it('should clear selection after hiding views', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(selectionStore.selectedIds.size).toBe(1);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(selectionStore.selectedIds.size).toBe(0);
+      });
+    });
+
+    it('should push hide operation to history', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(historyStore.canUndo).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(true);
+        expect(historyStore.undoDescription).toContain('Hide');
+      });
+    });
+
+    it('should show hidden view on Ctrl+H when already hidden', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        hideViews(['MainView-0']);
+        select('MainView-0');
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isHidden('MainView-0')).toBe(true);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(isHidden('MainView-0')).toBe(false);
+      });
+    });
+
+    it('should not hide when no views are selected', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(false);
+        expect(isHidden('MainView-0')).toBe(false);
+      });
+    });
+  });
+
+  describe('Ctrl+Shift+H show all handling', () => {
+    function createKeyboardEventWithModifiers(
+      key: string,
+      modifiers: { ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean } = {}
+    ): KeyboardEvent {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ctrlKey: modifiers.ctrlKey ?? false,
+        metaKey: modifiers.metaKey ?? false,
+        shiftKey: modifiers.shiftKey ?? false,
+      });
+      Object.defineProperty(event, 'target', {
+        value: document.body,
+        writable: false,
+      });
+      return event;
+    }
+
+    it('should show all hidden views on Ctrl+Shift+H', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        hideViews(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(isHidden('MainView-0')).toBe(true);
+        expect(isHidden('MainView-1')).toBe(true);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true, shiftKey: true });
+        handleKeyDown(event);
+
+        expect(isHidden('MainView-0')).toBe(false);
+        expect(isHidden('MainView-1')).toBe(false);
+      });
+    });
+
+    it('should push show-all operation to history', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        hideViews(['MainView-0']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(historyStore.canUndo).toBe(false);
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true, shiftKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(true);
+        expect(historyStore.undoDescription).toContain('Show');
+      });
+    });
+
+    it('should do nothing when no views are hidden', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true, shiftKey: true });
+        handleKeyDown(event);
+
+        expect(historyStore.canUndo).toBe(false);
+      });
+    });
+
+    it('should support undo after show all', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+                '1': createMockView({ class: 'CTextButton' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        hideViews(['MainView-0', 'MainView-1']);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+          createMockRenderableView({ id: 'MainView-1' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const event = createKeyboardEventWithModifiers('h', { ctrlKey: true, shiftKey: true });
+        handleKeyDown(event);
+
+        expect(isHidden('MainView-0')).toBe(false);
+        expect(isHidden('MainView-1')).toBe(false);
+
+        undo();
+
+        expect(isHidden('MainView-0')).toBe(true);
+        expect(isHidden('MainView-1')).toBe(true);
       });
     });
   });

@@ -33,8 +33,12 @@ import {
 } from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
 import {
+  hideSelectedWithHistory,
+  isHidden,
   isLocked,
   lockSelectedWithHistory,
+  showAllWithHistory,
+  toggleHideSelectedWithHistory,
   unlockSelectedWithHistory,
 } from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
@@ -199,6 +203,29 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       } else {
         lockSelectedWithHistory(selectedIds);
       }
+      return;
+    }
+
+    // Ctrl+H - Toggle hide for selected views
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h' && !e.shiftKey) {
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+      e.preventDefault();
+      toggleHideSelectedWithHistory(selectedIds);
+      // Clear selection after hiding since the views are no longer visible
+      const allHidden = Array.from(selectedIds).every(id => isHidden(id));
+      if (allHidden) {
+        clearSelection();
+      }
+      return;
+    }
+
+    // Ctrl+Shift+H - Show all hidden views
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h' && e.shiftKey) {
+      e.preventDefault();
+      showAllWithHistory();
       return;
     }
 
