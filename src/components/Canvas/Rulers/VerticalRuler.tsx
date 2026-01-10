@@ -70,29 +70,18 @@ export function VerticalRuler(props: VerticalRulerProps) {
     startCreationDrag('vertical', canvasX);
   };
 
-  // Handle context menu for precise guide positioning
+  // Handle context menu to create guide at click position
   const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
 
-    // Get current click position in canvas coordinates for default value
+    // Get click position in canvas coordinates
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const screenX = e.clientX - rect.left;
     const canvasX = Math.round(
       screenToCanvasPosition(screenX, canvasStore.panOffset.x, canvasStore.zoomLevel)
     );
 
-    const input = window.prompt('Enter vertical guide position (pixels):', String(canvasX));
-
-    if (input === null || input.trim() === '') {
-      return;
-    }
-
-    const position = parseFloat(input);
-    if (Number.isNaN(position)) {
-      return;
-    }
-
-    addGuideWithHistory('vertical', position);
+    addGuideWithHistory('vertical', canvasX);
   };
 
   return (

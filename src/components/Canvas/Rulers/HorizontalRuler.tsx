@@ -70,29 +70,18 @@ export function HorizontalRuler(props: HorizontalRulerProps) {
     startCreationDrag('horizontal', canvasY);
   };
 
-  // Handle context menu for precise guide positioning
+  // Handle context menu to create guide at click position
   const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
 
-    // Get current click position in canvas coordinates for default value
+    // Get click position in canvas coordinates
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const screenY = e.clientY - rect.top;
     const canvasY = Math.round(
       screenToCanvasPosition(screenY, canvasStore.panOffset.y, canvasStore.zoomLevel)
     );
 
-    const input = window.prompt('Enter horizontal guide position (pixels):', String(canvasY));
-
-    if (input === null || input.trim() === '') {
-      return;
-    }
-
-    const position = parseFloat(input);
-    if (Number.isNaN(position)) {
-      return;
-    }
-
-    addGuideWithHistory('horizontal', position);
+    addGuideWithHistory('horizontal', canvasY);
   };
 
   return (
