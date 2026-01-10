@@ -180,6 +180,9 @@
   --color-smart-guide-label-bg: rgba(255, 0, 255, 0.9);
   --color-smart-guide-label-text: #ffffff;
 
+  /* Custom Guide Colors */
+  --color-custom-guide: #00bfff;
+
   /* Colors Panel */
   --color-swatch-border: var(--color-neutral-300);
   --color-swatch-checkerboard-light: #cccccc;

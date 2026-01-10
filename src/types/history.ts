@@ -48,7 +48,11 @@ export interface HistoryOperation {
     | 'template-add'
     | 'template-delete'
     | 'template-rename'
-    | 'template-duplicate';
+    | 'template-duplicate'
+    | 'guide-create'
+    | 'guide-delete'
+    | 'guide-reposition'
+    | 'guide-clear-all';
   description: string;
   undo: () => void;
   redo: () => void;
