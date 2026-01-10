@@ -271,6 +271,7 @@ export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
           class={styles.toolbar}
           role="toolbar"
           aria-label="Alignment toolbar"
+          data-testid="alignment-toolbar"
         >
           <DragHandle onUndock={handleUndock} />
           <ButtonGroups />
@@ -288,6 +289,7 @@ export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
             }}
             role="toolbar"
             aria-label="Alignment toolbar (floating)"
+            data-testid="alignment-toolbar"
           >
             <div
               class={styles.floatingHeader}
