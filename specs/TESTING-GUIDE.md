@@ -1,59 +1,49 @@
 # VSTGUI-Edit Testing Guide
 
-**Vitest 4.x + @solidjs/testing-library 0.8.10** | Updated: 2026-01-05
+**Vitest 4.x + @solidjs/testing-library 0.8.10** | Updated: 2026-01-10
 
 ## Core Principles
 
-1. Test user behavior, not implementation
-2. Use centralized helpers from `src/__tests__/helpers`
+1. Test behavior, not implementation
+2. Use helpers from `src/__tests__/helpers`
 3. Wrap signal/store tests in `testInRoot()`
-4. **Always flush microtasks** with fake timers
+4. Flush microtasks with fake timers
 5. Cleanup order: `vi.useRealTimers()` → `cleanup()`
+6. One test = one behavior
+7. Tests shouldn't change unless requirements change
+8. Test public APIs, not internals
 
-## Test Helpers
+## Helpers
 
 ```typescript
+// Full import (loads @solidjs/router)
 import { renderWithProviders, testInRoot, useMockDate, createMockView } from '../helpers';
-```
 
-**Import Note:** The barrel export (`../helpers`) loads `@solidjs/router` which has `.jsx` files. If your test doesn't need Router, import directly to avoid load errors:
-
-```typescript
+// Direct imports (avoids router)
 import { testInRoot } from '../helpers/solidjs';
 import { useMockDate, flushMicrotasks } from '../helpers/time';
 import { createMockView, createMockDocument } from '../helpers/fixtures';
 ```
 
-### `renderWithProviders(component, options?)`
+**`renderWithProviders(component, options?)`** — Renders with MemoryRouter. Options: `withRouter` (default: true), `initialRoute` (default: '/').
 
-Renders with MemoryRouter. Options: `withRouter?: boolean` (default: true), `initialRoute?: string` (default: '/').
+**`testInRoot(testFn)`** — Wraps in `createRoot()` with auto-disposal. Required for SolidJS reactivity.
+
+**`useMockDate(dateString)`** — Fake timers with date, auto-cleans.
 
 ```typescript
+// renderWithProviders
 const { getByText } = renderWithProviders(() => <Editor />, { initialRoute: '/editor' });
-```
 
-### `testInRoot(testFn)`
-
-Wraps signal/store tests in `createRoot()` with auto-disposal. Required because SolidJS reactivity needs a reactive root.
-
-```typescript
-// BAD: manual createRoot
-createRoot(dispose => { /* test */ dispose(); });
-
-// GOOD: use helper (supports sync and async)
+// testInRoot
 testInRoot(() => {
   const [count, setCount] = createSignal(0);
   setCount(1);
   expect(count()).toBe(1);
 });
-```
 
-### `useMockDate(dateString)`
-
-Sets up fake timers with date, auto-cleans in afterEach.
-
-```typescript
-describe('Date tests', () => {
+// useMockDate
+describe('tests', () => {
   useMockDate('2025-01-15T12:00:00Z');
   test('uses mocked date', () => { /* ... */ });
 });
@@ -61,157 +51,285 @@ describe('Date tests', () => {
 
 ## SolidJS Patterns
 
-### Components & Events
-
 ```typescript
-import { render, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
+// Components & Events
+const user = userEvent.setup();
+render(() => <Button onClick={onClick}>Click</Button>);
+await user.click(screen.getByRole('button'));
 
-test('button click', async () => {
-  const user = userEvent.setup();
-  const onClick = vi.fn();
-  render(() => <Button onClick={onClick}>Click</Button>);
-  await user.click(screen.getByRole('button'));
-  expect(onClick).toHaveBeenCalled();
-});
-```
-
-### Effects with `testEffect`
-
-```typescript
-import { testEffect } from '@solidjs/testing-library';
-
-test('effect runs on change', () => testEffect(done => {
+// Effects
+test('effect', () => testEffect(done => {
   const [value, setValue] = createSignal(0);
   createEffect((run: number = 0) => {
-    if (run === 0) { setValue(1); }
+    if (run === 0) setValue(1);
     else { expect(value()).toBe(1); done(); }
     return run + 1;
   });
 }));
-```
 
-### Context Providers
-
-```typescript
-const { getByText } = renderWithProviders(() => <Consumer />, {
+// Context
+renderWithProviders(() => <Consumer />, {
   wrapper: (props) => <MyContext.Provider value="test">{props.children}</MyContext.Provider>
 });
-```
 
-### Directives
-
-```typescript
-import { renderDirective } from '@solidjs/testing-library';
-
+// Directives
 const { setArg } = renderDirective(myDirective, { initialValue: false, targetElement });
-setArg(true);
-```
 
-### Form Submission
-
-**Important:** Use both `fireEvent.input()` AND `fireEvent.change()` for SolidJS reactivity.
-
-```typescript
+// Forms - use BOTH for SolidJS reactivity
 fireEvent.input(input, { target: { value: 'test' } });
 fireEvent.change(input, { target: { value: 'test' } });
 ```
 
 ## Router Testing
 
-MemoryRouter provides isolated router context per test (`useNavigate`, `useLocation`, etc.).
-
 ```typescript
 // Route params
 renderWithProviders(() => <ViewDetail />, { initialRoute: '/editor/view-001' });
 
-// Implementation (in helpers)
-const history = createMemoryHistory();
-history.set({ value: initialRoute });
-<MemoryRouter history={history}><Route path="*" component={wrapped} /></MemoryRouter>
-```
-
-### Mocking `useNavigate`
-
-Must mock at **module level** (hook called during component init, not render):
-
-```typescript
+// Mock useNavigate (must be module-level)
 const mockNavigate = vi.fn();
-
 vi.mock('@solidjs/router', async () => ({
   ...(await vi.importActual<typeof import('@solidjs/router')>('@solidjs/router')),
   useNavigate: vi.fn(() => mockNavigate),
 }));
-
 beforeEach(() => mockNavigate.mockClear());
 ```
 
-## Fake Timers & Microtasks
+## Fake Timers
 
-**Critical:** SolidJS uses `queueMicrotask` for effects. Fake timers only control macrotasks (setTimeout). Must flush microtasks explicitly.
-
-```typescript
-describe('Debounced', () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => { vi.useRealTimers(); cleanup(); }); // Order matters!
-
-  test('debounce', async () => {
-    render(() => <SearchInput />);
-    await user.type(screen.getByRole('textbox'), 'test');
-
-    await Promise.resolve();              // Flush microtasks BEFORE
-    await vi.advanceTimersByTimeAsync(300);
-    await Promise.resolve();              // Flush microtasks AFTER
-
-    expect(mockFn).toHaveBeenCalled();
-  });
-});
-```
-
-**Config tip:** `vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] })` — avoid faking `queueMicrotask`.
-
-### Event Listener Cleanup
+SolidJS uses `queueMicrotask` for effects. Fake timers only control macrotasks. Flush microtasks explicitly.
 
 ```typescript
-createEffect(() => {
-  const handler = (e: KeyboardEvent) => { /* ... */ };
-  document.addEventListener('keydown', handler);
-  onCleanup(() => document.removeEventListener('keydown', handler));
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => { vi.useRealTimers(); cleanup(); }); // Order matters!
+
+test('debounce', async () => {
+  render(() => <SearchInput />);
+  await user.type(screen.getByRole('textbox'), 'test');
+  await Promise.resolve();                // Flush BEFORE
+  await vi.advanceTimersByTimeAsync(300);
+  await Promise.resolve();                // Flush AFTER
+  expect(mockFn).toHaveBeenCalled();
 });
 
-// Test cleanup
-const spy = vi.spyOn(document, 'removeEventListener');
-const { unmount } = renderWithProviders(() => <Component />);
-unmount();
-expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function));
+// Avoid faking queueMicrotask
+vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
 ```
 
-## Anti-Patterns
+## Framework Anti-Patterns
 
 | Bad | Good |
 |-----|------|
-| Manual `<Router>` wrapping | `renderWithProviders()` |
-| Manual `createRoot(dispose => ...)` | `testInRoot(() => ...)` |
-| `vi.advanceTimersByTimeAsync()` alone | Wrap with `await Promise.resolve()` before/after |
-| `vi.useRealTimers()` per-test | `useMockDate()` or centralize in `afterEach` |
-| `afterEach { cleanup(); useRealTimers(); }` | `afterEach { useRealTimers(); cleanup(); }` |
-| `vi.advanceTimersByTime()` with async | `vi.advanceTimersByTimeAsync()` |
+| Manual `<Router>` | `renderWithProviders()` |
+| Manual `createRoot(dispose => ...)` | `testInRoot()` |
+| `advanceTimersByTimeAsync()` alone | Wrap with `await Promise.resolve()` |
+| `cleanup()` before `useRealTimers()` | `useRealTimers()` then `cleanup()` |
+| `advanceTimersByTime()` with async | `advanceTimersByTimeAsync()` |
+
+---
+
+## Test Smells (Universal)
+
+### Tautological Test
+Test mirrors implementation—can never fail.
+
+```typescript
+// ❌ Expected calculated same as impl
+const expected = quantity * unitPrice;
+expect(calculatePrice(quantity, unitPrice)).toBe(expected);
+
+// ✅ Known values
+expect(calculatePrice(5, 10)).toBe(50);
+```
+
+**Signs**: Expected calculated in test, changes mirror impl, never seen fail.
+
+### Placebo Test
+Proves nothing, appeases coverage.
+
+```typescript
+// ❌ Tests existence
+render(() => <PaymentForm />);
+expect(document.body).toBeDefined();
+
+// ❌ Never triggers behavior
+render(() => <Button onClick={handler} />);
+expect(handler).toBeDefined(); // Never clicked!
+
+// ✅ Tests behavior
+await user.click(screen.getByRole('button', { name: 'Pay' }));
+expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ cardNumber: '4242...' }));
+```
+
+### Liar (False Positive)
+Always passes regardless of correctness.
+
+```typescript
+// ❌ Same reference
+expect(transform(input)).toBe(input);
+
+// ❌ No assertion (Secret Catcher)
+processOrder({ items: [] });
+
+// ❌ Dead code path
+if (result.valid) expect(result.errors).toHaveLength(0);
+// Passes when result.valid is false!
+
+// ✅ Explicit assertions
+expect(validate('')).toEqual({ valid: false, errors: ['Required'] });
+```
+
+### Mockery (Over-Mocking)
+Testing mocks, not code.
+
+```typescript
+// ❌ All dependencies mocked
+const mockDb = { save: vi.fn().mockResolvedValue({ id: 1 }) };
+expect(mockDb.save).toHaveBeenCalled(); // So what?
+
+// ✅ Real collaborators
+const db = createTestDatabase();
+const saved = await db.findById(user.id);
+expect(saved.name).toBe('Test');
+```
+
+**Mock**: External services, non-deterministic (time), expensive ops.
+**Never mock**: Thing under test, value objects, pure functions.
+
+### Brittle Test
+Coupled to implementation, breaks on refactor.
+
+```typescript
+// ❌ Internal state
+expect(cart._items).toHaveLength(1);
+expect(spy).toHaveBeenCalledBefore(saveSpy);
+
+// ✅ Observable behavior
+expect(cart.itemCount).toBe(1);
+expect(cart.total).toBe(10);
+```
+
+### Assertion Roulette
+Multiple assertions, unclear which failed.
+
+```typescript
+// ❌ Which failed?
+expect(user.id).toBeDefined();
+expect(user.name).toBe('Test');
+expect(user.email).toBe('test@test.com');
+
+// ✅ Grouped or separated
+expect(user).toMatchObject({ id: expect.any(String), name: 'Test' });
+```
+
+### Giant
+Excessive setup obscures test.
+
+```typescript
+// ❌ 50 lines setup, 2 lines test
+const store = createStore(); const user = createUser({...}); // ...40 more lines
+expect(total).toBe(270);
+
+// ✅ Minimal relevant setup
+const cart = createTestCart({ subtotal: 300 });
+expect(calculateTotal(cart, goldUser)).toBe(270);
+```
+
+### Free Rider
+Multiple behaviors in one test.
+
+```typescript
+// ❌ Tests create, update, AND delete
+const user = await service.create({...});
+const updated = await service.update(user.id, {...});
+await service.delete(user.id);
+
+// ✅ Separate tests
+test('creates user', ...);
+test('updates user', ...);
+test('deletes user', ...);
+```
+
+### Flaky Test
+Random pass/fail. Causes: real time, race conditions, shared state, order-dependent, network.
+
+```typescript
+// ❌ Real timer
+await new Promise(r => setTimeout(r, 300));
+
+// ✅ Fake timer
+vi.useFakeTimers();
+await vi.advanceTimersByTimeAsync(300);
+```
+
+### Coverage Junkie
+Metrics over meaning. Signs: arbitrary mandates, testing trivial code, splitting functions for metrics.
+
+```typescript
+// ❌ Tests JS works
+expect(new User('Test').name).toBe('Test');
+// ❌ Tests getter/setter
+expect(config.getDebug()).toBe(true);
+```
+
+**Better metrics**: Bugs caught pre-prod, bugs→tests, flaky rate, team confidence.
+
+---
+
+## Testing Pyramid
+
+~70% unit (fast, isolated) → ~20% integration (component interactions) → ~10% E2E (full flows).
+
+**Ice Cream Cone anti-pattern**: Inverted—lots of manual/E2E, few unit tests. Problems: slow feedback, expensive, doesn't scale, brittle.
+
+---
 
 ## Quick Reference
 
 | Task | Solution |
 |------|----------|
 | Render component | `renderWithProviders(() => <C />)` |
-| Test signals/stores | `testInRoot(() => { ... })` |
+| Test signals/stores | `testInRoot(() => {...})` |
 | Mock dates | `useMockDate('2025-01-15T12:00:00Z')` |
 | Test effects | `testEffect(done => { createEffect(...); done(); })` |
 | Test directives | `renderDirective(directive, { initialValue, targetElement })` |
 | Mock useNavigate | Module-level `vi.mock('@solidjs/router', ...)` |
 | Flush microtasks | `await Promise.resolve()` |
-| Form input (SolidJS) | `fireEvent.input()` + `fireEvent.change()` |
+| Form input | `fireEvent.input()` + `fireEvent.change()` |
+
+---
+
+## Good Test Checklist
+
+| Property | Meaning |
+|----------|---------|
+| Trustworthy | Fail = bug, pass = works |
+| Maintainable | Easy to change with requirements |
+| Fast | Milliseconds |
+| Isolated | No external state |
+| Deterministic | Same result every time |
+| Readable | Clear intent |
+| Valuable | Tests user behavior |
+
+**Before commit**: Can fail? Clear on failure? Survives refactor? Documents requirement? Saw it fail first?
+
+```
+□ No tautological assertions
+□ All assertions reachable
+□ Tests behavior, not impl
+□ Minimal mocks
+□ Single purpose
+□ Descriptive names
+□ No flaky tests
+□ Minimal setup
+□ No order dependencies
+□ Red-green verified
+```
+
+---
 
 ## References
 
-- [SolidJS Testing](https://docs.solidjs.com/guides/testing) | [@solidjs/testing-library](https://github.com/solidjs/solid-testing-library)
-- [Vitest](https://vitest.dev/) | [Testing Library Queries](https://testing-library.com/docs/queries/about)
-- [MemoryRouter](https://docs.solidjs.com/solid-router/reference/components/memory-router)
+**SolidJS/Vitest**: [SolidJS Testing](https://docs.solidjs.com/guides/testing) | [testing-library](https://github.com/solidjs/solid-testing-library) | [Vitest](https://vitest.dev/) | [Queries](https://testing-library.com/docs/queries/about) | [MemoryRouter](https://docs.solidjs.com/solid-router/reference/components/memory-router)
+
+**Anti-Patterns**: [Codepipes](https://blog.codepipes.com/testing/software-testing-antipatterns.html) | [Google SWE Unit Testing](https://abseil.io/resources/swe-book/html/ch12.html) | [Google Test Doubles](https://abseil.io/resources/swe-book/html/ch13.html) | [xUnit Patterns](http://xunitpatterns.com/TestSmells.html) | [Test Smells](https://testsmells.org/) | [Tautological Tests](https://randycoulman.com/blog/2016/12/20/tautological-tests/) | [Ice Cream Cone](https://bugbug.io/blog/software-testing/ice-cream-cone-anti-pattern/) | [Multiple Assertions](https://stackoverflow.blog/2022/11/03/multiple-assertions-per-test-are-fine/) | [DZone Anti-Patterns](https://dzone.com/articles/unit-testing-anti-patterns-full-list)

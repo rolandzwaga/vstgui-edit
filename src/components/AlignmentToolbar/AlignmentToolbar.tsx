@@ -2,9 +2,11 @@
  * AlignmentToolbar Component
  *
  * Toolbar with buttons for aligning and distributing views.
+ * Supports docked (in MainToolbar) and floating (draggable panel) modes.
  */
 
-import { type Component, createMemo } from 'solid-js';
+import { type Component, createMemo, createSignal, onCleanup, Show } from 'solid-js';
+import { Portal } from 'solid-js/web';
 import {
   alignViews,
   createAlignmentOperation,
@@ -17,8 +19,16 @@ import type { Point, RenderableView } from '../../types/canvas';
 import { getParentId, updateViewOrigin } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import { selectionStore } from '../../stores/selectionStore';
+import {
+  alignmentToolbarStore,
+  dock,
+  saveAlignmentToolbarState,
+  undock,
+  updateFloatingPosition,
+} from '../../stores/alignmentToolbarStore';
 import { useCanvasData } from '../../hooks/canvas/useCanvasData';
 import { AlignmentButton } from './AlignmentButton';
+import { DragHandle } from './DragHandle';
 import {
   AlignBottomIcon,
   AlignCenterIcon,
@@ -45,9 +55,13 @@ export interface AlignmentToolbarProps {
  * - Horizontal alignment: Left, Center, Right
  * - Vertical alignment: Top, Middle, Bottom
  * - Distribution: Horizontal, Vertical
+ *
+ * Supports docked (in MainToolbar) and floating (draggable panel) modes.
  */
 export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
   const { renderableViews } = useCanvasData();
+  const [isDraggingPanel, setIsDraggingPanel] = createSignal(false);
+  let dragOffset: Point | null = null;
 
   // Create a map of view ID to RenderableView for fast lookup
   const viewMap = createMemo((): Map<string, RenderableView> => {
@@ -62,17 +76,6 @@ export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
   const getView = (id: string): RenderableView | null => {
     return viewMap().get(id) ?? null;
   };
-
-  // Determine if any selected view is a root (has no parent)
-  const hasRootSelected = createMemo((): boolean => {
-    const selectedIds = selectionStore.selectedIds;
-    for (const id of selectedIds) {
-      if (getParentId(id) === null) {
-        return true;
-      }
-    }
-    return false;
-  });
 
   // Alignment buttons enabled when 1+ non-root views selected
   const isAlignmentEnabled = createMemo((): boolean => {
@@ -131,12 +134,59 @@ export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
     pushOperation(operation);
   };
 
-  return (
-    <div
-      class={styles.toolbar}
-      role="toolbar"
-      aria-label="Alignment toolbar"
-    >
+  // Handle undock from docked toolbar
+  const handleUndock = (position: Point): void => {
+    undock(position);
+    saveAlignmentToolbarState();
+  };
+
+  // Handle redock from floating panel
+  const handleRedock = (): void => {
+    dock();
+    saveAlignmentToolbarState();
+  };
+
+  // Handle floating panel header drag
+  const handlePanelMouseDown = (e: MouseEvent): void => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+
+    const pos = alignmentToolbarStore.floatingPosition;
+    if (pos) {
+      dragOffset = {
+        x: e.clientX - pos.x,
+        y: e.clientY - pos.y,
+      };
+    }
+    setIsDraggingPanel(true);
+    document.addEventListener('mousemove', handlePanelMouseMove);
+    document.addEventListener('mouseup', handlePanelMouseUp);
+  };
+
+  const handlePanelMouseMove = (e: MouseEvent): void => {
+    if (!isDraggingPanel() || !dragOffset) return;
+    updateFloatingPosition({
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y,
+    });
+  };
+
+  const handlePanelMouseUp = (): void => {
+    setIsDraggingPanel(false);
+    dragOffset = null;
+    saveAlignmentToolbarState();
+    document.removeEventListener('mousemove', handlePanelMouseMove);
+    document.removeEventListener('mouseup', handlePanelMouseUp);
+  };
+
+  onCleanup(() => {
+    document.removeEventListener('mousemove', handlePanelMouseMove);
+    document.removeEventListener('mouseup', handlePanelMouseUp);
+  });
+
+  // Shared button group content
+  const ButtonGroups = () => (
+    <>
       {/* Horizontal alignment group */}
       <div class={styles.buttonGroup} data-testid="button-group">
         <AlignmentButton
@@ -210,6 +260,57 @@ export const AlignmentToolbar: Component<AlignmentToolbarProps> = () => {
           onClick={() => handleDistribute('vertical')}
         />
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Docked mode: toolbar with drag handle */}
+      <Show when={alignmentToolbarStore.isDocked}>
+        <div
+          class={styles.toolbar}
+          role="toolbar"
+          aria-label="Alignment toolbar"
+        >
+          <DragHandle onUndock={handleUndock} />
+          <ButtonGroups />
+        </div>
+      </Show>
+
+      {/* Floating mode: portal to document body */}
+      <Show when={!alignmentToolbarStore.isDocked && alignmentToolbarStore.floatingPosition}>
+        <Portal>
+          <div
+            class={styles.floatingPanel}
+            style={{
+              left: `${alignmentToolbarStore.floatingPosition?.x ?? 0}px`,
+              top: `${alignmentToolbarStore.floatingPosition?.y ?? 0}px`,
+            }}
+            role="toolbar"
+            aria-label="Alignment toolbar (floating)"
+          >
+            <div
+              class={styles.floatingHeader}
+              onMouseDown={handlePanelMouseDown}
+            >
+              <span class={styles.floatingTitle}>Alignment</span>
+              <button
+                class={styles.dockButton}
+                onClick={handleRedock}
+                title="Dock to toolbar"
+                aria-label="Dock to toolbar"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                  <path d="M2 1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zm0 3v6h8V4H2z" />
+                </svg>
+              </button>
+            </div>
+            <div class={styles.floatingContent}>
+              <ButtonGroups />
+            </div>
+          </div>
+        </Portal>
+      </Show>
+    </>
   );
 };

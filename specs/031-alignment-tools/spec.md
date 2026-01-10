@@ -242,7 +242,7 @@ A user sees an alignment section in the toolbar with clearly labeled buttons sho
 | FR-013 | ✅ MET | `distributeViews.spec.ts` - "keeps outer views fixed" |
 | FR-014 | ✅ MET | `distributeViews.spec.ts` - "returns empty array for less than 3 views" |
 | FR-015 | ✅ MET | `alignmentToolbarStore.spec.ts` - "starts in docked state" |
-| FR-015a | ⚠️ PARTIAL | Store supports undock; 20px drag threshold not yet implemented in UI |
+| FR-015a | ✅ MET | `DragHandle.spec.tsx` - "triggers onUndock when drag exceeds 20px" |
 | FR-015b | ✅ MET | `alignmentToolbarStore.spec.ts` - "updateFloatingPosition" tests |
 | FR-015c | ✅ MET | `alignmentToolbarStore.spec.ts` - "dock()" sets isDocked to true |
 | FR-015d | ✅ MET | `alignmentToolbarStore.spec.ts` - "restores floating position (400, 100) from localStorage" |

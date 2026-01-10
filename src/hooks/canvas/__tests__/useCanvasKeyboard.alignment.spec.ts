@@ -1,8 +1,8 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { testInRoot } from '../../../__tests__/helpers/solidjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockRenderableView } from '../../../__tests__/helpers/fixtures';
-import { clearSelection, select, toggleSelect, selectionStore } from '../../../stores/selectionStore';
+import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { clearHistory, historyStore } from '../../../stores/historyStore';
+import { clearSelection, select, selectionStore, toggleSelect } from '../../../stores/selectionStore';
 import type { RenderableView, TemplateBounds } from '../../../types/canvas';
 import { useCanvasKeyboard } from '../useCanvasKeyboard';
 

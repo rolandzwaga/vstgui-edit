@@ -5,10 +5,10 @@ import {
   dock,
   loadAlignmentToolbarState,
   resetAlignmentToolbarStore,
+  STORAGE_KEY,
   saveAlignmentToolbarState,
   undock,
   updateFloatingPosition,
-  STORAGE_KEY,
 } from '../alignmentToolbarStore';
 
 describe('alignmentToolbarStore', () => {
