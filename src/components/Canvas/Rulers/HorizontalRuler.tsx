@@ -14,6 +14,7 @@ import {
   generateTicks,
 } from '../../../domain/rulers';
 import type { HorizontalRulerProps } from '../../../types/ruler';
+import { CursorIndicator } from './CursorIndicator';
 import styles from './HorizontalRuler.module.css';
 
 export function HorizontalRuler(props: HorizontalRulerProps) {
@@ -27,6 +28,16 @@ export function HorizontalRuler(props: HorizontalRulerProps) {
 
   // Generate tick marks for the visible range
   const ticks = createMemo(() => generateTicks(visibleRange(), intervals()));
+
+  // Calculate cursor indicator position
+  const cursorScreenPosition = createMemo(() => {
+    if (!props.cursorPosition) return 0;
+    return canvasToScreenPosition(
+      props.cursorPosition.x,
+      canvasStore.panOffset.x,
+      canvasStore.zoomLevel
+    );
+  });
 
   return (
     <div
@@ -63,6 +74,14 @@ export function HorizontalRuler(props: HorizontalRulerProps) {
           }}
         </For>
       </div>
+
+      {/* Cursor indicator */}
+      <CursorIndicator
+        screenPosition={cursorScreenPosition()}
+        canvasValue={props.cursorPosition?.x ?? 0}
+        orientation="horizontal"
+        visible={props.cursorPosition !== null}
+      />
     </div>
   );
 }

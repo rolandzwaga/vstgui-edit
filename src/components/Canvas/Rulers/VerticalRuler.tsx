@@ -14,6 +14,7 @@ import {
   generateTicks,
 } from '../../../domain/rulers';
 import type { VerticalRulerProps } from '../../../types/ruler';
+import { CursorIndicator } from './CursorIndicator';
 import styles from './VerticalRuler.module.css';
 
 export function VerticalRuler(props: VerticalRulerProps) {
@@ -27,6 +28,16 @@ export function VerticalRuler(props: VerticalRulerProps) {
 
   // Generate tick marks for the visible range
   const ticks = createMemo(() => generateTicks(visibleRange(), intervals()));
+
+  // Calculate cursor indicator position
+  const cursorScreenPosition = createMemo(() => {
+    if (!props.cursorPosition) return 0;
+    return canvasToScreenPosition(
+      props.cursorPosition.y,
+      canvasStore.panOffset.y,
+      canvasStore.zoomLevel
+    );
+  });
 
   return (
     <div
@@ -63,6 +74,14 @@ export function VerticalRuler(props: VerticalRulerProps) {
           }}
         </For>
       </div>
+
+      {/* Cursor indicator */}
+      <CursorIndicator
+        screenPosition={cursorScreenPosition()}
+        canvasValue={props.cursorPosition?.y ?? 0}
+        orientation="vertical"
+        visible={props.cursorPosition !== null}
+      />
     </div>
   );
 }
