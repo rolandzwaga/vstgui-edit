@@ -217,4 +217,36 @@ describe('SaveButton', () => {
       expect(downloadDocument).toHaveBeenCalled();
     });
   });
+
+  describe('keyboard navigation', () => {
+    test('Escape closes dropdown when open', async () => {
+      const user = userEvent.setup();
+      const { closeDropdown, saveFormatStore } = await import('../../../stores/saveFormatStore');
+
+      // Mock dropdown as open
+      Object.defineProperty(saveFormatStore, 'isDropdownOpen', {
+        value: true,
+        configurable: true,
+      });
+
+      render(() => <SaveButton />);
+
+      // Press Escape
+      await user.keyboard('{Escape}');
+
+      expect(closeDropdown).toHaveBeenCalled();
+    });
+
+    test('Ctrl+S saves the document', async () => {
+      const user = userEvent.setup();
+      const { downloadDocument } = await import('../../../services/fileService');
+
+      render(() => <SaveButton />);
+
+      // Press Ctrl+S
+      await user.keyboard('{Control>}s{/Control}');
+
+      expect(downloadDocument).toHaveBeenCalled();
+    });
+  });
 });
