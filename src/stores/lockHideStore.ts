@@ -4,7 +4,14 @@
  */
 
 import { createSignal } from 'solid-js';
+import {
+  createHideOperation,
+  createLockOperation,
+  createShowAllOperation,
+  createUnlockOperation,
+} from '../domain/lockHide/historyOperations';
 import type { HideStateInfo, LockStateInfo } from '../types/lockHide';
+import { pushOperation } from './historyStore';
 
 // --- Signals ---
 
@@ -258,6 +265,156 @@ export function toggleHide(viewId: string): boolean {
   });
 
   return !wasHidden;
+}
+
+// --- History-aware Functions ---
+
+/**
+ * Lock selected views with history support.
+ */
+export function lockSelectedWithHistory(selectedIds: Set<string>): void {
+  if (selectedIds.size === 0) {
+    return;
+  }
+
+  const viewIds = Array.from(selectedIds);
+  const previousStates = lockViews(viewIds);
+
+  const operation = createLockOperation(
+    viewIds,
+    previousStates,
+    (ids: string[]) => lockViews(ids),
+    (ids: string[]) => unlockViews(ids)
+  );
+
+  pushOperation(operation);
+}
+
+/**
+ * Unlock selected views with history support.
+ */
+export function unlockSelectedWithHistory(selectedIds: Set<string>): void {
+  if (selectedIds.size === 0) {
+    return;
+  }
+
+  const viewIds = Array.from(selectedIds);
+  const previousStates = unlockViews(viewIds);
+
+  const operation = createUnlockOperation(
+    viewIds,
+    previousStates,
+    (ids: string[]) => lockViews(ids),
+    (ids: string[]) => unlockViews(ids)
+  );
+
+  pushOperation(operation);
+}
+
+/**
+ * Hide selected views with history support.
+ */
+export function hideSelectedWithHistory(selectedIds: Set<string>): void {
+  if (selectedIds.size === 0) {
+    return;
+  }
+
+  const viewIds = Array.from(selectedIds);
+  const previousStates = hideViews(viewIds);
+
+  const operation = createHideOperation(
+    viewIds,
+    previousStates,
+    (ids: string[]) => hideViews(ids),
+    (ids: string[]) => showViews(ids)
+  );
+
+  pushOperation(operation);
+}
+
+/**
+ * Show all hidden views with history support.
+ */
+export function showAllWithHistory(): void {
+  const current = hiddenIds();
+  if (current.size === 0) {
+    return;
+  }
+
+  const viewIds = showAllViews();
+
+  const operation = createShowAllOperation(
+    viewIds,
+    (ids: string[]) => hideViews(ids),
+    () => showAllViews()
+  );
+
+  pushOperation(operation);
+}
+
+/**
+ * Toggle hide state for selected views with history support.
+ * If single selection: toggles hide state
+ * If multi-selection: hides all if any visible, shows all if all hidden
+ */
+export function toggleHideSelectedWithHistory(selectedIds: Set<string>): void {
+  if (selectedIds.size === 0) {
+    return;
+  }
+
+  const viewIds = Array.from(selectedIds);
+  const hideInfo = getHideStateInfo(selectedIds);
+
+  if (selectedIds.size === 1) {
+    // Single selection: toggle
+    const viewId = viewIds[0];
+    const wasHidden = isHidden(viewId);
+
+    if (wasHidden) {
+      // Show the view
+      const previousStates = showViews([viewId]);
+      const operation = createHideOperation(
+        [viewId],
+        previousStates,
+        (ids: string[]) => hideViews(ids),
+        (ids: string[]) => showViews(ids)
+      );
+      pushOperation(operation);
+    } else {
+      // Hide the view
+      const previousStates = hideViews([viewId]);
+      const operation = createHideOperation(
+        [viewId],
+        previousStates,
+        (ids: string[]) => hideViews(ids),
+        (ids: string[]) => showViews(ids)
+      );
+      pushOperation(operation);
+    }
+  } else {
+    // Multi-selection: hide all if any visible, show all if all hidden
+    if (hideInfo.allHidden) {
+      // Show all
+      const previousStates = showViews(viewIds);
+      const operation = createHideOperation(
+        viewIds,
+        previousStates,
+        (ids: string[]) => hideViews(ids),
+        (ids: string[]) => showViews(ids)
+      );
+      pushOperation(operation);
+    } else {
+      // Hide all
+      const previousStates = hideViews(viewIds);
+      const operation = createHideOperation(
+        viewIds,
+        previousStates,
+        (ids: string[]) => hideViews(ids),
+        (ids: string[]) => showViews(ids)
+      );
+      pushOperation(operation);
+    }
+  }
 }
 
 // --- Reset ---
