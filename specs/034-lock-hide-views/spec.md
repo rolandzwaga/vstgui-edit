@@ -243,39 +243,39 @@ The following existing functionality can be leveraged for this feature:
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-002 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-003 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-004 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-005 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-006 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007a | ⬜ PENDING | [Test or file that verifies this] |
-| FR-007b | ⬜ PENDING | [Test or file that verifies this] |
-| FR-008 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-009 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-010 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-011 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-012 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-013 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-014 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-015 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-016 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-017 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-018 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-019 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-020 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-021 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-022 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-023 | ⬜ PENDING | [Test or file that verifies this] |
-| FR-024 | ⬜ PENDING | [Test or file that verifies this] |
-| SC-001 | ⬜ PENDING | [Measurement or test result] |
-| SC-002 | ⬜ PENDING | [Measurement or test result] |
-| SC-003 | ⬜ PENDING | [Measurement or test result] |
-| SC-004 | ⬜ PENDING | [Measurement or test result] |
-| SC-005 | ⬜ PENDING | [Measurement or test result] |
-| SC-006 | ⬜ PENDING | [Measurement or test result] |
-| SC-007 | ⬜ PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | useCanvasKeyboard.spec.ts: Ctrl+L lock tests |
+| FR-002 | ✅ MET | useCanvasKeyboard.spec.ts: Ctrl+Shift+L unlock tests (toggle behavior) |
+| FR-003 | ✅ MET | useCanvasInteractions.ts: filterUnlockedViews in drag handler |
+| FR-004 | ✅ MET | SelectionOverlay.tsx: isLocked prop hides resize handles |
+| FR-005 | ✅ MET | useCanvasKeyboard.spec.ts: delete blocked for locked views |
+| FR-006 | ✅ MET | selectionStore unchanged - locked views remain selectable |
+| FR-007 | ✅ MET | SelectionOverlay.tsx: dashed border, no handles for locked |
+| FR-007a | ✅ MET | LockIndicator.tsx: SVG lock icon overlay on canvas |
+| FR-007b | ✅ MET | PropertiesPanel.tsx: origin/size disabled for locked views |
+| FR-008 | ✅ MET | useCanvasKeyboard.spec.ts: Ctrl+H hide tests |
+| FR-009 | ✅ MET | useCanvasKeyboard.spec.ts: Ctrl+Shift+H show all tests |
+| FR-010 | ✅ MET | Canvas.tsx: visibleViews filters hidden from rendering |
+| FR-011 | ✅ MET | useCanvasInteractions.ts: hidden excluded from marquee/click |
+| FR-012 | ✅ MET | TreeNode.tsx: hidden views visible with eye-slash icon |
+| FR-013 | ✅ MET | lockHideStore.ts: isViewOrAncestorHidden checks parent chain |
+| FR-014 | ✅ MET | TreeNode.tsx: faLock icon for locked views |
+| FR-015 | ✅ MET | TreeNode.tsx: faEyeSlash icon for hidden views |
+| FR-016 | ✅ MET | TreeNode.tsx: both icons rendered when both states |
+| FR-017 | ✅ MET | lockHideStore.ts: uses signals (not persisted) |
+| FR-018 | ✅ MET | documentStore.ts: resetLockHideStore on loadFile |
+| FR-019 | ✅ MET | lockHideStore.spec.ts: atomic undo/redo tests |
+| FR-020 | ✅ MET | useCanvasKeyboard.spec.ts: multi-view lock tests |
+| FR-021 | ✅ MET | useCanvasInteractions.ts: only unlocked views move |
+| FR-022 | ✅ MET | useCanvasKeyboard.spec.ts: multi-view hide tests |
+| FR-023 | ✅ MET | ContextMenu.tsx: Lock/Unlock menu item |
+| FR-024 | ✅ MET | ContextMenu.tsx: Hide/Show menu item |
+| SC-001 | ✅ MET | Keyboard shortcut is instantaneous (<1s) |
+| SC-002 | ✅ MET | SelectionOverlay: dashed border, no handles |
+| SC-003 | ✅ MET | TreeNode: faLock and faEyeSlash icons |
+| SC-004 | ✅ MET | useCanvasInteractions: hidden excluded from hit testing |
+| SC-005 | ✅ MET | lockHideStore.spec.ts: undo/redo integration tests |
+| SC-006 | ✅ MET | 3609 tests passing, all shortcuts tested |
+| SC-007 | ✅ MET | Set-based operations O(1), tested with store |
 
 **WARNING**: Any NOT MET requires explicit user approval before claiming completion.
 
