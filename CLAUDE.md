@@ -216,6 +216,24 @@ npx tsc --noEmit                   # Type check
 | `clearCursorPosition()` | Clear cursor position when mouse leaves canvas |
 | `resetRulerStore()` | Reset to initial state |
 
+### guidesStore (`src/stores/guidesStore.ts`)
+**Purpose**: Custom guide lines for precise alignment
+
+| Export | Description |
+|--------|-------------|
+| `guidesStore` | State: `guides`, `isVisible`, `isSnapEnabled`, `creationDrag`, `repositionDrag` |
+| `addGuide(orientation, position)` | Add guide without history |
+| `addGuideWithHistory(orientation, position)` | Add guide with undo support |
+| `deleteGuide(id)/deleteGuideWithHistory(id)` | Delete guide by ID |
+| `repositionGuide(id, position)` | Move guide without history |
+| `repositionGuideWithHistory(id, position)` | Move guide with undo support |
+| `clearAllGuides()/clearAllGuidesWithHistory()` | Remove all guides |
+| `toggleGuidesVisibility()` | Toggle guide visibility (Ctrl+;) |
+| `toggleGuidesSnap()` | Toggle snap-to-guides |
+| `startCreationDrag/completeCreationDrag/cancelCreationDrag` | Guide creation lifecycle |
+| `startRepositionDrag/updateRepositionDrag/completeRepositionDrag` | Guide reposition lifecycle |
+| `resetGuidesStore()` | Reset to initial state |
+
 ### alignmentToolbarStore (`src/stores/alignmentToolbarStore.ts`)
 **Purpose**: Alignment toolbar docked/floating state
 
@@ -284,6 +302,14 @@ npx tsc --noEmit                   # Type check
 | `clearFormatPreference()` | Remove format preference from localStorage |
 | `isValidSaveFormat(value)` | Type guard for SaveFormat |
 | `STORAGE_KEY` | localStorage key: `'vstgui-edit:save-format'` |
+
+### Guides (`src/domain/guides/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `guideOperations.ts` | `generateGuideId`, `createGuide`, `addGuideToCollection`, `removeGuideFromCollection`, `updateGuidePosition`, `canAddGuide`, `MAX_GUIDES` (50) |
+| `guideSnap.ts` | `snapToGuide`, `snapToNearest`, `snapPointWithGuides`, `applySnapToMoveWithGuides`, `applySnapToResizeWithGuides` |
+| `historyOperations.ts` | `createGuideCreateOperation`, `createGuideDeleteOperation`, `createGuideRepositionOperation`, `createGuideClearAllOperation` |
 
 ### Rulers (`src/domain/rulers/`)
 
@@ -471,6 +497,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-10 | 033-custom-guides | Drag-from-ruler guides, snap-to-guides, Ctrl+; toggle, context menu positioning |
 | 01-10 | 032-rulers | Canvas rulers with tick marks, cursor indicator, template bounds, ~140 tests |
 | 01-10 | 031-alignment-tools | Alignment toolbar, L/C/R/T/M/B alignment, H/V distribution, shortcuts, ~130 tests |
 | 01-10 | 030-json-save-format | Split save button, JSON/XML dropdown, confirmation dialog, 90 tests |
