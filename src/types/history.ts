@@ -52,7 +52,11 @@ export interface HistoryOperation {
     | 'guide-create'
     | 'guide-delete'
     | 'guide-reposition'
-    | 'guide-clear-all';
+    | 'guide-clear-all'
+    | 'lock'
+    | 'unlock'
+    | 'hide'
+    | 'show-all';
   description: string;
   undo: () => void;
   redo: () => void;

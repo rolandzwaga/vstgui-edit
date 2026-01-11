@@ -13,6 +13,7 @@ import type {
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
 import { resetGuidesStore } from './guidesStore';
+import { resetLockHideStore } from './lockHideStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -201,6 +202,7 @@ export function reset(): void {
   setStore({ ...initialState });
   resetTemplateStore();
   resetGuidesStore();
+  resetLockHideStore();
 }
 
 export function markDirty(): void {
@@ -783,6 +785,14 @@ export function getParentId(viewId: string): string | null {
   if (lastDash === -1) return null;
 
   return viewId.substring(0, lastDash);
+}
+
+/**
+ * Check if a view is the root container (has no parent).
+ * Root containers cannot be moved since there's nothing to move them relative to.
+ */
+export function isRoot(viewId: string): boolean {
+  return getParentId(viewId) === null;
 }
 
 export function getChildIds(viewId: string): string[] {

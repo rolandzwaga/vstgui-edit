@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { createMockContainer, createMockDocument, createMockView } from '../../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import { reset, setDocumentForTest } from '../../../stores/documentStore';
+import { hideViews, resetLockHideStore } from '../../../stores/lockHideStore';
 import { resetTemplateStore, setActiveTemplate } from '../../../stores/templateStore';
 import { useCanvasData } from '../useCanvasData';
 
@@ -9,11 +10,13 @@ describe('useCanvasData', () => {
   beforeEach(() => {
     reset();
     resetTemplateStore();
+    resetLockHideStore();
   });
 
   afterEach(() => {
     reset();
     resetTemplateStore();
+    resetLockHideStore();
   });
 
   describe('activeTemplate integration', () => {
@@ -182,6 +185,114 @@ describe('useCanvasData', () => {
 
         const { renderableViews } = useCanvasData();
         expect(renderableViews()).toEqual([]);
+      });
+    });
+  });
+
+  describe('visibleViews', () => {
+    test('returns all views when none are hidden', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { size: '800, 600' },
+              {
+                child1: createMockView({ class: 'CTextLabel', origin: '10, 10', size: '100, 30' }),
+                child2: createMockView({ class: 'CTextButton', origin: '20, 50', size: '100, 30' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        setActiveTemplate('MainView');
+
+        const { visibleViews, renderableViews } = useCanvasData();
+        expect(visibleViews().length).toBe(renderableViews().length);
+      });
+    });
+
+    test('filters out directly hidden views', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { size: '800, 600' },
+              {
+                child1: createMockView({ class: 'CTextLabel', origin: '10, 10', size: '100, 30' }),
+                child2: createMockView({ class: 'CTextButton', origin: '20, 50', size: '100, 30' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        setActiveTemplate('MainView');
+
+        const { visibleViews, renderableViews } = useCanvasData();
+        const allViews = renderableViews();
+        const childView = allViews.find(v => v.className === 'CTextLabel');
+        expect(childView).toBeDefined();
+
+        // Hide one view
+        hideViews([childView!.id]);
+
+        const visible = visibleViews();
+        expect(visible.some(v => v.id === childView!.id)).toBe(false);
+        expect(visible.length).toBe(allViews.length - 1);
+      });
+    });
+
+    test('filters out children of hidden containers', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { size: '800, 600' },
+              {
+                container: createMockContainer(
+                  { size: '400, 300', origin: '10, 10' },
+                  {
+                    nestedChild: createMockView({ class: 'CTextLabel', origin: '0, 0', size: '100, 30' }),
+                  }
+                ),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+        setActiveTemplate('MainView');
+
+        const { visibleViews, renderableViews } = useCanvasData();
+        const allViews = renderableViews();
+
+        // Find the container (not MainView, but the nested one)
+        const containerView = allViews.find(v => v.className === 'CViewContainer' && v.id !== 'MainView');
+        const nestedChild = allViews.find(v => v.className === 'CTextLabel');
+
+        expect(containerView).toBeDefined();
+        expect(nestedChild).toBeDefined();
+
+        // Hide the container
+        hideViews([containerView!.id]);
+
+        const visible = visibleViews();
+        // Both container and its children should be hidden
+        expect(visible.some(v => v.id === containerView!.id)).toBe(false);
+        expect(visible.some(v => v.id === nestedChild!.id)).toBe(false);
+      });
+    });
+
+    test('returns empty array when activeTemplateId is cleared', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer({ size: '800, 600' }),
+          },
+        });
+        setDocumentForTest(doc);
+        resetTemplateStore();
+
+        const { visibleViews } = useCanvasData();
+        expect(visibleViews()).toEqual([]);
       });
     });
   });

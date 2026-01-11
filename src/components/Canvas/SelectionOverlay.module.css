@@ -24,3 +24,8 @@
 .resizeHandle:hover {
   fill: var(--color-selection-stroke);
 }
+
+.selectionBorder.locked {
+  stroke: var(--color-warning, #fbbf24);
+  stroke-dasharray: 4 2;
+}

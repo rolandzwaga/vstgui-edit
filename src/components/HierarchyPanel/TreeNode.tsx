@@ -7,6 +7,7 @@ import {
 import { getParentId, reparentView, reorderView } from '../../stores/documentStore';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { pushOperation } from '../../stores/historyStore';
+import { isHidden, isLocked } from '../../stores/lockHideStore';
 import { isSelected, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { useHierarchyDragContext } from './HierarchyDragContext';
@@ -26,6 +27,8 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   const expanded = () => isExpanded(props.node.id);
   const selected = () => isSelected(props.node.id);
   const iconName = () => CATEGORY_ICON_NAMES[props.node.category];
+  const viewIsLocked = () => isLocked(props.node.id);
+  const viewIsHidden = () => isHidden(props.node.id);
 
   const isDragging = () => dragState.isDragging && dragState.draggedIds.includes(props.node.id);
   const isDropTarget = () => dragState.dropTargetId === props.node.id;
@@ -215,6 +218,7 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
     if (isDropBefore()) classes.push(styles.dropBefore);
     if (isDropAfter()) classes.push(styles.dropAfter);
     if (isInvalidDropTarget()) classes.push(styles.dropInvalid);
+    if (viewIsHidden()) classes.push(styles.hidden);
     return classes.join(' ');
   };
 
@@ -256,6 +260,26 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
           <FontAwesomeIcon icon={iconName()} />
         </span>
         <span class={styles.label}>{props.node.label}</span>
+        <span class={styles.statusIcons}>
+          <Show when={viewIsLocked()}>
+            <span
+              class={styles.lockIcon}
+              data-testid={`lock-indicator-${props.node.id}`}
+              title="Locked"
+            >
+              <FontAwesomeIcon icon="lock" />
+            </span>
+          </Show>
+          <Show when={viewIsHidden()}>
+            <span
+              class={styles.hideIcon}
+              data-testid={`hide-indicator-${props.node.id}`}
+              title="Hidden"
+            >
+              <FontAwesomeIcon icon="eye-slash" />
+            </span>
+          </Show>
+        </span>
       </div>
       <Show when={props.node.hasChildren && expanded()}>
         <For each={props.node.children}>

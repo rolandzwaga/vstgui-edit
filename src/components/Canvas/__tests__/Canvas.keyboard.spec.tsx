@@ -30,6 +30,7 @@ vi.mock('../../../stores/documentStore', () => ({
     const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
     return doc?.['vstgui-ui-description']?.templates?.[name];
   },
+  getParentId: () => null,
 }));
 
 vi.mock('../../../stores/templateStore', () => ({

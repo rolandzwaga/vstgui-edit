@@ -20,8 +20,9 @@ import {
   createGroupHistoryOperation,
   createUngroupHistoryOperation,
 } from '../../domain/hierarchy/groupOperations';
+import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { getParentId, updateViewOrigin } from '../../stores/documentStore';
+import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import {
@@ -31,6 +32,14 @@ import {
   toggleGuidesVisibility,
 } from '../../stores/guidesStore';
 import { pushOperation, redo, undo } from '../../stores/historyStore';
+import {
+  isHidden,
+  isLocked,
+  lockSelectedWithHistory,
+  showAllWithHistory,
+  toggleHideSelectedWithHistory,
+  unlockSelectedWithHistory,
+} from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
@@ -106,11 +115,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
-      e.preventDefault();
       const duplicated = duplicateSelectedViews();
       if (duplicated.length > 0) {
         const operation = createDuplicateOperation(duplicated);
@@ -151,11 +160,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && !e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size < 2) {
         return;
       }
-      e.preventDefault();
 
       const operation = createGroupHistoryOperation([...selectedIds]);
       if (operation) {
@@ -165,16 +174,57 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g' && e.shiftKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size !== 1) {
         return;
       }
-      e.preventDefault();
 
       const operation = createUngroupHistoryOperation([...selectedIds][0]);
       if (operation) {
         pushOperation(operation);
       }
+      return;
+    }
+
+    // Ctrl+L - Toggle lock for selected views (lock if any unlocked, unlock if all locked)
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l' && !e.shiftKey) {
+      e.preventDefault();
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+
+      // Check if all selected views are locked
+      const allLocked = Array.from(selectedIds).every(id => isLocked(id));
+      if (allLocked) {
+        unlockSelectedWithHistory(selectedIds);
+      } else {
+        lockSelectedWithHistory(selectedIds);
+      }
+      return;
+    }
+
+    // Ctrl+H - Toggle hide for selected views
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h' && !e.shiftKey) {
+      e.preventDefault();
+      const selectedIds = selectionStore.selectedIds;
+      if (selectedIds.size === 0) {
+        return;
+      }
+      toggleHideSelectedWithHistory(selectedIds);
+      // Clear selection after hiding since the views are no longer visible
+      const allHidden = Array.from(selectedIds).every(id => isHidden(id));
+      if (allHidden) {
+        clearSelection();
+      }
+      return;
+    }
+
+    // Ctrl+Shift+H - Show all hidden views
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'h' && e.shiftKey) {
+      e.preventDefault();
+      showAllWithHistory();
       return;
     }
 
@@ -219,12 +269,19 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key.startsWith('Arrow') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
 
-      e.preventDefault();
+      // Filter out locked views and root container from nudge operation
+      const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
+      const movableIds = unlockedIds.filter(id => !isRoot(id));
+      if (movableIds.length === 0) {
+        // All selected views are locked or root, do nothing
+        return;
+      }
       const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
       let delta = { x: 0, y: 0 };
 
@@ -247,9 +304,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const originalOrigins: Record<string, { x: number; y: number }> = {};
       const newOrigins: Record<string, { x: number; y: number }> = {};
       const viewIds: string[] = [];
+      const movableIdSet = new Set(movableIds);
 
       for (const view of views) {
-        if (selectedIds.has(view.id)) {
+        if (movableIdSet.has(view.id)) {
           viewIds.push(view.id);
           originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
           newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);
@@ -269,11 +327,20 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
       const selectedIds = selectionStore.selectedIds;
       if (selectedIds.size === 0) {
         return;
       }
-      e.preventDefault();
+
+      // Filter out locked views from deletion
+      const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
+      if (unlockedIds.length === 0) {
+        // All selected views are locked, do nothing
+        return;
+      }
+      // Temporarily select only unlocked views for deletion
+      selectAll(unlockedIds);
       const removed = deleteSelectedViews();
       if (removed.length > 0) {
         const operation = createDeleteOperation(removed);
