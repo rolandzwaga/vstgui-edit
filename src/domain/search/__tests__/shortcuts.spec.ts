@@ -72,10 +72,10 @@ describe('search shortcuts', () => {
     });
   });
 
-  describe('Ctrl+H', () => {
-    it('should open replace panel on Ctrl+H', () => {
+  describe('Ctrl+Shift+F', () => {
+    it('should open replace panel on Ctrl+Shift+F', () => {
       testInRoot(() => {
-        const event = createKeyboardEvent('h', { ctrlKey: true });
+        const event = createKeyboardEvent('F', { ctrlKey: true, shiftKey: true });
         const handled = handleSearchShortcut(event);
 
         expect(handled).toBe(true);
@@ -85,9 +85,9 @@ describe('search shortcuts', () => {
       });
     });
 
-    it('should open replace panel on Cmd+H (Mac)', () => {
+    it('should open replace panel on Cmd+Shift+F (Mac)', () => {
       testInRoot(() => {
-        const event = createKeyboardEvent('h', { metaKey: true });
+        const event = createKeyboardEvent('F', { metaKey: true, shiftKey: true });
         const handled = handleSearchShortcut(event);
 
         expect(handled).toBe(true);

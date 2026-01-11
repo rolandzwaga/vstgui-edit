@@ -17,10 +17,10 @@ import {
  *
  * Shortcuts:
  * - Ctrl+F / Cmd+F: Open find panel
- * - Ctrl+H / Cmd+H: Open replace panel
+ * - Ctrl+Shift+F / Cmd+Shift+F: Open replace panel
  * - F3: Navigate to next result
  * - Shift+F3: Navigate to previous result
- * - Escape: Close panel (when focused)
+ * - Escape: Close panel (when open)
  *
  * @param event - Keyboard event
  * @returns true if event was handled
@@ -36,8 +36,8 @@ export function handleSearchShortcut(event: KeyboardEvent): boolean {
     return true;
   }
 
-  // Ctrl+H / Cmd+H - Open replace panel
-  if (ctrlOrCmd && event.key === 'h') {
+  // Ctrl+Shift+F / Cmd+Shift+F - Open replace panel
+  if (ctrlOrCmd && event.shiftKey && event.key === 'F') {
     event.preventDefault();
     openReplacePanel();
     return true;
