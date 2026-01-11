@@ -378,3 +378,84 @@ describe('initializeTheme', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 });
+
+describe('OS theme change detection', () => {
+  let originalMatchMedia: typeof window.matchMedia;
+  let changeListeners: Array<() => void>;
+
+  beforeEach(() => {
+    originalMatchMedia = window.matchMedia;
+    changeListeners = [];
+    document.documentElement.removeAttribute('data-theme');
+
+    // Mock matchMedia that captures change listeners
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn((event: string, callback: () => void) => {
+        if (event === 'change') {
+          changeListeners.push(callback);
+        }
+      }),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    }));
+
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+    window.matchMedia = originalMatchMedia;
+    vi.resetModules();
+  });
+
+  it('callback is invoked when OS theme changes', async () => {
+    const module = await import('../themeService');
+    const callback = vi.fn();
+
+    module.subscribeToSystemThemeChanges(callback);
+
+    // Simulate OS theme change by calling the captured listener
+    expect(changeListeners.length).toBe(1);
+    changeListeners[0]();
+
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('theme updates when OS preference changes and mode is system', async () => {
+    const {
+      resetPreferencesStore,
+      initializePreferences,
+      setThemeModePreference,
+    } = await import('../../../stores/preferencesStore');
+    resetPreferencesStore();
+    initializePreferences();
+    setThemeModePreference('system');
+
+    const module = await import('../themeService');
+
+    // Initial state: light (matchMedia.matches is false)
+    module.updateTheme();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+
+    // Simulate OS changing to dark mode
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      onchange: null,
+      dispatchEvent: vi.fn(),
+    }));
+
+    // Update theme (as would happen in the subscription callback)
+    module.updateTheme();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+});
