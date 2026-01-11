@@ -96,33 +96,38 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   };
 
   const handleBooleanChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? 'false';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? 'false');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleEnumChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleColorChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleFontChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleBitmapChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleCancel = () => {

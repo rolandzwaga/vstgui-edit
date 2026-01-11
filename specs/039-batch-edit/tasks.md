@@ -142,7 +142,7 @@
 
 - [X] T038 [US4] Verify `handleValueChange` in PropertiesPanel already applies changes to all views during edit (existing implementation)
 - [X] T039 [US4] Verify inline editor cancel (Escape) reverts preview changes correctly for mixed values
-- [ ] T040 [US4] **Commit**: Stage and commit User Story 4 changes with descriptive message
+- [X] T040 [US4] **Commit**: Stage and commit User Story 4 changes with descriptive message
 
 **Checkpoint**: User Story 4 complete - live preview works for batch edits
 
@@ -156,23 +156,23 @@
 
 > **REQUIRED: `specs/TESTING-GUIDE.md` must be in context from T004**
 
-- [ ] T041 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify boolean editor batch edit with mixed values
-- [ ] T042 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify enum editor batch edit with mixed values
-- [ ] T043 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify color picker batch edit with mixed values
-- [ ] T044 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify font picker batch edit with mixed values
-- [ ] T045 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify bitmap picker batch edit with mixed values
-- [ ] T046 [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify locked views are skipped during batch edit (FR-008)
-- [ ] T047 [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify single-view editing still works (FR-010 regression)
-- [ ] T047a [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify validation failure on batch edit rejects all changes (FR-009)
-- [ ] T047b [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify class attribute remains non-editable with multiple views selected
+- [X] T041 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify boolean editor batch edit with mixed values
+- [X] T042 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify enum editor batch edit with mixed values
+- [X] T043 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify color picker batch edit with mixed values
+- [X] T044 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify font picker batch edit with mixed values
+- [X] T045 [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify bitmap picker batch edit with mixed values
+- [X] T046 [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify locked views are skipped during batch edit (FR-008)
+- [X] T047 [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify single-view editing still works (FR-010 regression)
+- [X] T047a [P] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify validation failure on batch edit rejects all changes (FR-009)
+- [X] T047b [P] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify class attribute remains non-editable with multiple views selected
 
 ### Implementation for Immediate Editors
 
-- [ ] T048 Update `handleBooleanChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
-- [ ] T049 Update `handleEnumChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
-- [ ] T050 Update `handleColorChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
-- [ ] T051 Update `handleFontChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
-- [ ] T052 Update `handleBitmapChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
+- [X] T048 Update `handleBooleanChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
+- [X] T049 Update `handleEnumChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
+- [X] T050 Update `handleColorChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
+- [X] T051 Update `handleFontChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
+- [X] T052 Update `handleBitmapChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
 - [ ] T053 **Commit**: Stage and commit edge cases and immediate editors changes with descriptive message
 
 **Checkpoint**: All editor types support batch editing (SC-005)

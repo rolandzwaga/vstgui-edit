@@ -263,5 +263,159 @@ describe('AttributeRow', () => {
       // Should NOT call onValueCommit
       expect(onValueCommit).not.toHaveBeenCalled();
     });
+
+    // T041: verify boolean editor batch edit with mixed values
+    it('should pass __MIXED__ marker for boolean editor with mixed values', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'transparent',
+            isMixed: true,
+            value: null,
+            editorType: 'boolean',
+          })}
+          editable={true}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      // Boolean editor is always shown (no double-click needed)
+      const checkbox = screen.getByRole('checkbox');
+      fireEvent.click(checkbox);
+
+      expect(onValueCommit).toHaveBeenCalledWith('transparent', 'true', '__MIXED__');
+    });
+
+    // T042: verify enum editor batch edit with mixed values
+    it('should pass __MIXED__ marker for enum editor with mixed values', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'autosize',
+            isMixed: true,
+            value: null,
+            editorType: 'enum',
+            enumValues: ['none', 'left', 'right'],
+          })}
+          editable={true}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      // Enum editor is a custom button dropdown
+      const combobox = screen.getByRole('combobox');
+      fireEvent.click(combobox); // Open dropdown
+
+      // Click on an option
+      const option = screen.getByRole('option', { name: 'left' });
+      fireEvent.click(option);
+
+      expect(onValueCommit).toHaveBeenCalledWith('autosize', 'left', '__MIXED__');
+    });
+
+    // T043: verify color picker batch edit with mixed values
+    it('should pass __MIXED__ marker for color picker with mixed values', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'background-color',
+            isMixed: true,
+            value: null,
+            editorType: 'color',
+          })}
+          editable={true}
+          documentColors={['MyRed', 'MyBlue']}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      // Color picker is a custom button dropdown
+      const combobox = screen.getByRole('combobox');
+      fireEvent.click(combobox); // Open dropdown
+
+      // Click on a color option
+      const option = screen.getByRole('option', { name: 'MyRed' });
+      fireEvent.click(option);
+
+      expect(onValueCommit).toHaveBeenCalledWith('background-color', 'MyRed', '__MIXED__');
+    });
+
+    // T044: verify font picker batch edit with mixed values
+    it('should pass __MIXED__ marker for font picker with mixed values', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'font',
+            isMixed: true,
+            value: null,
+            editorType: 'font',
+          })}
+          editable={true}
+          documentFonts={['Arial', 'Helvetica']}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      // Font picker is a custom button dropdown
+      const combobox = screen.getByRole('combobox');
+      fireEvent.click(combobox); // Open dropdown
+
+      // Click on a font option
+      const option = screen.getByRole('option', { name: 'Arial' });
+      fireEvent.click(option);
+
+      expect(onValueCommit).toHaveBeenCalledWith('font', 'Arial', '__MIXED__');
+    });
+
+    // T045: verify bitmap picker batch edit with mixed values
+    it('should pass __MIXED__ marker for bitmap picker with mixed values', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'bitmap',
+            isMixed: true,
+            value: null,
+            editorType: 'bitmap',
+          })}
+          editable={true}
+          documentBitmaps={['icon1', 'icon2']}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      // Bitmap picker is a custom button dropdown
+      const combobox = screen.getByRole('combobox');
+      fireEvent.click(combobox); // Open dropdown
+
+      // Click on a bitmap option
+      const option = screen.getByRole('option', { name: 'icon1' });
+      fireEvent.click(option);
+
+      expect(onValueCommit).toHaveBeenCalledWith('bitmap', 'icon1', '__MIXED__');
+    });
+
+    // T047b: verify class attribute remains non-editable with multiple views selected
+    it('should keep class attribute non-editable even with isMixed', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({
+            name: 'class',
+            isMixed: true,
+            value: null,
+            editorType: 'text',
+          })}
+          editable={true}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      // Should not have editable class (class is readonly)
+      expect(valueElement).not.toHaveClass(/editable/);
+    });
   });
 });
