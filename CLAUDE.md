@@ -633,6 +633,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 038-keyboard-shortcuts: Added SolidJS 1.9.10, Vite 7.3.0
 
 | Date | Feature | Summary |
 |------|---------|---------|
