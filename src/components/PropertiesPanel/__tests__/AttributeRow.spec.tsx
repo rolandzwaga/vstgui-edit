@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@solidjs/testing-library';
 import { AttributeRow } from '../AttributeRow';
 import type { AttributeEntry } from '../../../types/properties';
 
@@ -121,6 +121,81 @@ describe('AttributeRow', () => {
 
       const valueElement = screen.getByTestId('attribute-value');
       expect(valueElement).toHaveClass(/editable/);
+    });
+  });
+
+  describe('batch editing (mixed values)', () => {
+    // T012: verify canEdit() returns true for mixed attributes when editable=true
+    it('should allow editing mixed attributes when editable', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      // Should have editable class even though isMixed is true
+      expect(valueElement).toHaveClass(/editable/);
+    });
+
+    // T013: verify double-click on mixed attribute enables editing mode
+    it('should enable editing mode on double-click for mixed attribute', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      // Should show text input (editing mode)
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+    });
+
+    // T014: verify editing mixed value calls onValueChange with new value
+    it('should call onValueChange when editing mixed attribute', () => {
+      const onValueChange = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+          onValueChange={onValueChange}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.input(input, { target: { value: 'new value' } });
+      fireEvent.change(input, { target: { value: 'new value' } });
+
+      expect(onValueChange).toHaveBeenCalledWith('origin', 'new value');
+    });
+
+    // T015: verify committing mixed value calls onValueCommit with '__MIXED__' marker
+    it('should call onValueCommit with __MIXED__ marker when committing mixed attribute', () => {
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.input(input, { target: { value: 'new value' } });
+      fireEvent.change(input, { target: { value: 'new value' } });
+      fireEvent.blur(input);
+
+      expect(onValueCommit).toHaveBeenCalledWith('origin', 'new value', '__MIXED__');
     });
   });
 });

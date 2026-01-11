@@ -40,7 +40,7 @@
 - [X] T008 Update `handleValueChange` in `src/components/PropertiesPanel/PropertiesPanel.tsx` to filter out locked views using `isLocked()` from lockHideStore
 - [X] T009 Update `handleValueCommit` in `src/components/PropertiesPanel/PropertiesPanel.tsx` to detect `'__MIXED__'` marker and fetch per-view original values
 - [X] T010 Pass `getOriginalValues` callback from PropertiesPanel through AttributeGroup to AttributeRow in `src/components/PropertiesPanel/PropertiesPanel.tsx`
-- [ ] T011 **Commit**: Stage and commit Phase 2 foundational changes with descriptive message
+- [X] T011 **Commit**: Stage and commit Phase 2 foundational changes with descriptive message
 
 **Checkpoint**: Mixed attribute editing is now enabled - user story implementation can proceed
 
@@ -57,16 +57,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: `specs/TESTING-GUIDE.md` must be in context from T004**
 
-- [ ] T012 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify `canEdit()` returns true for mixed attributes when editable=true
-- [ ] T013 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify double-click on mixed attribute enables editing mode
-- [ ] T014 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify editing mixed value calls `onValueChange` with new value
-- [ ] T015 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify committing mixed value calls `onValueCommit` with `'__MIXED__'` marker
+- [X] T012 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify `canEdit()` returns true for mixed attributes when editable=true
+- [X] T013 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify double-click on mixed attribute enables editing mode
+- [X] T014 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify editing mixed value calls `onValueChange` with new value
+- [X] T015 [P] [US1] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify committing mixed value calls `onValueCommit` with `'__MIXED__'` marker
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Update inline editor handlers (`handleTextCommit`, `handlePointCommit`, `handleNumberCommit`) in `src/components/PropertiesPanel/AttributeRow.tsx` to pass `'__MIXED__'` marker for mixed values
-- [ ] T017 [US1] Update `handleDoubleClick` in `src/components/PropertiesPanel/AttributeRow.tsx` to set empty edit value when `props.entry.isMixed` is true
-- [ ] T018 [P] [US1] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: batch edit applies to all selected views (FR-002)
+- [X] T016 [US1] Update inline editor handlers (`handleTextCommit`, `handlePointCommit`, `handleNumberCommit`) in `src/components/PropertiesPanel/AttributeRow.tsx` to pass `'__MIXED__'` marker for mixed values
+- [X] T017 [US1] Update `handleDoubleClick` in `src/components/PropertiesPanel/AttributeRow.tsx` to set empty edit value when `props.entry.isMixed` is true
+- [X] T018 [P] [US1] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: batch edit applies to all selected views (FR-002)
 - [ ] T019 [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
 
 **Checkpoint**: User Story 1 complete - batch editing of mixed attributes is functional

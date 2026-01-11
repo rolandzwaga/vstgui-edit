@@ -69,7 +69,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
 
   const handleDoubleClick = () => {
     if (canEdit() && canInlineEdit()) {
-      const currentValue = props.entry.value ?? '';
+      // For mixed values, start with empty field (placeholder shown)
+      const currentValue = props.entry.isMixed ? '' : (props.entry.value ?? '');
       setOriginalValue(currentValue);
       setEditValue(currentValue);
       setIsEditing(true);
@@ -87,7 +88,9 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
         handleCancel();
         return;
       }
-      props.onValueCommit?.(props.entry.name, editValue(), originalValue());
+      // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+      const original = props.entry.isMixed ? '__MIXED__' : originalValue();
+      props.onValueCommit?.(props.entry.name, editValue(), original);
       setIsEditing(false);
     }
   };
