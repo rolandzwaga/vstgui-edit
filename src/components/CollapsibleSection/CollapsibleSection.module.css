@@ -1,7 +1,7 @@
 .section {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   overflow: hidden;
 }
 
@@ -9,8 +9,8 @@
   display: flex;
   align-items: center;
   height: 32px;
-  background-color: var(--color-surface-secondary, #f5f5f5);
-  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  background-color: var(--color-surface-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header {
@@ -27,25 +27,25 @@
 }
 
 .header:hover {
-  background-color: var(--color-surface-hover, #e8e8e8);
+  background-color: var(--color-surface-hover);
 }
 
 .header:focus-visible {
-  outline: 2px solid var(--color-primary, #06c);
+  outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
 
 .title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .indicator {
   font-size: 10px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
 }
 
 .headerActions {

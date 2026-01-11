@@ -2,7 +2,8 @@
  * ThemeSection Component
  *
  * Theme settings section for preferences panel.
- * Note: Theme application is stubbed - only persistence implemented.
+ * Allows users to select Light, Dark, or System theme mode.
+ * Theme changes are applied immediately to the document.
  */
 
 import type { Component } from 'solid-js';
@@ -26,7 +27,8 @@ export const ThemeSection: Component = () => {
     <section class={styles.section}>
       <h3 class={styles.sectionHeading}>Theme</h3>
       <p class={styles.sectionDescription}>
-        Choose the visual theme for the editor.
+        Choose the visual theme for the editor. System mode automatically follows your
+        operating system's appearance settings.
       </p>
 
       <div class={styles.settingGroup}>
@@ -38,11 +40,6 @@ export const ThemeSection: Component = () => {
           onChange={(value) => setThemeModePreference(value as ThemeMode)}
         />
       </div>
-
-      <p class={styles.stubNote}>
-        Note: Theme application is coming soon. Your preference will be saved and applied
-        when theme support is fully implemented.
-      </p>
     </section>
   );
 };

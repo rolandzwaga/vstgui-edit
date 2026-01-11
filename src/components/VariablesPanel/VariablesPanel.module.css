@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   overflow: hidden;
   min-height: 0;
 }
@@ -16,7 +16,7 @@
 .confirmDialog {
   position: absolute;
   inset: 0;
-  background-color: rgb(0 0 0 / 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,17 +24,17 @@
 }
 
 .confirmContent {
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   border-radius: 8px;
   padding: 16px;
   max-width: 280px;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .confirmMessage {
   margin: 0 0 16px;
   font-size: 13px;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   line-height: 1.4;
 }
 
@@ -55,27 +55,27 @@
 }
 
 .cancelButton {
-  background-color: var(--color-surface-secondary, #f5f5f5);
-  color: var(--color-text-primary, #333);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
 }
 
 .cancelButton:hover {
-  background-color: var(--color-surface-hover, #e8e8e8);
+  background-color: var(--color-surface-hover);
 }
 
 .deleteConfirmButton {
-  background-color: var(--color-error, #dc3545);
+  background-color: var(--color-error-600);
   color: white;
 }
 
 .deleteConfirmButton:hover {
-  background-color: var(--color-error-dark, #c82333);
+  background-color: var(--color-error-700);
 }
 
 .usagePopover {
   position: absolute;
   inset: 0;
-  background-color: rgb(0 0 0 / 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,12 +83,12 @@
 }
 
 .popoverContent {
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   border-radius: 8px;
   padding: 12px;
   max-width: 320px;
   max-height: 300px;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -100,13 +100,13 @@
   align-items: center;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .popoverTitle {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
 }
 
 .closeButton {
@@ -116,13 +116,13 @@
   background: transparent;
   font-size: 18px;
   line-height: 1;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   cursor: pointer;
   border-radius: 3px;
 }
 
 .closeButton:hover {
-  background-color: var(--color-surface-hover, rgb(0 0 0 / 0.05));
+  background-color: var(--color-surface-hover);
 }
 
 .usageList {
@@ -138,7 +138,7 @@
   gap: 4px;
   padding: 6px 0;
   font-size: 11px;
-  border-bottom: 1px solid var(--color-border-light, #f0f0f0);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .usageItem:last-child {
@@ -146,17 +146,17 @@
 }
 
 .usageView {
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
 .usageAttr {
-  color: var(--color-info, #06c);
+  color: var(--color-info);
   font-family: var(--font-family-mono);
 }
 
 .usageId {
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   font-family: var(--font-family-mono);
   width: 100%;
 }

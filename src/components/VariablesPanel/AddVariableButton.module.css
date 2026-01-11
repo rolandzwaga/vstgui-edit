@@ -8,14 +8,14 @@
   border: none;
   border-radius: 3px;
   background-color: transparent;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .button:hover:not(:disabled) {
-  background-color: var(--color-primary-light, rgb(0 102 204 / 0.1));
-  color: var(--color-primary, #06c);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .button:disabled {
@@ -24,6 +24,6 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--color-focus, #06c);
+  outline: 2px solid var(--color-focus);
   outline-offset: 1px;
 }

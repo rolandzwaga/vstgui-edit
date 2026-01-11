@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-surface-secondary, #f5f5f5);
-  border-radius: var(--radius-sm, 3px);
+  background-color: var(--color-surface-secondary);
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -27,6 +27,6 @@
 }
 
 .text {
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   line-height: 1;
 }
