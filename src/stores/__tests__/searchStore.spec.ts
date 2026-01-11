@@ -3,7 +3,7 @@
  * Find/Replace state management
  */
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import type { SearchResult } from '../../types/search';
 import {
@@ -25,9 +25,11 @@ import {
   setReplaceValue,
   setSearchResults,
   setSearchScope,
+  setTemplateScope,
   toggleFindPanel,
   updateHighlightedIds,
 } from '../searchStore';
+import { resetTemplateStore, setActiveTemplate, templateStore } from '../templateStore';
 
 const mockResults: SearchResult[] = [
   {
@@ -329,6 +331,69 @@ describe('searchStore', () => {
           expect(searchStore.currentIndex).toBe(1);
         });
       });
+
+      describe('template switching', () => {
+        const resultsWithTemplates: SearchResult[] = [
+          {
+            viewId: 'view-1',
+            className: 'CKnob',
+            category: 'control',
+            displayPath: 'Root > Container',
+            templateId: 'MainPanel',
+            templateName: 'MainPanel',
+          },
+          {
+            viewId: 'view-2',
+            className: 'CSlider',
+            category: 'control',
+            displayPath: 'Root > Container',
+            templateId: 'SettingsPanel',
+            templateName: 'SettingsPanel',
+          },
+        ];
+
+        beforeEach(() => {
+          resetTemplateStore();
+        });
+
+        it('should switch template when selecting result from different template', () => {
+          testInRoot(() => {
+            setActiveTemplate('MainPanel');
+            setSearchResults(resultsWithTemplates);
+
+            // Select result from different template
+            selectResultAtIndex(1);
+
+            expect(searchStore.currentIndex).toBe(1);
+            expect(templateStore.activeTemplateId).toBe('SettingsPanel');
+          });
+        });
+
+        it('should not switch template when selecting result from current template', () => {
+          testInRoot(() => {
+            setActiveTemplate('MainPanel');
+            setSearchResults(resultsWithTemplates);
+
+            // Select result from same template
+            selectResultAtIndex(0);
+
+            expect(searchStore.currentIndex).toBe(0);
+            expect(templateStore.activeTemplateId).toBe('MainPanel');
+          });
+        });
+
+        it('should not switch template when result has no templateId', () => {
+          testInRoot(() => {
+            setActiveTemplate('MainPanel');
+            setSearchResults(mockResults); // Results without templateId
+
+            selectResultAtIndex(1);
+
+            expect(searchStore.currentIndex).toBe(1);
+            expect(templateStore.activeTemplateId).toBe('MainPanel');
+          });
+        });
+      });
     });
   });
 
@@ -395,6 +460,62 @@ describe('searchStore', () => {
           setSearchScope('selection', 'container-1');
           expect(searchStore.scope).toBe('selection');
           expect(searchStore.scopeContainerId).toBe('container-1');
+        });
+      });
+    });
+  });
+
+  describe('template scope', () => {
+    describe('initial state', () => {
+      it('should have template scope set to current by default', () => {
+        testInRoot(() => {
+          expect(searchStore.templateScope).toBe('current');
+        });
+      });
+    });
+
+    describe('setTemplateScope', () => {
+      it('should set template scope to all', () => {
+        testInRoot(() => {
+          setTemplateScope('all');
+          expect(searchStore.templateScope).toBe('all');
+        });
+      });
+
+      it('should set template scope to current', () => {
+        testInRoot(() => {
+          setTemplateScope('all');
+          setTemplateScope('current');
+          expect(searchStore.templateScope).toBe('current');
+        });
+      });
+
+      it('should clear results when changing template scope', () => {
+        testInRoot(() => {
+          setSearchResults(mockResults);
+          expect(searchStore.results.length).toBe(3);
+          setTemplateScope('all');
+          expect(searchStore.results).toEqual([]);
+          expect(searchStore.currentIndex).toBe(-1);
+        });
+      });
+
+      it('should clear highlights when changing template scope', () => {
+        testInRoot(() => {
+          setSearchResults(mockResults);
+          expect(searchStore.highlightedIds.size).toBe(3);
+          setTemplateScope('all');
+          expect(searchStore.highlightedIds.size).toBe(0);
+        });
+      });
+    });
+
+    describe('resetSearchStore with templateScope', () => {
+      it('should reset templateScope to current', () => {
+        testInRoot(() => {
+          setTemplateScope('all');
+          resetSearchStore();
+          expect(searchStore.templateScope).toBe('current');
         });
       });
     });

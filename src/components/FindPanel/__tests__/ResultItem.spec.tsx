@@ -50,6 +50,42 @@ describe('ResultItem', () => {
 
       expect(screen.queryByText(/background-color:/)).not.toBeInTheDocument();
     });
+
+    it('should display template badge when templateName is present', () => {
+      const resultWithTemplate: SearchResult = {
+        ...mockResult,
+        templateId: 'settings',
+        templateName: 'SettingsPanel',
+      };
+
+      render(() => <ResultItem result={resultWithTemplate} isSelected={false} onClick={vi.fn()} />);
+
+      expect(screen.getByText('SettingsPanel')).toBeInTheDocument();
+    });
+
+    it('should not display template badge when templateName is not present', () => {
+      render(() => <ResultItem result={mockResult} isSelected={false} onClick={vi.fn()} />);
+
+      // There should not be any badge element
+      const badges = document.querySelectorAll('[class*="Badge"]');
+      expect(badges.length).toBe(0);
+    });
+
+    it('should display template badge with correct styling', () => {
+      const resultWithTemplate: SearchResult = {
+        ...mockResult,
+        templateId: 'main',
+        templateName: 'MainPanel',
+      };
+
+      const { container } = render(() => (
+        <ResultItem result={resultWithTemplate} isSelected={false} onClick={vi.fn()} />
+      ));
+
+      const badge = container.querySelector('[class*="templateBadge"]');
+      expect(badge).toBeInTheDocument();
+      expect(badge?.textContent).toBe('MainPanel');
+    });
   });
 
   describe('selected state', () => {

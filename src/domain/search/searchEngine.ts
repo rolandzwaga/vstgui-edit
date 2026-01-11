@@ -226,3 +226,56 @@ export function executeSearch(
 
   return results;
 }
+
+/**
+ * Template data structure for multi-template search.
+ */
+export interface TemplateSearchData {
+  name: string;
+  views: SearchableView[];
+}
+
+/**
+ * Execute search across multiple templates.
+ * Returns results with templateId and templateName populated.
+ *
+ * @param templateData - Map of templateId to template data (name and views)
+ * @param query - Search query
+ * @param filters - Category filters
+ * @returns Array of SearchResults with template info
+ */
+export function executeMultiTemplateSearch(
+  templateData: Map<string, TemplateSearchData>,
+  query: SearchQuery,
+  filters: CategoryFilters
+): SearchResult[] {
+  const results: SearchResult[] = [];
+
+  for (const [templateId, { name, views }] of templateData) {
+    for (const view of views) {
+      // Apply category filter
+      if (!passesCategoryFilter(view, filters)) {
+        continue;
+      }
+
+      // Check if view matches query
+      const matchResult = matchesQuery(view, query);
+      if (!matchResult.matches) {
+        continue;
+      }
+
+      results.push({
+        viewId: view.id,
+        className: view.className,
+        category: view.category,
+        displayPath: view.parentPath,
+        matchedAttribute: matchResult.matchedAttribute,
+        matchedValue: matchResult.matchedValue,
+        templateId,
+        templateName: name,
+      });
+    }
+  }
+
+  return results;
+}

@@ -8,6 +8,7 @@ import type { CategoryFilters, SearchQuery } from '../../../types/search';
 import type { SearchableView } from '../searchEngine';
 import {
   buildDisplayPath,
+  executeMultiTemplateSearch,
   executeSearch,
   isDescendantOf,
   matchesQuery,
@@ -435,6 +436,174 @@ describe('searchEngine', () => {
       const results = executeSearch(testViews, query, filters, { type: 'all' });
 
       expect(results).toHaveLength(0);
+    });
+  });
+
+  describe('executeMultiTemplateSearch', () => {
+    const template1Views: SearchableView[] = [
+      {
+        id: 'main-0',
+        className: 'CViewContainer',
+        category: 'container',
+        attributes: { class: 'CViewContainer' },
+        parentPath: 'Root',
+      },
+      {
+        id: 'main-0-0',
+        className: 'CKnob',
+        category: 'control',
+        attributes: { class: 'CKnob', title: 'Volume' },
+        parentPath: 'Root > Container',
+      },
+    ];
+
+    const template2Views: SearchableView[] = [
+      {
+        id: 'settings-0',
+        className: 'CViewContainer',
+        category: 'container',
+        attributes: { class: 'CViewContainer' },
+        parentPath: 'Root',
+      },
+      {
+        id: 'settings-0-0',
+        className: 'CKnob',
+        category: 'control',
+        attributes: { class: 'CKnob', title: 'Gain' },
+        parentPath: 'Root > Container',
+      },
+      {
+        id: 'settings-0-1',
+        className: 'CSlider',
+        category: 'control',
+        attributes: { class: 'CSlider', title: 'Bass' },
+        parentPath: 'Root > Container',
+      },
+    ];
+
+    const templateData = new Map([
+      ['MainPanel', { name: 'MainPanel', views: template1Views }],
+      ['SettingsPanel', { name: 'SettingsPanel', views: template2Views }],
+    ]);
+
+    it('should search across all templates', () => {
+      const query: SearchQuery = { type: 'class', term: 'Knob' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      expect(results).toHaveLength(2);
+      expect(results.map((r) => r.viewId)).toContain('main-0-0');
+      expect(results.map((r) => r.viewId)).toContain('settings-0-0');
+    });
+
+    it('should include templateId in results', () => {
+      const query: SearchQuery = { type: 'class', term: 'Knob' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      const mainResult = results.find((r) => r.viewId === 'main-0-0');
+      const settingsResult = results.find((r) => r.viewId === 'settings-0-0');
+
+      expect(mainResult?.templateId).toBe('MainPanel');
+      expect(settingsResult?.templateId).toBe('SettingsPanel');
+    });
+
+    it('should include templateName in results', () => {
+      const query: SearchQuery = { type: 'class', term: 'Knob' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      const mainResult = results.find((r) => r.viewId === 'main-0-0');
+      const settingsResult = results.find((r) => r.viewId === 'settings-0-0');
+
+      expect(mainResult?.templateName).toBe('MainPanel');
+      expect(settingsResult?.templateName).toBe('SettingsPanel');
+    });
+
+    it('should apply category filters across all templates', () => {
+      const query: SearchQuery = { type: 'class', term: 'C' };
+      const filters: CategoryFilters = {
+        container: false,
+        control: true,
+        display: false,
+        custom: false,
+      };
+      const results = executeMultiTemplateSearch(templateData, query, filters);
+
+      // Should only find controls, not containers
+      expect(results.every((r) => r.category === 'control')).toBe(true);
+      expect(results).toHaveLength(3); // CKnob from main, CKnob and CSlider from settings
+    });
+
+    it('should return empty array when no matches across any template', () => {
+      const query: SearchQuery = { type: 'class', term: 'XYZ' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      expect(results).toHaveLength(0);
+    });
+
+    it('should handle empty template map', () => {
+      const query: SearchQuery = { type: 'class', term: 'Knob' };
+      const results = executeMultiTemplateSearch(new Map(), query, defaultFilters);
+
+      expect(results).toHaveLength(0);
+    });
+
+    it('should handle template with no views', () => {
+      const emptyTemplateData = new Map([
+        ['EmptyTemplate', { name: 'EmptyTemplate', views: [] }],
+      ]);
+      const query: SearchQuery = { type: 'class', term: 'Knob' };
+      const results = executeMultiTemplateSearch(emptyTemplateData, query, defaultFilters);
+
+      expect(results).toHaveLength(0);
+    });
+
+    it('should find results with global search across templates', () => {
+      const query: SearchQuery = { type: 'global', term: 'volume' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].viewId).toBe('main-0-0');
+      expect(results[0].templateId).toBe('MainPanel');
+      expect(results[0].matchedAttribute).toBe('title');
+    });
+
+    it('should find results with attribute search across templates', () => {
+      const query: SearchQuery = {
+        type: 'attribute',
+        term: 'title:Gain',
+        attributeName: 'title',
+        value: 'Gain',
+      };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].viewId).toBe('settings-0-0');
+      expect(results[0].templateId).toBe('SettingsPanel');
+      expect(results[0].matchedValue).toBe('Gain');
+    });
+
+    it('should order results by template, then by view order within template', () => {
+      const query: SearchQuery = { type: 'class', term: 'C' };
+      const results = executeMultiTemplateSearch(templateData, query, defaultFilters);
+
+      // Results should be grouped by template in map iteration order
+      const templateIds = results.map((r) => r.templateId);
+
+      // Check that results from same template are contiguous
+      const mainIndices = templateIds
+        .map((id, idx) => (id === 'MainPanel' ? idx : -1))
+        .filter((idx) => idx >= 0);
+      const settingsIndices = templateIds
+        .map((id, idx) => (id === 'SettingsPanel' ? idx : -1))
+        .filter((idx) => idx >= 0);
+
+      // All main results should come before all settings results (or vice versa)
+      // They should be contiguous
+      if (mainIndices.length > 1) {
+        expect(mainIndices[mainIndices.length - 1] - mainIndices[0]).toBe(mainIndices.length - 1);
+      }
+      if (settingsIndices.length > 1) {
+        expect(settingsIndices[settingsIndices.length - 1] - settingsIndices[0]).toBe(settingsIndices.length - 1);
+      }
     });
   });
 });

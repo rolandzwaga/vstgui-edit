@@ -33,7 +33,12 @@ export function ResultItem(props: ResultItemProps) {
       onClick={props.onClick}
       onKeyDown={handleKeyDown}
     >
-      <span class={styles.resultClassName}>{props.result.className}</span>
+      <div class={styles.resultHeader}>
+        <span class={styles.resultClassName}>{props.result.className}</span>
+        <Show when={props.result.templateName}>
+          <span class={styles.templateBadge}>{props.result.templateName}</span>
+        </Show>
+      </div>
       <span class={styles.resultPath}>{props.result.displayPath}</span>
       <Show when={props.result.matchedAttribute}>
         <span class={styles.resultMatch}>

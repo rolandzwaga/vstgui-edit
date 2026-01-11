@@ -40,6 +40,10 @@ export interface SearchResult {
   matchedAttribute?: string;
   /** Matched attribute value (for attribute searches) */
   matchedValue?: string;
+  /** Template ID when searching across all templates */
+  templateId?: string;
+  /** Template name for display when searching across all templates */
+  templateName?: string;
 }
 
 /**
@@ -56,6 +60,11 @@ export interface CategoryFilters {
  * Search scope options.
  */
 export type SearchScope = 'all' | 'selection';
+
+/**
+ * Template scope determines whether to search current template or all templates.
+ */
+export type TemplateScope = 'current' | 'all';
 
 /**
  * Panel mode determines visible controls.
@@ -84,6 +93,8 @@ export interface SearchState {
   scope: SearchScope;
   /** Container ID when scope is 'selection' (single container - updates when selection changes) */
   scopeContainerId: string | null;
+  /** Template scope (current template or all templates) */
+  templateScope: TemplateScope;
   /** Replace value input */
   replaceValue: string;
   /** IDs of views highlighted on canvas */
@@ -145,6 +156,7 @@ export const INITIAL_SEARCH_STATE: SearchState = {
   categoryFilters: { ...DEFAULT_CATEGORY_FILTERS },
   scope: 'all',
   scopeContainerId: null,
+  templateScope: 'current',
   replaceValue: '',
   highlightedIds: new Set(),
   isSearching: false,

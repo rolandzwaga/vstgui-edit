@@ -296,6 +296,27 @@
   font-family: var(--font-family-mono);
 }
 
+.resultHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.templateBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--spacing-1);
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* === Replace Controls === */
 
 .replaceControls {

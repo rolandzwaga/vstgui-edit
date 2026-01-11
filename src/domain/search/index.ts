@@ -12,10 +12,11 @@ export {
   replaceAttribute,
   validateReplaceValue,
 } from './replaceOperations';
-export type { SearchableView } from './searchEngine';
+export type { SearchableView, TemplateSearchData } from './searchEngine';
 // Search engine
 export {
   buildDisplayPath,
+  executeMultiTemplateSearch,
   executeSearch,
   isDescendantOf,
   matchesQuery,

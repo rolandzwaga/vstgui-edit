@@ -11,8 +11,10 @@ import type {
   SearchQuery,
   SearchResult,
   SearchScope,
+  TemplateScope,
 } from '../types/search';
 import { DEFAULT_CATEGORY_FILTERS } from '../types/search';
+import { setActiveTemplate, templateStore } from './templateStore';
 
 // --- Signals for search state ---
 
@@ -27,6 +29,7 @@ const [categoryFilters, setCategoryFiltersSignal] = createSignal<CategoryFilters
 });
 const [scope, setScopeSignal] = createSignal<SearchScope>('all');
 const [scopeContainerId, setScopeContainerId] = createSignal<string | null>(null);
+const [templateScope, setTemplateScopeSignal] = createSignal<TemplateScope>('current');
 const [replaceValue, setReplaceValueSignal] = createSignal('');
 const [highlightedIds, setHighlightedIds] = createSignal<Set<string>>(new Set());
 const [isSearching, setIsSearchingSignal] = createSignal(false);
@@ -64,6 +67,9 @@ export const searchStore = {
   },
   get scopeContainerId() {
     return scopeContainerId();
+  },
+  get templateScope() {
+    return templateScope();
   },
   get replaceValue() {
     return replaceValue();
@@ -192,12 +198,21 @@ export function navigateToPrevious(): void {
 /**
  * Select result at specific index.
  * Also selects the view on canvas and pans if needed.
+ * Switches to the result's template if it's from a different template.
  *
  * @param index - Result index (0-based)
  */
 export function selectResultAtIndex(index: number): void {
   const r = results();
   if (index < 0 || index >= r.length) return;
+
+  const selectedResult = r[index];
+
+  // Switch template if the result is from a different template
+  if (selectedResult.templateId && selectedResult.templateId !== templateStore.activeTemplateId) {
+    setActiveTemplate(selectedResult.templateId);
+  }
+
   setCurrentIndex(index);
 }
 
@@ -237,6 +252,20 @@ export function setAllCategoryFilters(enabled: boolean): void {
 export function setSearchScope(newScope: SearchScope, containerId?: string): void {
   setScopeSignal(newScope);
   setScopeContainerId(containerId ?? null);
+}
+
+/**
+ * Set template scope (current template or all templates).
+ * Clears existing results and highlights when changed.
+ *
+ * @param newScope - 'current' or 'all'
+ */
+export function setTemplateScope(newScope: TemplateScope): void {
+  setTemplateScopeSignal(newScope);
+  // Clear results and highlights when scope changes - new search will be triggered
+  setResultsSignal([]);
+  setCurrentIndex(-1);
+  setHighlightedIds(new Set<string>());
 }
 
 /**
@@ -296,6 +325,7 @@ export function resetSearchStore(): void {
   setCategoryFiltersSignal({ ...DEFAULT_CATEGORY_FILTERS });
   setScopeSignal('all');
   setScopeContainerId(null);
+  setTemplateScopeSignal('current');
   setReplaceValueSignal('');
   setHighlightedIds(new Set<string>());
   setIsSearchingSignal(false);

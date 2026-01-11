@@ -19,12 +19,16 @@ import {
   setMode,
   setReplaceValue,
   setSearchScope,
+  setTemplateScope,
 } from '../../stores/searchStore';
-import type { CategoryFilters, FindPanelMode, SearchScope } from '../../types/search';
+import type { CategoryFilters, FindPanelMode, SearchScope, TemplateScope as TemplateScopeType } from '../../types/search';
+import type { ViewNode } from '../../types/uidesc';
+import { templateStore } from '../../stores/templateStore';
 import { selectionStore } from '../../stores/selectionStore';
 import {
   parseSearchQuery,
   executeSearch,
+  executeMultiTemplateSearch,
   prepareViewForSearch,
   buildDisplayPath,
   replaceAttribute,
@@ -43,51 +47,14 @@ import { NavigationButtons } from './NavigationButtons';
 import { ModeToggle } from './ModeToggle';
 import { ReplaceControls } from './ReplaceControls';
 import { ScopeFilter } from './ScopeFilter';
+import { TemplateScope } from './TemplateScope';
 import styles from './FindPanel.module.css';
 
 export function FindPanel() {
-  // Execute search when query changes
-  const executeSearchWithQuery = (queryString: string) => {
-    if (queryString.trim() === '') {
-      setSearchResults([]);
-      setParsedQuery(null);
-      return;
-    }
-
-    const query = parseSearchQuery(queryString);
-    setParsedQuery(query);
-
-    // Get views from document
-    const document = documentStore.document;
-    if (!document) {
-      setSearchResults([]);
-      return;
-    }
-
-    // Get the current template
-    const templates = document['vstgui-ui-description']?.templates;
-    if (!templates) {
-      setSearchResults([]);
-      return;
-    }
-
-    // Get the first template (or selected template in future)
-    const templateName = Object.keys(templates)[0];
-    if (!templateName) {
-      setSearchResults([]);
-      return;
-    }
-
-    const templateView = templates[templateName];
-    if (!templateView) {
-      setSearchResults([]);
-      return;
-    }
-
-    // Flatten hierarchy for searching
+  // Helper to prepare searchable views from a template
+  const prepareTemplateViews = (templateView: ViewNode, templateName: string) => {
     const flatViews = flattenHierarchy(templateView, templateName);
 
-    // Build view map for display path calculation
     const viewMap = new Map<string, { className: string; parentId: string | null }>();
     for (const view of flatViews) {
       viewMap.set(view.id, {
@@ -96,9 +63,7 @@ export function FindPanel() {
       });
     }
 
-    // Prepare views for search
-    const searchableViews = flatViews.map((view) => {
-      // Get view attributes from document
+    return flatViews.map((view) => {
       const viewNode = getView(view.id);
       const attributes: Record<string, string> = {};
       if (viewNode?.attributes) {
@@ -117,6 +82,63 @@ export function FindPanel() {
         parentPath
       );
     });
+  };
+
+  // Execute search when query changes
+  const executeSearchWithQuery = (queryString: string) => {
+    if (queryString.trim() === '') {
+      setSearchResults([]);
+      setParsedQuery(null);
+      return;
+    }
+
+    const query = parseSearchQuery(queryString);
+    setParsedQuery(query);
+
+    // Get views from document
+    const document = documentStore.document;
+    if (!document) {
+      setSearchResults([]);
+      return;
+    }
+
+    const templates = document['vstgui-ui-description']?.templates;
+    if (!templates) {
+      setSearchResults([]);
+      return;
+    }
+
+    // Check if searching all templates
+    if (searchStore.templateScope === 'all') {
+      // Build template data for multi-template search
+      const templateData = new Map<string, { name: string; views: ReturnType<typeof prepareTemplateViews> }>();
+
+      for (const [templateId, templateView] of Object.entries(templates)) {
+        if (templateView) {
+          const searchableViews = prepareTemplateViews(templateView as ViewNode, templateId);
+          templateData.set(templateId, { name: templateId, views: searchableViews });
+        }
+      }
+
+      const results = executeMultiTemplateSearch(templateData, query, searchStore.categoryFilters);
+      setSearchResults(results);
+      return;
+    }
+
+    // Search current template only
+    const currentTemplateId = templateStore.activeTemplateId ?? Object.keys(templates)[0];
+    if (!currentTemplateId) {
+      setSearchResults([]);
+      return;
+    }
+
+    const templateView = templates[currentTemplateId];
+    if (!templateView) {
+      setSearchResults([]);
+      return;
+    }
+
+    const searchableViews = prepareTemplateViews(templateView as ViewNode, currentTemplateId);
 
     // Execute search with current filters
     const scope = searchStore.scope === 'selection' && searchStore.scopeContainerId
@@ -192,6 +214,33 @@ export function FindPanel() {
     if (searchStore.rawQuery.trim() !== '') {
       executeSearchWithQuery(searchStore.rawQuery);
     }
+  };
+
+  const handleTemplateScopeChange = (scope: TemplateScopeType) => {
+    setTemplateScope(scope);
+    // Re-execute search with new template scope
+    if (searchStore.rawQuery.trim() !== '') {
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
+  // Get the number of templates in the document
+  const getTemplateCount = (): number => {
+    const document = documentStore.document;
+    if (!document) return 0;
+    const templates = document['vstgui-ui-description']?.templates;
+    if (!templates) return 0;
+    return Object.keys(templates).length;
+  };
+
+  // Get the name of the current active template
+  const getCurrentTemplateName = (): string => {
+    const document = documentStore.document;
+    if (!document) return '';
+    const templates = document['vstgui-ui-description']?.templates;
+    if (!templates) return '';
+    const currentId = templateStore.activeTemplateId ?? Object.keys(templates)[0];
+    return currentId ?? '';
   };
 
   // Check if there's a container selection for scope filtering
@@ -365,6 +414,13 @@ export function FindPanel() {
             hasContainerSelection={hasContainerSelection()}
             selectedContainerName={getSelectedContainerName()}
             onScopeChange={handleScopeChange}
+          />
+
+          <TemplateScope
+            scope={searchStore.templateScope}
+            currentTemplateName={getCurrentTemplateName()}
+            templateCount={getTemplateCount()}
+            onScopeChange={handleTemplateScopeChange}
           />
 
           <ResultsList
