@@ -599,6 +599,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 037-theme-support: Added SolidJS stores (createStore), CSS custom properties, matchMedia API
 
 | Date | Feature | Summary |
 |------|---------|---------|
