@@ -5,11 +5,11 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  parseSearchQuery,
-  isClassNameLike,
-  escapeSearchTerm,
-  unescapeValue,
   CLASS_PREFIXES,
+  escapeSearchTerm,
+  isClassNameLike,
+  parseSearchQuery,
+  unescapeValue,
 } from '../searchQuery';
 
 describe('searchQuery', () => {

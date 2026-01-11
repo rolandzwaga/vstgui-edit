@@ -3,16 +3,16 @@
  * Keyboard shortcut handlers for Find/Replace feature.
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
-import { handleSearchShortcut } from '../shortcuts';
 import {
+  openFindPanel,
   resetSearchStore,
   searchStore,
-  openFindPanel,
   setSearchResults,
 } from '../../../stores/searchStore';
 import type { SearchResult } from '../../../types/search';
+import { handleSearchShortcut } from '../shortcuts';
 
 const mockResults: SearchResult[] = [
   { viewId: 'view-1', className: 'CKnob', category: 'control', displayPath: 'Root' },

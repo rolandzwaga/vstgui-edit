@@ -4,16 +4,16 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import type { CategoryFilters, SearchQuery } from '../../../types/search';
 import type { SearchableView } from '../searchEngine';
 import {
-  prepareViewForSearch,
   buildDisplayPath,
+  executeSearch,
+  isDescendantOf,
   matchesQuery,
   passesCategoryFilter,
-  isDescendantOf,
-  executeSearch,
+  prepareViewForSearch,
 } from '../searchEngine';
-import type { CategoryFilters, SearchQuery } from '../../../types/search';
 
 // Test fixtures
 function createTestView(

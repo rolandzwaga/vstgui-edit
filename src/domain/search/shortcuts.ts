@@ -4,11 +4,11 @@
  */
 
 import {
-  openFindPanel,
-  openReplacePanel,
   closeFindPanel,
   navigateToNext,
   navigateToPrevious,
+  openFindPanel,
+  openReplacePanel,
   searchStore,
 } from '../../stores/searchStore';
 

@@ -3,36 +3,33 @@
  * Exports search query parsing, search engine, and replace operations.
  */
 
-// Query parsing
-export {
-  parseSearchQuery,
-  isClassNameLike,
-  escapeSearchTerm,
-  unescapeValue,
-  CLASS_PREFIXES,
-} from './searchQuery';
-
-// Search engine
-export {
-  prepareViewForSearch,
-  matchesQuery,
-  passesCategoryFilter,
-  isDescendantOf,
-  executeSearch,
-  buildDisplayPath,
-} from './searchEngine';
-export type { SearchableView } from './searchEngine';
-
+// History operations
+export { createReplaceAllOperation, createReplaceOperation } from './historyOperations';
 // Replace operations
 export {
-  validateReplaceValue,
-  replaceAttribute,
-  replaceAll,
   READ_ONLY_ATTRIBUTES,
+  replaceAll,
+  replaceAttribute,
+  validateReplaceValue,
 } from './replaceOperations';
-
-// History operations
-export { createReplaceOperation, createReplaceAllOperation } from './historyOperations';
+export type { SearchableView } from './searchEngine';
+// Search engine
+export {
+  buildDisplayPath,
+  executeSearch,
+  isDescendantOf,
+  matchesQuery,
+  passesCategoryFilter,
+  prepareViewForSearch,
+} from './searchEngine';
+// Query parsing
+export {
+  CLASS_PREFIXES,
+  escapeSearchTerm,
+  isClassNameLike,
+  parseSearchQuery,
+  unescapeValue,
+} from './searchQuery';
 
 // Keyboard shortcuts
 export { handleSearchShortcut } from './shortcuts';

@@ -3,12 +3,12 @@
  * Exports Find/Replace panel components.
  */
 
+export { CategoryFilter } from './CategoryFilter';
 export { FindPanel } from './FindPanel';
-export { SearchInput } from './SearchInput';
+export { ModeToggle } from './ModeToggle';
+export { NavigationButtons } from './NavigationButtons';
+export { ReplaceControls } from './ReplaceControls';
 export { ResultItem } from './ResultItem';
 export { ResultsList } from './ResultsList';
-export { CategoryFilter } from './CategoryFilter';
-export { NavigationButtons } from './NavigationButtons';
-export { ModeToggle } from './ModeToggle';
-export { ReplaceControls } from './ReplaceControls';
 export { ScopeFilter } from './ScopeFilter';
+export { SearchInput } from './SearchInput';

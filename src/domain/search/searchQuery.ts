@@ -3,7 +3,7 @@
  * Functions for parsing user input into structured search queries.
  */
 
-import type { SearchQuery, SearchQueryType } from '../../types/search';
+import type { SearchQuery } from '../../types/search';
 
 /**
  * Known VSTGUI class prefixes for class detection.

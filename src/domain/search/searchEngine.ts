@@ -175,7 +175,7 @@ export function isDescendantOf(viewId: string, containerId: string): boolean {
   }
 
   // Check if viewId starts with containerId followed by a dash
-  return viewId.startsWith(containerId + '-');
+  return viewId.startsWith(`${containerId}-`);
 }
 
 /**

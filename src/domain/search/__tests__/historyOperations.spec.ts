@@ -3,9 +3,9 @@
  * History operations for Find/Replace undo/redo support.
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { createReplaceOperation, createReplaceAllOperation } from '../historyOperations';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReplaceChange } from '../../../types/search';
+import { createReplaceAllOperation, createReplaceOperation } from '../historyOperations';
 
 // Mock documentStore
 vi.mock('../../../stores/documentStore', () => ({
@@ -13,7 +13,7 @@ vi.mock('../../../stores/documentStore', () => ({
   markDirty: vi.fn(),
 }));
 
-import { updateViewAttribute, markDirty } from '../../../stores/documentStore';
+import { markDirty, updateViewAttribute } from '../../../stores/documentStore';
 
 describe('historyOperations', () => {
   beforeEach(() => {

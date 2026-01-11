@@ -3,9 +3,9 @@
  * Creates undoable/redoable operations for replace actions.
  */
 
+import { markDirty, updateViewAttribute } from '../../stores/documentStore';
 import type { HistoryOperation } from '../../types/history';
 import type { ReplaceChange } from '../../types/search';
-import { updateViewAttribute, markDirty } from '../../stores/documentStore';
 
 /**
  * Create a history operation for a single replace.

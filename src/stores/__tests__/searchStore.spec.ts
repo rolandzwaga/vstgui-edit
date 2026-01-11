@@ -3,31 +3,31 @@
  * Find/Replace state management
  */
 
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
+import type { SearchResult } from '../../types/search';
 import {
-  searchStore,
-  openFindPanel,
-  openReplacePanel,
+  clearHighlights,
   closeFindPanel,
-  toggleFindPanel,
-  setRawQuery,
-  setParsedQuery,
-  setSearchResults,
   navigateToNext,
   navigateToPrevious,
-  selectResultAtIndex,
-  setCategoryFilter,
-  setAllCategoryFilters,
-  setSearchScope,
-  setMode,
-  setReplaceValue,
-  updateHighlightedIds,
-  clearHighlights,
-  setIsSearching,
+  openFindPanel,
+  openReplacePanel,
   resetSearchStore,
+  searchStore,
+  selectResultAtIndex,
+  setAllCategoryFilters,
+  setCategoryFilter,
+  setIsSearching,
+  setMode,
+  setParsedQuery,
+  setRawQuery,
+  setReplaceValue,
+  setSearchResults,
+  setSearchScope,
+  toggleFindPanel,
+  updateHighlightedIds,
 } from '../searchStore';
-import type { SearchResult } from '../../types/search';
 
 const mockResults: SearchResult[] = [
   {

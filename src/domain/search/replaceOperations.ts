@@ -3,9 +3,9 @@
  * Functions for replacing attribute values in views.
  */
 
-import type { ReplaceChange, ReplaceResult, ReplaceValidationError } from '../../types/search';
-import { isLocked } from '../../stores/lockHideStore';
 import { updateViewAttribute } from '../../stores/documentStore';
+import { isLocked } from '../../stores/lockHideStore';
+import type { ReplaceChange, ReplaceResult, ReplaceValidationError } from '../../types/search';
 
 /**
  * Attributes that cannot be replaced (read-only).
@@ -23,7 +23,7 @@ export const READ_ONLY_ATTRIBUTES = new Set([
  */
 export function validateReplaceValue(
   attributeName: string,
-  value: string
+  _value: string
 ): ReplaceValidationError | null {
   if (READ_ONLY_ATTRIBUTES.has(attributeName)) {
     return {

@@ -159,7 +159,7 @@ export function setSearchResults(newResults: SearchResult[]): void {
   // Reset current index when results change
   setCurrentIndex(newResults.length > 0 ? 0 : -1);
   // Update highlights with all result view IDs
-  const ids = new Set(newResults.map((r) => r.viewId));
+  const ids = new Set(newResults.map(r => r.viewId));
   setHighlightedIds(ids);
 }
 
@@ -208,7 +208,7 @@ export function selectResultAtIndex(index: number): void {
  * @param enabled - Whether to include category
  */
 export function setCategoryFilter(category: keyof CategoryFilters, enabled: boolean): void {
-  setCategoryFiltersSignal((prev) => ({
+  setCategoryFiltersSignal(prev => ({
     ...prev,
     [category]: enabled,
   }));
