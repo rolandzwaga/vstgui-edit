@@ -119,7 +119,7 @@
 - [X] T032 [US3] Add `placeholder` prop support to `NumberEditor` in `src/components/editors/NumberEditor.tsx` (if not already present)
 - [X] T033 [US3] Pass `placeholder="Mixed"` to inline editors when `props.entry.isMixed` in `src/components/PropertiesPanel/AttributeRow.tsx`
 - [X] T034 [P] [US3] Add CSS styling for mixed placeholder in `src/components/PropertiesPanel/AttributeRow.module.css` (gray, italic text)
-- [ ] T035 [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
+- [X] T035 [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
 
 **Checkpoint**: User Story 3 complete - visual feedback for mixed values is functional
 
@@ -135,13 +135,13 @@
 
 > **REQUIRED: `specs/TESTING-GUIDE.md` must be in context from T004**
 
-- [ ] T036 [P] [US4] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify live preview updates all selected views during edit (FR-007)
-- [ ] T037 [P] [US4] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify Escape reverts all views to original values (FR-011)
+- [X] T036 [P] [US4] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify live preview updates all selected views during edit (FR-007)
+- [X] T037 [P] [US4] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify Escape reverts all views to original values (FR-011)
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] Verify `handleValueChange` in PropertiesPanel already applies changes to all views during edit (existing implementation)
-- [ ] T039 [US4] Verify inline editor cancel (Escape) reverts preview changes correctly for mixed values
+- [X] T038 [US4] Verify `handleValueChange` in PropertiesPanel already applies changes to all views during edit (existing implementation)
+- [X] T039 [US4] Verify inline editor cancel (Escape) reverts preview changes correctly for mixed values
 - [ ] T040 [US4] **Commit**: Stage and commit User Story 4 changes with descriptive message
 
 **Checkpoint**: User Story 4 complete - live preview works for batch edits
