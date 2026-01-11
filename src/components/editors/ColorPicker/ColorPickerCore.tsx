@@ -20,6 +20,8 @@ import { HueSlider } from './HueSlider';
 import { AlphaSlider } from './AlphaSlider';
 import { HexInput } from './HexInput';
 import { ColorSwatches } from './ColorSwatches';
+import { ColorPreview } from './ColorPreview';
+import { EyeDropperButton } from './EyeDropperButton';
 import styles from './ColorPicker.module.css';
 
 export interface ColorPickerCoreProps {
@@ -45,6 +47,16 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
   // Get current hex value
   const currentHex = createMemo(() =>
     rgbaToHex(props.value.r, props.value.g, props.value.b, props.value.a)
+  );
+
+  // Get original hex value
+  const originalHex = createMemo(() =>
+    rgbaToHex(
+      props.originalValue.r,
+      props.originalValue.g,
+      props.originalValue.b,
+      props.originalValue.a
+    )
   );
 
   // Handle gradient area changes
@@ -98,6 +110,20 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
     props.onCommit();
   };
 
+  // Handle revert to original color
+  const handleRevert = () => {
+    props.onChange(props.originalValue, 'visual-picker');
+  };
+
+  // Handle eyedropper color pick
+  const handleEyedropperPick = (hex: string) => {
+    const parsed = parseHexToColorValue(hex);
+    if (parsed) {
+      props.onChange(parsed, 'visual-picker');
+      handleCommit();
+    }
+  };
+
   return (
     <div class={styles.inlineContainer}>
       {/* Gradient Area (Saturation-Brightness) */}
@@ -126,6 +152,19 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
         onCommit={handleCommit}
         disabled={props.disabled}
       />
+
+      {/* Color Preview + Eyedropper Row */}
+      <div class={styles.previewRow}>
+        <ColorPreview
+          originalColor={originalHex()}
+          currentColor={currentHex()}
+          onRevert={handleRevert}
+        />
+        <EyeDropperButton
+          onColorPick={handleEyedropperPick}
+          disabled={props.disabled}
+        />
+      </div>
 
       {/* Input Tabs */}
       <div class={styles.inputTabs}>

@@ -321,10 +321,17 @@
    Color Preview (Old vs New)
    ============================================================================= */
 
-.previewContainer {
+.previewRow {
   display: flex;
+  align-items: flex-end;
   gap: 8px;
   margin: 8px 0;
+}
+
+.previewContainer {
+  flex: 1;
+  display: flex;
+  gap: 8px;
 }
 
 .previewColumn {
