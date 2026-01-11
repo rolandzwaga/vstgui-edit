@@ -21,7 +21,6 @@ import {
   createUngroupHistoryOperation,
 } from '../../domain/hierarchy/groupOperations';
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
-import { handleSearchShortcut } from '../../domain/search/shortcuts';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
 import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
@@ -87,11 +86,6 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     const target = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if (tagName === 'input' || tagName === 'textarea') {
-      return;
-    }
-
-    // Handle search shortcuts (Ctrl+F, Ctrl+Shift+F, F3, Shift+F3, Escape)
-    if (handleSearchShortcut(e)) {
       return;
     }
 
