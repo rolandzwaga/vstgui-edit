@@ -312,27 +312,6 @@ export function unlockSelectedWithHistory(selectedIds: Set<string>): void {
 }
 
 /**
- * Hide selected views with history support.
- */
-export function hideSelectedWithHistory(selectedIds: Set<string>): void {
-  if (selectedIds.size === 0) {
-    return;
-  }
-
-  const viewIds = Array.from(selectedIds);
-  const previousStates = hideViews(viewIds);
-
-  const operation = createHideOperation(
-    viewIds,
-    previousStates,
-    (ids: string[]) => hideViews(ids),
-    (ids: string[]) => showViews(ids)
-  );
-
-  pushOperation(operation);
-}
-
-/**
  * Show all hidden views with history support.
  */
 export function showAllWithHistory(): void {

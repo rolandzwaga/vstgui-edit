@@ -228,14 +228,6 @@ export const PALETTE_CATEGORIES: PaletteCategory[] = [
   },
 ];
 
-export function getViewClass(className: string): ViewClass | undefined {
-  return VIEW_CLASSES[className];
-}
-
-export function getViewClassesByCategory(category: PaletteCategoryId): ViewClass[] {
-  return Object.values(VIEW_CLASSES).filter(vc => vc.category === category);
-}
-
 export function isContainerClass(className: string): boolean {
   const viewClass = VIEW_CLASSES[className];
   return viewClass?.category === 'containers';

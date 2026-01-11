@@ -7,8 +7,3 @@ export function getDefaultSize(className: string): Size {
   const viewClass = VIEW_CLASSES[className];
   return viewClass?.defaultSize ?? DEFAULT_SIZE;
 }
-
-export function getDefaultAttributes(className: string): Record<string, string> {
-  const viewClass = VIEW_CLASSES[className];
-  return viewClass?.defaultAttributes ?? {};
-}

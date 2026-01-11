@@ -12,7 +12,6 @@ export type {
   // Preference Types
   GridSizePreset,
   GridStyle,
-  KeyboardShortcut,
   LegacyKey,
   MigrationResult,
   // UI Types
@@ -24,7 +23,6 @@ export type {
   PreferencesValidationResult,
   SaveFormat,
   SavePreferences,
-  ShortcutCategory,
   SmartGuidesPreferences,
   SnapPreferences,
   ThemeMode,
