@@ -33,6 +33,7 @@ export const PointEditor: Component<EditorProps> = (props) => {
         disabled={props.disabled}
         placeholder={props.placeholder ?? 'x, y'}
         aria-invalid={props.error ? 'true' : undefined}
+        autofocus
       />
       <Show when={props.error}>
         <span class={sharedStyles.errorMessage}>{props.error}</span>

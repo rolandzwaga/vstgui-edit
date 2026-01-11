@@ -117,6 +117,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           max={props.max}
           step={step()}
           aria-invalid={props.error ? 'true' : undefined}
+          autofocus
         />
         <button
           type="button"
