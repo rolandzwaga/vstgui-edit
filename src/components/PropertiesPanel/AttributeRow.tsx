@@ -22,6 +22,8 @@ export interface AttributeRowProps {
   documentColors?: string[];
   documentFonts?: string[];
   documentBitmaps?: string[];
+  /** Get per-view original values for batch edit undo (used when isMixed=true) */
+  getOriginalValues?: (name: string) => Record<string, string | undefined>;
 }
 
 export const AttributeRow: Component<AttributeRowProps> = (props) => {
@@ -41,7 +43,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isFontType = () => editorType() === 'font';
   const isBitmapType = () => editorType() === 'bitmap';
   const isGradientType = () => editorType() === 'gradient';
-  const canEdit = () => props.editable && !isReadonly() && !props.entry.isMixed;
+  const canEdit = () => props.editable && !isReadonly();
   const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
   const validationError = createMemo(() => {
