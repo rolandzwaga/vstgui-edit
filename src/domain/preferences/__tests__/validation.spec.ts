@@ -2,9 +2,9 @@
  * Tests for preferences validation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { validatePreferences } from '../validation';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_PREFERENCES } from '../defaults';
+import { validatePreferences } from '../validation';
 
 describe('validatePreferences', () => {
   describe('valid preferences', () => {

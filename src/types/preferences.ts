@@ -4,35 +4,31 @@
  * Re-exports preference types from the domain layer for convenience.
  */
 
+export { DEFAULT_PREFERENCES } from '../domain/preferences/defaults';
 export type {
+  AlignmentToolbarState,
+  CustomGuidesPreferences,
+  GridPreferences,
   // Preference Types
   GridSizePreset,
   GridStyle,
-  GridPreferences,
-  SnapPreferences,
-  SmartGuidesPreferences,
-  CustomGuidesPreferences,
-  ThemeMode,
-  ThemePreferences,
-  AlignmentToolbarState,
-  UIPreferences,
-  SaveFormat,
-  SavePreferences,
-  UserPreferences,
-
+  KeyboardShortcut,
+  LegacyKey,
+  MigrationResult,
   // UI Types
   PreferencesSection,
   PreferencesSectionInfo,
-  KeyboardShortcut,
-  ShortcutCategory,
-
   // Store Types
   PreferencesState,
-
   // Validation Types
   PreferencesValidationResult,
-  MigrationResult,
-  LegacyKey,
+  SaveFormat,
+  SavePreferences,
+  ShortcutCategory,
+  SmartGuidesPreferences,
+  SnapPreferences,
+  ThemeMode,
+  ThemePreferences,
+  UIPreferences,
+  UserPreferences,
 } from '../domain/preferences/types';
-
-export { DEFAULT_PREFERENCES } from '../domain/preferences/defaults';

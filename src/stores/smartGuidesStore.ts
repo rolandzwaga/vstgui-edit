@@ -19,6 +19,10 @@ export function toggleSmartGuides(): void {
   setIsEnabled(current => !current);
 }
 
+export function setSmartGuidesEnabled(enabled: boolean): void {
+  setIsEnabled(enabled);
+}
+
 export function setActiveGuides(guides: SmartGuide[]): void {
   setActiveGuidesSignal(guides);
 }

@@ -2,9 +2,9 @@
  * Tests for preferences persistence
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { loadPreferences, savePreferences, STORAGE_KEY, isStorageAvailable } from '../persistence';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PREFERENCES } from '../defaults';
+import { isStorageAvailable, loadPreferences, STORAGE_KEY, savePreferences } from '../persistence';
 
 describe('persistence', () => {
   beforeEach(() => {

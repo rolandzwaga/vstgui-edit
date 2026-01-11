@@ -2,7 +2,7 @@
  * Tests for keyboard shortcuts data
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { KEYBOARD_SHORTCUTS } from '../keyboardShortcuts';
 
 describe('KEYBOARD_SHORTCUTS', () => {

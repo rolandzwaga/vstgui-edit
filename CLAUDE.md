@@ -268,6 +268,31 @@ npx tsc --noEmit                   # Type check
 | `showAllWithHistory()` | Show all with undo support (Ctrl+Shift+H) |
 | `resetLockHideStore()` | Reset on document load |
 
+### preferencesStore (`src/stores/preferencesStore.ts`)
+**Purpose**: Unified preferences management with localStorage persistence
+
+| Export | Description |
+|--------|-------------|
+| `preferencesStore` | State: `preferences`, `isOpen`, `activeSection`, `isResetDialogOpen` |
+| `openPreferences()/closePreferences()` | Open/close preferences panel (Ctrl+,) |
+| `setActiveSection(section)` | Switch sidebar section (grid/snap/smartGuides/customGuides/theme/shortcuts) |
+| `openResetDialog()/closeResetDialog()` | Open/close reset confirmation dialog |
+| `setGridSizePreference(size)` | Set grid size and apply to gridStore |
+| `setGridStylePreference(style)` | Set grid style and apply to gridStore |
+| `setGridVisibleByDefaultPreference(visible)` | Set grid visible by default |
+| `setSnapEnabledByDefaultPreference(enabled)` | Set snap enabled by default |
+| `setSnapThresholdPreference(threshold)` | Set snap threshold and apply to gridStore |
+| `setSmartGuidesEnabledByDefaultPreference(enabled)` | Set smart guides default |
+| `setCustomGuidesSnapEnabledByDefaultPreference(enabled)` | Set custom guides snap default |
+| `setThemeModePreference(mode)` | Set theme mode (stubbed) |
+| `setSaveFormatPreference(format)` | Set default save format |
+| `setAlignmentToolbarPreference(state)` | Set toolbar docked/floating state |
+| `initializePreferences()` | Load from localStorage, migrate legacy keys |
+| `applyPreferencesToStores()` | Apply grid/snap settings to stores |
+| `applyDefaultStatesOnDocumentLoad()` | Apply visibility/enabled defaults on document load |
+| `resetToDefaults()` | Reset all preferences to factory defaults |
+| `resetPreferencesStore()` | Reset store state (for testing) |
+
 ### searchStore (`src/stores/searchStore.ts`)
 **Purpose**: Find/Replace panel state and search results
 
@@ -386,6 +411,18 @@ npx tsc --noEmit                   # Type check
 | `replaceOperations.ts` | `validateReplaceValue(attr, value)`, `replaceAttribute(id, attr, value)`, `replaceAll(ids, attr, value)`, `READ_ONLY_ATTRIBUTES` |
 | `historyOperations.ts` | `createReplaceOperation(change)`, `createReplaceAllOperation(changes, attr)` |
 | `shortcuts.ts` | `handleSearchShortcut(event)` (Ctrl+F, Ctrl+H, F3, Shift+F3, Escape) |
+
+### Preferences (`src/domain/preferences/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `types.ts` | `UserPreferences`, `GridPreferences`, `SnapPreferences`, `SmartGuidesPreferences`, `CustomGuidesPreferences`, `ThemePreferences`, `SavePreferences`, `PreferencesSection`, `KeyboardShortcut` |
+| `defaults.ts` | `DEFAULT_PREFERENCES` - factory default settings |
+| `schema.ts` | `PREFERENCES_SCHEMA` - AJV validation schema |
+| `validation.ts` | `validatePreferences(prefs)` - validate with AJV |
+| `persistence.ts` | `STORAGE_KEY`, `loadPreferences()`, `savePreferences(prefs)`, `mergeWithDefaults(partial)`, `isStorageAvailable()` |
+| `migration.ts` | `LEGACY_KEYS`, `needsMigration()`, `migratePreferences()` - migrates legacy localStorage keys |
+| `keyboardShortcuts.ts` | `KEYBOARD_SHORTCUTS` - 23 shortcuts in 5 categories for reference display |
 
 **Keyboard Shortcuts** (Ctrl+Shift+...):
 - `L`: Align Left | `C`: Align Center | `R`: Align Right
@@ -555,6 +592,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-11 | 036-preferences-panel | Preferences panel (Ctrl+,), grid/snap/guides settings, theme (stubbed), keyboard shortcuts reference, reset to defaults, localStorage persistence with legacy migration, ~250 tests |
 | 01-11 | 035-find-replace | Find/Replace panel (Ctrl+F/Ctrl+H), class/attribute search, category/scope filters, replace with undo, F3 navigation, ~265 tests |
 | 01-11 | 034-lock-hide-views | Lock views (Ctrl+L), hide views (Ctrl+H), context menu, hierarchy icons, canvas filtering |
 | 01-10 | 033-custom-guides | Drag-from-ruler guides, snap-to-guides, Ctrl+; toggle, context menu positioning |

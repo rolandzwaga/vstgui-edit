@@ -260,6 +260,4 @@ export interface MigrationResult {
 }
 
 /** Legacy localStorage keys to migrate */
-export type LegacyKey =
-  | 'vstgui-edit:alignment-toolbar'
-  | 'vstgui-edit:save-format';
+export type LegacyKey = 'vstgui-edit:alignment-toolbar' | 'vstgui-edit:save-format';

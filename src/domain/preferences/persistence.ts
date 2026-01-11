@@ -4,8 +4,8 @@
  * localStorage operations for user preferences.
  */
 
-import type { UserPreferences } from './types';
 import { DEFAULT_PREFERENCES } from './defaults';
+import type { UserPreferences } from './types';
 import { validatePreferences } from './validation';
 
 /**

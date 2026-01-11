@@ -50,6 +50,14 @@ export function toggleSnap(): void {
   setIsSnapEnabled(current => !current);
 }
 
+export function setGridVisibility(visible: boolean): void {
+  setIsVisible(visible);
+}
+
+export function setSnapEnabled(enabled: boolean): void {
+  setIsSnapEnabled(enabled);
+}
+
 export function setSnapThreshold(threshold: number): void {
   const clamped = Math.max(MIN_SNAP_THRESHOLD, Math.min(MAX_SNAP_THRESHOLD, threshold));
   setSnapThresholdSignal(clamped);

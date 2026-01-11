@@ -5,8 +5,8 @@
  */
 
 import Ajv from 'ajv';
-import type { PreferencesValidationResult } from './types';
 import { PREFERENCES_SCHEMA } from './schema';
+import type { PreferencesValidationResult } from './types';
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 const validateSchema = ajv.compile(PREFERENCES_SCHEMA);
@@ -28,10 +28,11 @@ export function validatePreferences(data: unknown): PreferencesValidationResult 
   const valid = validateSchema(data);
 
   if (!valid) {
-    const errors = validateSchema.errors?.map(e => {
-      const path = e.instancePath || 'root';
-      return `${path}: ${e.message}`;
-    }) ?? [];
+    const errors =
+      validateSchema.errors?.map(e => {
+        const path = e.instancePath || 'root';
+        return `${path}: ${e.message}`;
+      }) ?? [];
     return { valid: false, errors };
   }
 

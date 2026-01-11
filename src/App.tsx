@@ -17,7 +17,7 @@ import { MainToolbar } from './components/MainToolbar';
 
 import { handleSearchShortcut } from './domain/search/shortcuts';
 import { documentStore, getTemplate } from './stores/documentStore';
-import { openPreferences } from './stores/preferencesStore';
+import { openPreferences, initializePreferences } from './stores/preferencesStore';
 import { PreferencesPanel } from './components/PreferencesPanel';
 import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
@@ -25,6 +25,9 @@ import { fitToView } from './stores/canvasStore';
 import './styles/tokens.css';
 
 export default function App() {
+  // Initialize preferences from localStorage on mount
+  initializePreferences();
+
   // Warn on unsaved changes
   createEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {

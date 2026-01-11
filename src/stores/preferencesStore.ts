@@ -5,21 +5,27 @@
  */
 
 import { createStore } from 'solid-js/store';
-import { createEffect, createRoot } from 'solid-js';
+import { DEFAULT_PREFERENCES } from '../domain/preferences/defaults';
+import { migratePreferences, needsMigration } from '../domain/preferences/migration';
+import { loadPreferences, savePreferences } from '../domain/preferences/persistence';
 import type {
-  PreferencesState,
-  PreferencesSection,
-  UserPreferences,
+  AlignmentToolbarState,
   GridSizePreset,
   GridStyle,
-  ThemeMode,
+  PreferencesSection,
+  PreferencesState,
   SaveFormat,
-  AlignmentToolbarState,
+  ThemeMode,
 } from '../types/preferences';
-import { DEFAULT_PREFERENCES } from '../domain/preferences/defaults';
-import { loadPreferences, savePreferences } from '../domain/preferences/persistence';
-import { migratePreferences, needsMigration } from '../domain/preferences/migration';
-import { setGridSize, setGridStyle, setSnapThreshold } from './gridStore';
+import {
+  setGridSize,
+  setGridStyle,
+  setGridVisibility,
+  setSnapEnabled,
+  setSnapThreshold,
+} from './gridStore';
+import { setGuidesSnap } from './guidesStore';
+import { setSmartGuidesEnabled } from './smartGuidesStore';
 
 // ============================================================================
 // Initial State
@@ -231,6 +237,24 @@ export function applyPreferencesToStores(): void {
 
   // Note: smartGuides and customGuides defaults are also applied on document load
   // Note: alignmentToolbar state is loaded by its own store (alignmentToolbarStore)
+}
+
+/**
+ * Applies default visibility/enabled states on document load.
+ * Call this when a new document is loaded to reset states based on preferences.
+ */
+export function applyDefaultStatesOnDocumentLoad(): void {
+  const prefs = store.preferences;
+
+  // Apply grid visibility and snap defaults
+  setGridVisibility(prefs.grid.visibleByDefault);
+  setSnapEnabled(prefs.snap.enabledByDefault);
+
+  // Apply smart guides default
+  setSmartGuidesEnabled(prefs.smartGuides.enabledByDefault);
+
+  // Apply custom guides snap default
+  setGuidesSnap(prefs.customGuides.snapEnabledByDefault);
 }
 
 // ============================================================================

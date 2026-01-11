@@ -2,10 +2,10 @@
  * Tests for preferences migration
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { needsMigration, migratePreferences, LEGACY_KEYS } from '../migration';
-import { STORAGE_KEY } from '../persistence';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PREFERENCES } from '../defaults';
+import { LEGACY_KEYS, migratePreferences, needsMigration } from '../migration';
+import { STORAGE_KEY } from '../persistence';
 
 describe('migration', () => {
   beforeEach(() => {

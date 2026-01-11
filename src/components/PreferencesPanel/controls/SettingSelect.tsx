@@ -5,7 +5,7 @@
  * Uses @floating-ui/dom for dropdown positioning.
  */
 
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { createSignal, createEffect, onCleanup, For, Show } from 'solid-js';
 import { computePosition, flip, shift, offset } from '@floating-ui/dom';
 import styles from './controls.module.css';
@@ -38,7 +38,7 @@ export interface SettingSelectProps<T = string> {
   disabled?: boolean;
 }
 
-export const SettingSelect: Component<SettingSelectProps> = (props) => {
+export const SettingSelect = <T extends string | number>(props: SettingSelectProps<T>) => {
   const [isOpen, setIsOpen] = createSignal(false);
   const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
 

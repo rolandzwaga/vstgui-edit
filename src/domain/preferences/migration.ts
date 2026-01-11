@@ -4,9 +4,9 @@
  * Migrates legacy localStorage keys to the unified preferences system.
  */
 
-import type { UserPreferences, MigrationResult, LegacyKey } from './types';
 import { DEFAULT_PREFERENCES } from './defaults';
 import { STORAGE_KEY, savePreferences } from './persistence';
+import type { LegacyKey, MigrationResult, UserPreferences } from './types';
 
 /**
  * Legacy localStorage keys to migrate.
@@ -81,10 +81,7 @@ export function migratePreferences(): MigrationResult {
  * Migrates alignment toolbar state from legacy key.
  * Modifies prefs and result in place.
  */
-function migrateAlignmentToolbar(
-  prefs: UserPreferences,
-  result: MigrationResult
-): void {
+function migrateAlignmentToolbar(prefs: UserPreferences, result: MigrationResult): void {
   const key = 'vstgui-edit:alignment-toolbar';
 
   try {
@@ -109,10 +106,7 @@ function migrateAlignmentToolbar(
  * Migrates save format from legacy key.
  * Modifies prefs and result in place.
  */
-function migrateSaveFormat(
-  prefs: UserPreferences,
-  result: MigrationResult
-): void {
+function migrateSaveFormat(prefs: UserPreferences, result: MigrationResult): void {
   const key = 'vstgui-edit:save-format';
 
   try {

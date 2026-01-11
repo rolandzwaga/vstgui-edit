@@ -2,32 +2,32 @@
  * Tests for preferencesStore
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createRoot } from 'solid-js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_PREFERENCES } from '../../domain/preferences/defaults';
+import { STORAGE_KEY } from '../../domain/preferences/persistence';
+import { gridStore, resetGrid, setGridSize, setGridStyle, setSnapThreshold } from '../gridStore';
 import {
-  preferencesStore,
-  openPreferences,
   closePreferences,
-  setActiveSection,
-  openResetDialog,
   closeResetDialog,
+  initializePreferences,
+  openPreferences,
+  openResetDialog,
+  preferencesStore,
+  resetPreferencesStore,
+  resetToDefaults,
+  setActiveSection,
+  setAlignmentToolbarPreference,
+  setCustomGuidesSnapEnabledByDefaultPreference,
   setGridSizePreference,
   setGridStylePreference,
   setGridVisibleByDefaultPreference,
+  setSaveFormatPreference,
+  setSmartGuidesEnabledByDefaultPreference,
   setSnapEnabledByDefaultPreference,
   setSnapThresholdPreference,
-  setSmartGuidesEnabledByDefaultPreference,
-  setCustomGuidesSnapEnabledByDefaultPreference,
   setThemeModePreference,
-  setSaveFormatPreference,
-  setAlignmentToolbarPreference,
-  initializePreferences,
-  resetToDefaults,
-  resetPreferencesStore,
 } from '../preferencesStore';
-import { STORAGE_KEY } from '../../domain/preferences/persistence';
-import { DEFAULT_PREFERENCES } from '../../domain/preferences/defaults';
-import { gridStore, setGridSize, setGridStyle, setSnapThreshold, resetGrid } from '../gridStore';
 
 // Helper to run tests in SolidJS reactive context
 function testInRoot(fn: () => void): void {
