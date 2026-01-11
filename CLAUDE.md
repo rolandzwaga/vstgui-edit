@@ -434,6 +434,40 @@ npx tsc --noEmit                   # Type check
 | `migration.ts` | `LEGACY_KEYS`, `needsMigration()`, `migratePreferences()` - migrates legacy localStorage keys |
 | `keyboardShortcuts.ts` | `KEYBOARD_SHORTCUTS` - 23 shortcuts in 5 categories for reference display |
 
+### Theme (`src/domain/theme/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `types.ts` | `EffectiveTheme` - resolved theme value ('light' \| 'dark') |
+| `themeService.ts` | `getEffectiveTheme(mode, systemPrefersDark)` - pure function to resolve effective theme |
+| | `isSystemDarkMode()` - check OS preference via matchMedia API |
+| | `applyTheme(theme)` - set data-theme attribute on document |
+| | `subscribeToSystemThemeChanges(callback)` - subscribe to OS theme changes with cleanup |
+| | `updateTheme()` - update theme based on preferencesStore |
+| | `initializeTheme()` - one-time initialization after preferences load |
+
+**Theme Usage in App.tsx**:
+```typescript
+import { initializeTheme, updateTheme, subscribeToSystemThemeChanges } from './domain/theme';
+
+// After initializePreferences()
+initializeTheme();
+
+// Watch mode changes
+createEffect(() => {
+  const _mode = preferencesStore.preferences.theme.mode;
+  updateTheme();
+});
+
+// Listen for OS changes when mode is 'system'
+createEffect(() => {
+  if (preferencesStore.preferences.theme.mode === 'system') {
+    const unsubscribe = subscribeToSystemThemeChanges(() => updateTheme());
+    onCleanup(unsubscribe);
+  }
+});
+```
+
 **Keyboard Shortcuts** (Ctrl+Shift+...):
 - `L`: Align Left | `C`: Align Center | `R`: Align Right
 - `T`: Align Top | `M`: Align Middle | `B`: Align Bottom
@@ -599,10 +633,10 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
-- 037-theme-support: Added SolidJS stores (createStore), CSS custom properties, matchMedia API
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-11 | 037-theme-support | Theme support: Light/Dark/System modes, FOIT prevention, CSS custom properties, matchMedia OS detection, ~23 tests |
 | 01-11 | 036-preferences-panel | Preferences panel (Ctrl+,), grid/snap/guides settings, theme (stubbed), keyboard shortcuts reference, reset to defaults, localStorage persistence with legacy migration, ~250 tests |
 | 01-11 | 035-find-replace | Find/Replace panel (Ctrl+F/Ctrl+H), class/attribute search, category/scope filters, replace with undo, F3 navigation, ~265 tests |
 | 01-11 | 034-lock-hide-views | Lock views (Ctrl+L), hide views (Ctrl+H), context menu, hierarchy icons, canvas filtering |
