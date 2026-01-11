@@ -12,4 +12,38 @@ export {
   formatPredefinedColorRef,
 } from './predefinedColors';
 
-// Note: Color conversion, validation, and recent colors will be added in Phase 2
+// Color conversion
+export type { RgbColor, RgbaColor, HsvColor, HslColor } from './colorConversion';
+export {
+  clamp,
+  roundTo,
+  isValidHex,
+  rgbToHsv,
+  hsvToRgb,
+  rgbToHsl,
+  hslToRgb,
+  parseHexToRgba,
+  rgbaToHex,
+  createColorValue,
+  createColorValueFromHsv,
+  createColorValueFromHsl,
+  parseHexToColorValue,
+  colorValueToHex,
+} from './colorConversion';
+
+// Color validation
+export {
+  validateHexInput,
+  validateRgbInput,
+  validateHslInput,
+} from './colorValidation';
+
+// Recent colors
+export {
+  STORAGE_KEY as RECENT_COLORS_STORAGE_KEY,
+  MAX_RECENT_COLORS,
+  isStorageAvailable,
+  getRecentColors,
+  addRecentColor,
+  clearRecentColors,
+} from './recentColors';
