@@ -8,7 +8,7 @@ import { PointEditor } from '../editors/PointEditor';
 import { BooleanEditor } from '../editors/BooleanEditor';
 import { NumberEditor } from '../editors/NumberEditor';
 import { EnumEditor } from '../editors/EnumEditor';
-import { ColorPicker } from '../editors/ColorPicker';
+import { ColorPicker } from '../editors/ColorPicker/';
 import { FontPicker } from '../editors/FontPicker';
 import { BitmapPicker } from '../editors/BitmapPicker';
 import styles from './AttributeRow.module.css';
