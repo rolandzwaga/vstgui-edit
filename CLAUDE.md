@@ -522,6 +522,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 035-find-replace: Added SolidJS 1.9.10, @floating-ui/dom 1.7.4 (existing)
 
 | Date | Feature | Summary |
 |------|---------|---------|
