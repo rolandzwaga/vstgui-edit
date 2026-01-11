@@ -3,6 +3,7 @@ import { AlignmentToolbar } from '../AlignmentToolbar';
 import { GridToolbar } from '../GridToolbar';
 import { SaveButton } from '../SaveButton';
 import { ZoomToolbar } from '../ZoomToolbar';
+import { PreferencesButton } from './PreferencesButton';
 import styles from './MainToolbar.module.css';
 
 export interface MainToolbarProps {
@@ -23,6 +24,7 @@ export const MainToolbar: Component<MainToolbarProps> = (props) => {
       <ZoomToolbar onFitToView={props.onFitToView} />
       <GridToolbar />
       <AlignmentToolbar />
+      <PreferencesButton />
     </div>
   );
 };

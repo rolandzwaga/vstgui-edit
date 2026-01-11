@@ -1,0 +1,82 @@
+/**
+ * ResetConfirmDialog Styles
+ * Following FormatChangeDialog pattern.
+ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-overlay);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--spacing-6);
+  background-color: var(--color-background);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.heading {
+  margin: 0 0 var(--spacing-4) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.message {
+  margin: 0 0 var(--spacing-6) 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}
+
+.cancelButton,
+.confirmButton {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.cancelButton {
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+}
+
+.cancelButton:hover {
+  background-color: var(--color-neutral-100);
+  border-color: var(--color-neutral-400);
+}
+
+.confirmButton {
+  color: white;
+  background-color: var(--color-error-600);
+  border: 1px solid var(--color-error-600);
+}
+
+.confirmButton:hover {
+  background-color: var(--color-error-700);
+  border-color: var(--color-error-700);
+}
+
+.confirmButton:focus-visible {
+  outline: 2px solid var(--color-error-600);
+  outline-offset: 2px;
+}
