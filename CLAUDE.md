@@ -268,6 +268,26 @@ npx tsc --noEmit                   # Type check
 | `showAllWithHistory()` | Show all with undo support (Ctrl+Shift+H) |
 | `resetLockHideStore()` | Reset on document load |
 
+### searchStore (`src/stores/searchStore.ts`)
+**Purpose**: Find/Replace panel state and search results
+
+| Export | Description |
+|--------|-------------|
+| `searchStore` | State: `isOpen`, `mode`, `rawQuery`, `parsedQuery`, `results`, `currentIndex`, `categoryFilters`, `scope`, `scopeContainerId`, `replaceValue`, `highlightedIds`, `isSearching` |
+| `openFindPanel()/openReplacePanel()` | Open panel in find/replace mode (Ctrl+F / Ctrl+H) |
+| `closeFindPanel()` | Close panel (Escape) |
+| `setRawQuery(query)` | Set raw search input |
+| `setParsedQuery(query)` | Set parsed query object |
+| `setSearchResults(results)` | Set search results array |
+| `navigateToNext()/navigateToPrevious()` | Navigate results (F3 / Shift+F3) |
+| `selectResultAtIndex(index)` | Select specific result |
+| `setCategoryFilter(category, enabled)` | Toggle category filter |
+| `setAllCategoryFilters(enabled)` | Enable/disable all categories |
+| `setSearchScope(scope, containerId?)` | Set search scope (all/selection) |
+| `setMode(mode)` | Switch between find/replace mode |
+| `setReplaceValue(value)` | Set replacement value |
+| `resetSearchStore()` | Reset to initial state |
+
 ---
 
 ## Domain Utilities
@@ -356,6 +376,16 @@ npx tsc --noEmit                   # Type check
 | `distributeViews.ts` | `distributeViews(ids, direction, getView)`, `calculateEqualGap(views, direction)` |
 | `historyOperations.ts` | `createAlignmentOperation(results, desc, updateFn)`, `getAlignmentDescription(count, type, isParent)`, `getDistributionDescription(count, dir)` |
 | `shortcuts.ts` | `handleAlignmentShortcut(event, selectedIds, onAlign?)` |
+
+### Search (`src/domain/search/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `searchQuery.ts` | `parseSearchQuery(input)`, `isClassNameLike(input)`, `escapeSearchTerm(term)`, `unescapeValue(value)`, `CLASS_PREFIXES` |
+| `searchEngine.ts` | `prepareViewForSearch(id, class, category, attrs, path)`, `matchesQuery(view, query)`, `passesCategoryFilter(view, filters)`, `isDescendantOf(viewId, containerId)`, `executeSearch(views, query, filters, scope)`, `buildDisplayPath(id, viewMap)` |
+| `replaceOperations.ts` | `validateReplaceValue(attr, value)`, `replaceAttribute(id, attr, value)`, `replaceAll(ids, attr, value)`, `READ_ONLY_ATTRIBUTES` |
+| `historyOperations.ts` | `createReplaceOperation(change)`, `createReplaceAllOperation(changes, attr)` |
+| `shortcuts.ts` | `handleSearchShortcut(event)` (Ctrl+F, Ctrl+H, F3, Shift+F3, Escape) |
 
 **Keyboard Shortcuts** (Ctrl+Shift+...):
 - `L`: Align Left | `C`: Align Center | `R`: Align Right
@@ -525,6 +555,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-11 | 035-find-replace | Find/Replace panel (Ctrl+F/Ctrl+H), class/attribute search, category/scope filters, replace with undo, F3 navigation, ~265 tests |
 | 01-11 | 034-lock-hide-views | Lock views (Ctrl+L), hide views (Ctrl+H), context menu, hierarchy icons, canvas filtering |
 | 01-10 | 033-custom-guides | Drag-from-ruler guides, snap-to-guides, Ctrl+; toggle, context menu positioning |
 | 01-10 | 032-rulers | Canvas rulers with tick marks, cursor indicator, template bounds, ~140 tests |

@@ -1,7 +1,8 @@
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect, onCleanup, Show } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { RulerContainer } from './components/Canvas/Rulers';
+import { FindPanel } from './components/FindPanel';
 import { TemplatesPanel } from './components/TemplatesPanel';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
@@ -14,12 +15,15 @@ import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 
+import { handleSearchShortcut } from './domain/search/shortcuts';
 import { documentStore, getTemplate } from './stores/documentStore';
+import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
 import './styles/tokens.css';
 
 export default function App() {
+  // Warn on unsaved changes
   createEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (documentStore.isDirty) {
@@ -30,6 +34,23 @@ export default function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     onCleanup(() => window.removeEventListener('beforeunload', handleBeforeUnload));
+  });
+
+  // Global keyboard shortcuts for Find/Replace
+  createEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if typing in input/textarea
+      const target = e.target as HTMLElement;
+      const tagName = target.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea') {
+        return;
+      }
+
+      handleSearchShortcut(e);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
   });
 
   const handleFitToView = () => {
@@ -76,6 +97,9 @@ export default function App() {
             <PropertiesPanel />
           </div>
           <Legend />
+          <Show when={searchStore.isOpen}>
+            <FindPanel />
+          </Show>
         </>
       ) : (
         <>

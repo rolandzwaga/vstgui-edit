@@ -390,18 +390,25 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     }
 
     if (e.key === '+' || e.key === '=') {
+      e.preventDefault();
       zoomIn();
     } else if (e.key === '-') {
+      e.preventDefault();
       zoomOut();
     } else if (e.key === '0') {
+      e.preventDefault();
       resetZoom();
     } else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
       handleFitToView();
     } else if ((e.key === 'g' || e.key === 'G') && !e.shiftKey) {
+      e.preventDefault();
       toggleVisibility();
     } else if ((e.key === 'g' || e.key === 'G') && e.shiftKey) {
+      e.preventDefault();
       toggleSnap();
     } else if (e.key === 's' || e.key === 'S') {
+      e.preventDefault();
       toggleSmartGuides();
     }
   };
