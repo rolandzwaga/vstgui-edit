@@ -501,6 +501,28 @@ createEffect(() => {
 - `L`: Align Left | `C`: Align Center | `R`: Align Right
 - `T`: Align Top | `M`: Align Middle | `B`: Align Bottom
 
+### ColorPicker (`src/domain/colorPicker/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `colorConversion.ts` | `parseHexToRgba(hex)`, `rgbaToHex(r,g,b,a)` - hex/rgba conversion |
+| | `rgbToHsv`, `hsvToRgb`, `rgbToHsl`, `hslToRgb` - color space conversion |
+| | `createColorValue(r,g,b,a)`, `createColorValueFromHsv(h,s,v,a)` - factory functions |
+| | `clamp(val, min, max)`, `roundTo(val, places)` - utility functions |
+| `colorValidation.ts` | `validateHexInput(input)` - validate and normalize hex color |
+| | `validateRgbInput(r,g,b,a)` - validate RGB values (0-255) |
+| | `validateHslInput(h,s,l,a)` - validate HSL values (H: 0-360, S/L/A: 0-100) |
+| `recentColors.ts` | `getRecentColors()`, `addRecentColor(hex)`, `clearRecentColors()` |
+| | `MAX_RECENT_COLORS` (10), `STORAGE_KEY` (`vstgui-edit:recent-colors`) |
+| `predefinedColors.ts` | `VSTGUI_PREDEFINED_COLORS` - 10 predefined VSTGUI colors |
+| | `getPredefinedColorHex(ref)`, `isPredefinedColorRef(value)` |
+
+**ColorPicker Types** (`src/types/colorPicker.ts`):
+- `ColorValue` - RGB/HSV/HSL values: `{ r, g, b, a, h, s, v, hslS, l }`
+- `ColorFormat` - Input format: `'hex' | 'rgb' | 'hsl'`
+- `ColorSource` - Selection source: `'visual-picker' | 'hex-input' | 'rgb-input' | 'hsl-input' | 'document-color' | 'predefined-color' | 'recent-color'`
+- `PickerMode` - Display mode: `'popup' | 'inline'`
+
 ---
 
 ## Editor Components (`src/components/editors/`)
@@ -512,7 +534,7 @@ createEffect(() => {
 | `BooleanEditor` | Checkbox toggle | `value, onChange, onCommit` |
 | `NumberEditor` | Numeric +/- buttons | `value, min, max, step, onChange, onCommit` |
 | `EnumEditor` | Dropdown options | `value, options[], onChange, onCommit` |
-| `ColorPicker` | Doc colors + hex + presets | `value, documentColors, onChange, onCommit` |
+| `ColorPicker` | Advanced picker: gradient, sliders, swatches | `value, documentColors, documentColorValues?, onChange, onCommit, onCancel, mode?` |
 | `FontPicker` | Document fonts dropdown | `value, documentFonts, onChange, onCommit` |
 | `BitmapPicker` | Document bitmaps dropdown | `value, documentBitmaps, onChange, onCommit` |
 
@@ -665,6 +687,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-12 | 040-advanced-color-picker | Advanced color picker with HSB gradient, hue/alpha sliders, HEX/RGB/HSL input, document/predefined/recent color swatches, eyedropper tool, popup/inline modes, 307 tests |
 | 01-11 | 038-keyboard-shortcuts | Keyboard shortcuts panel (? / Ctrl+/), 44 shortcuts across 10 categories, centralized registry, searchable list, conflict detection, platform-aware display (Ctrl/Cmd), Preferences integration |
 | 01-11 | 037-theme-support | Theme support: Light/Dark/System modes, FOIT prevention, CSS custom properties, matchMedia OS detection, ~23 tests |
 | 01-11 | 036-preferences-panel | Preferences panel (Ctrl+,), grid/snap/guides settings, theme (stubbed), keyboard shortcuts reference, reset to defaults, localStorage persistence with legacy migration, ~250 tests |
