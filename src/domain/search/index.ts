@@ -33,3 +33,6 @@ export {
 
 // History operations
 export { createReplaceOperation, createReplaceAllOperation } from './historyOperations';
+
+// Keyboard shortcuts
+export { handleSearchShortcut } from './shortcuts';

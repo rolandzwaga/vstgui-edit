@@ -25,6 +25,7 @@ import { select } from '../../stores/selectionStore';
 import { SearchInput } from './SearchInput';
 import { ResultsList } from './ResultsList';
 import { CategoryFilter } from './CategoryFilter';
+import { NavigationButtons } from './NavigationButtons';
 import styles from './FindPanel.module.css';
 
 export function FindPanel() {
@@ -198,6 +199,12 @@ export function FindPanel() {
           <Show when={searchStore.rawQuery.trim() !== ''}>
             <div class={styles.navigation}>
               <span class={styles.resultCount}>{resultCountText()}</span>
+              <NavigationButtons
+                currentIndex={searchStore.currentIndex}
+                totalCount={searchStore.resultCount}
+                onPrevious={navigateToPrevious}
+                onNext={navigateToNext}
+              />
             </div>
           </Show>
 

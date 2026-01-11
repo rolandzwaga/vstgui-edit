@@ -8,3 +8,4 @@ export { SearchInput } from './SearchInput';
 export { ResultItem } from './ResultItem';
 export { ResultsList } from './ResultsList';
 export { CategoryFilter } from './CategoryFilter';
+export { NavigationButtons } from './NavigationButtons';
