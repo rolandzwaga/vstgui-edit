@@ -24,6 +24,7 @@ import {
 import { documentStore, getTemplate } from './stores/documentStore';
 import { openPreferences, initializePreferences, preferencesStore } from './stores/preferencesStore';
 import { PreferencesPanel } from './components/PreferencesPanel';
+import { ShortcutsPanel } from './components/ShortcutsPanel';
 import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
@@ -139,6 +140,7 @@ export default function App() {
             <FindPanel />
           </Show>
           <PreferencesPanel />
+          <ShortcutsPanel />
         </>
       ) : (
         <>

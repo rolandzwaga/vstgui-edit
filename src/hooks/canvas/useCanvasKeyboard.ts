@@ -22,6 +22,9 @@ import {
 } from '../../domain/hierarchy/groupOperations';
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
+import { documentStore } from '../../stores/documentStore';
+import { preferencesStore } from '../../stores/preferencesStore';
+import { shortcutsPanelStore, openShortcutsPanel } from '../../stores/shortcutsPanelStore';
 import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
@@ -86,6 +89,36 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     const target = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if (tagName === 'input' || tagName === 'textarea') {
+      return;
+    }
+
+    // Handle ? key to open shortcuts panel (FR-001)
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Don't open if another modal is open
+      if (preferencesStore.isOpen || shortcutsPanelStore.isOpen) {
+        return;
+      }
+      // Don't open if no document loaded (FR-006)
+      if (!documentStore.document) {
+        return;
+      }
+      e.preventDefault();
+      openShortcutsPanel();
+      return;
+    }
+
+    // Handle Ctrl+/ or Cmd+/ to open shortcuts panel (FR-002)
+    if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
+      // Don't open if another modal is open
+      if (preferencesStore.isOpen || shortcutsPanelStore.isOpen) {
+        return;
+      }
+      // Don't open if no document loaded (FR-006)
+      if (!documentStore.document) {
+        return;
+      }
+      e.preventDefault();
+      openShortcutsPanel();
       return;
     }
 
