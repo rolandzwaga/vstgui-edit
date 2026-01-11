@@ -63,6 +63,8 @@ export interface EditorProps {
   disabled?: boolean;
   /** Validation error message to display */
   error?: string | null;
+  /** Placeholder text (e.g., "Mixed" for batch edits) */
+  placeholder?: string;
 }
 
 /**

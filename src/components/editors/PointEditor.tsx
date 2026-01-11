@@ -31,7 +31,7 @@ export const PointEditor: Component<EditorProps> = (props) => {
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         disabled={props.disabled}
-        placeholder="x, y"
+        placeholder={props.placeholder ?? 'x, y'}
         aria-invalid={props.error ? 'true' : undefined}
       />
       <Show when={props.error}>

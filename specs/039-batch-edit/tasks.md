@@ -92,7 +92,7 @@
 
 - [X] T024 [US2] Verify `createPropertyEditOperation` in `src/domain/properties/historyOperations.ts` correctly formats description with view count (existing code may already handle this)
 - [X] T025 [US2] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: full undo/redo cycle with mixed values
-- [ ] T026 [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
+- [X] T026 [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
 
 **Checkpoint**: User Story 2 complete - undo/redo works correctly for batch edits
 
@@ -108,17 +108,17 @@
 
 > **REQUIRED: `specs/TESTING-GUIDE.md` must be in context from T004**
 
-- [ ] T027 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify "Mixed" placeholder shown in text input when `isMixed=true`
-- [ ] T028 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify placeholder clears on focus
-- [ ] T029 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify Escape cancels edit and reverts (FR-011)
+- [X] T027 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify "Mixed" placeholder shown in text input when `isMixed=true`
+- [X] T028 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify placeholder clears on focus
+- [X] T029 [P] [US3] Add test in `src/components/PropertiesPanel/__tests__/AttributeRow.spec.tsx`: verify Escape cancels edit and reverts (FR-011)
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Add `placeholder` prop support to `TextEditor` in `src/components/editors/TextEditor.tsx` (if not already present)
-- [ ] T031 [US3] Add `placeholder` prop support to `PointEditor` in `src/components/editors/PointEditor.tsx` (if not already present)
-- [ ] T032 [US3] Add `placeholder` prop support to `NumberEditor` in `src/components/editors/NumberEditor.tsx` (if not already present)
-- [ ] T033 [US3] Pass `placeholder="Mixed"` to inline editors when `props.entry.isMixed` in `src/components/PropertiesPanel/AttributeRow.tsx`
-- [ ] T034 [P] [US3] Add CSS styling for mixed placeholder in `src/components/PropertiesPanel/AttributeRow.module.css` (gray, italic text)
+- [X] T030 [US3] Add `placeholder` prop support to `TextEditor` in `src/components/editors/TextEditor.tsx` (if not already present)
+- [X] T031 [US3] Add `placeholder` prop support to `PointEditor` in `src/components/editors/PointEditor.tsx` (if not already present)
+- [X] T032 [US3] Add `placeholder` prop support to `NumberEditor` in `src/components/editors/NumberEditor.tsx` (if not already present)
+- [X] T033 [US3] Pass `placeholder="Mixed"` to inline editors when `props.entry.isMixed` in `src/components/PropertiesPanel/AttributeRow.tsx`
+- [X] T034 [P] [US3] Add CSS styling for mixed placeholder in `src/components/PropertiesPanel/AttributeRow.module.css` (gray, italic text)
 - [ ] T035 [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
 
 **Checkpoint**: User Story 3 complete - visual feedback for mixed values is functional

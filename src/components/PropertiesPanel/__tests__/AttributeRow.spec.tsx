@@ -197,5 +197,71 @@ describe('AttributeRow', () => {
 
       expect(onValueCommit).toHaveBeenCalledWith('origin', 'new value', '__MIXED__');
     });
+
+    // T027: verify "Mixed" placeholder shown in text input when isMixed=true
+    it('should show Mixed placeholder in text input for mixed attributes', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveAttribute('placeholder', 'Mixed');
+      expect(input).toHaveValue(''); // Empty value, not "Mixed"
+    });
+
+    // T028: verify placeholder clears on focus (field starts empty)
+    it('should start with empty field when editing mixed attribute', () => {
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      const input = screen.getByRole('textbox');
+      // Value should be empty (placeholder visible until user types)
+      expect(input).toHaveValue('');
+    });
+
+    // T029: verify Escape cancels edit and reverts (FR-011)
+    it('should cancel edit and revert on Escape', () => {
+      const onValueChange = vi.fn();
+      const onValueCommit = vi.fn();
+      render(() => (
+        <AttributeRow
+          entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
+          editable={true}
+          onValueChange={onValueChange}
+          onValueCommit={onValueCommit}
+        />
+      ));
+
+      const valueElement = screen.getByTestId('attribute-value');
+      fireEvent.dblClick(valueElement);
+
+      const input = screen.getByRole('textbox');
+      fireEvent.input(input, { target: { value: 'new value' } });
+      fireEvent.change(input, { target: { value: 'new value' } });
+
+      // Clear mock to check revert call
+      onValueChange.mockClear();
+
+      // Press Escape
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      // Should call onValueChange with original (empty for mixed)
+      expect(onValueChange).toHaveBeenCalledWith('origin', '');
+      // Should NOT call onValueCommit
+      expect(onValueCommit).not.toHaveBeenCalled();
+    });
   });
 });

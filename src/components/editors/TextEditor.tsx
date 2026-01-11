@@ -31,6 +31,7 @@ export const TextEditor: Component<EditorProps> = (props) => {
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         disabled={props.disabled}
+        placeholder={props.placeholder}
         aria-invalid={props.error ? 'true' : undefined}
       />
       <Show when={props.error}>

@@ -221,6 +221,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onChange={handleChange}
               onCommit={handleCommit}
               onCancel={handleCancel}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>
@@ -232,6 +233,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onCommit={handleCommit}
               onCancel={handleCancel}
               error={validationError()}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>
@@ -246,6 +248,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               min={config().min}
               max={config().max}
               step={config().step}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>

@@ -112,6 +112,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           disabled={props.disabled}
+          placeholder={props.placeholder}
           min={props.min}
           max={props.max}
           step={step()}
