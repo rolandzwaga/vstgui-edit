@@ -173,7 +173,7 @@
 - [X] T050 Update `handleColorChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
 - [X] T051 Update `handleFontChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
 - [X] T052 Update `handleBitmapChange` in `src/components/PropertiesPanel/AttributeRow.tsx` to use `'__MIXED__'` marker when `isMixed`
-- [ ] T053 **Commit**: Stage and commit edge cases and immediate editors changes with descriptive message
+- [X] T053 **Commit**: Stage and commit edge cases and immediate editors changes with descriptive message
 
 **Checkpoint**: All editor types support batch editing (SC-005)
 
@@ -183,10 +183,10 @@
 
 **Purpose**: Final verification, performance check, documentation
 
-- [ ] T054 Verify existing single-view property editing tests still pass (SC-003 - no regression)
-- [ ] T055 Run performance test: batch edit 20+ views completes in <100ms (SC-004)
-- [ ] T056 Run `quickstart.md` verification checklist manually
-- [ ] T057 Update `CLAUDE.md` if any new patterns or utilities were added
+- [X] T054 Verify existing single-view property editing tests still pass (SC-003 - no regression)
+- [X] T055 Run performance test: batch edit 20+ views completes in <100ms (SC-004)
+- [X] T056 Run `quickstart.md` verification checklist manually
+- [X] T057 Update `CLAUDE.md` if any new patterns or utilities were added
 - [ ] T058 **Commit**: Stage and commit Polish phase changes with descriptive message
 
 ---
