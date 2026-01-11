@@ -35,7 +35,7 @@ export function validateHexInput(value: string): ColorValidationResult {
   // Auto-add # prefix if missing
   let hex = trimmed;
   if (!hex.startsWith('#')) {
-    hex = '#' + hex;
+    hex = `#${hex}`;
   }
 
   // Check length (including #)
