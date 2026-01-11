@@ -28,13 +28,46 @@ const HEADING_ID = `${DIALOG_ID}-heading`;
 export const ShortcutsPanel: Component = () => {
   let panelRef: HTMLDivElement | undefined;
   let searchInputRef: HTMLInputElement | undefined;
+  let contentRef: HTMLDivElement | undefined;
 
-  // Handle Escape key to close panel
+  // Handle keyboard navigation
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && shortcutsPanelStore.isOpen) {
+    if (!shortcutsPanelStore.isOpen) return;
+
+    // Escape to close
+    if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
       closeShortcutsPanel();
+      return;
+    }
+
+    // Arrow key navigation within shortcut list
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const focusableItems = contentRef?.querySelectorAll('[tabindex="0"]');
+      if (!focusableItems || focusableItems.length === 0) return;
+
+      const currentIndex = Array.from(focusableItems).findIndex(
+        (el) => el === document.activeElement
+      );
+
+      if (currentIndex === -1) {
+        // If not in list, focus first item on ArrowDown
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          (focusableItems[0] as HTMLElement).focus();
+        }
+        return;
+      }
+
+      e.preventDefault();
+      let nextIndex: number;
+      if (e.key === 'ArrowDown') {
+        nextIndex = currentIndex + 1 < focusableItems.length ? currentIndex + 1 : 0;
+      } else {
+        nextIndex = currentIndex - 1 >= 0 ? currentIndex - 1 : focusableItems.length - 1;
+      }
+      (focusableItems[nextIndex] as HTMLElement).focus();
     }
   };
 
@@ -111,7 +144,7 @@ export const ShortcutsPanel: Component = () => {
             />
           </div>
 
-          <div class={styles.content}>
+          <div ref={contentRef} class={styles.content}>
             <Show
               when={!isSearching()}
               fallback={
