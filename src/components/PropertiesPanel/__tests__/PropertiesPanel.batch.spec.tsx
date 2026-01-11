@@ -201,7 +201,7 @@ describe('PropertiesPanel - Batch Edit', () => {
       fireEvent.change(input, { target: { value: 'Unified Title' } });
 
       // Commit the edit
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // Check history - should have exactly one operation
       testInRoot(() => {
@@ -226,7 +226,7 @@ describe('PropertiesPanel - Batch Edit', () => {
       const input = screen.getByRole('textbox');
       fireEvent.input(input, { target: { value: 'Unified Title' } });
       fireEvent.change(input, { target: { value: 'Unified Title' } });
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // Clear the mock to track undo calls
       mockDocumentStore.updateViewAttribute.mockClear();
@@ -265,7 +265,7 @@ describe('PropertiesPanel - Batch Edit', () => {
       const input = screen.getByRole('textbox');
       fireEvent.input(input, { target: { value: 'Unified Title' } });
       fireEvent.change(input, { target: { value: 'Unified Title' } });
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // Undo then redo
       testInRoot(() => {
@@ -307,7 +307,7 @@ describe('PropertiesPanel - Batch Edit', () => {
       const input = screen.getByRole('textbox');
       fireEvent.input(input, { target: { value: 'Unified Title' } });
       fireEvent.change(input, { target: { value: 'Unified Title' } });
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       testInRoot(() => {
         // Description should mention view count
@@ -515,7 +515,7 @@ describe('PropertiesPanel - Batch Edit', () => {
 
       fireEvent.input(input, { target: { value: 'Updated Title' } });
       fireEvent.change(input, { target: { value: 'Updated Title' } });
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // Should only update the single view
       expect(mockDocumentStore.updateViewAttribute).toHaveBeenCalledWith(
@@ -577,7 +577,7 @@ describe('PropertiesPanel - Batch Edit', () => {
       mockDocumentStore.updateViewAttribute.mockClear();
 
       // Try to commit
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // History should not record invalid edit - no new operation
       testInRoot(() => {

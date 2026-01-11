@@ -18,7 +18,7 @@ export const TextEditor: Component<EditorProps> = (props) => {
   };
 
   const handleBlur = () => {
-    props.onCommit();
+    props.onCancel();
   };
 
   return (

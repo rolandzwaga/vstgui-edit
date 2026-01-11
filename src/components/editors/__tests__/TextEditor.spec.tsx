@@ -108,14 +108,14 @@ describe('TextEditor', () => {
   });
 
   describe('blur handling', () => {
-    it('should call onCommit when input loses focus', () => {
-      const onCommit = vi.fn();
-      render(() => <TextEditor {...defaultProps} onCommit={onCommit} />);
+    it('should call onCancel when input loses focus (requires Enter to commit)', () => {
+      const onCancel = vi.fn();
+      render(() => <TextEditor {...defaultProps} onCancel={onCancel} />);
 
       const input = screen.getByRole('textbox');
       fireEvent.blur(input);
 
-      expect(onCommit).toHaveBeenCalledTimes(1);
+      expect(onCancel).toHaveBeenCalledTimes(1);
     });
   });
 

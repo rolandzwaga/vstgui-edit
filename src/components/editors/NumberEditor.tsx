@@ -89,7 +89,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
   };
 
   const handleBlur = () => {
-    props.onCommit();
+    props.onCancel();
   };
 
   return (

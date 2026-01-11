@@ -193,7 +193,7 @@ describe('AttributeRow', () => {
       const input = screen.getByRole('textbox');
       fireEvent.input(input, { target: { value: 'new value' } });
       fireEvent.change(input, { target: { value: 'new value' } });
-      fireEvent.blur(input);
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(onValueCommit).toHaveBeenCalledWith('origin', 'new value', '__MIXED__');
     });
