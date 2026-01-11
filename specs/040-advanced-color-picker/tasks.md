@@ -459,6 +459,10 @@
   - Click outside closes and commits (if valid)
   - Escape closes and reverts (if invalid per FR-022a)
   - FloatingDropdown positioning works
+  - **SC-008**: Viewport edge test cases:
+    - Dropdown flips above trigger when at bottom of viewport
+    - Dropdown shifts left when near right edge of viewport
+    - Dropdown stays within viewport bounds in all positions
 
 ### Implementation for User Story 10
 
@@ -589,7 +593,11 @@
 
 - [ ] T095 [P] Add CSS custom properties to `src/styles/tokens.css` if needed
 - [ ] T096 [P] Ensure all colors use design tokens (no hardcoded colors)
-- [ ] T097 Performance audit: ensure <100ms response, 60fps during drag
+- [ ] T097 Performance audit (SC-004):
+  - Measure gradient area click-to-update time (expect < 100ms)
+  - Measure slider drag frame rate (expect 60fps, no dropped frames)
+  - Measure input validation feedback time (expect < 100ms)
+  - Use Performance API or browser DevTools profiler to verify
 - [ ] T098 Verify WCAG 2.1 AA compliance (color contrast 4.5:1):
   - Test input label text against background (expect >= 4.5:1)
   - Test tab text against tab background (expect >= 4.5:1)

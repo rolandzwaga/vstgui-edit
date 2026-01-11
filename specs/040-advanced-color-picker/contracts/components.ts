@@ -18,14 +18,15 @@ import type { Component, JSX } from 'solid-js';
 export type { ColorFormat, ColorSource, PickerMode, ColorValue } from './ColorPicker.api';
 
 // =============================================================================
-// AdvancedColorPicker (Main Component)
+// ColorPicker (Main Component - Public API)
 // =============================================================================
 
 /**
- * Props for the main AdvancedColorPicker component.
- * Maintains backward compatibility with existing ColorPickerProps.
+ * Props for the ColorPicker component (replaces existing).
+ * Export the component as `ColorPicker` for backward compatibility.
+ * Internally routes to ColorPickerPopup or ColorPickerInline based on mode.
  */
-export interface AdvancedColorPickerProps {
+export interface ColorPickerProps {
   /** Current value (hex color, document color name, or predefined color ref) */
   value: string;
 
@@ -58,12 +59,13 @@ export interface AdvancedColorPickerProps {
 }
 
 /**
- * AdvancedColorPicker Component
+ * ColorPicker Component
  *
  * Replaces the existing ColorPicker with full visual color selection.
+ * Named `ColorPicker` for backward compatibility with existing imports.
  *
  * @example
- * <AdvancedColorPicker
+ * <ColorPicker
  *   value={color()}
  *   onChange={setColor}
  *   onCommit={commitToHistory}
@@ -71,7 +73,7 @@ export interface AdvancedColorPickerProps {
  *   documentColors={['Background', 'Accent']}
  * />
  */
-export const AdvancedColorPicker: Component<AdvancedColorPickerProps>;
+export const ColorPicker: Component<ColorPickerProps>;
 
 // =============================================================================
 // SaturationBrightnessGradient

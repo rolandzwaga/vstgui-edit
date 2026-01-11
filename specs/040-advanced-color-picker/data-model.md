@@ -1,5 +1,12 @@
 # Data Model: Advanced Color Picker
 
+## Terminology Note
+
+**Brightness vs Value**: These terms are used interchangeably in color theory (HSB vs HSV).
+- In **user-facing text**: Use "Brightness" (more intuitive)
+- In **code properties**: Use `v` (standard HSV naming)
+- The gradient area is labeled "Saturation-Brightness" in UI but uses `s` and `v` internally
+
 ## Core Types
 
 ### ColorValue
@@ -87,18 +94,19 @@ export interface PredefinedColor {
 
 ## Component Props
 
-### AdvancedColorPickerProps
+### ColorPickerProps (Public API)
 
-Main component props (extends existing EditorProps).
+Main component props. The exported component is named `ColorPicker` for backward compatibility.
+Internally it routes to `ColorPickerPopup` or `ColorPickerInline` based on mode.
 
 ```typescript
 import type { EditorProps } from '../../types/editors';
 
 /**
- * Props for the AdvancedColorPicker component.
- * Maintains compatibility with existing ColorPickerProps.
+ * Props for the ColorPicker component (replaces existing).
+ * Export as: export { ColorPicker } from './ColorPicker';
  */
-export interface AdvancedColorPickerProps extends EditorProps {
+export interface ColorPickerProps extends EditorProps {
   /** Available color names from document colors */
   documentColors: string[];
 
