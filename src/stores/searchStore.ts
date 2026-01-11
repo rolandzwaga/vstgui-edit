@@ -270,7 +270,7 @@ export function updateHighlightedIds(ids: Set<string>): void {
  * Clear all search highlights from canvas.
  */
 export function clearHighlights(): void {
-  setHighlightedIds(new Set());
+  setHighlightedIds(new Set<string>());
 }
 
 /**
@@ -297,6 +297,6 @@ export function resetSearchStore(): void {
   setScopeSignal('all');
   setScopeContainerId(null);
   setReplaceValueSignal('');
-  setHighlightedIds(new Set());
+  setHighlightedIds(new Set<string>());
   setIsSearchingSignal(false);
 }
