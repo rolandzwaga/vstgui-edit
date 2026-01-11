@@ -68,14 +68,15 @@ export const KeyboardShortcutsSection: Component = () => {
   const isSearching = createMemo(() => searchQuery().trim().length > 0);
 
   return (
-    <section class={styles.section}>
-      <h3 class={styles.sectionHeading}>Keyboard Shortcuts</h3>
-      <p class={styles.sectionDescription}>
-        Reference for all available keyboard shortcuts. Use the search to quickly find shortcuts.
-      </p>
-
-      <div class={shortcutStyles.searchContainer}>
-        <ShortcutSearch value={searchQuery()} onChange={setSearchQuery} />
+    <section class={shortcutStyles.section}>
+      <div class={shortcutStyles.header}>
+        <h3 class={styles.sectionHeading}>Keyboard Shortcuts</h3>
+        <p class={styles.sectionDescription}>
+          Reference for all available keyboard shortcuts. Use the search to quickly find shortcuts.
+        </p>
+        <div class={shortcutStyles.searchContainer}>
+          <ShortcutSearch value={searchQuery()} onChange={setSearchQuery} />
+        </div>
       </div>
 
       <div class={shortcutStyles.content}>

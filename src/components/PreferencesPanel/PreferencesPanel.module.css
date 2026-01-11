@@ -78,8 +78,11 @@
 
 .main {
   flex: 1;
+  min-height: 0;
   padding: var(--spacing-6);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .sectionHeading {
