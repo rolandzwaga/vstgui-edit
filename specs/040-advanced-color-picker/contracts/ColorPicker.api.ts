@@ -13,6 +13,7 @@ import type { Component, Accessor } from 'solid-js';
 
 /**
  * Complete color representation with all format values.
+ * This is the canonical ColorValue interface - use this in src/types/colorPicker.ts
  */
 export interface ColorValue {
   /** Red component (0-255) */
@@ -23,12 +24,16 @@ export interface ColorValue {
   b: number;
   /** Alpha component (0-255) */
   a: number;
-  /** Hue (0-360 degrees) */
+  /** Hue (0-360 degrees) - shared by both HSV and HSL */
   h: number;
   /** Saturation for HSV/HSB (0-100%) */
   s: number;
   /** Value/Brightness for HSV/HSB (0-100%) */
   v: number;
+  /** Saturation for HSL (0-100%) - different formula from HSV */
+  hslS: number;
+  /** Lightness for HSL (0-100%) */
+  l: number;
 }
 
 /**

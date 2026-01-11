@@ -54,6 +54,10 @@
     - RGB input (255, 85, 0) → 8-digit output
     - HSL input (20, 100%, 50%) → 8-digit output
     - Already 8-digit input returns unchanged
+  - **SC-003**: Round-trip accuracy tests with tolerance:
+    - RGB → HSV → RGB must produce values within +/-1 (rounding tolerance)
+    - RGB → HSL → RGB must produce values within +/-1
+    - HEX → RGB → HEX must be exact (no loss)
 - [ ] T008 [P] Write tests for color validation in `src/domain/colorPicker/__tests__/colorValidation.spec.ts`
   - validateHexInput (valid 6/8 digit, auto-add #, invalid chars, case normalization)
   - validateRgbInput (0-255 range, out of range errors)
@@ -586,7 +590,12 @@
 - [ ] T095 [P] Add CSS custom properties to `src/styles/tokens.css` if needed
 - [ ] T096 [P] Ensure all colors use design tokens (no hardcoded colors)
 - [ ] T097 Performance audit: ensure <100ms response, 60fps during drag
-- [ ] T098 Verify WCAG 2.1 AA compliance (color contrast 4.5:1)
+- [ ] T098 Verify WCAG 2.1 AA compliance (color contrast 4.5:1):
+  - Test input label text against background (expect >= 4.5:1)
+  - Test tab text against tab background (expect >= 4.5:1)
+  - Test error message text against background (expect >= 4.5:1)
+  - Test swatch border visibility against light/dark swatches
+  - Use browser DevTools Accessibility audit or contrast-ratio npm package
 - [ ] T099 Update `CLAUDE.md` with new ColorPicker domain utilities
 - [ ] T100 **Commit**: Stage and commit Polish phase changes with descriptive message
 

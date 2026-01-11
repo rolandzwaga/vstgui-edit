@@ -2,39 +2,20 @@
  * Component Interface Contracts
  *
  * Defines the public API for all Advanced Color Picker components.
+ *
+ * NOTE: Core types (ColorValue, ColorFormat, ColorSource, PickerMode) are
+ * canonically defined in ColorPicker.api.ts. These are re-exported here
+ * for component prop definitions.
  */
 
 import type { Component, JSX } from 'solid-js';
 
 // =============================================================================
-// Shared Types
+// Shared Types (re-exported from ColorPicker.api.ts)
 // =============================================================================
 
-export type ColorFormat = 'hex' | 'rgb' | 'hsl';
-
-export type ColorSource =
-  | 'hex-input'
-  | 'rgb-input'
-  | 'hsl-input'
-  | 'visual-picker'
-  | 'document-color'
-  | 'predefined-color'
-  | 'recent-color'
-  | 'eyedropper';
-
-export type PickerMode = 'popup' | 'inline';
-
-export interface ColorValue {
-  r: number;  // 0-255
-  g: number;  // 0-255
-  b: number;  // 0-255
-  a: number;  // 0-255
-  h: number;  // 0-360 (hue, shared by HSV and HSL)
-  s: number;  // 0-100 (HSV saturation)
-  v: number;  // 0-100 (HSV value/brightness)
-  hslS: number; // 0-100 (HSL saturation - different formula)
-  l: number;  // 0-100 (HSL lightness)
-}
+// Implementation should import from src/types/colorPicker.ts
+export type { ColorFormat, ColorSource, PickerMode, ColorValue } from './ColorPicker.api';
 
 // =============================================================================
 // AdvancedColorPicker (Main Component)

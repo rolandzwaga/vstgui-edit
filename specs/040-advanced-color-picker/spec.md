@@ -211,7 +211,7 @@ As a plugin developer who prefers keyboard navigation, I want to operate the col
 - How does the system handle pasting an invalid color? Validation error is shown, and the paste is accepted but not committed until corrected.
 - What happens when editing a color that references a document color that no longer exists? The picker shows the reference name with a "missing reference" indicator and allows editing to a new valid value.
 - How does the gradient area handle click vs drag? Click immediately selects that position; drag continues updating until mouse release.
-- What happens when converting HSL values that exceed RGB gamut? Values are clamped to valid RGB range and a subtle indicator shows the clamping occurred.
+- What happens when converting HSL values that exceed RGB gamut? Values are clamped to valid RGB range (0-255) and a subtle indicator (warning icon or yellow border on the input field) shows the clamping occurred.
 - What if localStorage is unavailable for recent colors? Recent colors feature gracefully degrades to session-only storage; if that also fails, the section simply does not appear.
 
 ## Clarifications
@@ -237,8 +237,8 @@ As a plugin developer who prefers keyboard navigation, I want to operate the col
 
 **Input Formats**
 - **FR-006**: System MUST accept HEX input in 6-digit (#RRGGBB) and 8-digit (#RRGGBBAA) formats
-- **FR-007**: System MUST provide RGB input mode with fields for R, G, B, A (0-255 each)
-- **FR-008**: System MUST provide HSL input mode with fields for H (0-360), S (0-100%), L (0-100%), A (0-100%)
+- **FR-007**: System MUST provide RGB input mode with fields for R, G, B (0-255 each), A (0-255)
+- **FR-008**: System MUST provide HSL input mode with fields for H (0-360), S (0-100%), L (0-100%), A (0-100%). Note: Alpha is displayed as percentage in HSL mode but stored internally as 0-255
 - **FR-009**: System MUST convert between color formats accurately when switching modes
 - **FR-009a**: System MUST always output color values as 8-digit HEX (#RRGGBBAA) regardless of input mode used
 - **FR-010**: System MUST validate all input values and display clear error messages for invalid input
@@ -267,12 +267,13 @@ As a plugin developer who prefers keyboard navigation, I want to operate the col
 - **FR-024**: All interactive elements MUST be keyboard accessible with logical tab order
 - **FR-025**: System MUST provide ARIA labels for all controls (sliders, swatches, inputs)
 - **FR-026**: Focus indicators MUST be clearly visible meeting WCAG 2.1 AA requirements
-- **FR-027**: Color contrast for text and controls MUST meet WCAG 2.1 AA (4.5:1 ratio)
+- **FR-027**: Color contrast for text and controls MUST meet WCAG 2.1 AA (4.5:1 ratio). Specifically: input labels, tab text, error messages, and swatch borders must be tested against their backgrounds
 
 **Integration**
 - **FR-028**: System MUST integrate with the existing documentStore for document colors
 - **FR-029**: System MUST work with the existing history system for undo/redo operations
 - **FR-030**: System MUST replace the existing ColorPicker component while maintaining the same props interface
+- **FR-031**: When the current value is a document color name that no longer exists in the document, system MUST display a "missing reference" indicator (red border on swatch) while showing the reference name
 
 ### Key Entities
 
@@ -357,6 +358,7 @@ The following existing components and patterns can be reused:
 | FR-028 | ⬜ PENDING | [Test or file that verifies this] |
 | FR-029 | ⬜ PENDING | [Test or file that verifies this] |
 | FR-030 | ⬜ PENDING | [Test or file that verifies this] |
+| FR-031 | ⬜ PENDING | [Test or file that verifies this] |
 | SC-001 | ⬜ PENDING | [Measurement or test result] |
 | SC-002 | ⬜ PENDING | [Measurement or test result] |
 | SC-003 | ⬜ PENDING | [Measurement or test result] |
