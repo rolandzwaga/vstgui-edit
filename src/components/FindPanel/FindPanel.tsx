@@ -14,13 +14,17 @@ import {
   navigateToNext,
   navigateToPrevious,
   selectResultAtIndex,
+  setCategoryFilter,
+  setAllCategoryFilters,
 } from '../../stores/searchStore';
+import type { CategoryFilters } from '../../types/search';
 import { parseSearchQuery, executeSearch, prepareViewForSearch, buildDisplayPath } from '../../domain/search';
 import { documentStore, getView } from '../../stores/documentStore';
 import { flattenHierarchy } from '../../domain/canvas';
 import { select } from '../../stores/selectionStore';
 import { SearchInput } from './SearchInput';
 import { ResultsList } from './ResultsList';
+import { CategoryFilter } from './CategoryFilter';
 import styles from './FindPanel.module.css';
 
 export function FindPanel() {
@@ -143,6 +147,23 @@ export function FindPanel() {
     return count === 1 ? '1 result' : `${count} results`;
   };
 
+  // Handle filter changes - re-execute search
+  const handleFilterChange = (category: keyof CategoryFilters, enabled: boolean) => {
+    setCategoryFilter(category, enabled);
+    // Re-execute search with new filters
+    if (searchStore.rawQuery.trim() !== '') {
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
+  const handleToggleAllFilters = (enabled: boolean) => {
+    setAllCategoryFilters(enabled);
+    // Re-execute search with new filters
+    if (searchStore.rawQuery.trim() !== '') {
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
   return (
     <Show when={searchStore.isOpen}>
       <Portal>
@@ -179,6 +200,12 @@ export function FindPanel() {
               <span class={styles.resultCount}>{resultCountText()}</span>
             </div>
           </Show>
+
+          <CategoryFilter
+            filters={searchStore.categoryFilters}
+            onFilterChange={handleFilterChange}
+            onToggleAll={handleToggleAllFilters}
+          />
 
           <ResultsList
             results={searchStore.results}

@@ -7,3 +7,4 @@ export { FindPanel } from './FindPanel';
 export { SearchInput } from './SearchInput';
 export { ResultItem } from './ResultItem';
 export { ResultsList } from './ResultsList';
+export { CategoryFilter } from './CategoryFilter';
