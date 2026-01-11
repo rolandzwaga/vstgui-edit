@@ -14,6 +14,7 @@ import type {
 import { resetCanvas } from './canvasStore';
 import { resetGuidesStore } from './guidesStore';
 import { resetLockHideStore } from './lockHideStore';
+import { applyDefaultStatesOnDocumentLoad } from './preferencesStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -125,6 +126,9 @@ function parseContent(content: string): void {
     });
 
     selectFirstTemplate(result.document);
+
+    // Apply default visibility/enabled states from preferences
+    applyDefaultStatesOnDocumentLoad();
   } else {
     setStore({
       parseState: 'invalid',
