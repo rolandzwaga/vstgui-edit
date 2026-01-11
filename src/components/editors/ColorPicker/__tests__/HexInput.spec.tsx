@@ -179,13 +179,14 @@ describe('HexInput', () => {
     });
 
     test('clears error when valid input is entered', () => {
-      const { rerender } = render(() => <HexInput {...defaultProps} error="Invalid" />);
+      render(() => <HexInput {...defaultProps} error="Invalid" />);
 
       // Initially shows error
       expect(screen.getByText('Invalid')).toBeTruthy();
 
-      // User enters valid value
       cleanup();
+
+      // User enters valid value - no error prop
       render(() => <HexInput {...defaultProps} error={null} />);
 
       // Error should not be visible

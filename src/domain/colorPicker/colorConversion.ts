@@ -61,7 +61,7 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns Rounded value
  */
 export function roundTo(value: number, decimals: number = 0): number {
-  const factor = Math.pow(10, decimals);
+  const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
 }
 
@@ -215,7 +215,7 @@ export function rgbToHsl(r: number, g: number, b: number): HslColor {
   // Calculate saturation
   let s = 0;
   if (delta !== 0) {
-    s = (delta / (1 - Math.abs(2 * (max + min) / 2 - 1))) * 100;
+    s = (delta / (1 - Math.abs((2 * (max + min)) / 2 - 1))) * 100;
   }
 
   // Calculate hue (same as HSV)
@@ -314,7 +314,8 @@ export function parseHexToRgba(hex: string): RgbaColor | null {
 
   // Expand 3-digit shorthand to 6-digit
   if (normalized.length === 3) {
-    normalized = normalized[0] + normalized[0] + normalized[1] + normalized[1] + normalized[2] + normalized[2];
+    normalized =
+      normalized[0] + normalized[0] + normalized[1] + normalized[1] + normalized[2] + normalized[2];
   }
 
   // Parse RRGGBB or RRGGBBAA

@@ -30,7 +30,7 @@ export const VSTGUI_PREDEFINED_COLORS: readonly PredefinedColor[] = [
  * @returns The predefined color or undefined if not found
  */
 export function getPredefinedColor(name: string): PredefinedColor | undefined {
-  return VSTGUI_PREDEFINED_COLORS.find((color) => color.name === name);
+  return VSTGUI_PREDEFINED_COLORS.find(color => color.name === name);
 }
 
 /**

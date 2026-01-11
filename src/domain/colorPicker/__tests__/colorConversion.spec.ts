@@ -5,18 +5,18 @@
  * Written following TDD approach - tests first, then implementation.
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import {
-  rgbToHsv,
-  hsvToRgb,
-  rgbToHsl,
+  clamp,
+  createColorValue,
   hslToRgb,
+  hsvToRgb,
+  isValidHex,
   parseHexToRgba,
   rgbaToHex,
-  clamp,
+  rgbToHsl,
+  rgbToHsv,
   roundTo,
-  isValidHex,
-  createColorValue,
 } from '../colorConversion';
 
 describe('colorConversion', () => {

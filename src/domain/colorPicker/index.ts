@@ -3,47 +3,45 @@
  * Barrel exports for color picker utilities
  */
 
-// Predefined colors
-export {
-  VSTGUI_PREDEFINED_COLORS,
-  getPredefinedColor,
-  getPredefinedColorHex,
-  isPredefinedColorRef,
-  formatPredefinedColorRef,
-} from './predefinedColors';
-
 // Color conversion
-export type { RgbColor, RgbaColor, HsvColor, HslColor } from './colorConversion';
+export type { HslColor, HsvColor, RgbaColor, RgbColor } from './colorConversion';
 export {
   clamp,
-  roundTo,
-  isValidHex,
-  rgbToHsv,
-  hsvToRgb,
-  rgbToHsl,
+  colorValueToHex,
+  createColorValue,
+  createColorValueFromHsl,
+  createColorValueFromHsv,
   hslToRgb,
+  hsvToRgb,
+  isValidHex,
+  parseHexToColorValue,
   parseHexToRgba,
   rgbaToHex,
-  createColorValue,
-  createColorValueFromHsv,
-  createColorValueFromHsl,
-  parseHexToColorValue,
-  colorValueToHex,
+  rgbToHsl,
+  rgbToHsv,
+  roundTo,
 } from './colorConversion';
-
 // Color validation
 export {
   validateHexInput,
-  validateRgbInput,
   validateHslInput,
+  validateRgbInput,
 } from './colorValidation';
+// Predefined colors
+export {
+  formatPredefinedColorRef,
+  getPredefinedColor,
+  getPredefinedColorHex,
+  isPredefinedColorRef,
+  VSTGUI_PREDEFINED_COLORS,
+} from './predefinedColors';
 
 // Recent colors
 export {
-  STORAGE_KEY as RECENT_COLORS_STORAGE_KEY,
-  MAX_RECENT_COLORS,
-  isStorageAvailable,
-  getRecentColors,
   addRecentColor,
   clearRecentColors,
+  getRecentColors,
+  isStorageAvailable,
+  MAX_RECENT_COLORS,
+  STORAGE_KEY as RECENT_COLORS_STORAGE_KEY,
 } from './recentColors';

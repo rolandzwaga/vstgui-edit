@@ -95,7 +95,7 @@ export function addRecentColor(hex: string): void {
     const current = getRecentColors();
 
     // Remove duplicate if exists (will be re-added at front)
-    const filtered = current.filter((color) => color !== hex);
+    const filtered = current.filter(color => color !== hex);
 
     // Add new color at the front
     const updated = [hex, ...filtered];

@@ -1,8 +1,17 @@
 /**
  * ColorPicker Component Exports
  *
- * Note: Full implementation coming in subsequent phases.
- * This barrel file will export all ColorPicker components.
+ * Advanced color picker with visual gradient, sliders, and swatches.
  */
 
-// Placeholder - components will be added as they are implemented
+// Re-export types
+export type { ColorFormat, ColorSource, ColorValue, PickerMode } from '../../../types/colorPicker';
+// Main components
+export { AdvancedColorPicker, ColorPicker } from './AdvancedColorPicker';
+export { AlphaSlider } from './AlphaSlider';
+export { ColorPickerCore } from './ColorPickerCore';
+export { ColorSwatches } from './ColorSwatches';
+// Sub-components
+export { GradientArea } from './GradientArea';
+export { HexInput } from './HexInput';
+export { HueSlider } from './HueSlider';

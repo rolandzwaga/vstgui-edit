@@ -5,11 +5,11 @@
  * Written following TDD approach - tests first, then implementation.
  */
 
-import { describe, test, expect } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import {
   validateHexInput,
-  validateRgbInput,
   validateHslInput,
+  validateRgbInput,
 } from '../colorValidation';
 
 describe('colorValidation', () => {

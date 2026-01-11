@@ -5,14 +5,14 @@
  * Written following TDD approach - tests first, then implementation.
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  getRecentColors,
   addRecentColor,
   clearRecentColors,
+  getRecentColors,
   isStorageAvailable,
-  STORAGE_KEY,
   MAX_RECENT_COLORS,
+  STORAGE_KEY,
 } from '../recentColors';
 
 describe('recentColors', () => {
