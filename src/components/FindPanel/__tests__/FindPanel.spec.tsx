@@ -48,7 +48,7 @@ describe('FindPanel', () => {
       openFindPanel();
       render(() => <FindPanel />);
 
-      expect(screen.getByText('Find')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Find' })).toBeInTheDocument();
     });
 
     it('should render search input', () => {
@@ -71,14 +71,14 @@ describe('FindPanel', () => {
       // Panel is closed by default
       render(() => <FindPanel />);
 
-      expect(screen.queryByText('Find')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Find' })).not.toBeInTheDocument();
     });
 
     it('should render when panel is open', () => {
       openFindPanel();
       render(() => <FindPanel />);
 
-      expect(screen.getByText('Find')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Find' })).toBeInTheDocument();
     });
   });
 
@@ -89,7 +89,7 @@ describe('FindPanel', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /close/i }));
 
-      expect(screen.queryByText('Find')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Find' })).not.toBeInTheDocument();
     });
 
     it('should close when Escape is pressed', () => {
@@ -98,7 +98,7 @@ describe('FindPanel', () => {
 
       fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Escape' });
 
-      expect(screen.queryByText('Find')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Find' })).not.toBeInTheDocument();
     });
   });
 

@@ -9,3 +9,5 @@ export { ResultItem } from './ResultItem';
 export { ResultsList } from './ResultsList';
 export { CategoryFilter } from './CategoryFilter';
 export { NavigationButtons } from './NavigationButtons';
+export { ModeToggle } from './ModeToggle';
+export { ReplaceControls } from './ReplaceControls';

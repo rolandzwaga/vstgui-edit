@@ -16,16 +16,30 @@ import {
   selectResultAtIndex,
   setCategoryFilter,
   setAllCategoryFilters,
+  setMode,
+  setReplaceValue,
 } from '../../stores/searchStore';
-import type { CategoryFilters } from '../../types/search';
-import { parseSearchQuery, executeSearch, prepareViewForSearch, buildDisplayPath } from '../../domain/search';
+import type { CategoryFilters, FindPanelMode } from '../../types/search';
+import {
+  parseSearchQuery,
+  executeSearch,
+  prepareViewForSearch,
+  buildDisplayPath,
+  replaceAttribute,
+  replaceAll,
+  validateReplaceValue,
+} from '../../domain/search';
+import { createReplaceOperation, createReplaceAllOperation } from '../../domain/search/historyOperations';
 import { documentStore, getView } from '../../stores/documentStore';
 import { flattenHierarchy } from '../../domain/canvas';
 import { select } from '../../stores/selectionStore';
+import { pushOperation } from '../../stores/historyStore';
 import { SearchInput } from './SearchInput';
 import { ResultsList } from './ResultsList';
 import { CategoryFilter } from './CategoryFilter';
 import { NavigationButtons } from './NavigationButtons';
+import { ModeToggle } from './ModeToggle';
+import { ReplaceControls } from './ReplaceControls';
 import styles from './FindPanel.module.css';
 
 export function FindPanel() {
@@ -165,6 +179,97 @@ export function FindPanel() {
     }
   };
 
+  const handleModeChange = (mode: FindPanelMode) => {
+    setMode(mode);
+  };
+
+  const handleReplaceInput = (value: string) => {
+    setReplaceValue(value);
+  };
+
+  // Get attribute name from current search query (for attribute searches)
+  const getAttributeName = (): string | undefined => {
+    const query = searchStore.parsedQuery;
+    if (query?.type === 'attribute') {
+      return query.attributeName;
+    }
+    return undefined;
+  };
+
+  // Check if current search is an attribute search
+  const canReplace = (): boolean => {
+    const query = searchStore.parsedQuery;
+    if (!query || query.type !== 'attribute' || !query.attributeName) {
+      return false;
+    }
+    // Check if attribute is read-only
+    const error = validateReplaceValue(query.attributeName, 'test');
+    return error === null;
+  };
+
+  // Get error message for replace validation
+  const getReplaceError = (): string | undefined => {
+    const query = searchStore.parsedQuery;
+    if (!query || query.type !== 'attribute' || !query.attributeName) {
+      if (searchStore.mode === 'replace' && searchStore.rawQuery.trim() !== '') {
+        return 'Replace requires attribute search (use attribute:value format)';
+      }
+      return undefined;
+    }
+    const error = validateReplaceValue(query.attributeName, searchStore.replaceValue);
+    return error?.message;
+  };
+
+  // Handle single replace (current result)
+  const handleReplace = () => {
+    const currentResult = searchStore.currentResult;
+    const query = searchStore.parsedQuery;
+
+    if (!currentResult || !query || query.type !== 'attribute' || !query.attributeName) {
+      return;
+    }
+
+    const change = replaceAttribute(
+      currentResult.viewId,
+      query.attributeName,
+      searchStore.replaceValue
+    );
+
+    if (change) {
+      // Push to history for undo/redo
+      const operation = createReplaceOperation(change);
+      pushOperation(operation);
+
+      // Navigate to next result and re-execute search
+      navigateToNext();
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
+  // Handle replace all
+  const handleReplaceAll = () => {
+    const query = searchStore.parsedQuery;
+
+    if (!query || query.type !== 'attribute' || !query.attributeName || searchStore.results.length === 0) {
+      return;
+    }
+
+    const viewIds = searchStore.results.map((r) => r.viewId);
+    const result = replaceAll(viewIds, query.attributeName, searchStore.replaceValue);
+
+    if (result.changes.length > 0) {
+      // Push to history for undo/redo
+      const operation = createReplaceAllOperation(result.changes, query.attributeName);
+      pushOperation(operation);
+
+      // Re-execute search (should now show no results)
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
+  // Dynamic title based on mode
+  const panelTitle = () => (searchStore.mode === 'replace' ? 'Find and Replace' : 'Find');
+
   return (
     <Show when={searchStore.isOpen}>
       <Portal>
@@ -174,7 +279,7 @@ export function FindPanel() {
           aria-label="Find and Replace"
         >
           <div class={styles.header}>
-            <h3 class={styles.title}>Find</h3>
+            <h3 class={styles.title}>{panelTitle()}</h3>
             <button
               class={styles.closeButton}
               onClick={closeFindPanel}
@@ -185,6 +290,8 @@ export function FindPanel() {
               </svg>
             </button>
           </div>
+
+          <ModeToggle mode={searchStore.mode} onModeChange={handleModeChange} />
 
           <div class={styles.searchContainer}>
             <SearchInput
@@ -206,6 +313,18 @@ export function FindPanel() {
                 onNext={navigateToNext}
               />
             </div>
+          </Show>
+
+          <Show when={searchStore.mode === 'replace'}>
+            <ReplaceControls
+              value={searchStore.replaceValue}
+              onInput={handleReplaceInput}
+              onReplace={handleReplace}
+              onReplaceAll={handleReplaceAll}
+              hasResults={canReplace() && searchStore.resultCount > 0}
+              attributeName={getAttributeName()}
+              error={getReplaceError()}
+            />
           </Show>
 
           <CategoryFilter
