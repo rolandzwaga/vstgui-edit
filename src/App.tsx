@@ -23,6 +23,7 @@ import {
   subscribeToSystemThemeChanges,
 } from './domain/theme';
 import { documentStore, getTemplate } from './stores/documentStore';
+import { undo, redo } from './stores/historyStore';
 import { openPreferences, initializePreferences, preferencesStore } from './stores/preferencesStore';
 import { PreferencesPanel } from './components/PreferencesPanel';
 import { searchStore } from './stores/searchStore';
@@ -70,7 +71,7 @@ export default function App() {
     onCleanup(() => window.removeEventListener('beforeunload', handleBeforeUnload));
   });
 
-  // Global keyboard shortcuts for Find/Replace and Preferences
+  // Global keyboard shortcuts for Find/Replace, Preferences, and Undo/Redo
   createEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Skip if typing in input/textarea
@@ -80,8 +81,23 @@ export default function App() {
         return;
       }
 
-      // Ctrl+, or Cmd+, - Open preferences (only when document loaded)
       const ctrlOrCmd = e.ctrlKey || e.metaKey;
+
+      // Ctrl+Z - Undo (only when document loaded)
+      if (ctrlOrCmd && e.key.toLowerCase() === 'z' && !e.shiftKey && documentStore.parseState === 'valid') {
+        e.preventDefault();
+        undo();
+        return;
+      }
+
+      // Ctrl+Shift+Z or Ctrl+Y - Redo (only when document loaded)
+      if (ctrlOrCmd && ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') && documentStore.parseState === 'valid') {
+        e.preventDefault();
+        redo();
+        return;
+      }
+
+      // Ctrl+, or Cmd+, - Open preferences (only when document loaded)
       if (ctrlOrCmd && e.key === ',' && documentStore.parseState === 'valid') {
         e.preventDefault();
         openPreferences();

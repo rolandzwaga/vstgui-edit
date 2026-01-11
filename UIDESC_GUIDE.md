@@ -919,9 +919,9 @@ Linear slider control.
 | `draw-value` | boolean | Draw value fill |
 | `draw-value-from-center` | boolean | Fill from center |
 | `draw-value-inverted` | boolean | Invert fill direction |
-| `frame-color` | color | Border color |
-| `back-color` | color | Background color |
-| `value-color` | color | Fill color |
+| `draw-frame-color` | color | Border color |
+| `draw-back-color` | color | Background color |
+| `draw-value-color` | color | Fill color |
 
 ### Switch Classes
 
@@ -1306,4 +1306,4 @@ project/
 
 ---
 
-*This guide is maintained as part of the VSTGUI-Edit project. Last updated: 2026-01-05*
+*This guide is maintained as part of the VSTGUI-Edit project. Last updated: 2026-01-11*

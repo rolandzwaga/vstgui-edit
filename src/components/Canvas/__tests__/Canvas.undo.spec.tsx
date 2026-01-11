@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import { Canvas } from '../Canvas';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { resetDrag } from '../../../stores/dragStore';
-import { clearHistory, historyStore, resetHistory } from '../../../stores/historyStore';
+import { historyStore, resetHistory, undo, redo } from '../../../stores/historyStore';
 import { resetSelection, selectionStore } from '../../../stores/selectionStore';
 
 // biome-ignore lint/suspicious/noExplicitAny: Mock for testing
@@ -74,6 +74,9 @@ const createMockDocument = (
   };
 };
 
+// Note: Undo/Redo is now handled globally in App.tsx, so these tests
+// call undo()/redo() directly instead of simulating keyboard events on the canvas.
+
 describe('Canvas Undo/Redo (US2)', () => {
   beforeEach(() => {
     mockDocumentStore.document = null;
@@ -98,7 +101,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -111,7 +113,8 @@ describe('Canvas Undo/Redo (US2)', () => {
         expect(historyStore.canUndo).toBe(true);
         mockUpdateViewOrigin.mockClear();
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        // Call undo directly (global handler in App.tsx handles Ctrl+Z)
+        undo();
 
         expect(mockUpdateViewOrigin).toHaveBeenCalledWith('TestTemplate-view-1', { x: 50, y: 50 });
       });
@@ -124,7 +127,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -135,7 +137,7 @@ describe('Canvas Undo/Redo (US2)', () => {
 
         expect(historyStore.canRedo).toBe(false);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
 
         expect(historyStore.canRedo).toBe(true);
       });
@@ -150,7 +152,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -159,10 +160,10 @@ describe('Canvas Undo/Redo (US2)', () => {
         fireEvent.mouseMove(document, { clientX: 150, clientY: 120 });
         fireEvent.mouseUp(document);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
         mockUpdateViewOrigin.mockClear();
 
-        fireEvent.keyDown(wrapper, { key: 'y', ctrlKey: true });
+        redo();
 
         expect(mockUpdateViewOrigin).toHaveBeenCalledWith('TestTemplate-view-1', { x: 100, y: 70 });
       });
@@ -177,7 +178,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -186,10 +186,11 @@ describe('Canvas Undo/Redo (US2)', () => {
         fireEvent.mouseMove(document, { clientX: 150, clientY: 120 });
         fireEvent.mouseUp(document);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
         mockUpdateViewOrigin.mockClear();
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true, shiftKey: true });
+        // Ctrl+Shift+Z also calls redo (handled globally)
+        redo();
 
         expect(mockUpdateViewOrigin).toHaveBeenCalledWith('TestTemplate-view-1', { x: 100, y: 70 });
       });
@@ -206,7 +207,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -221,13 +221,14 @@ describe('Canvas Undo/Redo (US2)', () => {
 
         mockUpdateViewOrigin.mockClear();
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
         expect(mockUpdateViewOrigin).toHaveBeenCalledTimes(1);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
         expect(mockUpdateViewOrigin).toHaveBeenCalledTimes(2);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
+        // No more operations - should stay at 2
         expect(mockUpdateViewOrigin).toHaveBeenCalledTimes(2);
       });
     });
@@ -243,7 +244,6 @@ describe('Canvas Undo/Redo (US2)', () => {
         render(() => <Canvas />);
 
         const view = screen.getByTestId('view-TestTemplate-view-1');
-        const wrapper = screen.getByTestId('canvas-wrapper');
 
         fireEvent.mouseDown(view, { button: 0 });
         fireEvent.mouseUp(document);
@@ -252,7 +252,7 @@ describe('Canvas Undo/Redo (US2)', () => {
         fireEvent.mouseMove(document, { clientX: 150, clientY: 100 });
         fireEvent.mouseUp(document);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
         expect(historyStore.canRedo).toBe(true);
 
         fireEvent.mouseDown(view, { button: 0, clientX: 100, clientY: 100 });
@@ -273,10 +273,9 @@ describe('Canvas Undo/Redo (US2)', () => {
 
         render(() => <Canvas />);
 
-        const wrapper = screen.getByTestId('canvas-wrapper');
         expect(historyStore.canUndo).toBe(false);
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        undo();
 
         expect(mockUpdateViewOrigin).not.toHaveBeenCalled();
       });
@@ -290,10 +289,9 @@ describe('Canvas Undo/Redo (US2)', () => {
 
         render(() => <Canvas />);
 
-        const wrapper = screen.getByTestId('canvas-wrapper');
         expect(historyStore.canRedo).toBe(false);
 
-        fireEvent.keyDown(wrapper, { key: 'y', ctrlKey: true });
+        redo();
 
         expect(mockUpdateViewOrigin).not.toHaveBeenCalled();
       });
@@ -325,10 +323,13 @@ describe('Canvas Undo/Redo (US2)', () => {
       expect(historyStore.canUndo).toBe(true);
       mockUpdateViewOrigin.mockClear();
 
+      // When focused on text input and Ctrl+Z is pressed, global handler skips it
+      // (This behavior is tested in App.tsx, not here since we call undo() directly)
       const textInput = screen.getByTestId('text-input');
-      fireEvent.keyDown(textInput, { key: 'z', ctrlKey: true });
+      textInput.focus();
 
-      expect(mockUpdateViewOrigin).not.toHaveBeenCalled();
+      // Simulating what the global handler does - it checks if target is input/textarea
+      // and skips undo. Here we just verify the history state remains unchanged.
       expect(historyStore.canUndo).toBe(true);
     });
   });

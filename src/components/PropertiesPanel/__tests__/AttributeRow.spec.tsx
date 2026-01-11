@@ -177,9 +177,11 @@ describe('AttributeRow', () => {
 
       // onValueChange should NOT be called during typing
       expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommit).not.toHaveBeenCalled();
 
-      // Value is only propagated when user presses Enter
+      // Press Enter to commit - BOTH onValueChange AND onValueCommit should be called
       fireEvent.keyDown(input, { key: 'Enter' });
+      expect(onValueChange).toHaveBeenCalledWith('origin', 'new value');
       expect(onValueCommit).toHaveBeenCalledWith('origin', 'new value', '__MIXED__');
     });
 
