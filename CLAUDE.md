@@ -323,6 +323,23 @@ npx tsc --noEmit                   # Type check
 | `setReplaceValue(value)` | Set replacement value |
 | `resetSearchStore()` | Reset to initial state |
 
+### shortcutsPanelStore (`src/stores/shortcutsPanelStore.ts`)
+**Purpose**: Keyboard shortcuts reference panel state
+
+| Export | Description |
+|--------|-------------|
+| `shortcutsPanelStore` | State: `isOpen`, `searchQuery`, `expandedCategories` (Set) |
+| `openShortcutsPanel()` | Open panel, clear search, expand all categories (? / Ctrl+/) |
+| `closeShortcutsPanel()` | Close panel |
+| `toggleShortcutsPanel()` | Toggle panel visibility |
+| `setSearchQuery(query)` | Set search filter query |
+| `clearSearch()` | Clear search query |
+| `expandCategory(id)/collapseCategory(id)` | Expand/collapse single category |
+| `toggleCategory(id)` | Toggle category expanded state |
+| `expandAllCategories()/collapseAllCategories()` | Expand/collapse all |
+| `isCategoryExpanded(id)` | Check if category is expanded |
+| `resetShortcutsPanelStore()` | Reset to initial state (for testing) |
+
 ---
 
 ## Domain Utilities
@@ -432,7 +449,19 @@ npx tsc --noEmit                   # Type check
 | `validation.ts` | `validatePreferences(prefs)` - validate with AJV |
 | `persistence.ts` | `STORAGE_KEY`, `loadPreferences()`, `savePreferences(prefs)`, `mergeWithDefaults(partial)`, `isStorageAvailable()` |
 | `migration.ts` | `LEGACY_KEYS`, `needsMigration()`, `migratePreferences()` - migrates legacy localStorage keys |
-| `keyboardShortcuts.ts` | `KEYBOARD_SHORTCUTS` - 23 shortcuts in 5 categories for reference display |
+
+### Shortcuts (`src/domain/shortcuts/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `registry.ts` | `SHORTCUT_CATEGORIES` (10 categories), `SHORTCUT_REGISTRY` (44 shortcuts) |
+| | `getShortcutsByCategory(id)`, `getShortcutById(id)`, `getShortcutsGroupedByCategory()` |
+| | `getShortcutCount()`, `getCategoryStats()` |
+| `platform.ts` | `isMacPlatform()`, `getModifierKeyName()` ("Cmd" or "Ctrl") |
+| | `formatKeysForPlatform(keys)` - converts Ctrl to Cmd on Mac |
+| `search.ts` | `searchShortcuts(query)` - case-insensitive substring match on keys/description |
+| `conflicts.ts` | `detectConflicts()` - finds duplicate key combinations, logs warnings |
+| | `hasConflict(id)`, `getConflictForShortcut(id)`, `clearConflictCache()` |
 
 ### Theme (`src/domain/theme/`)
 
@@ -636,6 +665,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-11 | 038-keyboard-shortcuts | Keyboard shortcuts panel (? / Ctrl+/), 44 shortcuts across 10 categories, centralized registry, searchable list, conflict detection, platform-aware display (Ctrl/Cmd), Preferences integration |
 | 01-11 | 037-theme-support | Theme support: Light/Dark/System modes, FOIT prevention, CSS custom properties, matchMedia OS detection, ~23 tests |
 | 01-11 | 036-preferences-panel | Preferences panel (Ctrl+,), grid/snap/guides settings, theme (stubbed), keyboard shortcuts reference, reset to defaults, localStorage persistence with legacy migration, ~250 tests |
 | 01-11 | 035-find-replace | Find/Replace panel (Ctrl+F/Ctrl+H), class/attribute search, category/scope filters, replace with undo, F3 navigation, ~265 tests |

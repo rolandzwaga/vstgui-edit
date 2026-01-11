@@ -61,6 +61,13 @@ export function openPreferences(): void {
 }
 
 /**
+ * Opens the preferences panel and navigates to a specific section.
+ */
+export function openPreferencesToSection(section: PreferencesSection): void {
+  setStore({ isOpen: true, activeSection: section });
+}
+
+/**
  * Closes the preferences panel.
  */
 export function closePreferences(): void {

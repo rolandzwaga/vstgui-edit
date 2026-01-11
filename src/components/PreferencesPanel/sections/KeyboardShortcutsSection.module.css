@@ -2,54 +2,68 @@
  * KeyboardShortcutsSection Styles
  */
 
-.categoryGroup {
-  margin-bottom: var(--spacing-6);
-}
-
-.categoryGroup:last-child {
-  margin-bottom: 0;
-}
-
-.categoryName {
-  margin: 0 0 var(--spacing-2) 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.shortcutList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.shortcutItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-4);
-  padding: var(--spacing-2) 0;
-}
-
-.keyCombo {
-  flex-shrink: 0;
-  min-width: 120px;
-  padding: var(--spacing-1) var(--spacing-2);
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-primary);
-  background-color: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-200);
-  border-radius: var(--radius-sm);
-}
-
-.description {
   flex: 1;
+  min-height: 0;
+}
+
+.header {
+  flex-shrink: 0;
+}
+
+.searchContainer {
+  margin-bottom: var(--spacing-4);
+  flex-shrink: 0;
+}
+
+.content {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.categories {
+  /* Container for collapsible categories */
+}
+
+.searchResults {
+  padding: var(--spacing-4);
+}
+
+.resultCount {
   font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-3);
+}
+
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8) var(--spacing-4);
+  color: var(--color-text-muted);
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+.emptyState p:first-child {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2);
+}
+
+.emptyHint {
+  font-size: var(--font-size-sm);
 }

@@ -1,0 +1,68 @@
+/**
+ * ShortcutItem Styles
+ */
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-base);
+  transition: background-color var(--transition-fast);
+}
+
+.item:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  background-color: var(--color-surface-hover);
+}
+
+.keys {
+  flex-shrink: 0;
+  min-width: 130px;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  background-color: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 0 var(--color-neutral-200);
+}
+
+.description {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.context {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Conflict indicator */
+.conflicting {
+  background-color: var(--color-warning-50);
+}
+
+.conflicting:hover {
+  background-color: var(--color-warning-100);
+}
+
+.conflictIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-warning-600);
+  cursor: help;
+}

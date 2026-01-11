@@ -22,7 +22,7 @@ import {
 } from '../../domain/hierarchy/groupOperations';
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
+import { documentStore, getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import {
@@ -41,6 +41,7 @@ import {
   unlockSelectedWithHistory,
 } from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
+import { openPreferencesToSection, preferencesStore } from '../../stores/preferencesStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
@@ -86,6 +87,36 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     const target = e.target as HTMLElement;
     const tagName = target.tagName.toLowerCase();
     if (tagName === 'input' || tagName === 'textarea') {
+      return;
+    }
+
+    // Handle ? key to open shortcuts in preferences (FR-001)
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Don't open if preferences already open
+      if (preferencesStore.isOpen) {
+        return;
+      }
+      // Don't open if no document loaded (FR-006)
+      if (!documentStore.document) {
+        return;
+      }
+      e.preventDefault();
+      openPreferencesToSection('shortcuts');
+      return;
+    }
+
+    // Handle Ctrl+/ or Cmd+/ to open shortcuts in preferences (FR-002)
+    if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
+      // Don't open if preferences already open
+      if (preferencesStore.isOpen) {
+        return;
+      }
+      // Don't open if no document loaded (FR-006)
+      if (!documentStore.document) {
+        return;
+      }
+      e.preventDefault();
+      openPreferencesToSection('shortcuts');
       return;
     }
 

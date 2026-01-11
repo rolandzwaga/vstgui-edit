@@ -180,32 +180,6 @@ export interface PreferencesSectionInfo {
 }
 
 // ============================================================================
-// Keyboard Shortcuts Types
-// ============================================================================
-
-/**
- * A single keyboard shortcut entry.
- */
-export interface KeyboardShortcut {
-  /** Key combination display string */
-  keys: string;
-
-  /** Action description */
-  description: string;
-}
-
-/**
- * A category of related shortcuts.
- */
-export interface ShortcutCategory {
-  /** Category name */
-  name: string;
-
-  /** Shortcuts in this category */
-  shortcuts: KeyboardShortcut[];
-}
-
-// ============================================================================
 // Store State Types
 // ============================================================================
 
