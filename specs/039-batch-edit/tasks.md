@@ -67,7 +67,7 @@
 - [X] T016 [US1] Update inline editor handlers (`handleTextCommit`, `handlePointCommit`, `handleNumberCommit`) in `src/components/PropertiesPanel/AttributeRow.tsx` to pass `'__MIXED__'` marker for mixed values
 - [X] T017 [US1] Update `handleDoubleClick` in `src/components/PropertiesPanel/AttributeRow.tsx` to set empty edit value when `props.entry.isMixed` is true
 - [X] T018 [P] [US1] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: batch edit applies to all selected views (FR-002)
-- [ ] T019 [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
+- [X] T019 [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
 
 **Checkpoint**: User Story 1 complete - batch editing of mixed attributes is functional
 
@@ -83,15 +83,15 @@
 
 > **REQUIRED: `specs/TESTING-GUIDE.md` must be in context from T004**
 
-- [ ] T020 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify batch edit creates single history operation (FR-004)
-- [ ] T021 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify undo restores per-view original values (FR-005)
-- [ ] T022 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify redo reapplies batch value to all views (FR-006)
-- [ ] T023 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify history description includes view count (FR-012)
+- [X] T020 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify batch edit creates single history operation (FR-004)
+- [X] T021 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify undo restores per-view original values (FR-005)
+- [X] T022 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify redo reapplies batch value to all views (FR-006)
+- [X] T023 [P] [US2] Add test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: verify history description includes view count (FR-012)
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Verify `createPropertyEditOperation` in `src/domain/properties/historyOperations.ts` correctly formats description with view count (existing code may already handle this)
-- [ ] T025 [US2] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: full undo/redo cycle with mixed values
+- [X] T024 [US2] Verify `createPropertyEditOperation` in `src/domain/properties/historyOperations.ts` correctly formats description with view count (existing code may already handle this)
+- [X] T025 [US2] Add integration test in `src/components/PropertiesPanel/__tests__/PropertiesPanel.batch.spec.tsx`: full undo/redo cycle with mixed values
 - [ ] T026 [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
 
 **Checkpoint**: User Story 2 complete - undo/redo works correctly for batch edits
