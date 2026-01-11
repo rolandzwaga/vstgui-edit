@@ -130,7 +130,7 @@
     linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-  background-color: white;
+  background-color: var(--color-checkerboard-base);
 }
 
 .alphaGradient {
@@ -357,7 +357,7 @@
     linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-  background-color: white;
+  background-color: var(--color-checkerboard-base);
 }
 
 .previewSwatch {
@@ -468,6 +468,7 @@
     linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
   background-size: 4px 4px;
   background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+  background-color: var(--color-checkerboard-base);
 }
 
 .triggerColor {

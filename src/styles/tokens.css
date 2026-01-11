@@ -212,6 +212,7 @@
 
   /* Color Picker */
   --color-checkerboard: #cccccc;
+  --color-checkerboard-base: #ffffff;
   --color-focus-ring: rgba(59, 130, 246, 0.5);
   --color-border-hover: var(--color-neutral-400);
   --radius-xs: 0.125rem;
@@ -355,6 +356,7 @@
 
   /* Color Picker - Dark theme */
   --color-checkerboard: #555555;
+  --color-checkerboard-base: #333333;
   --color-focus-ring: rgba(96, 165, 250, 0.5);
   --color-border-hover: #737373;
   --color-error: #f87171;
