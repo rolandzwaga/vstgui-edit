@@ -16,8 +16,13 @@ import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 
 import { handleSearchShortcut } from './domain/search/shortcuts';
+import {
+  initializeTheme,
+  updateTheme,
+  subscribeToSystemThemeChanges,
+} from './domain/theme';
 import { documentStore, getTemplate } from './stores/documentStore';
-import { openPreferences, initializePreferences } from './stores/preferencesStore';
+import { openPreferences, initializePreferences, preferencesStore } from './stores/preferencesStore';
 import { PreferencesPanel } from './components/PreferencesPanel';
 import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
@@ -27,6 +32,26 @@ import './styles/tokens.css';
 export default function App() {
   // Initialize preferences from localStorage on mount
   initializePreferences();
+
+  // Initialize theme after preferences are loaded
+  initializeTheme();
+
+  // React to theme mode changes
+  createEffect(() => {
+    // Access reactive property to track changes
+    const _mode = preferencesStore.preferences.theme.mode;
+    updateTheme();
+  });
+
+  // Listen for OS theme changes when in system mode
+  createEffect(() => {
+    if (preferencesStore.preferences.theme.mode === 'system') {
+      const unsubscribe = subscribeToSystemThemeChanges(() => {
+        updateTheme();
+      });
+      onCleanup(unsubscribe);
+    }
+  });
 
   // Warn on unsaved changes
   createEffect(() => {

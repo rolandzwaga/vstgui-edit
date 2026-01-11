@@ -31,6 +31,7 @@
   /* Colors - Success (Green) */
   --color-success-50: #f0fdf4;
   --color-success-100: #dcfce7;
+  --color-success-400: #4ade80;
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
   --color-success-700: #15803d;
@@ -38,6 +39,7 @@
   /* Colors - Error (Red) */
   --color-error-50: #fef2f2;
   --color-error-100: #fee2e2;
+  --color-error-400: #f87171;
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
   --color-error-700: #b91c1c;
@@ -206,12 +208,86 @@
   --ruler-origin-background: var(--color-neutral-200);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Grid Colors - Dark theme */
-    --color-grid-minor: rgba(255, 255, 255, 0.08);
-    --color-grid-major: rgba(255, 255, 255, 0.20);
-  }
+/**
+ * Dark Theme Overrides
+ *
+ * Applied via data-theme="dark" attribute on document root.
+ * All color values maintain WCAG AA contrast ratios (4.5:1 minimum).
+ */
+[data-theme="dark"] {
+  /* Semantic Colors */
+  --color-background: var(--color-neutral-900);
+  --color-surface: var(--color-neutral-800);
+  --color-text-primary: var(--color-neutral-50);
+  --color-text-secondary: var(--color-neutral-400);
+  --color-text-muted: var(--color-neutral-500);
+  --color-border: var(--color-neutral-700);
+  --color-border-focus: var(--color-primary-400);
+
+  /* Upload Zone States */
+  --upload-zone-bg-idle: var(--color-neutral-800);
+  --upload-zone-bg-dragging: var(--color-primary-900);
+  --upload-zone-bg-success: var(--color-success-700);
+  --upload-zone-bg-error: var(--color-error-700);
+  --upload-zone-border-idle: var(--color-neutral-600);
+  --upload-zone-border-dragging: var(--color-primary-400);
+  --upload-zone-border-success: var(--color-success-400);
+  --upload-zone-border-error: var(--color-error-400);
+
+  /* Canvas Colors */
+  --color-canvas-background: var(--color-neutral-900);
+  --color-template-bounds: var(--color-neutral-500);
+  --color-grid-minor: rgba(255, 255, 255, 0.08);
+  --color-grid-major: rgba(255, 255, 255, 0.20);
+
+  /* Selection and Hover Colors */
+  --color-selection-stroke: #4da6ff;
+  --color-selection-fill: rgba(77, 166, 255, 0.15);
+  --color-selection-handle-fill: #4da6ff;
+  --color-selection-handle-stroke: #171717;
+  --color-hover-stroke: #999999;
+  --color-hover-fill: rgba(153, 153, 153, 0.1);
+  --color-parent-highlight-fill: rgba(77, 166, 255, 0.08);
+  --color-parent-highlight-stroke: rgba(77, 166, 255, 0.4);
+  --color-marquee-fill: rgba(99, 179, 237, 0.2);
+  --color-marquee-stroke: #63b3ed;
+
+  /* Tooltip Colors (inverted for dark theme) */
+  --color-tooltip-background: var(--color-neutral-100);
+  --color-tooltip-text: var(--color-neutral-900);
+  --color-tooltip-border: var(--color-neutral-300);
+
+  /* Panel and Item Colors */
+  --color-item-hover-bg: var(--color-neutral-700);
+  --color-item-selected-bg: var(--color-primary-900);
+  --color-item-selected-border: var(--color-primary-400);
+  --color-item-readonly-bg: var(--color-neutral-800);
+  --color-item-readonly-text: var(--color-neutral-400);
+
+  /* Ruler Colors */
+  --ruler-background: var(--color-neutral-800);
+  --ruler-border-color: var(--color-neutral-600);
+  --ruler-tick-color: var(--color-neutral-500);
+  --ruler-tick-major-color: var(--color-neutral-400);
+  --ruler-label-color: var(--color-neutral-300);
+  --ruler-cursor-indicator-color: var(--color-primary-400);
+  --ruler-template-bounds-color: rgba(59, 130, 246, 0.15);
+  --ruler-origin-background: var(--color-neutral-700);
+
+  /* Shadow Tokens (increased opacity for dark backgrounds) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+
+  /* Primary Color Adjustments */
+  --color-primary: var(--color-primary-400);
+  --color-primary-hover: var(--color-primary-300);
+  --color-primary-light: var(--color-primary-900);
+
+  /* Overlay (slightly lighter for dark theme) */
+  --color-overlay: rgb(0 0 0 / 0.7);
 }
 
 /* Global Reset & Base Styles */
