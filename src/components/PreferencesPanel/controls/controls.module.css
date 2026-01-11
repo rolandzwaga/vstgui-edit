@@ -163,17 +163,17 @@
 }
 
 .selectOption:hover {
-  background-color: var(--color-neutral-100);
+  background-color: var(--color-item-hover-bg);
 }
 
 .selectOptionSelected {
-  background-color: var(--color-primary-50);
+  background-color: var(--color-item-selected-bg);
   color: var(--color-primary);
   font-weight: var(--font-weight-medium);
 }
 
 .selectOptionHighlighted {
-  background-color: var(--color-neutral-100);
+  background-color: var(--color-item-hover-bg);
 }
 
 /* ============================================================================
