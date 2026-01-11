@@ -46,3 +46,23 @@
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+/* Conflict indicator */
+.conflicting {
+  background-color: var(--color-warning-50);
+}
+
+.conflicting:hover {
+  background-color: var(--color-warning-100);
+}
+
+.conflictIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-warning-600);
+  cursor: help;
+}

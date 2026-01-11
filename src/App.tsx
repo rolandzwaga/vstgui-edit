@@ -16,6 +16,7 @@ import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 
 import { handleSearchShortcut } from './domain/search/shortcuts';
+import { detectConflicts } from './domain/shortcuts';
 import {
   initializeTheme,
   updateTheme,
@@ -36,6 +37,9 @@ export default function App() {
 
   // Initialize theme after preferences are loaded
   initializeTheme();
+
+  // Detect and log shortcut conflicts (development validation)
+  detectConflicts();
 
   // React to theme mode changes
   createEffect(() => {
