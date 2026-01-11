@@ -449,7 +449,6 @@ npx tsc --noEmit                   # Type check
 | `validation.ts` | `validatePreferences(prefs)` - validate with AJV |
 | `persistence.ts` | `STORAGE_KEY`, `loadPreferences()`, `savePreferences(prefs)`, `mergeWithDefaults(partial)`, `isStorageAvailable()` |
 | `migration.ts` | `LEGACY_KEYS`, `needsMigration()`, `migratePreferences()` - migrates legacy localStorage keys |
-| `keyboardShortcuts.ts` | `KEYBOARD_SHORTCUTS` (DEPRECATED - use domain/shortcuts instead) |
 
 ### Shortcuts (`src/domain/shortcuts/`)
 

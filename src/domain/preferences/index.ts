@@ -6,8 +6,6 @@
 
 // Defaults
 export { DEFAULT_PREFERENCES } from './defaults';
-// Keyboard Shortcuts
-export { KEYBOARD_SHORTCUTS } from './keyboardShortcuts';
 // Migration
 export {
   LEGACY_KEYS,
