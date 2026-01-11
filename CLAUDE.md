@@ -1,6 +1,6 @@
 # VSTGUI-Edit Development Guidelines
 
-Auto-generated from speckit templates. Last updated: 2026-01-07
+Auto-generated from speckit templates. Last updated: 2026-01-11
 
 ---
 
@@ -29,6 +29,16 @@ Auto-generated from speckit templates. Last updated: 2026-01-07
 > ✅ `import { x } from 'module'` (static imports at file top)
 > **Only exception**: `vi.importActual()` inside `vi.mock()` in tests
 > **VIOLATION = IMMEDIATE CODE REJECTION. ZERO TOLERANCE.**
+
+### 4. NEVER RUN TEST SUITE REPEATEDLY
+> **Run `npm test` ONCE per task. NEVER run it multiple times to extract different information.**
+> - Run tests ONCE → read full output → done
+> - If output truncated, use `head`/`tail` on the saved output file
+> - NEVER re-run tests just to see summary, count, or different format
+> - Test suite has 4000+ tests - each run burns significant time and tokens
+> ❌ Running `npm test` 3x to get "pass count", then "fail list", then "duration"
+> ✅ Run ONCE, parse the single output for all needed information
+> **VIOLATION = WASTED USER TIME AND TOKENS. UNACCEPTABLE.**
 
 ---
 

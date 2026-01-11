@@ -1,29 +1,27 @@
 <!--
   SYNC IMPACT REPORT
   ==================
-  Version change: 1.5.0 → 1.6.0 (MINOR - new principle added)
-  
+  Version change: 1.6.0 → 1.7.0 (MINOR - new principle added)
+
   Modified principles:
-  - IV. Code Quality & Architecture: Updated to reference new XXIII for quality gates
-  
+  - None
+
   Added sections:
-  - XXIII. Quality Gates (NON-NEGOTIABLE): Three mandatory commands before spec completion
-  
+  - XXIV. Test Suite Efficiency (NON-NEGOTIABLE): Never run test suite multiple times for information extraction
+
   Removed sections:
   - None
-  
+
   Templates updated:
-  - ✅ .specify/templates/tasks-template.md: Added "Phase Final-1: Quality Gates" section
-  - ✅ .specify/templates/spec-template.md: Added quality gate verification to Final Verification checklist
-  - ✅ .specify/templates/plan-template.md: No changes needed (quality gates are task-level, not plan-level)
-  
+  - No template changes needed (principle is behavioral, not structural)
+
   Follow-up TODOs:
   - None
 -->
 
 # VSTGUI-Edit Project Constitution
 
-**Version**: 1.6.0
+**Version**: 1.7.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for the VSTGUI-Edit project
 
 ---
@@ -658,6 +656,42 @@ If ANY requirement is not met, the spec is NOT complete.
 
 **Rationale**: Quality gates catch issues that tests alone cannot detect. CSS variable errors, linting violations, and type errors indicate code that may work but is not maintainable. Enforcing these gates ensures consistent, high-quality code across the entire codebase.
 
+### XXIV. Test Suite Efficiency (NON-NEGOTIABLE)
+
+**CRITICAL**: The test suite has 4000+ tests. Running it is expensive in time and tokens.
+
+**Absolute Requirements**:
+- Run `npm test` **ONCE** per task - NEVER multiple times
+- If output is truncated, read the saved output file with `head`/`tail`
+- NEVER re-run tests just to extract different information (counts, summaries, etc.)
+- Parse ALL needed information from a single test run
+
+**FORBIDDEN Patterns**:
+- Running `npm test` to see if tests pass
+- Running `npm test` again to get the count
+- Running `npm test` again to see which failed
+- Running `npm test` with different grep patterns back-to-back
+
+**REQUIRED Pattern**:
+```bash
+# Run ONCE, capture full output
+npm test 2>&1 | tee /tmp/test-output.txt
+# If truncated, read the saved file
+tail -50 /tmp/test-output.txt
+```
+
+**When Tests Must Run Multiple Times** (ONLY acceptable cases):
+- After fixing a failing test (to verify the fix)
+- After implementing new code (to verify new tests pass)
+- NOT for information extraction from the same state
+
+**Enforcement**:
+- Multiple consecutive test runs without code changes = VIOLATION
+- Wasting user time and tokens is UNACCEPTABLE
+- This applies to ALL expensive operations (build, lint, etc.)
+
+**Rationale**: Each test run consumes significant time (~30-60 seconds) and tokens for output processing. Running tests multiple times to extract different views of the same data is wasteful and disrespectful of user resources.
+
 ## Technology Stack Requirements
 
 ### Mandatory Dependencies
@@ -787,6 +821,6 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.6.0
+**Version**: 1.7.0
 **Ratified**: 2026-01-05
-**Last Amended**: 2026-01-07 (v1.6.0: Added Quality Gates principle - npm run lint:css, check, typecheck MUST pass before spec completion)
+**Last Amended**: 2026-01-11 (v1.7.0: Added Test Suite Efficiency principle - never run npm test multiple times for information extraction)
