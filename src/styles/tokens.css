@@ -53,11 +53,14 @@
   /* Semantic Colors */
   --color-background: var(--color-neutral-50);
   --color-surface: #ffffff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-hover: rgba(0, 0, 0, 0.05);
   --color-text-primary: var(--color-neutral-900);
   --color-text-secondary: var(--color-neutral-600);
   --color-text-muted: var(--color-neutral-400);
   --color-border: var(--color-neutral-200);
   --color-border-focus: var(--color-primary-500);
+  --color-focus: var(--color-primary-600);
 
   /* Upload Zone States */
   --upload-zone-bg-idle: var(--color-neutral-100);
@@ -123,6 +126,16 @@
   --color-primary-light: var(--color-primary-50);
   --color-text-on-primary: #ffffff;
 
+  /* Semantic Info Colors (alias to primary) */
+  --color-info: var(--color-primary-600);
+  --color-info-light: var(--color-primary-50);
+
+  /* Semantic Error Light */
+  --color-error-light: var(--color-error-50);
+
+  /* Item States */
+  --color-item-active-bg: var(--color-primary-50);
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 200ms ease;
@@ -159,6 +172,8 @@
   --color-selection-fill: rgba(0, 102, 204, 0.1);
   --color-selection-handle-fill: #0066cc;
   --color-selection-handle-stroke: #ffffff;
+  --color-selection-bg: rgba(0, 102, 204, 0.12);
+  --color-selection-bg-hover: rgba(0, 102, 204, 0.18);
 
   /* Hover Colors */
   --color-hover-stroke: #666666;
@@ -215,28 +230,57 @@
  * All color values maintain WCAG AA contrast ratios (4.5:1 minimum).
  */
 [data-theme="dark"] {
+  /* Neutral Palette Overrides (inverted for dark theme) */
+  --color-neutral-50: #171717;
+  --color-neutral-100: #262626;
+  --color-neutral-200: #404040;
+  --color-neutral-300: #525252;
+  --color-neutral-400: #737373;
+  --color-neutral-500: #a3a3a3;
+  --color-neutral-600: #d4d4d4;
+  --color-neutral-700: #e5e5e5;
+  --color-neutral-800: #f5f5f5;
+  --color-neutral-900: #fafafa;
+
+  /* Primary Palette Overrides (darker versions for dark theme) */
+  --color-primary-50: #1e3a5f;
+  --color-primary-100: #1e4d7a;
+
+  /* Error Palette Overrides (darker versions for dark theme) */
+  --color-error-50: #3f1a1a;
+  --color-error-100: #5c2020;
+
+  /* Success Palette Overrides (darker versions for dark theme) */
+  --color-success-50: #1a3d2a;
+
+  /* Warning Palette Overrides (darker versions for dark theme) */
+  --color-warning-50: #3d3010;
+
   /* Semantic Colors */
-  --color-background: var(--color-neutral-900);
-  --color-surface: var(--color-neutral-800);
-  --color-text-primary: var(--color-neutral-50);
-  --color-text-secondary: var(--color-neutral-400);
-  --color-text-muted: var(--color-neutral-500);
-  --color-border: var(--color-neutral-700);
-  --color-border-focus: var(--color-primary-400);
+  --color-background: #171717;
+  --color-surface: #262626;
+  --color-surface-secondary: #1e1e1e;
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-border: #404040;
+  --color-border-focus: #60a5fa;
+  --color-focus: #60a5fa;
 
-  /* Upload Zone States */
-  --upload-zone-bg-idle: var(--color-neutral-800);
-  --upload-zone-bg-dragging: var(--color-primary-900);
-  --upload-zone-bg-success: var(--color-success-700);
-  --upload-zone-bg-error: var(--color-error-700);
-  --upload-zone-border-idle: var(--color-neutral-600);
-  --upload-zone-border-dragging: var(--color-primary-400);
-  --upload-zone-border-success: var(--color-success-400);
-  --upload-zone-border-error: var(--color-error-400);
+  /* Upload Zone States - direct hex values (not var refs since palette is inverted) */
+  --upload-zone-bg-idle: #262626;
+  --upload-zone-bg-dragging: #1e3a8a;
+  --upload-zone-bg-success: #15803d;
+  --upload-zone-bg-error: #b91c1c;
+  --upload-zone-border-idle: #525252;
+  --upload-zone-border-dragging: #60a5fa;
+  --upload-zone-border-success: #4ade80;
+  --upload-zone-border-error: #f87171;
 
-  /* Canvas Colors */
-  --color-canvas-background: var(--color-neutral-900);
-  --color-template-bounds: var(--color-neutral-500);
+  /* Canvas Colors - direct hex values (not var refs since palette is inverted) */
+  --color-canvas-background: #171717;
+  --color-template-bounds: #737373;
   --color-grid-minor: rgba(255, 255, 255, 0.08);
   --color-grid-major: rgba(255, 255, 255, 0.20);
 
@@ -245,6 +289,8 @@
   --color-selection-fill: rgba(77, 166, 255, 0.15);
   --color-selection-handle-fill: #4da6ff;
   --color-selection-handle-stroke: #171717;
+  --color-selection-bg: rgba(77, 166, 255, 0.15);
+  --color-selection-bg-hover: rgba(77, 166, 255, 0.22);
   --color-hover-stroke: #999999;
   --color-hover-fill: rgba(153, 153, 153, 0.1);
   --color-parent-highlight-fill: rgba(77, 166, 255, 0.08);
@@ -252,27 +298,27 @@
   --color-marquee-fill: rgba(99, 179, 237, 0.2);
   --color-marquee-stroke: #63b3ed;
 
-  /* Tooltip Colors (inverted for dark theme) */
-  --color-tooltip-background: var(--color-neutral-100);
-  --color-tooltip-text: var(--color-neutral-900);
-  --color-tooltip-border: var(--color-neutral-300);
+  /* Tooltip Colors (inverted for dark theme) - direct hex values */
+  --color-tooltip-background: #262626;
+  --color-tooltip-text: #fafafa;
+  --color-tooltip-border: #525252;
 
-  /* Panel and Item Colors */
-  --color-item-hover-bg: var(--color-neutral-700);
-  --color-item-selected-bg: var(--color-primary-900);
-  --color-item-selected-border: var(--color-primary-400);
-  --color-item-readonly-bg: var(--color-neutral-800);
-  --color-item-readonly-text: var(--color-neutral-400);
+  /* Panel and Item Colors - direct hex values (not var refs since palette is inverted) */
+  --color-item-hover-bg: #333333;
+  --color-item-selected-bg: #1e3a8a;
+  --color-item-selected-border: #60a5fa;
+  --color-item-readonly-bg: #262626;
+  --color-item-readonly-text: #737373;
 
-  /* Ruler Colors */
-  --ruler-background: var(--color-neutral-800);
-  --ruler-border-color: var(--color-neutral-600);
-  --ruler-tick-color: var(--color-neutral-500);
-  --ruler-tick-major-color: var(--color-neutral-400);
-  --ruler-label-color: var(--color-neutral-300);
-  --ruler-cursor-indicator-color: var(--color-primary-400);
+  /* Ruler Colors - direct hex values (not var refs since palette is inverted) */
+  --ruler-background: #262626;
+  --ruler-border-color: #525252;
+  --ruler-tick-color: #737373;
+  --ruler-tick-major-color: #a3a3a3;
+  --ruler-label-color: #d4d4d4;
+  --ruler-cursor-indicator-color: #60a5fa;
   --ruler-template-bounds-color: rgba(59, 130, 246, 0.15);
-  --ruler-origin-background: var(--color-neutral-700);
+  --ruler-origin-background: #404040;
 
   /* Shadow Tokens (increased opacity for dark backgrounds) */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
@@ -281,10 +327,20 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2);
 
-  /* Primary Color Adjustments */
-  --color-primary: var(--color-primary-400);
-  --color-primary-hover: var(--color-primary-300);
-  --color-primary-light: var(--color-primary-900);
+  /* Primary Color Adjustments - direct hex values */
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93c5fd;
+  --color-primary-light: #1e3a8a;
+
+  /* Semantic Info Colors (alias to primary) */
+  --color-info: #60a5fa;
+  --color-info-light: #1e3a8a;
+
+  /* Semantic Error Light */
+  --color-error-light: #3f1a1a;
+
+  /* Item States */
+  --color-item-active-bg: #1e3a8a;
 
   /* Overlay (slightly lighter for dark theme) */
   --color-overlay: rgb(0 0 0 / 0.7);

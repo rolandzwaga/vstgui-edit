@@ -20,7 +20,7 @@
 }
 
 .item.expanded {
-  background-color: var(--color-surface-secondary, #f8f8f8);
+  background-color: var(--color-surface-secondary);
 }
 
 .header {
@@ -64,23 +64,23 @@
 
 .input {
   padding: 2px 4px;
-  border: 1px solid var(--color-border, #e0e0e0);
+  border: 1px solid var(--color-border);
   border-radius: 3px;
   font-size: var(--font-size-sm);
   font-family: inherit;
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   color: var(--color-text-primary);
   outline: none;
   width: 100%;
 }
 
 .input:focus {
-  border-color: var(--color-focus, #06c);
+  border-color: var(--color-focus);
   box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
 }
 
 .inputError {
-  border-color: var(--color-error, #dc3545);
+  border-color: var(--color-error-600);
 }
 
 .inputError:focus {
@@ -89,7 +89,7 @@
 
 .error {
   font-size: 10px;
-  color: var(--color-error, #dc3545);
+  color: var(--color-error-600);
 }
 
 .usageBadge {
@@ -101,8 +101,8 @@
   padding: 0 5px;
   border: none;
   border-radius: 9px;
-  background-color: var(--color-info-light, rgb(0 102 204 / 0.1));
-  color: var(--color-info, #06c);
+  background-color: var(--color-info-light);
+  color: var(--color-info);
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
@@ -111,12 +111,12 @@
 }
 
 .usageBadge:hover {
-  background-color: var(--color-info, #06c);
+  background-color: var(--color-info);
   color: white;
 }
 
 .usageBadge:focus-visible {
-  outline: 2px solid var(--color-focus, #06c);
+  outline: 2px solid var(--color-focus);
   outline-offset: 1px;
 }
 
@@ -130,25 +130,25 @@
   border: none;
   border-radius: 3px;
   background-color: transparent;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   cursor: pointer;
   flex-shrink: 0;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .deleteButton:hover {
-  background-color: var(--color-error-light, rgb(220 53 69 / 0.1));
-  color: var(--color-error, #dc3545);
+  background-color: var(--color-error-light);
+  color: var(--color-error-600);
 }
 
 .deleteButton:focus-visible {
-  outline: 2px solid var(--color-focus, #06c);
+  outline: 2px solid var(--color-focus);
   outline-offset: 1px;
 }
 
 .expandIcon {
   font-size: 8px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
   margin-left: 4px;
 }
@@ -158,7 +158,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-top: 1px solid var(--color-border-light, #eee);
+  border-top: 1px solid var(--color-border);
 }
 
 .propertyRow {
@@ -169,7 +169,7 @@
 
 .propertyLabel {
   font-size: 11px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   width: 36px;
   flex-shrink: 0;
 }
@@ -177,17 +177,17 @@
 .propertyInput {
   flex: 1;
   padding: 4px 6px;
-  border: 1px solid var(--color-border, #e0e0e0);
+  border: 1px solid var(--color-border);
   border-radius: 3px;
   font-size: 12px;
   font-family: var(--font-family-mono);
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   color: var(--color-text-primary);
   outline: none;
 }
 
 .propertyInput:focus {
-  border-color: var(--color-focus, #06c);
+  border-color: var(--color-focus);
   box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
 }
 

@@ -1,7 +1,7 @@
 .panel {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-surface, #fff);
+  background-color: var(--color-surface);
   overflow: hidden;
   min-height: 0;
 }

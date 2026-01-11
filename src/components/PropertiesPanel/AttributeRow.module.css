@@ -8,20 +8,20 @@
 }
 
 .row:hover {
-  background: var(--color-bg-hover, rgb(0 0 0 / 0.03));
+  background: var(--color-item-hover-bg);
 }
 
 .name {
   flex-shrink: 0;
   font-size: 12px;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text-muted);
   min-width: 80px;
 }
 
 .value {
   flex: 1;
   font-size: 12px;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   text-align: right;
   word-break: break-all;
 }
@@ -31,23 +31,23 @@
 }
 
 .copyable:hover {
-  color: var(--color-primary, #06c);
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
 .mixed {
   font-style: italic;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text-muted);
 }
 
 .empty {
   font-style: italic;
-  color: var(--color-text-muted, #999);
+  color: var(--color-text-muted);
 }
 
 .unset {
   font-style: italic;
-  color: var(--color-text-muted, #aaa);
+  color: var(--color-text-muted);
 }
 
 .unsetRow {
@@ -55,7 +55,7 @@
 }
 
 .unsetRow .name {
-  color: var(--color-text-muted, #999);
+  color: var(--color-text-muted);
 }
 
 .editable {
@@ -63,8 +63,8 @@
 }
 
 .editable:hover {
-  background: var(--color-primary-50, #eff6ff);
-  border-radius: var(--radius-sm, 2px);
+  background: var(--color-primary-50);
+  border-radius: var(--radius-sm);
 }
 
 .editorContainer {

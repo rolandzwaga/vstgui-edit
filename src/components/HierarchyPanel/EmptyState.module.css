@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text-muted);
 }
 
 .message {

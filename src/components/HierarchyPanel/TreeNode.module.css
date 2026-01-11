@@ -7,11 +7,11 @@
 }
 
 .row:hover {
-  background-color: var(--color-surface-hover, rgb(0 0 0 / 0.05));
+  background-color: var(--color-surface-hover);
 }
 
 .row:focus {
-  outline: 2px solid var(--color-focus, #06c);
+  outline: 2px solid var(--color-focus);
   outline-offset: -2px;
 }
 
@@ -20,16 +20,16 @@
 }
 
 .row:focus-visible {
-  outline: 2px solid var(--color-focus, #06c);
+  outline: 2px solid var(--color-focus);
   outline-offset: -2px;
 }
 
 .row.selected {
-  background-color: var(--color-selection-bg, #0066cc20);
+  background-color: var(--color-selection-bg);
 }
 
 .row.selected:hover {
-  background-color: var(--color-selection-bg-hover, #0066cc30);
+  background-color: var(--color-selection-bg-hover);
 }
 
 .toggle {
@@ -44,11 +44,11 @@
   background: transparent;
   cursor: pointer;
   font-size: 8px;
-  color: var(--color-text-muted, #666);
+  color: var(--color-text-muted);
 }
 
 .toggle:hover {
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
 }
 
 .chevronRight {
@@ -73,19 +73,19 @@
 }
 
 .iconContainer {
-  color: var(--color-category-container, #6b7280);
+  color: var(--color-category-container-stroke);
 }
 
 .iconControl {
-  color: var(--color-category-control, #3b82f6);
+  color: var(--color-category-control-stroke);
 }
 
 .iconDisplay {
-  color: var(--color-category-display, #10b981);
+  color: var(--color-category-display-stroke);
 }
 
 .iconCustom {
-  color: var(--color-category-custom, #8b5cf6);
+  color: var(--color-category-custom-stroke);
 }
 
 .label {
@@ -109,7 +109,7 @@
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  color: var(--color-warning, #fbbf24);
+  color: var(--color-warning-500);
 }
 
 .hideIcon {
@@ -117,7 +117,7 @@
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted);
 }
 
 .row.hidden {
@@ -133,22 +133,22 @@
 }
 
 .dropTarget {
-  background-color: var(--color-primary, #06c);
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
 }
 
 .dropTarget:hover {
-  background-color: var(--color-primary, #06c);
+  background-color: var(--color-primary);
 }
 
 .dropInvalid {
-  background-color: var(--color-error, #dc2626);
+  background-color: var(--color-error-600);
   color: #fff;
   cursor: not-allowed;
 }
 
 .dropInvalid:hover {
-  background-color: var(--color-error, #dc2626);
+  background-color: var(--color-error-600);
 }
 
 .dropBefore {
@@ -162,7 +162,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-primary, #06c);
+  background-color: var(--color-primary);
 }
 
 .dropAfter {
@@ -176,5 +176,5 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-primary, #06c);
+  background-color: var(--color-primary);
 }

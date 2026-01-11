@@ -1,5 +1,5 @@
 .group {
-  border-bottom: 1px solid var(--color-border-light, #eee);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .group:last-child {
@@ -11,10 +11,10 @@
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: var(--color-bg-tertiary, #fafafa);
+  background: var(--color-neutral-50);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-text-secondary, #555);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -25,13 +25,13 @@
 }
 
 .clickable:hover {
-  background: var(--color-bg-hover, rgb(0 0 0 / 0.05));
+  background: var(--color-item-hover-bg);
 }
 
 .chevron {
   font-size: 10px;
   width: 12px;
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted);
 }
 
 .label {

@@ -60,7 +60,7 @@
   flex-direction: column;
   gap: var(--spacing-2);
   padding: var(--spacing-2);
-  background-color: var(--color-surface-secondary, #f5f5f5);
+  background-color: var(--color-surface-secondary);
   border-radius: var(--radius-base);
 }
 
@@ -125,7 +125,7 @@
 .deleteButton {
   font-size: var(--font-size-xs);
   padding: 4px 8px;
-  border: 1px solid var(--color-error, #dc3545);
+  border: 1px solid var(--color-error-600);
   border-radius: var(--radius-base);
   background-color: transparent;
   color: var(--color-error-600);
