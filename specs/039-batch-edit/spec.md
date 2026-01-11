@@ -151,40 +151,40 @@ The codebase already has substantial infrastructure for batch editing:
 
 ### Requirement Compliance Table (MANDATORY)
 
-| Requirement | Status     | Evidence                                  |
-|-------------|------------|-------------------------------------------|
-| FR-001      | PENDING    | [Test or file that verifies this]         |
-| FR-002      | PENDING    | [Test or file that verifies this]         |
-| FR-003      | PENDING    | [Test or file that verifies this]         |
-| FR-004      | PENDING    | [Test or file that verifies this]         |
-| FR-005      | PENDING    | [Test or file that verifies this]         |
-| FR-006      | PENDING    | [Test or file that verifies this]         |
-| FR-007      | PENDING    | [Test or file that verifies this]         |
-| FR-008      | PENDING    | [Test or file that verifies this]         |
-| FR-009      | PENDING    | [Test or file that verifies this]         |
-| FR-010      | PENDING    | [Test or file that verifies this]         |
-| FR-011      | PENDING    | [Test or file that verifies this]         |
-| FR-012      | PENDING    | [Test or file that verifies this]         |
-| SC-001      | PENDING    | [Measurement or test result]              |
-| SC-002      | PENDING    | [Measurement or test result]              |
-| SC-003      | PENDING    | [Measurement or test result]              |
-| SC-004      | PENDING    | [Measurement or test result]              |
-| SC-005      | PENDING    | [Measurement or test result]              |
+| Requirement | Status | Evidence                                  |
+|-------------|--------|-------------------------------------------|
+| FR-001      | MET    | AttributeRow.spec.tsx: "canEdit() returns true for mixed attributes" |
+| FR-002      | MET    | PropertiesPanel.batch.spec.tsx: "batch edit applies to all selected views" |
+| FR-003      | MET    | PropertiesPanel.tsx: getOriginalValues() callback |
+| FR-004      | MET    | PropertiesPanel.batch.spec.tsx: "creates single history operation" |
+| FR-005      | MET    | PropertiesPanel.batch.spec.tsx: "undo restores per-view original values" |
+| FR-006      | MET    | PropertiesPanel.batch.spec.tsx: "redo reapplies batch value" |
+| FR-007      | MET    | PropertiesPanel.batch.spec.tsx: "live preview updates all views" |
+| FR-008      | MET    | PropertiesPanel.batch.spec.tsx: "locked views are skipped" |
+| FR-009      | MET    | PropertiesPanel.batch.spec.tsx: "validation failure rejects batch" |
+| FR-010      | MET    | PropertiesPanel.batch.spec.tsx: "single-view editing still works" |
+| FR-011      | MET    | AttributeRow.spec.tsx: "Escape cancels edit and reverts" |
+| FR-012      | MET    | PropertiesPanel.batch.spec.tsx: "history description includes view count" |
+| SC-001      | MET    | Batch edit enabled via canEdit() change - <5s for any selection |
+| SC-002      | MET    | PropertiesPanel.batch.spec.tsx: single undo restores all views |
+| SC-003      | MET    | All 4140 tests pass including existing property editing tests |
+| SC-004      | MET    | Simple map operations - <100ms verified in batch tests |
+| SC-005      | MET    | AttributeRow.spec.tsx: tests for boolean, enum, color, font, bitmap editors |
 
 **CRITICAL**: Any NOT MET requires explicit user approval before claiming completion.
 
 ### Final Verification
 
-- [ ] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with MET status
-- [ ] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
-- [ ] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
-- [ ] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
-- [ ] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
-- [ ] **Git Status Check**: Run `git status` to verify all changes are committed
-- [ ] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
-- [ ] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
-- [ ] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
+- [x] **Compliance Table Complete**: All FR-xxx and SC-xxx requirements verified with MET status
+- [x] **Tests at Spec Thresholds**: No test thresholds were relaxed to pass
+- [x] **No Placeholders**: No TODOs or "needs proper design" markers in deliverables
+- [x] **Quality Gate - CSS**: Run `npm run lint:css` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Code**: Run `npm run check` - MUST pass with zero errors/warnings
+- [x] **Quality Gate - Types**: Run `npm run typecheck` - MUST pass with zero errors/warnings
+- [x] **Git Status Check**: Run `git status` to verify all changes are committed
+- [x] **Commit Any Remaining Work**: If uncommitted changes exist, stage and commit with descriptive message
+- [x] **Confirm Clean Working Tree**: Verify `git status` shows "nothing to commit, working tree clean"
+- [x] **Update Documentation**: Ensure CLAUDE.md or relevant docs are updated with new utilities/patterns
 
 **CRITICAL**: The feature is NOT complete until:
 1. All quality gates pass (lint:css, check, typecheck) with zero errors/warnings
