@@ -1,69 +1,125 @@
 /**
  * KeyboardShortcutsSection Component
  *
- * Read-only keyboard shortcuts reference section with link to full panel.
+ * Searchable keyboard shortcuts reference section with collapsible categories.
  */
 
 import type { Component } from 'solid-js';
-import { For } from 'solid-js';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import {
   SHORTCUT_CATEGORIES,
   getShortcutsGroupedByCategory,
-  formatKeysForPlatform,
+  searchShortcuts,
 } from '../../../domain/shortcuts';
-import { closePreferences } from '../../../stores/preferencesStore';
-import { openShortcutsPanel } from '../../../stores/shortcutsPanelStore';
+import type { ShortcutCategoryId } from '../../../types/shortcuts';
+import { ShortcutSearch } from './shortcuts/ShortcutSearch';
+import { ShortcutCategory } from './shortcuts/ShortcutCategory';
+import { ShortcutItem } from './shortcuts/ShortcutItem';
 import styles from './sections.module.css';
 import shortcutStyles from './KeyboardShortcutsSection.module.css';
 
-export const KeyboardShortcutsSection: Component = () => {
-  // Get sorted categories and grouped shortcuts
-  const sortedCategories = [...SHORTCUT_CATEGORIES].sort((a, b) => a.order - b.order);
-  const groupedShortcuts = getShortcutsGroupedByCategory();
+// Helper to get all category IDs as a Set
+function getAllCategoryIds(): Set<ShortcutCategoryId> {
+  return new Set(SHORTCUT_CATEGORIES.map((c) => c.id));
+}
 
-  // Handler to open full panel
-  const handleOpenFullPanel = () => {
-    closePreferences();
-    openShortcutsPanel();
+export const KeyboardShortcutsSection: Component = () => {
+  // Local state for search and category expansion
+  const [searchQuery, setSearchQuery] = createSignal('');
+  const [expandedCategories, setExpandedCategories] = createSignal<Set<ShortcutCategoryId>>(
+    getAllCategoryIds()
+  );
+
+  // Toggle category expansion
+  const toggleCategory = (categoryId: ShortcutCategoryId) => {
+    const current = expandedCategories();
+    const newSet = new Set(current);
+    if (newSet.has(categoryId)) {
+      newSet.delete(categoryId);
+    } else {
+      newSet.add(categoryId);
+    }
+    setExpandedCategories(newSet);
   };
+
+  // Check if category is expanded
+  const isCategoryExpanded = (categoryId: ShortcutCategoryId) => {
+    return expandedCategories().has(categoryId);
+  };
+
+  // Get grouped shortcuts
+  const groupedShortcuts = createMemo(() => getShortcutsGroupedByCategory());
+
+  // Sorted categories for display
+  const sortedCategories = createMemo(() => {
+    return [...SHORTCUT_CATEGORIES].sort((a, b) => a.order - b.order);
+  });
+
+  // Search results
+  const searchResults = createMemo(() => {
+    const query = searchQuery();
+    if (!query.trim()) {
+      return null;
+    }
+    return searchShortcuts(query);
+  });
+
+  // Check if currently searching
+  const isSearching = createMemo(() => searchQuery().trim().length > 0);
 
   return (
     <section class={styles.section}>
       <h3 class={styles.sectionHeading}>Keyboard Shortcuts</h3>
       <p class={styles.sectionDescription}>
-        Reference for all available keyboard shortcuts.
+        Reference for all available keyboard shortcuts. Use the search to quickly find shortcuts.
       </p>
 
-      <button
-        type="button"
-        class={shortcutStyles.openPanelButton}
-        onClick={handleOpenFullPanel}
-      >
-        Open Searchable Panel
-      </button>
+      <div class={shortcutStyles.searchContainer}>
+        <ShortcutSearch value={searchQuery()} onChange={setSearchQuery} />
+      </div>
 
-      <For each={sortedCategories}>
-        {(category) => {
-          const shortcuts = groupedShortcuts.get(category.id) ?? [];
-          return (
-            <div class={shortcutStyles.categoryGroup}>
-              <h4 class={shortcutStyles.categoryName}>{category.name}</h4>
-              <ul class={shortcutStyles.shortcutList}>
-                <For each={shortcuts}>
-                  {(shortcut) => (
-                    <li class={shortcutStyles.shortcutItem}>
-                      <kbd class={shortcutStyles.keyCombo}>
-                        {formatKeysForPlatform(shortcut.keys)}
-                      </kbd>
-                      <span class={shortcutStyles.description}>{shortcut.description}</span>
-                    </li>
-                  )}
-                </For>
-              </ul>
+      <div class={shortcutStyles.content}>
+        <Show
+          when={!isSearching()}
+          fallback={
+            <div class={shortcutStyles.searchResults}>
+              <Show
+                when={(searchResults()?.length ?? 0) > 0}
+                fallback={
+                  <div class={shortcutStyles.emptyState}>
+                    <p>No shortcuts found</p>
+                    <p class={shortcutStyles.emptyHint}>
+                      Try searching for a key combination or action
+                    </p>
+                  </div>
+                }
+              >
+                <div class={shortcutStyles.resultCount}>
+                  {searchResults()?.length} shortcut{searchResults()?.length === 1 ? '' : 's'} found
+                </div>
+                <div class={shortcutStyles.resultList} role="list">
+                  <For each={searchResults()}>
+                    {(shortcut) => <ShortcutItem shortcut={shortcut} />}
+                  </For>
+                </div>
+              </Show>
             </div>
-          );
-        }}
-      </For>
+          }
+        >
+          <div class={shortcutStyles.categories}>
+            <For each={sortedCategories()}>
+              {(category) => (
+                <ShortcutCategory
+                  category={category}
+                  shortcuts={groupedShortcuts().get(category.id) ?? []}
+                  expanded={isCategoryExpanded(category.id)}
+                  onToggle={() => toggleCategory(category.id)}
+                />
+              )}
+            </For>
+          </div>
+        </Show>
+      </div>
     </section>
   );
 };

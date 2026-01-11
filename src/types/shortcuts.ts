@@ -57,15 +57,3 @@ export interface ShortcutConflict {
   /** Conflicting shortcut definitions */
   shortcuts: ShortcutDefinition[];
 }
-
-/**
- * Shortcuts panel UI state.
- */
-export interface ShortcutsPanelState {
-  /** Whether the panel is visible */
-  isOpen: boolean;
-  /** Current search filter query */
-  searchQuery: string;
-  /** Set of expanded category IDs */
-  expandedCategories: Set<ShortcutCategoryId>;
-}

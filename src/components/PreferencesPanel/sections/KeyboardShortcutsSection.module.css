@@ -2,82 +2,55 @@
  * KeyboardShortcutsSection Styles
  */
 
-.categoryGroup {
-  margin-bottom: var(--spacing-6);
+.searchContainer {
+  margin-bottom: var(--spacing-4);
 }
 
-.categoryGroup:last-child {
-  margin-bottom: 0;
+.content {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  max-height: 500px;
+  overflow-y: auto;
 }
 
-.categoryName {
-  margin: 0 0 var(--spacing-2) 0;
+.categories {
+  /* Container for collapsible categories */
+}
+
+.searchResults {
+  padding: var(--spacing-4);
+}
+
+.resultCount {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-3);
 }
 
-.shortcutList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.resultList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
 }
 
-.shortcutItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-4);
-  padding: var(--spacing-2) 0;
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8) var(--spacing-4);
+  color: var(--color-text-muted);
 }
 
-.keyCombo {
-  flex-shrink: 0;
-  min-width: 120px;
-  padding: var(--spacing-1) var(--spacing-2);
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-primary);
-  background-color: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-200);
-  border-radius: var(--radius-sm);
+.emptyState p {
+  margin: 0;
 }
 
-.description {
-  flex: 1;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.openPanelButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  margin-bottom: var(--spacing-6);
-  padding: var(--spacing-2) var(--spacing-4);
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
+.emptyState p:first-child {
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
-  color: var(--color-primary);
-  background-color: transparent;
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2);
 }
 
-.openPanelButton:hover {
-  background-color: var(--color-primary-light);
-}
-
-.openPanelButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.emptyHint {
+  font-size: var(--font-size-sm);
 }

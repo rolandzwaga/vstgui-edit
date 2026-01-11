@@ -1,4 +1,4 @@
-import type { PaletteCategory, PaletteCategoryId, ViewClass } from '../../types/views';
+import type { PaletteCategory, ViewClass } from '../../types/views';
 
 export const VIEW_CLASSES: Record<string, ViewClass> = {
   CViewContainer: {

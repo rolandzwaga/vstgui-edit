@@ -6,7 +6,7 @@
 
 import type { Component } from 'solid-js';
 import { For, Show } from 'solid-js';
-import type { ShortcutCategoryMeta, ShortcutDefinition } from '../../types/shortcuts';
+import type { ShortcutCategoryMeta, ShortcutDefinition } from '../../../../types/shortcuts';
 import { ShortcutItem } from './ShortcutItem';
 import styles from './ShortcutCategory.module.css';
 

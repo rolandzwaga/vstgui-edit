@@ -41,10 +41,9 @@ import {
   unlockSelectedWithHistory,
 } from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
-import { preferencesStore } from '../../stores/preferencesStore';
+import { openPreferencesToSection, preferencesStore } from '../../stores/preferencesStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
-import { openShortcutsPanel, shortcutsPanelStore } from '../../stores/shortcutsPanelStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import type { AlignmentType } from '../../types/alignment';
 import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';
@@ -91,10 +90,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       return;
     }
 
-    // Handle ? key to open shortcuts panel (FR-001)
+    // Handle ? key to open shortcuts in preferences (FR-001)
     if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      // Don't open if another modal is open
-      if (preferencesStore.isOpen || shortcutsPanelStore.isOpen) {
+      // Don't open if preferences already open
+      if (preferencesStore.isOpen) {
         return;
       }
       // Don't open if no document loaded (FR-006)
@@ -102,14 +101,14 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         return;
       }
       e.preventDefault();
-      openShortcutsPanel();
+      openPreferencesToSection('shortcuts');
       return;
     }
 
-    // Handle Ctrl+/ or Cmd+/ to open shortcuts panel (FR-002)
+    // Handle Ctrl+/ or Cmd+/ to open shortcuts in preferences (FR-002)
     if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
-      // Don't open if another modal is open
-      if (preferencesStore.isOpen || shortcutsPanelStore.isOpen) {
+      // Don't open if preferences already open
+      if (preferencesStore.isOpen) {
         return;
       }
       // Don't open if no document loaded (FR-006)
@@ -117,7 +116,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         return;
       }
       e.preventDefault();
-      openShortcutsPanel();
+      openPreferencesToSection('shortcuts');
       return;
     }
 

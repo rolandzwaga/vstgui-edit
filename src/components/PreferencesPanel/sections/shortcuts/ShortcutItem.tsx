@@ -7,8 +7,8 @@
 
 import type { Component } from 'solid-js';
 import { Show, createMemo } from 'solid-js';
-import type { ShortcutDefinition } from '../../types/shortcuts';
-import { formatKeysForPlatform, hasConflict, getConflictForShortcut } from '../../domain/shortcuts';
+import type { ShortcutDefinition } from '../../../../types/shortcuts';
+import { formatKeysForPlatform, hasConflict, getConflictForShortcut } from '../../../../domain/shortcuts';
 import styles from './ShortcutItem.module.css';
 
 export interface ShortcutItemProps {
