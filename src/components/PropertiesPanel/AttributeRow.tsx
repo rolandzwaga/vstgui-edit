@@ -79,7 +79,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
 
   const handleChange = (newValue: string) => {
     setEditValue(newValue);
-    props.onValueChange?.(props.entry.name, newValue);
+    // Don't call onValueChange here - it triggers document update which
+    // causes re-render and unmounts the editor. Only update on commit.
   };
 
   const handleCommit = () => {
@@ -90,6 +91,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
       }
       // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
       const original = props.entry.isMixed ? '__MIXED__' : originalValue();
+      // Update the document first, then record in history
+      props.onValueChange?.(props.entry.name, editValue());
       props.onValueCommit?.(props.entry.name, editValue(), original);
       setIsEditing(false);
     }
@@ -132,7 +135,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
 
   const handleCancel = () => {
     setEditValue(originalValue());
-    props.onValueChange?.(props.entry.name, originalValue());
+    // No need to call onValueChange - we only propagate on commit now
     setIsEditing(false);
   };
 

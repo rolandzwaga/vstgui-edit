@@ -155,14 +155,16 @@ describe('AttributeRow', () => {
       expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
 
-    // T014: verify editing mixed value calls onValueChange with new value
-    it('should call onValueChange when editing mixed attribute', () => {
+    // T014: verify editing does NOT call onValueChange during typing (only on commit)
+    it('should not call onValueChange during typing - only propagate on commit', () => {
       const onValueChange = vi.fn();
+      const onValueCommit = vi.fn();
       render(() => (
         <AttributeRow
           entry={createEntry({ isMixed: true, value: null, editorType: 'text' })}
           editable={true}
           onValueChange={onValueChange}
+          onValueCommit={onValueCommit}
         />
       ));
 
@@ -173,7 +175,12 @@ describe('AttributeRow', () => {
       fireEvent.input(input, { target: { value: 'new value' } });
       fireEvent.change(input, { target: { value: 'new value' } });
 
-      expect(onValueChange).toHaveBeenCalledWith('origin', 'new value');
+      // onValueChange should NOT be called during typing
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      // Value is only propagated when user presses Enter
+      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(onValueCommit).toHaveBeenCalledWith('origin', 'new value', '__MIXED__');
     });
 
     // T015: verify committing mixed value calls onValueCommit with '__MIXED__' marker
@@ -232,8 +239,8 @@ describe('AttributeRow', () => {
       expect(input).toHaveValue('');
     });
 
-    // T029: verify Escape cancels edit and reverts (FR-011)
-    it('should cancel edit and revert on Escape', () => {
+    // T029: verify Escape cancels edit without propagating (FR-011)
+    it('should cancel edit on Escape without calling any callbacks', () => {
       const onValueChange = vi.fn();
       const onValueCommit = vi.fn();
       render(() => (
@@ -252,16 +259,16 @@ describe('AttributeRow', () => {
       fireEvent.input(input, { target: { value: 'new value' } });
       fireEvent.change(input, { target: { value: 'new value' } });
 
-      // Clear mock to check revert call
-      onValueChange.mockClear();
-
       // Press Escape
       fireEvent.keyDown(input, { key: 'Escape' });
 
-      // Should call onValueChange with original (empty for mixed)
-      expect(onValueChange).toHaveBeenCalledWith('origin', '');
-      // Should NOT call onValueCommit
+      // Should NOT call any callbacks - just close the editor
+      expect(onValueChange).not.toHaveBeenCalled();
       expect(onValueCommit).not.toHaveBeenCalled();
+
+      // Editor should be closed (textbox gone, Mixed indicator back)
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      expect(screen.getByText('Mixed')).toBeInTheDocument();
     });
 
     // T041: verify boolean editor batch edit with mixed values

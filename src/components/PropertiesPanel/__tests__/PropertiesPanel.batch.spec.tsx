@@ -121,7 +121,13 @@ describe('PropertiesPanel - Batch Edit', () => {
       fireEvent.input(input, { target: { value: 'New Title' } });
       fireEvent.change(input, { target: { value: 'New Title' } });
 
-      // Verify updateViewAttribute was called for all 3 views
+      // Value is NOT propagated during typing
+      expect(mockDocumentStore.updateViewAttribute).not.toHaveBeenCalled();
+
+      // Press Enter to commit
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      // NOW verify updateViewAttribute was called for all 3 views
       expect(mockDocumentStore.updateViewAttribute).toHaveBeenCalledWith(
         'MainView-btn1',
         'title',
@@ -316,7 +322,7 @@ describe('PropertiesPanel - Batch Edit', () => {
     });
   });
 
-  describe('User Story 4: Live Preview During Batch Edit', () => {
+  describe('User Story 4: Commit on Enter (no live preview for inline editors)', () => {
     beforeEach(() => {
       mockDocumentStore.document = {
         'vstgui-ui-description': {
@@ -347,8 +353,8 @@ describe('PropertiesPanel - Batch Edit', () => {
       });
     });
 
-    // T036: verify live preview updates all selected views during edit (FR-007)
-    it('should update all views during live preview', () => {
+    // T036: verify values are NOT updated during typing (only on commit)
+    it('should NOT update views during typing - only on Enter commit', () => {
       testInRoot(() => {
         selectAll(['MainView-btn1', 'MainView-btn2']);
       });
@@ -366,7 +372,12 @@ describe('PropertiesPanel - Batch Edit', () => {
       fireEvent.input(input, { target: { value: 'Preview Value' } });
       fireEvent.change(input, { target: { value: 'Preview Value' } });
 
-      // Should update both views immediately (live preview)
+      // Should NOT update during typing
+      expect(mockDocumentStore.updateViewAttribute).not.toHaveBeenCalled();
+
+      // Only when user presses Enter
+      fireEvent.keyDown(input, { key: 'Enter' });
+
       expect(mockDocumentStore.updateViewAttribute).toHaveBeenCalledWith(
         'MainView-btn1',
         'title',
@@ -379,8 +390,8 @@ describe('PropertiesPanel - Batch Edit', () => {
       );
     });
 
-    // T037: verify Escape reverts all views to original values (FR-011)
-    it('should revert all views to original values on Escape', () => {
+    // T037: verify Escape cancels without calling any callbacks (FR-011)
+    it('should cancel edit on Escape without updating views', () => {
       mockDocumentStore.getViewAttribute.mockImplementation(
         (viewId: string, name: string) => {
           if (name === 'title') {
@@ -411,18 +422,11 @@ describe('PropertiesPanel - Batch Edit', () => {
       // Press Escape to cancel
       fireEvent.keyDown(input, { key: 'Escape' });
 
-      // Should revert to original empty value (since we started with mixed)
-      // The onValueChange is called with empty string (originalValue for mixed)
-      expect(mockDocumentStore.updateViewAttribute).toHaveBeenCalledWith(
-        'MainView-btn1',
-        'title',
-        ''
-      );
-      expect(mockDocumentStore.updateViewAttribute).toHaveBeenCalledWith(
-        'MainView-btn2',
-        'title',
-        ''
-      );
+      // Should NOT call updateViewAttribute - just close the editor
+      expect(mockDocumentStore.updateViewAttribute).not.toHaveBeenCalled();
+
+      // Editor should be closed
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
   });
 
@@ -477,6 +481,9 @@ describe('PropertiesPanel - Batch Edit', () => {
       const input = screen.getByRole('textbox');
       fireEvent.input(input, { target: { value: 'New Title' } });
       fireEvent.change(input, { target: { value: 'New Title' } });
+
+      // Press Enter to commit
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       // Only btn2 should be updated (btn1 is locked)
       expect(mockDocumentStore.updateViewAttribute).not.toHaveBeenCalledWith(
