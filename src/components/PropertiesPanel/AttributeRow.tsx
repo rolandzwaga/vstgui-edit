@@ -22,6 +22,8 @@ export interface AttributeRowProps {
   documentColors?: string[];
   documentFonts?: string[];
   documentBitmaps?: string[];
+  /** Get per-view original values for batch edit undo (used when isMixed=true) */
+  getOriginalValues?: (name: string) => Record<string, string | undefined>;
 }
 
 export const AttributeRow: Component<AttributeRowProps> = (props) => {
@@ -41,7 +43,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isFontType = () => editorType() === 'font';
   const isBitmapType = () => editorType() === 'bitmap';
   const isGradientType = () => editorType() === 'gradient';
-  const canEdit = () => props.editable && !isReadonly() && !props.entry.isMixed;
+  const canEdit = () => props.editable && !isReadonly();
   const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
   const validationError = createMemo(() => {
@@ -67,7 +69,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
 
   const handleDoubleClick = () => {
     if (canEdit() && canInlineEdit()) {
-      const currentValue = props.entry.value ?? '';
+      // For mixed values, start with empty field (placeholder shown)
+      const currentValue = props.entry.isMixed ? '' : (props.entry.value ?? '');
       setOriginalValue(currentValue);
       setEditValue(currentValue);
       setIsEditing(true);
@@ -76,7 +79,8 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
 
   const handleChange = (newValue: string) => {
     setEditValue(newValue);
-    props.onValueChange?.(props.entry.name, newValue);
+    // Don't call onValueChange here - it triggers document update which
+    // causes re-render and unmounts the editor. Only update on commit.
   };
 
   const handleCommit = () => {
@@ -85,44 +89,53 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
         handleCancel();
         return;
       }
-      props.onValueCommit?.(props.entry.name, editValue(), originalValue());
+      // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+      const original = props.entry.isMixed ? '__MIXED__' : originalValue();
+      // Update the document first, then record in history
+      props.onValueChange?.(props.entry.name, editValue());
+      props.onValueCommit?.(props.entry.name, editValue(), original);
       setIsEditing(false);
     }
   };
 
   const handleBooleanChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? 'false';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? 'false');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleEnumChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleColorChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleFontChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleBitmapChange = (newValue: string) => {
-    const currentValue = props.entry.value ?? '';
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, currentValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
   const handleCancel = () => {
     setEditValue(originalValue());
-    props.onValueChange?.(props.entry.name, originalValue());
+    // No need to call onValueChange - we only propagate on commit now
     setIsEditing(false);
   };
 
@@ -216,6 +229,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onChange={handleChange}
               onCommit={handleCommit}
               onCancel={handleCancel}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>
@@ -227,6 +241,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onCommit={handleCommit}
               onCancel={handleCancel}
               error={validationError()}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>
@@ -241,6 +256,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               min={config().min}
               max={config().max}
               step={config().step}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
             />
           </div>
         </Match>

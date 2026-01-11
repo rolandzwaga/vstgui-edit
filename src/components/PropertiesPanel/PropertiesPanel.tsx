@@ -6,6 +6,7 @@ import { selectionStore } from '../../stores/selectionStore';
 import { templateStore } from '../../stores/templateStore';
 import { isGroupExpanded, toggleGroup } from '../../stores/propertiesStore';
 import { pushOperation } from '../../stores/historyStore';
+import { isLocked } from '../../stores/lockHideStore';
 import { mergeSelections } from '../../domain/properties';
 import { createPropertyEditOperation } from '../../domain/properties/historyOperations';
 import { EmptyState } from './EmptyState';
@@ -108,20 +109,42 @@ export const PropertiesPanel: Component = () => {
     }
   };
 
+  const getOriginalValues = (attributeName: string): Record<string, string | undefined> => {
+    const selectedIds = Array.from(selectionStore.selectedIds);
+    const values: Record<string, string | undefined> = {};
+    for (const viewId of selectedIds) {
+      if (!isLocked(viewId)) {
+        values[viewId] = getViewAttribute(viewId, attributeName);
+      }
+    }
+    return values;
+  };
+
   const handleValueChange = (name: string, newValue: string) => {
     const selectedIds = Array.from(selectionStore.selectedIds);
     for (const viewId of selectedIds) {
-      updateViewAttribute(viewId, name, newValue);
+      if (!isLocked(viewId)) {
+        updateViewAttribute(viewId, name, newValue);
+      }
     }
   };
 
   const handleValueCommit = (name: string, newValue: string, originalValue: string) => {
-    const selectedIds = Array.from(selectionStore.selectedIds);
+    const selectedIds = Array.from(selectionStore.selectedIds)
+      .filter(id => !isLocked(id));
     if (selectedIds.length === 0) return;
 
-    const previousValues: Record<string, string | undefined> = {};
-    for (const viewId of selectedIds) {
-      previousValues[viewId] = originalValue;
+    let previousValues: Record<string, string | undefined>;
+
+    if (originalValue === '__MIXED__') {
+      // Batch edit with mixed values - get per-view originals
+      previousValues = getOriginalValues(name);
+    } else {
+      // Same value for all views
+      previousValues = {};
+      for (const viewId of selectedIds) {
+        previousValues[viewId] = originalValue;
+      }
     }
 
     const operation = createPropertyEditOperation(
@@ -161,6 +184,7 @@ export const PropertiesPanel: Component = () => {
                     documentColors={documentColors()}
                     documentFonts={documentFonts()}
                     documentBitmaps={documentBitmaps()}
+                    getOriginalValues={getOriginalValues}
                   />
                 )}
               </For>

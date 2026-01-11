@@ -189,6 +189,8 @@ describe('Canvas resize undo/redo integration', () => {
     });
   });
 
+  // Note: Undo/Redo is now handled globally in App.tsx, so these tests
+  // call undo()/redo() directly instead of simulating keyboard events on the canvas.
   describe('keyboard shortcuts', () => {
     it('should undo resize with Ctrl+Z', () => {
       testInRoot(() => {
@@ -197,15 +199,15 @@ describe('Canvas resize undo/redo integration', () => {
 
       const { container } = render(() => <Canvas />);
       const seHandle = container.querySelector('[data-position="se"]') as Element;
-      const wrapper = container.querySelector('[data-testid="canvas-wrapper"]') as Element;
 
       fireEvent.mouseDown(seHandle, { button: 0, clientX: 150, clientY: 130 });
       fireEvent.mouseMove(document, { clientX: 180, clientY: 160 });
       fireEvent.mouseUp(document);
 
-      fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
-
+      // Call undo directly (global handler in App.tsx handles Ctrl+Z)
       testInRoot(() => {
+        undo();
+
         const doc = documentStore.document;
         const button = doc?.['vstgui-ui-description']?.templates?.MainView?.children?.Button1;
         expect(button?.attributes.size).toBe('100, 80');
@@ -219,19 +221,16 @@ describe('Canvas resize undo/redo integration', () => {
 
       const { container } = render(() => <Canvas />);
       const seHandle = container.querySelector('[data-position="se"]') as Element;
-      const wrapper = container.querySelector('[data-testid="canvas-wrapper"]') as Element;
 
       fireEvent.mouseDown(seHandle, { button: 0, clientX: 150, clientY: 130 });
       fireEvent.mouseMove(document, { clientX: 180, clientY: 160 });
       fireEvent.mouseUp(document);
 
+      // Call undo and redo directly (global handler in App.tsx handles Ctrl+Y)
       testInRoot(() => {
         undo();
-      });
+        redo();
 
-      fireEvent.keyDown(wrapper, { key: 'y', ctrlKey: true });
-
-      testInRoot(() => {
         const doc = documentStore.document;
         const button = doc?.['vstgui-ui-description']?.templates?.MainView?.children?.Button1;
         expect(button?.attributes.size).not.toBe('100, 80');
@@ -245,19 +244,16 @@ describe('Canvas resize undo/redo integration', () => {
 
       const { container } = render(() => <Canvas />);
       const seHandle = container.querySelector('[data-position="se"]') as Element;
-      const wrapper = container.querySelector('[data-testid="canvas-wrapper"]') as Element;
 
       fireEvent.mouseDown(seHandle, { button: 0, clientX: 150, clientY: 130 });
       fireEvent.mouseMove(document, { clientX: 180, clientY: 160 });
       fireEvent.mouseUp(document);
 
+      // Call undo and redo directly (global handler in App.tsx handles Ctrl+Shift+Z)
       testInRoot(() => {
         undo();
-      });
+        redo();
 
-      fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true, shiftKey: true });
-
-      testInRoot(() => {
         const doc = documentStore.document;
         const button = doc?.['vstgui-ui-description']?.templates?.MainView?.children?.Button1;
         expect(button?.attributes.size).not.toBe('100, 80');

@@ -1,5 +1,5 @@
 import type { Component, JSX } from 'solid-js';
-import { Show, createMemo } from 'solid-js';
+import { Show, createMemo, onMount } from 'solid-js';
 import type { NumberEditorProps } from '../../types/editors';
 import sharedStyles from './editors.module.css';
 import styles from './NumberEditor.module.css';
@@ -16,6 +16,12 @@ function roundToStep(value: number, step: number): number {
 }
 
 export const NumberEditor: Component<NumberEditorProps> = (props) => {
+  let inputRef: HTMLInputElement | undefined;
+
+  onMount(() => {
+    setTimeout(() => inputRef?.focus(), 0);
+  });
+
   const step = createMemo(() => props.step ?? 1);
   const numericValue = createMemo(() => Number.parseFloat(props.value) || 0);
 
@@ -89,7 +95,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
   };
 
   const handleBlur = () => {
-    props.onCommit();
+    props.onCancel();
   };
 
   return (
@@ -105,6 +111,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           −
         </button>
         <input
+          ref={inputRef}
           type="number"
           class={`${sharedStyles.editorInput} ${styles.numberInput} ${props.error ? sharedStyles.editorInputError : ''}`}
           value={props.value}
@@ -112,6 +119,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           disabled={props.disabled}
+          placeholder={props.placeholder}
           min={props.min}
           max={props.max}
           step={step()}

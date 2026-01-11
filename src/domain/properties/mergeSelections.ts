@@ -5,6 +5,7 @@ import type {
   GroupedAttributes,
 } from '../../types/properties';
 import { GROUP_LABELS, GROUP_PRIORITY } from '../../types/properties';
+import { getAttributeConfig } from './attributeTypes';
 import { getAttributeGroup } from './groupAttributes';
 import { findCommonBaseClass, getAttributesForClass } from './schemaAttributes';
 
@@ -110,13 +111,15 @@ export function mergeSelections(
         const groupId = getAttributeGroup(attrName);
         const existingEntry = groupedEntries[groupId].find(e => e.name === attrName);
         if (!existingEntry) {
+          const config = getAttributeConfig(attrName);
           groupedEntries[groupId].push({
             name: attrName,
             value,
             isMixed,
             isCopyable,
             isUnset: false,
-            editorType: 'text',
+            editorType: config.editorType,
+            enumValues: config.options,
           });
         }
       }

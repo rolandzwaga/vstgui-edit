@@ -1,55 +1,21 @@
 import type { Component, JSX } from 'solid-js';
-import { createSignal, createEffect, onCleanup, Show, For, createMemo } from 'solid-js';
-import { computePosition, flip, offset, shift } from '@floating-ui/dom';
+import { createSignal, createEffect, Show, For, createMemo } from 'solid-js';
 import type { BitmapPickerProps } from '../../types/editors';
+import { FloatingDropdown } from '../common/FloatingDropdown';
 import styles from './BitmapPicker.module.css';
 
 export const BitmapPicker: Component<BitmapPickerProps> = (props) => {
   const [isOpen, setIsOpen] = createSignal(false);
   const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
   let buttonRef: HTMLButtonElement | undefined;
-  let dropdownRef: HTMLDivElement | undefined;
 
   const currentIndex = createMemo(() => props.documentBitmaps.indexOf(props.value));
 
-  const updateDropdownPosition = () => {
-    if (!buttonRef || !dropdownRef || !isOpen()) return;
-
-    computePosition(buttonRef, dropdownRef, {
-      placement: 'bottom-start',
-      middleware: [offset(4), flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) => {
-      if (dropdownRef) {
-        dropdownRef.style.left = `${x}px`;
-        dropdownRef.style.top = `${y}px`;
-      }
-    });
-  };
-
+  // Reset highlight when dropdown opens
   createEffect(() => {
     if (isOpen()) {
       setHighlightedIndex(currentIndex());
-      updateDropdownPosition();
     }
-  });
-
-  createEffect(() => {
-    if (!isOpen()) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        buttonRef &&
-        dropdownRef &&
-        !buttonRef.contains(target) &&
-        !dropdownRef.contains(target)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    onCleanup(() => document.removeEventListener('mousedown', handleClickOutside));
   });
 
   const openDropdown = () => {
@@ -139,30 +105,33 @@ export const BitmapPicker: Component<BitmapPickerProps> = (props) => {
         <span class={styles.indicator}>▾</span>
       </button>
 
-      <Show when={isOpen()}>
-        <div ref={dropdownRef} class={styles.dropdown}>
-          <Show
-            when={props.documentBitmaps.length > 0}
-            fallback={<div class={styles.emptyState}>No bitmaps defined</div>}
-          >
-            <div role="listbox" class={styles.bitmapList}>
-              <For each={props.documentBitmaps}>
-                {(bitmap, index) => (
-                  <div
-                    role="option"
-                    class={`${styles.bitmapOption} ${index() === highlightedIndex() ? styles.highlighted : ''}`}
-                    aria-selected={bitmap === props.value}
-                    onClick={() => selectBitmap(bitmap)}
-                    onMouseEnter={() => setHighlightedIndex(index())}
-                  >
-                    {bitmap}
-                  </div>
-                )}
-              </For>
-            </div>
-          </Show>
-        </div>
-      </Show>
+      <FloatingDropdown
+        isOpen={isOpen}
+        onClose={closeDropdown}
+        triggerRef={buttonRef}
+        class={styles.dropdown}
+      >
+        <Show
+          when={props.documentBitmaps.length > 0}
+          fallback={<div class={styles.emptyState}>No bitmaps defined</div>}
+        >
+          <div role="listbox" class={styles.bitmapList}>
+            <For each={props.documentBitmaps}>
+              {(bitmap, index) => (
+                <div
+                  role="option"
+                  class={`${styles.bitmapOption} ${index() === highlightedIndex() ? styles.highlighted : ''}`}
+                  aria-selected={bitmap === props.value}
+                  onClick={() => selectBitmap(bitmap)}
+                  onMouseEnter={() => setHighlightedIndex(index())}
+                >
+                  {bitmap}
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
+      </FloatingDropdown>
     </div>
   );
 };

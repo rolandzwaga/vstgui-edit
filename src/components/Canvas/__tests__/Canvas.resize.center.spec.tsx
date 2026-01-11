@@ -4,7 +4,7 @@ import { Canvas } from '../Canvas';
 import { documentStore, reset, setDocumentForTest } from '../../../stores/documentStore';
 import { resetSelection, select } from '../../../stores/selectionStore';
 import { resetResize, resizeStore } from '../../../stores/resizeStore';
-import { resetHistory } from '../../../stores/historyStore';
+import { resetHistory, undo } from '../../../stores/historyStore';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
@@ -151,15 +151,15 @@ describe('Canvas resize from center (Alt key)', () => {
 
       const { container } = render(() => <Canvas />);
       const seHandle = container.querySelector('[data-position="se"]') as Element;
-      const wrapper = container.querySelector('[data-testid="canvas-wrapper"]') as Element;
 
       fireEvent.mouseDown(seHandle, { button: 0, clientX: 200, clientY: 200 });
       fireEvent.mouseMove(document, { clientX: 230, clientY: 220, altKey: true });
       fireEvent.mouseUp(document);
 
-      fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
-
+      // Call undo directly (global handler in App.tsx handles Ctrl+Z)
       testInRoot(() => {
+        undo();
+
         const doc = documentStore.document;
         const button = doc?.['vstgui-ui-description']?.templates?.MainView?.children?.Button1;
         expect(button?.attributes.origin).toBe('100, 100');

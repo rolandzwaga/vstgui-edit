@@ -1,73 +1,21 @@
 import type { Component, JSX } from 'solid-js';
-import { createSignal, createEffect, onCleanup, Show, For, createMemo } from 'solid-js';
-import { computePosition, flip, offset, shift } from '@floating-ui/dom';
+import { createSignal, createEffect, For, createMemo } from 'solid-js';
 import type { EnumEditorProps } from '../../types/editors';
+import { FloatingDropdown } from '../common/FloatingDropdown';
 import styles from './EnumEditor.module.css';
 
 export const EnumEditor: Component<EnumEditorProps> = (props) => {
   const [isOpen, setIsOpen] = createSignal(false);
   const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
   let buttonRef: HTMLButtonElement | undefined;
-  let dropdownRef: HTMLDivElement | undefined;
 
   const currentIndex = createMemo(() => props.options.indexOf(props.value));
 
-  const updateDropdownPosition = () => {
-    if (!buttonRef || !dropdownRef || !isOpen()) return;
-
-    computePosition(buttonRef, dropdownRef, {
-      placement: 'bottom-start',
-      middleware: [offset(4), flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) => {
-      if (dropdownRef) {
-        dropdownRef.style.left = `${x}px`;
-        dropdownRef.style.top = `${y}px`;
-      }
-    });
-  };
-
+  // Reset highlight when dropdown opens
   createEffect(() => {
     if (isOpen()) {
       setHighlightedIndex(currentIndex());
-      updateDropdownPosition();
     }
-  });
-
-  createEffect(() => {
-    if (!isOpen()) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        buttonRef &&
-        dropdownRef &&
-        !buttonRef.contains(target) &&
-        !dropdownRef.contains(target)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleFocusOut = (e: FocusEvent) => {
-      const relatedTarget = e.relatedTarget as Node | null;
-      if (
-        buttonRef &&
-        dropdownRef &&
-        relatedTarget &&
-        !buttonRef.contains(relatedTarget) &&
-        !dropdownRef.contains(relatedTarget)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    buttonRef?.addEventListener('focusout', handleFocusOut);
-    
-    onCleanup(() => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      buttonRef?.removeEventListener('focusout', handleFocusOut);
-    });
   });
 
   const openDropdown = () => {
@@ -151,12 +99,13 @@ export const EnumEditor: Component<EnumEditorProps> = (props) => {
         <span class={styles.indicator}>▾</span>
       </button>
 
-      <Show when={isOpen()}>
-        <div
-          ref={dropdownRef}
-          role="listbox"
-          class={styles.dropdown}
-        >
+      <FloatingDropdown
+        isOpen={isOpen}
+        onClose={closeDropdown}
+        triggerRef={buttonRef}
+        class={styles.dropdown}
+      >
+        <div role="listbox">
           <For each={props.options}>
             {(option, index) => (
               <div
@@ -171,7 +120,7 @@ export const EnumEditor: Component<EnumEditorProps> = (props) => {
             )}
           </For>
         </div>
-      </Show>
+      </FloatingDropdown>
     </div>
   );
 };

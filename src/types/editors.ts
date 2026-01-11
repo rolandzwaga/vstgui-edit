@@ -15,6 +15,7 @@ export type EditorType =
   | 'color' // Color picker (document resources + hex)
   | 'font' // Font picker (document resources)
   | 'bitmap' // Bitmap picker (document resources)
+  | 'gradient' // Gradient picker (document resources)
   | 'readonly'; // Display only, not editable
 
 /**
@@ -63,6 +64,8 @@ export interface EditorProps {
   disabled?: boolean;
   /** Validation error message to display */
   error?: string | null;
+  /** Placeholder text (e.g., "Mixed" for batch edits) */
+  placeholder?: string;
 }
 
 /**

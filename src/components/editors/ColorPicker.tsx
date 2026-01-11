@@ -1,8 +1,8 @@
 import type { Component, JSX } from 'solid-js';
-import { createSignal, createEffect, onCleanup, Show, For, createMemo } from 'solid-js';
-import { computePosition, flip, offset, shift } from '@floating-ui/dom';
+import { createSignal, createEffect, Show, For, createMemo } from 'solid-js';
 import type { ColorPickerProps } from '../../types/editors';
 import { validateColor } from '../../domain/properties/validation';
+import { FloatingDropdown } from '../common/FloatingDropdown';
 import styles from './ColorPicker.module.css';
 
 export const ColorPicker: Component<ColorPickerProps> = (props) => {
@@ -11,12 +11,6 @@ export const ColorPicker: Component<ColorPickerProps> = (props) => {
   const [hexError, setHexError] = createSignal<string | null>(null);
   const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
   let buttonRef: HTMLButtonElement | undefined;
-  let dropdownRef: HTMLDivElement | undefined;
-
-  const isHexColor = createMemo(() => {
-    const val = props.value;
-    return val.startsWith('#') || val.startsWith('~');
-  });
 
   const swatchColor = createMemo(() => {
     if (props.value.startsWith('#')) {
@@ -27,46 +21,13 @@ export const ColorPicker: Component<ColorPickerProps> = (props) => {
 
   const currentIndex = createMemo(() => props.documentColors.indexOf(props.value));
 
-  const updateDropdownPosition = () => {
-    if (!buttonRef || !dropdownRef || !isOpen()) return;
-
-    computePosition(buttonRef, dropdownRef, {
-      placement: 'bottom-start',
-      middleware: [offset(4), flip(), shift({ padding: 8 })],
-    }).then(({ x, y }) => {
-      if (dropdownRef) {
-        dropdownRef.style.left = `${x}px`;
-        dropdownRef.style.top = `${y}px`;
-      }
-    });
-  };
-
+  // Reset state when dropdown opens
   createEffect(() => {
     if (isOpen()) {
       setHighlightedIndex(currentIndex());
       setHexInput('');
       setHexError(null);
-      updateDropdownPosition();
     }
-  });
-
-  createEffect(() => {
-    if (!isOpen()) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        buttonRef &&
-        dropdownRef &&
-        !buttonRef.contains(target) &&
-        !dropdownRef.contains(target)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    onCleanup(() => document.removeEventListener('mousedown', handleClickOutside));
   });
 
   const openDropdown = () => {
@@ -186,42 +147,45 @@ export const ColorPicker: Component<ColorPickerProps> = (props) => {
         <span class={styles.indicator}>▾</span>
       </button>
 
-      <Show when={isOpen()}>
-        <div ref={dropdownRef} class={styles.dropdown}>
-          <div class={styles.hexSection}>
-            <input
-              type="text"
-              class={styles.hexInput}
-              placeholder="#RRGGBB"
-              value={hexInput()}
-              onInput={handleHexInput}
-              onKeyDown={handleHexKeyDown}
-            />
-            <Show when={hexError()}>
-              <span class={styles.hexError}>{hexError()}</span>
-            </Show>
-          </div>
-
-          <Show when={props.documentColors.length > 0}>
-            <div class={styles.divider} />
-            <div role="listbox" class={styles.colorList}>
-              <For each={props.documentColors}>
-                {(color, index) => (
-                  <div
-                    role="option"
-                    class={`${styles.colorOption} ${index() === highlightedIndex() ? styles.highlighted : ''}`}
-                    aria-selected={color === props.value}
-                    onClick={() => selectColor(color)}
-                    onMouseEnter={() => setHighlightedIndex(index())}
-                  >
-                    {color}
-                  </div>
-                )}
-              </For>
-            </div>
+      <FloatingDropdown
+        isOpen={isOpen}
+        onClose={closeDropdown}
+        triggerRef={buttonRef}
+        class={styles.dropdown}
+      >
+        <div class={styles.hexSection}>
+          <input
+            type="text"
+            class={styles.hexInput}
+            placeholder="#RRGGBB"
+            value={hexInput()}
+            onInput={handleHexInput}
+            onKeyDown={handleHexKeyDown}
+          />
+          <Show when={hexError()}>
+            <span class={styles.hexError}>{hexError()}</span>
           </Show>
         </div>
-      </Show>
+
+        <Show when={props.documentColors.length > 0}>
+          <div class={styles.divider} />
+          <div role="listbox" class={styles.colorList}>
+            <For each={props.documentColors}>
+              {(color, index) => (
+                <div
+                  role="option"
+                  class={`${styles.colorOption} ${index() === highlightedIndex() ? styles.highlighted : ''}`}
+                  aria-selected={color === props.value}
+                  onClick={() => selectColor(color)}
+                  onMouseEnter={() => setHighlightedIndex(index())}
+                >
+                  {color}
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
+      </FloatingDropdown>
     </div>
   );
 };

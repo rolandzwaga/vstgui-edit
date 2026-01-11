@@ -7,7 +7,8 @@ export type EditorType =
   | 'font'
   | 'bitmap'
   | 'gradient'
-  | 'text';
+  | 'text'
+  | 'readonly';
 
 export interface AttributeDefinition {
   name: string;

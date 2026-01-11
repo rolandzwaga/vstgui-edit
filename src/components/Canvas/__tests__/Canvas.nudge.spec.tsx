@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import { Canvas } from '../Canvas';
 import { resetCanvas } from '../../../stores/canvasStore';
 import { resetDrag } from '../../../stores/dragStore';
-import { historyStore, resetHistory } from '../../../stores/historyStore';
+import { historyStore, resetHistory, undo } from '../../../stores/historyStore';
 import { resetSelection, selectionStore } from '../../../stores/selectionStore';
 
 // biome-ignore lint/suspicious/noExplicitAny: Mock for testing
@@ -337,7 +337,8 @@ describe('Canvas Arrow Key Nudge (US3)', () => {
         fireEvent.keyDown(wrapper, { key: 'ArrowRight' });
         mockUpdateViewOrigin.mockClear();
 
-        fireEvent.keyDown(wrapper, { key: 'z', ctrlKey: true });
+        // Call undo directly (global handler in App.tsx handles Ctrl+Z)
+        undo();
 
         expect(mockUpdateViewOrigin).toHaveBeenCalledWith('TestTemplate-view-1', { x: 50, y: 50 });
       });

@@ -31,7 +31,7 @@ import {
   guidesStore,
   toggleGuidesVisibility,
 } from '../../stores/guidesStore';
-import { pushOperation, redo, undo } from '../../stores/historyStore';
+import { pushOperation } from '../../stores/historyStore';
 import {
   isHidden,
   isLocked,
@@ -127,23 +127,7 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       return;
     }
 
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-      e.preventDefault();
-      undo();
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-      e.preventDefault();
-      redo();
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
-      e.preventDefault();
-      redo();
-      return;
-    }
+    // Note: Undo/Redo (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z) is handled globally in App.tsx
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
       e.preventDefault();
