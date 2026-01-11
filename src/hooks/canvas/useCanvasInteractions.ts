@@ -12,7 +12,7 @@ import {
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { canvasStore } from '../../stores/canvasStore';
 import { showContextMenu } from '../../stores/contextMenuStore';
-import { updateViewOrigin, updateViewSize } from '../../stores/documentStore';
+import { isRoot, updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
 import { gridStore } from '../../stores/gridStore';
 import { guidesStore } from '../../stores/guidesStore';
@@ -226,12 +226,13 @@ export function useCanvasInteractions(
     const selectedIds = selectionStore.selectedIds;
     const origins: Record<string, { x: number; y: number }> = {};
 
-    // Filter out locked views from drag operation
+    // Filter out locked views and root container from drag operation
     const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
-    const unlockedIdSet = new Set(unlockedIds);
+    const movableIds = unlockedIds.filter(id => !isRoot(id));
+    const movableIdSet = new Set(movableIds);
 
     for (const view of views) {
-      if (unlockedIdSet.has(view.id)) {
+      if (movableIdSet.has(view.id)) {
         origins[view.id] = { x: view.relativeX, y: view.relativeY };
       }
     }

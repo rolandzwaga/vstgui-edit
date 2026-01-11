@@ -22,7 +22,7 @@ import {
 } from '../../domain/hierarchy/groupOperations';
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { getParentId, updateViewOrigin } from '../../stores/documentStore';
+import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import {
@@ -275,10 +275,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
         return;
       }
 
-      // Filter out locked views from nudge operation
+      // Filter out locked views and root container from nudge operation
       const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
-      if (unlockedIds.length === 0) {
-        // All selected views are locked, do nothing
+      const movableIds = unlockedIds.filter(id => !isRoot(id));
+      if (movableIds.length === 0) {
+        // All selected views are locked or root, do nothing
         return;
       }
       const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
@@ -303,10 +304,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const originalOrigins: Record<string, { x: number; y: number }> = {};
       const newOrigins: Record<string, { x: number; y: number }> = {};
       const viewIds: string[] = [];
-      const unlockedIdSet = new Set(unlockedIds);
+      const movableIdSet = new Set(movableIds);
 
       for (const view of views) {
-        if (unlockedIdSet.has(view.id)) {
+        if (movableIdSet.has(view.id)) {
           viewIds.push(view.id);
           originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
           newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);

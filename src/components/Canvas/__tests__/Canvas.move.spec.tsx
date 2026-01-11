@@ -23,7 +23,12 @@ vi.mock('../../../stores/documentStore', () => ({
     const doc = mockDocumentStore.document as { 'vstgui-ui-description'?: { templates?: Record<string, unknown> } } | null;
     return doc?.['vstgui-ui-description']?.templates?.[name];
   },
-  getParentId: () => null,
+  getParentId: (viewId: string) => {
+    if (viewId === 'TestTemplate') return null;
+    const lastDash = viewId.lastIndexOf('-');
+    return lastDash > 0 ? viewId.substring(0, lastDash) : null;
+  },
+  isRoot: (viewId: string) => viewId === 'TestTemplate',
 }));
 
 vi.mock('../../../stores/templateStore', () => ({

@@ -787,6 +787,14 @@ export function getParentId(viewId: string): string | null {
   return viewId.substring(0, lastDash);
 }
 
+/**
+ * Check if a view is the root container (has no parent).
+ * Root containers cannot be moved since there's nothing to move them relative to.
+ */
+export function isRoot(viewId: string): boolean {
+  return getParentId(viewId) === null;
+}
+
 export function getChildIds(viewId: string): string[] {
   const doc = store.document;
   if (!doc) return [];
