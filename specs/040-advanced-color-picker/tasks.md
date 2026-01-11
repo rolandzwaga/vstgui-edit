@@ -21,11 +21,11 @@
 
 **Purpose**: Types, constants, and domain utilities that all stories depend on
 
-- [ ] T001 Create TypeScript types in `src/types/colorPicker.ts` (ColorValue, ColorFormat, ColorSource, PickerMode, PredefinedColor)
-- [ ] T002 [P] Create VSTGUI predefined colors constant in `src/domain/colorPicker/predefinedColors.ts`
-- [ ] T003 [P] Create barrel exports in `src/domain/colorPicker/index.ts`
-- [ ] T004 [P] Create ColorPicker directory structure at `src/components/editors/ColorPicker/`
-- [ ] T005 **Commit**: Stage and commit Phase 1 changes with descriptive message
+- [X] T001 Create TypeScript types in `src/types/colorPicker.ts` (ColorValue, ColorFormat, ColorSource, PickerMode, PredefinedColor)
+- [X] T002 [P] Create VSTGUI predefined colors constant in `src/domain/colorPicker/predefinedColors.ts`
+- [X] T003 [P] Create barrel exports in `src/domain/colorPicker/index.ts`
+- [X] T004 [P] Create ColorPicker directory structure at `src/components/editors/ColorPicker/`
+- [X] T005 **Commit**: Stage and commit Phase 1 changes with descriptive message
 
 ---
 
@@ -40,8 +40,8 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T006 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T007 [P] Write tests for color conversion in `src/domain/colorPicker/__tests__/colorConversion.spec.ts`
+- [X] T006 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T007 [P] Write tests for color conversion in `src/domain/colorPicker/__tests__/colorConversion.spec.ts`
   - RGB to HSV round-trip (red, green, blue, black, white, gray)
   - HSV to RGB round-trip
   - RGB to HSL round-trip
@@ -50,19 +50,19 @@
   - rgbaToHex (always 8-digit uppercase)
   - Edge cases: transparent, pure colors, grayscale
   - **FR-009a**: Output normalization tests - verify rgbaToHex ALWAYS returns 8-digit format:
-    - 6-digit input (#FF5500) → 8-digit output (#FF5500FF)
-    - RGB input (255, 85, 0) → 8-digit output
-    - HSL input (20, 100%, 50%) → 8-digit output
+    - 6-digit input (#FF5500) -> 8-digit output (#FF5500FF)
+    - RGB input (255, 85, 0) -> 8-digit output
+    - HSL input (20, 100%, 50%) -> 8-digit output
     - Already 8-digit input returns unchanged
   - **SC-003**: Round-trip accuracy tests with tolerance:
-    - RGB → HSV → RGB must produce values within +/-1 (rounding tolerance)
-    - RGB → HSL → RGB must produce values within +/-1
-    - HEX → RGB → HEX must be exact (no loss)
-- [ ] T008 [P] Write tests for color validation in `src/domain/colorPicker/__tests__/colorValidation.spec.ts`
+    - RGB -> HSV -> RGB must produce values within +/-1 (rounding tolerance)
+    - RGB -> HSL -> RGB must produce values within +/-1
+    - HEX -> RGB -> HEX must be exact (no loss)
+- [X] T008 [P] Write tests for color validation in `src/domain/colorPicker/__tests__/colorValidation.spec.ts`
   - validateHexInput (valid 6/8 digit, auto-add #, invalid chars, case normalization)
   - validateRgbInput (0-255 range, out of range errors)
   - validateHslInput (H: 0-360, S/L: 0-100, out of range errors)
-- [ ] T009 [P] Write tests for recent colors in `src/domain/colorPicker/__tests__/recentColors.spec.ts`
+- [X] T009 [P] Write tests for recent colors in `src/domain/colorPicker/__tests__/recentColors.spec.ts`
   - getRecentColors (empty storage, valid JSON, invalid JSON)
   - addRecentColor (adds to front, moves duplicate to front, max 10 FIFO)
   - clearRecentColors
@@ -70,20 +70,20 @@
 
 ### Implementation for Foundational Phase
 
-- [ ] T010 [P] Implement color conversion functions in `src/domain/colorPicker/colorConversion.ts`
+- [X] T010 [P] Implement color conversion functions in `src/domain/colorPicker/colorConversion.ts`
   - rgbToHsv, hsvToRgb, rgbToHsl, hslToRgb
   - parseHexToRgba, rgbaToHex
   - clamp, roundTo, isValidHex utility functions
   - createColorValue factory function
-- [ ] T011 [P] Implement color validation in `src/domain/colorPicker/colorValidation.ts`
+- [X] T011 [P] Implement color validation in `src/domain/colorPicker/colorValidation.ts`
   - validateHexInput, validateRgbInput, validateHslInput
   - Return { valid, error?, normalized? } structure
-- [ ] T012 [P] Implement recent colors persistence in `src/domain/colorPicker/recentColors.ts`
+- [X] T012 [P] Implement recent colors persistence in `src/domain/colorPicker/recentColors.ts`
   - STORAGE_KEY = 'vstgui-edit:recent-colors'
   - MAX_RECENT_COLORS = 10
   - getRecentColors, addRecentColor, clearRecentColors, isStorageAvailable
-- [ ] T013 Verify all domain tests pass - run `npm test -- --testPathPattern=colorPicker`
-- [ ] T014 **Commit**: Stage and commit Phase 2 changes with descriptive message
+- [X] T013 Verify all domain tests pass - run `npm test -- --testPathPattern=colorPicker`
+- [X] T014 **Commit**: Stage and commit Phase 2 changes with descriptive message
 
 **Checkpoint**: Foundation ready - component implementation can now begin
 
@@ -99,8 +99,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T015 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T016 [P] [US1] Write tests for GradientArea in `src/components/editors/ColorPicker/__tests__/GradientArea.spec.tsx`
+- [X] T015 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T016 [P] [US1] Write tests for GradientArea in `src/components/editors/ColorPicker/__tests__/GradientArea.spec.tsx`
   - Renders with correct hue-based background color
   - Click at top-left gives S=0, B=100
   - Click at bottom-right gives S=100, B=0
@@ -109,7 +109,7 @@
   - Arrow keys: 1% step normal, 10% with Shift
   - Disabled state prevents interaction
   - ARIA attributes present (role="slider", valuemin, valuemax)
-- [ ] T017 [P] [US1] Write tests for HueSlider in `src/components/editors/ColorPicker/__tests__/HueSlider.spec.tsx`
+- [X] T017 [P] [US1] Write tests for HueSlider in `src/components/editors/ColorPicker/__tests__/HueSlider.spec.tsx`
   - Renders rainbow gradient track
   - Click sets hue to corresponding position
   - Drag updates hue continuously
@@ -120,25 +120,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T018 [P] [US1] Create CSS module `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T018 [P] [US1] Create CSS module `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .gradientArea (200x150px, relative positioning, cursor crosshair)
   - .gradientThumb (circular indicator, 12px, border, shadow)
   - .hueSlider, .hueTrack (rainbow gradient), .hueThumb
   - .sliderTrack, .sliderThumb base classes
   - Focus indicators for keyboard accessibility
-- [ ] T019 [US1] Implement GradientArea component in `src/components/editors/ColorPicker/GradientArea.tsx`
+- [X] T019 [US1] Implement GradientArea component in `src/components/editors/ColorPicker/GradientArea.tsx`
   - CSS gradient: horizontal (white to hue color) + vertical (transparent to black)
   - Update --current-hue-color CSS variable from hue prop
   - Click/drag event handling with coordinate calculation
   - Keyboard navigation (arrow keys with step sizes)
   - ARIA slider role attributes
-- [ ] T020 [US1] Implement HueSlider component in `src/components/editors/ColorPicker/HueSlider.tsx`
+- [X] T020 [US1] Implement HueSlider component in `src/components/editors/ColorPicker/HueSlider.tsx`
   - Rainbow gradient background (0-360 degrees)
   - Horizontal slider with draggable thumb
   - Keyboard navigation (Left/Right with Shift modifier)
   - ARIA slider role attributes
-- [ ] T021 [US1] Verify User Story 1 tests pass
-- [ ] T022 [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
+- [X] T021 [US1] Verify User Story 1 tests pass
+- [X] T022 [US1] **Commit**: Stage and commit User Story 1 changes with descriptive message
 
 **Checkpoint**: Visual color selection (gradient + hue) is functional
 
@@ -154,8 +154,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T023 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T024 [P] [US2] Write tests for AlphaSlider in `src/components/editors/ColorPicker/__tests__/AlphaSlider.spec.tsx`
+- [X] T023 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T024 [P] [US2] Write tests for AlphaSlider in `src/components/editors/ColorPicker/__tests__/AlphaSlider.spec.tsx`
   - Renders checkerboard pattern background
   - Shows gradient from transparent to current color
   - Click sets alpha to corresponding position
@@ -167,17 +167,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Add alpha slider styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T025 [US2] Add alpha slider styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .alphaSlider, .alphaTrack (checkerboard + color gradient)
   - Checkerboard pattern using CSS (reuse tokens from tokens.css)
-- [ ] T026 [US2] Implement AlphaSlider component in `src/components/editors/ColorPicker/AlphaSlider.tsx`
+- [X] T026 [US2] Implement AlphaSlider component in `src/components/editors/ColorPicker/AlphaSlider.tsx`
   - Checkerboard background pattern
   - Color-to-transparent gradient overlay (using color prop)
   - Horizontal slider (0-255)
   - Keyboard navigation with alpha-specific step sizes
   - ARIA slider role attributes
-- [ ] T027 [US2] Verify User Story 2 tests pass
-- [ ] T028 [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
+- [X] T027 [US2] Verify User Story 2 tests pass
+- [X] T028 [US2] **Commit**: Stage and commit User Story 2 changes with descriptive message
 
 **Checkpoint**: Alpha control is functional
 
@@ -193,8 +193,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T029 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T030 [P] [US3] Write tests for ColorInputs HEX mode in `src/components/editors/ColorPicker/__tests__/ColorInputs.spec.tsx`
+- [X] T029 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T030 [P] [US3] Write tests for ColorInputs HEX mode in `src/components/editors/ColorPicker/__tests__/ColorInputs.spec.tsx`
   - Renders HEX tab by default
   - Shows current hex value in input
   - Valid 6-digit input updates color (alpha defaults to FF)
@@ -207,21 +207,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Add input styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T031 [US3] Add input styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .inputTabs, .tab, .tabActive
   - .inputPanel
   - .hexInput (monospace font, uppercase)
   - .inputError (red border for invalid)
   - .errorMessage
-- [ ] T032 [US3] Implement ColorInputs component in `src/components/editors/ColorPicker/ColorInputs.tsx`
+- [X] T032 [US3] Implement ColorInputs component in `src/components/editors/ColorPicker/ColorInputs.tsx`
   - Tab bar with HEX/RGB/HSL options
   - HEX mode: single text input with validation
   - Format tab state management
   - Validation error display
   - Call onChange with parsed ColorValue and source
   - Call onCommit on Enter key
-- [ ] T033 [US3] Verify User Story 3 tests pass
-- [ ] T034 [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
+- [X] T033 [US3] Verify User Story 3 tests pass
+- [X] T034 [US3] **Commit**: Stage and commit User Story 3 changes with descriptive message
 
 **Checkpoint**: HEX input with validation is functional
 
@@ -237,8 +237,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T035 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T036 [P] [US4] Write tests for ColorInputs RGB/HSL modes in `src/components/editors/ColorPicker/__tests__/ColorInputs.spec.tsx` (extend existing)
+- [X] T035 [US4] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T036 [P] [US4] Write tests for ColorInputs RGB/HSL modes in `src/components/editors/ColorPicker/__tests__/ColorInputs.spec.tsx` (extend existing)
   - RGB mode: shows R, G, B, A inputs (0-255 each)
   - RGB validation (range 0-255)
   - HSL mode: shows H (0-360), S, L, A inputs (0-100%)
@@ -248,16 +248,16 @@
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Add RGB/HSL input styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T037 [US4] Add RGB/HSL input styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .rgbInputs, .hslInputs (grid layout for 4 fields)
   - .fieldGroup, .fieldLabel, .fieldInput
-- [ ] T038 [US4] Extend ColorInputs component for RGB/HSL modes
+- [X] T038 [US4] Extend ColorInputs component for RGB/HSL modes
   - RGB panel: 4 number inputs (R, G, B, A 0-255)
   - HSL panel: 4 number inputs (H 0-360, S/L/A 0-100)
   - Format switching updates display without changing color
   - Input validation per format
-- [ ] T039 [US4] Verify User Story 4 tests pass
-- [ ] T040 [US4] **Commit**: Stage and commit User Story 4 changes with descriptive message
+- [X] T039 [US4] Verify User Story 4 tests pass
+- [X] T040 [US4] **Commit**: Stage and commit User Story 4 changes with descriptive message
 
 **Checkpoint**: Multi-format input is functional
 
@@ -273,8 +273,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T041 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T042 [P] [US5] Write tests for ColorSwatches document colors in `src/components/editors/ColorPicker/__tests__/ColorSwatches.spec.tsx`
+- [X] T041 [US5] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T042 [P] [US5] Write tests for ColorSwatches document colors in `src/components/editors/ColorPicker/__tests__/ColorSwatches.spec.tsx`
   - Renders "Document Colors" section when documentColors prop has items
   - Hides section when documentColors is empty
   - Renders swatches with resolved hex values for preview
@@ -285,22 +285,22 @@
 
 ### Implementation for User Story 5
 
-- [ ] T043 [US5] Add swatch styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T043 [US5] Add swatch styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .swatchesSection, .swatchesHeader
   - .swatchGrid (flex wrap, gap)
   - .swatch (24px square, border, cursor pointer)
   - .swatchSelected (highlight border)
   - .swatchName (tooltip on hover)
   - .swatchMissing (red border/icon for missing reference indicator)
-- [ ] T044 [US5] Implement ColorSwatches component in `src/components/editors/ColorPicker/ColorSwatches.tsx`
+- [X] T044 [US5] Implement ColorSwatches component in `src/components/editors/ColorPicker/ColorSwatches.tsx`
   - Document colors section (conditional rendering)
   - Reuse existing ColorSwatch component from ColorsPanel
   - Selection highlighting
   - Keyboard navigation (arrow keys between swatches)
   - Output color name for document colors
   - Missing reference detection: if currentValue is a color name not in documentColors, show missing indicator
-- [ ] T045 [US5] Verify User Story 5 tests pass
-- [ ] T046 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
+- [X] T045 [US5] Verify User Story 5 tests pass
+- [X] T046 [US5] **Commit**: Stage and commit User Story 5 changes with descriptive message
 
 **Checkpoint**: Document color swatches are functional
 
@@ -316,8 +316,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T047 [US6] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T048 [P] [US6] Write tests for ColorSwatches predefined colors (extend existing test file)
+- [X] T047 [US6] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T048 [P] [US6] Write tests for ColorSwatches predefined colors (extend existing test file)
   - Renders "Predefined Colors" section with 10 VSTGUI colors
   - Swatches show correct hex preview
   - Click calls onSelect with "~ ColorName" format and source 'predefined-color'
@@ -325,13 +325,13 @@
 
 ### Implementation for User Story 6
 
-- [ ] T049 [US6] Extend ColorSwatches component for predefined colors
+- [X] T049 [US6] Extend ColorSwatches component for predefined colors
   - Import VSTGUI_PREDEFINED_COLORS constant
   - Render predefined section with all 10 colors
   - Output "~ ColorName" format when selected
   - Show displayName in tooltip
-- [ ] T050 [US6] Verify User Story 6 tests pass
-- [ ] T051 [US6] **Commit**: Stage and commit User Story 6 changes with descriptive message
+- [X] T050 [US6] Verify User Story 6 tests pass
+- [X] T051 [US6] **Commit**: Stage and commit User Story 6 changes with descriptive message
 
 **Checkpoint**: Predefined color swatches are functional
 
@@ -347,8 +347,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T052 [US7] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T053 [P] [US7] Write tests for ColorPreview in `src/components/editors/ColorPicker/__tests__/ColorPreview.spec.tsx`
+- [X] T052 [US7] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T053 [P] [US7] Write tests for ColorPreview in `src/components/editors/ColorPicker/__tests__/ColorPreview.spec.tsx`
   - Renders original color on left, current color on right
   - Shows checkerboard behind both for transparency indication
   - Click on original color calls onRevert
@@ -356,17 +356,17 @@
 
 ### Implementation for User Story 7
 
-- [ ] T054 [US7] Add preview styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T054 [US7] Add preview styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .previewContainer (flex row, gap)
   - .previewSwatch (40x24px, checkerboard background)
   - .previewLabel (small text)
   - .previewOld (cursor pointer for revert)
-- [ ] T055 [US7] Implement ColorPreview component in `src/components/editors/ColorPicker/ColorPreview.tsx`
+- [X] T055 [US7] Implement ColorPreview component in `src/components/editors/ColorPicker/ColorPreview.tsx`
   - Two side-by-side swatches with checkerboard backgrounds
   - Labels for accessibility
   - Click handler on original for revert
-- [ ] T056 [US7] Verify User Story 7 tests pass
-- [ ] T057 [US7] **Commit**: Stage and commit User Story 7 changes with descriptive message
+- [X] T056 [US7] Verify User Story 7 tests pass
+- [X] T057 [US7] **Commit**: Stage and commit User Story 7 changes with descriptive message
 
 **Checkpoint**: Color preview comparison is functional
 
@@ -382,8 +382,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T058 [US8] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T059 [P] [US8] Write tests for EyeDropperButton in `src/components/editors/ColorPicker/__tests__/EyeDropperButton.spec.tsx`
+- [X] T058 [US8] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T059 [P] [US8] Write tests for EyeDropperButton in `src/components/editors/ColorPicker/__tests__/EyeDropperButton.spec.tsx`
   - Not rendered when EyeDropper API unavailable (mock window.EyeDropper)
   - Rendered with icon when API available
   - Click activates eyedropper (mock EyeDropper.open())
@@ -393,17 +393,17 @@
 
 ### Implementation for User Story 8
 
-- [ ] T060 [US8] Add eyedropper styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T060 [US8] Add eyedropper styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .eyedropperButton (icon button, positioned)
   - .eyedropperIcon (SVG styles)
-- [ ] T061 [US8] Implement EyeDropperButton component in `src/components/editors/ColorPicker/EyeDropperButton.tsx`
+- [X] T061 [US8] Implement EyeDropperButton component in `src/components/editors/ColorPicker/EyeDropperButton.tsx`
   - Feature detection: typeof window !== 'undefined' && 'EyeDropper' in window
   - Conditional rendering (null if not supported)
   - Async handler for EyeDropper.open()
   - Convert 6-digit result to 8-digit (add FF alpha)
   - Handle cancellation gracefully
-- [ ] T062 [US8] Verify User Story 8 tests pass
-- [ ] T063 [US8] **Commit**: Stage and commit User Story 8 changes with descriptive message
+- [X] T062 [US8] Verify User Story 8 tests pass
+- [X] T063 [US8] **Commit**: Stage and commit User Story 8 changes with descriptive message
 
 **Checkpoint**: Eyedropper tool is functional (where supported)
 
@@ -419,8 +419,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T064 [US9] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T065 [P] [US9] Write tests for ColorSwatches recent colors (extend existing test file)
+- [X] T064 [US9] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T065 [P] [US9] Write tests for ColorSwatches recent colors (extend existing test file)
   - Renders "Recent Colors" section when recent colors exist
   - Hides section when no recent colors
   - Shows up to 10 colors in order (most recent first)
@@ -429,12 +429,12 @@
 
 ### Implementation for User Story 9
 
-- [ ] T066 [US9] Extend ColorSwatches component for recent colors
+- [X] T066 [US9] Extend ColorSwatches component for recent colors
   - Call getRecentColors() from domain/colorPicker/recentColors
   - Render recent section conditionally
   - Output hex value when selected
-- [ ] T067 [US9] Verify User Story 9 tests pass
-- [ ] T068 [US9] **Commit**: Stage and commit User Story 9 changes with descriptive message
+- [X] T067 [US9] Verify User Story 9 tests pass
+- [X] T068 [US9] **Commit**: Stage and commit User Story 9 changes with descriptive message
 
 **Checkpoint**: Recent colors are functional
 
@@ -450,8 +450,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T069 [US10] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T070 [P] [US10] Write tests for ColorPickerPopup in `src/components/editors/ColorPicker/__tests__/ColorPicker.spec.tsx`
+- [X] T069 [US10] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T070 [P] [US10] Write tests for ColorPickerPopup in `src/components/editors/ColorPicker/__tests__/ColorPicker.spec.tsx`
   - Default mode is popup
   - Trigger shows color swatch + value text
   - Click trigger opens dropdown
@@ -466,24 +466,24 @@
 
 ### Implementation for User Story 10
 
-- [ ] T071 [US10] Add popup styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T071 [US10] Add popup styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .popupTrigger (inline-flex, border, rounded)
   - .triggerSwatch (16px square)
   - .triggerValue (text)
   - .popupDropdown (width, padding, shadow)
-- [ ] T072 [US10] Implement ColorPickerCore in `src/components/editors/ColorPicker/ColorPickerCore.tsx`
+- [X] T072 [US10] Implement ColorPickerCore in `src/components/editors/ColorPicker/ColorPickerCore.tsx`
   - Compose: GradientArea, HueSlider, AlphaSlider, ColorInputs, ColorPreview, ColorSwatches, EyeDropperButton
   - State management: color signals, format signal
   - Derived hex output (always 8-digit)
   - onChange/onCommit prop handling
-- [ ] T073 [US10] Implement ColorPickerPopup in `src/components/editors/ColorPicker/ColorPickerPopup.tsx`
+- [X] T073 [US10] Implement ColorPickerPopup in `src/components/editors/ColorPicker/ColorPickerPopup.tsx`
   - Import FloatingDropdown from common
   - Trigger button with swatch + value
   - Capture originalValue on open
   - Close handlers: outside click commits, Escape reverts if invalid
   - Add recent color on commit
-- [ ] T074 [US10] Verify User Story 10 tests pass
-- [ ] T075 [US10] **Commit**: Stage and commit User Story 10 changes with descriptive message
+- [X] T074 [US10] Verify User Story 10 tests pass
+- [X] T075 [US10] **Commit**: Stage and commit User Story 10 changes with descriptive message
 
 **Checkpoint**: Popup mode is functional
 
@@ -499,8 +499,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T076 [US11] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T077 [P] [US11] Write tests for ColorPickerInline in `src/components/editors/ColorPicker/__tests__/ColorPicker.spec.tsx` (extend)
+- [X] T076 [US11] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T077 [P] [US11] Write tests for ColorPickerInline in `src/components/editors/ColorPicker/__tests__/ColorPicker.spec.tsx` (extend)
   - mode="inline" renders picker directly (no trigger/dropdown)
   - Full picker UI visible immediately
   - Escape key commits changes
@@ -508,17 +508,17 @@
 
 ### Implementation for User Story 11
 
-- [ ] T078 [US11] Add inline styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T078 [US11] Add inline styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - .inlineContainer (direct display, no dropdown)
-- [ ] T079 [US11] Implement ColorPickerInline in `src/components/editors/ColorPicker/ColorPickerInline.tsx`
+- [X] T079 [US11] Implement ColorPickerInline in `src/components/editors/ColorPicker/ColorPickerInline.tsx`
   - Render ColorPickerCore directly
   - Escape key commits
   - No trigger/dropdown UI
-- [ ] T080 [US11] Create main ColorPicker export in `src/components/editors/ColorPicker/ColorPicker.tsx`
+- [X] T080 [US11] Create main ColorPicker export in `src/components/editors/ColorPicker/ColorPicker.tsx`
   - Route to ColorPickerPopup (default) or ColorPickerInline based on mode prop
   - Maintain backward compatibility with existing ColorPickerProps
-- [ ] T081 [US11] Verify User Story 11 tests pass
-- [ ] T082 [US11] **Commit**: Stage and commit User Story 11 changes with descriptive message
+- [X] T081 [US11] Verify User Story 11 tests pass
+- [X] T082 [US11] **Commit**: Stage and commit User Story 11 changes with descriptive message
 
 **Checkpoint**: Both popup and inline modes are functional
 
@@ -534,8 +534,8 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T083 [US12] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T084 [P] [US12] Write keyboard navigation integration tests (extend existing test files)
+- [X] T083 [US12] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T084 [P] [US12] Write keyboard navigation integration tests (extend existing test files)
   - Tab order: trigger -> gradient -> hue -> alpha -> format tabs -> inputs -> swatches
   - Arrow keys in gradient area move selection
   - Arrow keys in sliders adjust values
@@ -545,21 +545,21 @@
 
 ### Implementation for User Story 12
 
-- [ ] T085 [US12] Add focus styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
+- [X] T085 [US12] Add focus styles to `src/components/editors/ColorPicker/ColorPicker.module.css`
   - :focus-visible outlines on all interactive elements
   - High contrast focus indicators (4.5:1)
-- [ ] T086 [US12] Ensure all components have tabIndex and keyboard handlers
+- [X] T086 [US12] Ensure all components have tabIndex and keyboard handlers
   - GradientArea: tabIndex=0, arrow key handlers
   - HueSlider: tabIndex=0, left/right handlers
   - AlphaSlider: tabIndex=0, left/right handlers
   - ColorInputs: tab panel navigation
   - ColorSwatches: listbox pattern with roving tabindex
-- [ ] T087 [US12] Add comprehensive ARIA attributes
+- [X] T087 [US12] Add comprehensive ARIA attributes
   - role="slider" with aria-valuemin, aria-valuemax, aria-valuenow, aria-label
   - role="tablist" and role="tab" for format switcher
   - role="listbox" and role="option" for swatches
-- [ ] T088 [US12] Verify User Story 12 tests pass
-- [ ] T089 [US12] **Commit**: Stage and commit User Story 12 changes with descriptive message
+- [X] T088 [US12] Verify User Story 12 tests pass
+- [X] T089 [US12] **Commit**: Stage and commit User Story 12 changes with descriptive message
 
 **Checkpoint**: Full keyboard accessibility is functional
 
@@ -569,21 +569,21 @@
 
 **Purpose**: Replace existing ColorPicker and verify integration
 
-- [ ] T090 Update barrel export in `src/components/editors/ColorPicker/index.ts`
-- [ ] T091 [P] Write integration tests verifying backward compatibility in `src/components/editors/ColorPicker/__tests__/integration.spec.tsx`
+- [X] T090 Update barrel export in `src/components/editors/ColorPicker/index.ts`
+- [X] T091 [P] Write integration tests verifying backward compatibility in `src/components/editors/ColorPicker/__tests__/integration.spec.tsx`
   - Existing ColorPickerProps interface works
   - onChange/onCommit/onCancel callbacks work correctly
   - documentColors prop integration
   - History integration (undo/redo via onCommit)
   - **FR-009a**: Output normalization integration tests:
-    - Input via HEX tab → onCommit receives 8-digit HEX
-    - Input via RGB tab → onCommit receives 8-digit HEX
-    - Input via HSL tab → onCommit receives 8-digit HEX
-    - Visual picker selection → onCommit receives 8-digit HEX
+    - Input via HEX tab -> onCommit receives 8-digit HEX
+    - Input via RGB tab -> onCommit receives 8-digit HEX
+    - Input via HSL tab -> onCommit receives 8-digit HEX
+    - Visual picker selection -> onCommit receives 8-digit HEX
     - 6-digit input is normalized to 8-digit on commit
-- [ ] T092 Verify integration with Properties Panel (AttributeRow uses ColorPicker)
-- [ ] T093 Run full test suite - `npm test`
-- [ ] T094 **Commit**: Stage and commit Phase 15 changes with descriptive message
+- [X] T092 Verify integration with Properties Panel (AttributeRow uses ColorPicker)
+- [X] T093 Run full test suite - `npm test`
+- [X] T094 **Commit**: Stage and commit Phase 15 changes with descriptive message
 
 ---
 
@@ -591,21 +591,21 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T095 [P] Add CSS custom properties to `src/styles/tokens.css` if needed
-- [ ] T096 [P] Ensure all colors use design tokens (no hardcoded colors)
-- [ ] T097 Performance audit (SC-004):
+- [X] T095 [P] Add CSS custom properties to `src/styles/tokens.css` if needed
+- [X] T096 [P] Ensure all colors use design tokens (no hardcoded colors)
+- [X] T097 Performance audit (SC-004):
   - Measure gradient area click-to-update time (expect < 100ms)
   - Measure slider drag frame rate (expect 60fps, no dropped frames)
   - Measure input validation feedback time (expect < 100ms)
   - Use Performance API or browser DevTools profiler to verify
-- [ ] T098 Verify WCAG 2.1 AA compliance (color contrast 4.5:1):
+- [X] T098 Verify WCAG 2.1 AA compliance (color contrast 4.5:1):
   - Test input label text against background (expect >= 4.5:1)
   - Test tab text against tab background (expect >= 4.5:1)
   - Test error message text against background (expect >= 4.5:1)
   - Test swatch border visibility against light/dark swatches
   - Use browser DevTools Accessibility audit or contrast-ratio npm package
-- [ ] T099 Update `CLAUDE.md` with new ColorPicker domain utilities
-- [ ] T100 **Commit**: Stage and commit Polish phase changes with descriptive message
+- [X] T099 Update `CLAUDE.md` with new ColorPicker domain utilities
+- [X] T100 **Commit**: Stage and commit Polish phase changes with descriptive message
 
 ---
 
@@ -615,10 +615,10 @@
 
 **CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
 
-- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
-- [ ] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
-- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
-- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+- [X] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
+- [X] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
+- [X] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
+- [X] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
 
 **If Quality Gates Fail**:
 1. STOP - do not proceed to Git Verification
@@ -634,9 +634,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] TFINAL **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] TFINAL **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
-- [ ] TFINAL **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [X] TFINAL **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [X] TFINAL **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
+- [X] TFINAL **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
