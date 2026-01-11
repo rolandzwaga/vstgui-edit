@@ -187,7 +187,7 @@
 - [X] T055 Run performance test: batch edit 20+ views completes in <100ms (SC-004)
 - [X] T056 Run `quickstart.md` verification checklist manually
 - [X] T057 Update `CLAUDE.md` if any new patterns or utilities were added
-- [ ] T058 **Commit**: Stage and commit Polish phase changes with descriptive message
+- [X] T058 **Commit**: Stage and commit Polish phase changes with descriptive message
 
 ---
 
@@ -197,10 +197,10 @@
 
 **CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
 
-- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
-- [ ] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
-- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
-- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+- [X] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
+- [X] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
+- [X] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
+- [X] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
 
 **If Quality Gates Fail**:
 1. STOP - do not proceed to Git Verification
@@ -216,9 +216,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] TFINAL-1 **Verify Git Status**: Run `git status` to check for uncommitted changes
-- [ ] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
-- [ ] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [X] TFINAL-1 **Verify Git Status**: Run `git status` to check for uncommitted changes
+- [X] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with an appropriate message
+- [X] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
