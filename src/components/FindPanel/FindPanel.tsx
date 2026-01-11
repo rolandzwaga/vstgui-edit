@@ -18,8 +18,10 @@ import {
   setAllCategoryFilters,
   setMode,
   setReplaceValue,
+  setSearchScope,
 } from '../../stores/searchStore';
-import type { CategoryFilters, FindPanelMode } from '../../types/search';
+import type { CategoryFilters, FindPanelMode, SearchScope } from '../../types/search';
+import { selectionStore } from '../../stores/selectionStore';
 import {
   parseSearchQuery,
   executeSearch,
@@ -40,6 +42,7 @@ import { CategoryFilter } from './CategoryFilter';
 import { NavigationButtons } from './NavigationButtons';
 import { ModeToggle } from './ModeToggle';
 import { ReplaceControls } from './ReplaceControls';
+import { ScopeFilter } from './ScopeFilter';
 import styles from './FindPanel.module.css';
 
 export function FindPanel() {
@@ -177,6 +180,30 @@ export function FindPanel() {
     if (searchStore.rawQuery.trim() !== '') {
       executeSearchWithQuery(searchStore.rawQuery);
     }
+  };
+
+  const handleScopeChange = (scope: SearchScope) => {
+    // Get the first selected container ID if switching to selection scope
+    const containerId = scope === 'selection'
+      ? Array.from(selectionStore.selectedIds)[0] ?? null
+      : null;
+    setSearchScope(scope, containerId ?? undefined);
+    // Re-execute search with new scope
+    if (searchStore.rawQuery.trim() !== '') {
+      executeSearchWithQuery(searchStore.rawQuery);
+    }
+  };
+
+  // Check if there's a container selection for scope filtering
+  const hasContainerSelection = () => selectionStore.selectedIds.size > 0;
+
+  // Get the name of the selected container for display
+  const getSelectedContainerName = (): string | undefined => {
+    if (!hasContainerSelection()) return undefined;
+    const selectedId = Array.from(selectionStore.selectedIds)[0];
+    if (!selectedId) return undefined;
+    const view = getView(selectedId);
+    return view?.attributes?.class as string ?? selectedId;
   };
 
   const handleModeChange = (mode: FindPanelMode) => {
@@ -331,6 +358,13 @@ export function FindPanel() {
             filters={searchStore.categoryFilters}
             onFilterChange={handleFilterChange}
             onToggleAll={handleToggleAllFilters}
+          />
+
+          <ScopeFilter
+            scope={searchStore.scope}
+            hasContainerSelection={hasContainerSelection()}
+            selectedContainerName={getSelectedContainerName()}
+            onScopeChange={handleScopeChange}
           />
 
           <ResultsList

@@ -11,3 +11,4 @@ export { CategoryFilter } from './CategoryFilter';
 export { NavigationButtons } from './NavigationButtons';
 export { ModeToggle } from './ModeToggle';
 export { ReplaceControls } from './ReplaceControls';
+export { ScopeFilter } from './ScopeFilter';
