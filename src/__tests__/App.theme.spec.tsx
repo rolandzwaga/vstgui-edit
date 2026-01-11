@@ -10,13 +10,12 @@ import { cleanup, render } from '@solidjs/testing-library';
 // Mock theme service
 const mockInitializeTheme = vi.fn();
 const mockUpdateTheme = vi.fn();
-const mockSubscribeToSystemThemeChanges = vi.fn(() => vi.fn());
+const mockSubscribeToSystemThemeChanges = vi.fn().mockReturnValue(vi.fn());
 
 vi.mock('../domain/theme', () => ({
   initializeTheme: () => mockInitializeTheme(),
   updateTheme: () => mockUpdateTheme(),
-  subscribeToSystemThemeChanges: (cb: () => void) =>
-    mockSubscribeToSystemThemeChanges(cb),
+  subscribeToSystemThemeChanges: (_cb: () => void) => mockSubscribeToSystemThemeChanges(),
 }));
 
 // Mock stores to avoid side effects

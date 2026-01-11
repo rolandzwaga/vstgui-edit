@@ -22,10 +22,7 @@ import type { EffectiveTheme } from './types';
  * getEffectiveTheme('system', true) // => 'dark'
  * getEffectiveTheme('system', false) // => 'light'
  */
-export function getEffectiveTheme(
-  mode: ThemeMode,
-  systemPrefersDark: boolean
-): EffectiveTheme {
+export function getEffectiveTheme(mode: ThemeMode, systemPrefersDark: boolean): EffectiveTheme {
   if (mode === 'light') return 'light';
   if (mode === 'dark') return 'dark';
   // mode === 'system'

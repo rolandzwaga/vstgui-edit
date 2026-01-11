@@ -4,12 +4,12 @@
  * Theme application and OS detection functions.
  */
 
-export type { EffectiveTheme } from './types';
 export {
-  getEffectiveTheme,
-  isSystemDarkMode,
   applyTheme,
+  getEffectiveTheme,
+  initializeTheme,
+  isSystemDarkMode,
   subscribeToSystemThemeChanges,
   updateTheme,
-  initializeTheme,
 } from './themeService';
+export type { EffectiveTheme } from './types';
