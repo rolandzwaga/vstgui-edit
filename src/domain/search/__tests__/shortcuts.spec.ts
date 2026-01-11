@@ -75,7 +75,7 @@ describe('search shortcuts', () => {
   describe('Ctrl+Shift+F', () => {
     it('should open replace panel on Ctrl+Shift+F', () => {
       testInRoot(() => {
-        const event = createKeyboardEvent('F', { ctrlKey: true, shiftKey: true });
+        const event = createKeyboardEvent('f', { ctrlKey: true, shiftKey: true });
         const handled = handleSearchShortcut(event);
 
         expect(handled).toBe(true);
@@ -87,10 +87,19 @@ describe('search shortcuts', () => {
 
     it('should open replace panel on Cmd+Shift+F (Mac)', () => {
       testInRoot(() => {
-        const event = createKeyboardEvent('F', { metaKey: true, shiftKey: true });
+        const event = createKeyboardEvent('f', { metaKey: true, shiftKey: true });
         const handled = handleSearchShortcut(event);
 
         expect(handled).toBe(true);
+        expect(searchStore.mode).toBe('replace');
+      });
+    });
+
+    it('should not open find panel when shift is held', () => {
+      testInRoot(() => {
+        const event = createKeyboardEvent('f', { ctrlKey: true, shiftKey: true });
+        handleSearchShortcut(event);
+
         expect(searchStore.mode).toBe('replace');
       });
     });

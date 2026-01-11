@@ -29,15 +29,15 @@ export function handleSearchShortcut(event: KeyboardEvent): boolean {
   // Accept both Ctrl and Cmd for cross-platform support
   const ctrlOrCmd = event.ctrlKey || event.metaKey;
 
-  // Ctrl+F / Cmd+F - Open find panel
-  if (ctrlOrCmd && event.key === 'f') {
+  // Ctrl+F / Cmd+F - Open find panel (without shift)
+  if (ctrlOrCmd && !event.shiftKey && event.key.toLowerCase() === 'f') {
     event.preventDefault();
     openFindPanel();
     return true;
   }
 
   // Ctrl+Shift+F / Cmd+Shift+F - Open replace panel
-  if (ctrlOrCmd && event.shiftKey && event.key === 'F') {
+  if (ctrlOrCmd && event.shiftKey && event.key.toLowerCase() === 'f') {
     event.preventDefault();
     openReplacePanel();
     return true;
