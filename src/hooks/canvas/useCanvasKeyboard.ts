@@ -22,10 +22,7 @@ import {
 } from '../../domain/hierarchy/groupOperations';
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { fitToView, resetZoom, zoomIn, zoomOut } from '../../stores/canvasStore';
-import { documentStore } from '../../stores/documentStore';
-import { preferencesStore } from '../../stores/preferencesStore';
-import { shortcutsPanelStore, openShortcutsPanel } from '../../stores/shortcutsPanelStore';
-import { getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
+import { documentStore, getParentId, isRoot, updateViewOrigin } from '../../stores/documentStore';
 import { cancelDrag, dragStore } from '../../stores/dragStore';
 import { toggleSnap, toggleVisibility } from '../../stores/gridStore';
 import {
@@ -44,8 +41,10 @@ import {
   unlockSelectedWithHistory,
 } from '../../stores/lockHideStore';
 import { cancelMarquee, marqueeStore } from '../../stores/marqueeStore';
+import { preferencesStore } from '../../stores/preferencesStore';
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
+import { openShortcutsPanel, shortcutsPanelStore } from '../../stores/shortcutsPanelStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
 import type { AlignmentType } from '../../types/alignment';
 import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';

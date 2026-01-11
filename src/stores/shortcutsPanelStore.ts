@@ -10,7 +10,7 @@ import type { ShortcutCategoryId, ShortcutsPanelState } from '../types/shortcuts
 
 // Helper to get all category IDs as a Set
 function getAllCategoryIds(): Set<ShortcutCategoryId> {
-  return new Set(SHORTCUT_CATEGORIES.map((c) => c.id));
+  return new Set(SHORTCUT_CATEGORIES.map(c => c.id));
 }
 
 // Initial state
@@ -156,7 +156,7 @@ export function expandAllCategories(): void {
  * Collapses all categories.
  */
 export function collapseAllCategories(): void {
-  setExpandedCategories(new Set());
+  setExpandedCategories(new Set<ShortcutCategoryId>());
 }
 
 /**

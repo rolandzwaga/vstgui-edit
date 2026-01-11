@@ -1,18 +1,21 @@
 /**
- * Tests for keyboard shortcuts data
+ * Tests for keyboard shortcuts data (deprecated module)
+ *
+ * This module is deprecated. See domain/shortcuts/__tests__ for the main tests.
+ * These tests verify backward compatibility of the re-exported KEYBOARD_SHORTCUTS.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { KEYBOARD_SHORTCUTS } from '../keyboardShortcuts';
 
-describe('KEYBOARD_SHORTCUTS', () => {
+describe('KEYBOARD_SHORTCUTS (deprecated)', () => {
   describe('structure', () => {
     it('exports an array of categories', () => {
       expect(Array.isArray(KEYBOARD_SHORTCUTS)).toBe(true);
     });
 
-    it('has exactly 5 categories', () => {
-      expect(KEYBOARD_SHORTCUTS).toHaveLength(5);
+    it('has 10 categories (from new registry)', () => {
+      expect(KEYBOARD_SHORTCUTS).toHaveLength(10);
     });
 
     it('each category has name and shortcuts array', () => {
@@ -38,7 +41,7 @@ describe('KEYBOARD_SHORTCUTS', () => {
     });
   });
 
-  describe('categories', () => {
+  describe('categories (all 10 from new registry)', () => {
     it('includes Canvas Navigation category', () => {
       const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'Canvas Navigation');
       expect(category).toBeDefined();
@@ -54,6 +57,11 @@ describe('KEYBOARD_SHORTCUTS', () => {
       expect(category).toBeDefined();
     });
 
+    it('includes Clipboard category', () => {
+      const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'Clipboard');
+      expect(category).toBeDefined();
+    });
+
     it('includes Alignment category', () => {
       const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'Alignment');
       expect(category).toBeDefined();
@@ -63,27 +71,47 @@ describe('KEYBOARD_SHORTCUTS', () => {
       const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'View Management');
       expect(category).toBeDefined();
     });
+
+    it('includes Grouping category', () => {
+      const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'Grouping');
+      expect(category).toBeDefined();
+    });
+
+    it('includes Find/Replace category', () => {
+      const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'Find/Replace');
+      expect(category).toBeDefined();
+    });
+
+    it('includes File category', () => {
+      const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'File');
+      expect(category).toBeDefined();
+    });
+
+    it('includes General category', () => {
+      const category = KEYBOARD_SHORTCUTS.find(c => c.name === 'General');
+      expect(category).toBeDefined();
+    });
   });
 
   describe('total shortcuts count', () => {
-    it('has exactly 23 shortcuts across all categories', () => {
+    it('has 44 shortcuts across all categories', () => {
       const totalShortcuts = KEYBOARD_SHORTCUTS.reduce(
         (sum, category) => sum + category.shortcuts.length,
         0
       );
-      expect(totalShortcuts).toBe(23);
+      expect(totalShortcuts).toBe(44);
     });
   });
 
-  describe('Canvas Navigation shortcuts (8)', () => {
-    let canvasCategory: typeof KEYBOARD_SHORTCUTS[0];
+  describe('Canvas Navigation shortcuts (10)', () => {
+    let canvasCategory: (typeof KEYBOARD_SHORTCUTS)[0];
 
     beforeAll(() => {
       canvasCategory = KEYBOARD_SHORTCUTS.find(c => c.name === 'Canvas Navigation')!;
     });
 
-    it('has 8 shortcuts', () => {
-      expect(canvasCategory.shortcuts).toHaveLength(8);
+    it('has 10 shortcuts', () => {
+      expect(canvasCategory.shortcuts).toHaveLength(10);
     });
 
     it('includes Zoom In shortcut', () => {
@@ -92,58 +120,24 @@ describe('KEYBOARD_SHORTCUTS', () => {
       expect(shortcut?.keys).toContain('+');
     });
 
-    it('includes Zoom Out shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Zoom Out');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('-');
-    });
-
-    it('includes Reset Zoom shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Reset Zoom');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('0');
-    });
-
-    it('includes Fit to View shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Fit to View');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('F');
-    });
-
     it('includes Toggle Grid Visibility shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Toggle Grid Visibility');
+      const shortcut = canvasCategory.shortcuts.find(
+        s => s.description === 'Toggle Grid Visibility'
+      );
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('G');
     });
-
-    it('includes Toggle Snap to Grid shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Toggle Snap to Grid');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Shift+G');
-    });
-
-    it('includes Toggle Smart Guides shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Toggle Smart Guides');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('S');
-    });
-
-    it('includes Toggle Custom Guides Visibility shortcut', () => {
-      const shortcut = canvasCategory.shortcuts.find(s => s.description === 'Toggle Custom Guides Visibility');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+;');
-    });
   });
 
-  describe('Selection shortcuts (2)', () => {
-    let selectionCategory: typeof KEYBOARD_SHORTCUTS[0];
+  describe('Selection shortcuts (3)', () => {
+    let selectionCategory: (typeof KEYBOARD_SHORTCUTS)[0];
 
     beforeAll(() => {
       selectionCategory = KEYBOARD_SHORTCUTS.find(c => c.name === 'Selection')!;
     });
 
-    it('has 2 shortcuts', () => {
-      expect(selectionCategory.shortcuts).toHaveLength(2);
+    it('has 3 shortcuts', () => {
+      expect(selectionCategory.shortcuts).toHaveLength(3);
     });
 
     it('includes Select All shortcut', () => {
@@ -151,23 +145,17 @@ describe('KEYBOARD_SHORTCUTS', () => {
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('Ctrl+A');
     });
-
-    it('includes Clear Selection / Cancel Operation shortcut', () => {
-      const shortcut = selectionCategory.shortcuts.find(s => s.description.includes('Clear Selection'));
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Escape');
-    });
   });
 
-  describe('Editing shortcuts (4)', () => {
-    let editingCategory: typeof KEYBOARD_SHORTCUTS[0];
+  describe('Editing shortcuts (6)', () => {
+    let editingCategory: (typeof KEYBOARD_SHORTCUTS)[0];
 
     beforeAll(() => {
       editingCategory = KEYBOARD_SHORTCUTS.find(c => c.name === 'Editing')!;
     });
 
-    it('has 4 shortcuts', () => {
-      expect(editingCategory.shortcuts).toHaveLength(4);
+    it('has 6 shortcuts', () => {
+      expect(editingCategory.shortcuts).toHaveLength(6);
     });
 
     it('includes Undo shortcut', () => {
@@ -179,24 +167,24 @@ describe('KEYBOARD_SHORTCUTS', () => {
     it('includes Redo shortcut', () => {
       const shortcut = editingCategory.shortcuts.find(s => s.description === 'Redo');
       expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toContain('Ctrl+Y');
+      expect(shortcut?.keys).toBe('Ctrl+Y');
     });
 
     it('includes Nudge shortcut', () => {
-      const shortcut = editingCategory.shortcuts.find(s => s.description.includes('Nudge') && !s.description.includes('Fast'));
+      const shortcut = editingCategory.shortcuts.find(s => s.description === 'Nudge 1px');
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('Arrow Keys');
     });
 
     it('includes Nudge Fast shortcut', () => {
-      const shortcut = editingCategory.shortcuts.find(s => s.description.includes('Nudge Fast'));
+      const shortcut = editingCategory.shortcuts.find(s => s.description === 'Nudge 10px');
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('Shift+Arrow Keys');
     });
   });
 
   describe('Alignment shortcuts (6)', () => {
-    let alignmentCategory: typeof KEYBOARD_SHORTCUTS[0];
+    let alignmentCategory: (typeof KEYBOARD_SHORTCUTS)[0];
 
     beforeAll(() => {
       alignmentCategory = KEYBOARD_SHORTCUTS.find(c => c.name === 'Alignment')!;
@@ -211,47 +199,17 @@ describe('KEYBOARD_SHORTCUTS', () => {
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('Ctrl+Shift+L');
     });
-
-    it('includes Align Center shortcut', () => {
-      const shortcut = alignmentCategory.shortcuts.find(s => s.description === 'Align Center');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+C');
-    });
-
-    it('includes Align Right shortcut', () => {
-      const shortcut = alignmentCategory.shortcuts.find(s => s.description === 'Align Right');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+R');
-    });
-
-    it('includes Align Top shortcut', () => {
-      const shortcut = alignmentCategory.shortcuts.find(s => s.description === 'Align Top');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+T');
-    });
-
-    it('includes Align Middle shortcut', () => {
-      const shortcut = alignmentCategory.shortcuts.find(s => s.description === 'Align Middle');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+M');
-    });
-
-    it('includes Align Bottom shortcut', () => {
-      const shortcut = alignmentCategory.shortcuts.find(s => s.description === 'Align Bottom');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+B');
-    });
   });
 
-  describe('View Management shortcuts (3)', () => {
-    let viewCategory: typeof KEYBOARD_SHORTCUTS[0];
+  describe('View Management shortcuts (5)', () => {
+    let viewCategory: (typeof KEYBOARD_SHORTCUTS)[0];
 
     beforeAll(() => {
       viewCategory = KEYBOARD_SHORTCUTS.find(c => c.name === 'View Management')!;
     });
 
-    it('has 3 shortcuts', () => {
-      expect(viewCategory.shortcuts).toHaveLength(3);
+    it('has 5 shortcuts', () => {
+      expect(viewCategory.shortcuts).toHaveLength(5);
     });
 
     it('includes Lock/Unlock Selected shortcut', () => {
@@ -259,20 +217,5 @@ describe('KEYBOARD_SHORTCUTS', () => {
       expect(shortcut).toBeDefined();
       expect(shortcut?.keys).toBe('Ctrl+L');
     });
-
-    it('includes Hide/Show Selected shortcut', () => {
-      const shortcut = viewCategory.shortcuts.find(s => s.description === 'Hide/Show Selected');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+H');
-    });
-
-    it('includes Show All Hidden shortcut', () => {
-      const shortcut = viewCategory.shortcuts.find(s => s.description === 'Show All Hidden');
-      expect(shortcut).toBeDefined();
-      expect(shortcut?.keys).toBe('Ctrl+Shift+H');
-    });
   });
 });
-
-// Use beforeAll instead of describe-level setup
-import { beforeAll } from 'vitest';

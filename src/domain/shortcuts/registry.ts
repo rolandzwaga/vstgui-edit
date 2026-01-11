@@ -252,7 +252,7 @@ export const SHORTCUT_REGISTRY: ShortcutDefinition[] = [
  * @returns Array of shortcuts in the category (may be empty)
  */
 export function getShortcutsByCategory(category: ShortcutCategoryId): ShortcutDefinition[] {
-  return SHORTCUT_REGISTRY.filter((s) => s.category === category);
+  return SHORTCUT_REGISTRY.filter(s => s.category === category);
 }
 
 /**
@@ -262,7 +262,7 @@ export function getShortcutsByCategory(category: ShortcutCategoryId): ShortcutDe
  * @returns The shortcut definition or undefined if not found
  */
 export function getShortcutById(id: string): ShortcutDefinition | undefined {
-  return SHORTCUT_REGISTRY.find((s) => s.id === id);
+  return SHORTCUT_REGISTRY.find(s => s.id === id);
 }
 
 /**

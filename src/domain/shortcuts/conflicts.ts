@@ -53,7 +53,7 @@ export function detectConflicts(): ShortcutConflict[] {
       // Log warning to console
       console.warn(
         `[Shortcuts] Conflict detected for "${normalizedKey}":`,
-        shortcuts.map((s) => `${s.id} (${s.description})`).join(', ')
+        shortcuts.map(s => `${s.id} (${s.description})`).join(', ')
       );
     }
   }
@@ -72,7 +72,7 @@ export function detectConflicts(): ShortcutConflict[] {
  */
 export function hasConflict(shortcutId: string): boolean {
   const conflicts = detectConflicts();
-  return conflicts.some((conflict) => conflict.shortcuts.some((s) => s.id === shortcutId));
+  return conflicts.some(conflict => conflict.shortcuts.some(s => s.id === shortcutId));
 }
 
 /**
@@ -83,7 +83,7 @@ export function hasConflict(shortcutId: string): boolean {
  */
 export function getConflictForShortcut(shortcutId: string): ShortcutConflict | undefined {
   const conflicts = detectConflicts();
-  return conflicts.find((conflict) => conflict.shortcuts.some((s) => s.id === shortcutId));
+  return conflicts.find(conflict => conflict.shortcuts.some(s => s.id === shortcutId));
 }
 
 /**

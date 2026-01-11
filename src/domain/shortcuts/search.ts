@@ -21,7 +21,7 @@ export function searchShortcuts(query: string): ShortcutDefinition[] {
 
   const normalizedQuery = query.toLowerCase().trim();
 
-  return SHORTCUT_REGISTRY.filter((shortcut) => {
+  return SHORTCUT_REGISTRY.filter(shortcut => {
     const keysMatch = shortcut.keys.toLowerCase().includes(normalizedQuery);
     const descriptionMatch = shortcut.description.toLowerCase().includes(normalizedQuery);
     return keysMatch || descriptionMatch;
