@@ -16,6 +16,7 @@ export interface AttributeGroupProps {
   documentColorValues?: Record<string, string>;
   documentFonts?: string[];
   documentBitmaps?: string[];
+  documentControlTags?: string[];
   /** Get per-view original values for batch edit undo */
   getOriginalValues?: (name: string) => Record<string, string | undefined>;
 }
@@ -68,6 +69,7 @@ export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
                 documentColorValues={props.documentColorValues}
                 documentFonts={props.documentFonts}
                 documentBitmaps={props.documentBitmaps}
+                documentControlTags={props.documentControlTags}
                 getOriginalValues={props.getOriginalValues}
               />
             )}

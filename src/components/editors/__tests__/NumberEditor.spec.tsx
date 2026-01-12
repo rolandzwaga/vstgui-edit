@@ -258,24 +258,24 @@ describe('NumberEditor', () => {
       expect(decrementBtn).toBeDisabled();
     });
 
-    it('should call onCommit after clicking increment button', () => {
+    it('should not call onCommit when clicking increment button (only on Enter/blur)', () => {
       const onCommit = vi.fn();
       render(() => <NumberEditor {...defaultProps} value="5" step={1} onCommit={onCommit} />);
 
       const incrementBtn = screen.getByRole('button', { name: /increment/i });
       fireEvent.click(incrementBtn);
 
-      expect(onCommit).toHaveBeenCalledTimes(1);
+      expect(onCommit).not.toHaveBeenCalled();
     });
 
-    it('should call onCommit after clicking decrement button', () => {
+    it('should not call onCommit when clicking decrement button (only on Enter/blur)', () => {
       const onCommit = vi.fn();
       render(() => <NumberEditor {...defaultProps} value="5" step={1} onCommit={onCommit} />);
 
       const decrementBtn = screen.getByRole('button', { name: /decrement/i });
       fireEvent.click(decrementBtn);
 
-      expect(onCommit).toHaveBeenCalledTimes(1);
+      expect(onCommit).not.toHaveBeenCalled();
     });
   });
 

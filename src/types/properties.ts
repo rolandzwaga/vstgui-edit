@@ -7,6 +7,7 @@ export type EditorType =
   | 'font'
   | 'bitmap'
   | 'gradient'
+  | 'control-tag'
   | 'text'
   | 'readonly';
 
