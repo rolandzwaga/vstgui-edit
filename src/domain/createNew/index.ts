@@ -16,8 +16,13 @@ export {
   DIMENSION_CONSTRAINTS,
 } from '../../types/createNew';
 
-// Validation functions (to be implemented)
-// export { validateDimension, validateDimensions, areDimensionsValid } from './validation';
+// Validation functions
+export { validateDimension, validateDimensions, areDimensionsValid } from './validation';
 
-// Document factory (to be implemented)
-// export { createDocument, DEFAULT_TEMPLATE_NAME, DEFAULT_ORIGIN, DEFAULT_BACKGROUND_COLOR } from './documentFactory';
+// Document factory
+export {
+  createDocument,
+  DEFAULT_TEMPLATE_NAME,
+  DEFAULT_ORIGIN,
+  DEFAULT_BACKGROUND_COLOR,
+} from './documentFactory';
