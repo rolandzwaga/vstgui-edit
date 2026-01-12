@@ -2,6 +2,10 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup, waitFor } from '@solidjs/testing-library';
 import { EnumEditor } from '../EnumEditor';
 
+// Helper to wait for next animation frame (click-outside listener is added after rAF)
+const waitForAnimationFrame = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
 describe('EnumEditor', () => {
   const defaultProps = {
     value: 'center',
@@ -300,16 +304,19 @@ describe('EnumEditor', () => {
         </div>
       ));
       const button = screen.getByRole('combobox');
-      
+
       fireEvent.click(button);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('listbox')).toBeInTheDocument();
       });
-      
+
+      // Wait for click-outside listener to be added (uses requestAnimationFrame)
+      await waitForAnimationFrame();
+
       const otherButton = screen.getByTestId('other-button');
       fireEvent.mouseDown(otherButton);
-      
+
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
       });

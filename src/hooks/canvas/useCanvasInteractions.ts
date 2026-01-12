@@ -86,6 +86,8 @@ export function useCanvasInteractions(
     if (target.closest('[data-testid="hierarchy-panel"]')) return;
     if (target.closest('[data-testid="context-menu"]')) return;
     if (target.closest('[data-testid="alignment-toolbar"]')) return;
+    // Ignore clicks inside Portal-rendered dropdowns (ColorPicker, EnumEditor, etc.)
+    if (target.closest('[data-floating-dropdown]')) return;
 
     if (selectionStore.selectedIds.size > 0) {
       clearSelection();

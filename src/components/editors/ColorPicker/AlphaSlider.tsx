@@ -6,7 +6,7 @@
  */
 
 import type { Component, JSX } from 'solid-js';
-import { createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 import { clamp, rgbaToHex } from '../../../domain/colorPicker';
 import styles from './ColorPicker.module.css';
 
@@ -25,19 +25,19 @@ export interface AlphaSliderProps {
 
 export const AlphaSlider: Component<AlphaSliderProps> = (props) => {
   const [isDragging, setIsDragging] = createSignal(false);
-  let trackRef: HTMLDivElement | undefined;
+  let containerRef: HTMLDivElement | undefined;
 
   // Calculate alpha from mouse position
   const calculateFromPosition = (clientX: number): number => {
-    if (!trackRef) return props.value;
+    if (!containerRef) return props.value;
 
-    const rect = trackRef.getBoundingClientRect();
+    const rect = containerRef.getBoundingClientRect();
     const x = clamp(clientX - rect.left, 0, rect.width);
     return Math.round((x / rect.width) * 255);
   };
 
   // Handle mouse down - start dragging
-  const handleMouseDown: JSX.EventHandler<HTMLDivElement, MouseEvent> = (e) => {
+  const handleMouseDown = (e: MouseEvent) => {
     if (props.disabled || e.button !== 0) return;
     e.preventDefault();
 
@@ -52,7 +52,7 @@ export const AlphaSlider: Component<AlphaSliderProps> = (props) => {
 
   // Handle mouse move during drag
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging() || !trackRef) return;
+    if (!isDragging() || !containerRef) return;
 
     const alpha = calculateFromPosition(e.clientX);
     props.onChange(alpha);
@@ -108,14 +108,15 @@ export const AlphaSlider: Component<AlphaSliderProps> = (props) => {
     document.removeEventListener('mouseup', handleMouseUp);
   });
 
-  // Calculate thumb position
-  const thumbPosition = () => `${(props.value / 255) * 100}%`;
+  // Calculate thumb position - must be a memo for reactivity
+  const thumbPosition = createMemo(() => `${(props.value / 255) * 100}%`);
 
-  // Get the opaque color for the gradient endpoint
-  const getColorHex = () => rgbaToHex(props.color.r, props.color.g, props.color.b, 255);
+  // Get the opaque color for the gradient endpoint - must be a memo for reactivity
+  const colorHex = createMemo(() => rgbaToHex(props.color.r, props.color.g, props.color.b, 255));
 
   return (
     <div
+      ref={(el) => (containerRef = el)}
       data-testid="alpha-slider"
       class={styles.sliderContainer}
       role="slider"
@@ -126,19 +127,18 @@ export const AlphaSlider: Component<AlphaSliderProps> = (props) => {
       aria-valuenow={props.value}
       aria-valuetext={`${Math.round((props.value / 255) * 100)}% opacity`}
       aria-disabled={props.disabled ? 'true' : undefined}
+      onMouseDown={handleMouseDown}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
       <div
-        ref={trackRef}
         data-testid="alpha-track"
         class={`${styles.sliderTrack} ${styles.alphaTrack}`}
-        onMouseDown={handleMouseDown}
       >
         <div
           data-testid="alpha-gradient"
           class={styles.alphaGradient}
-          style={{ '--alpha-color': getColorHex() }}
+          style={{ '--alpha-color': colorHex() }}
         />
       </div>
       <div

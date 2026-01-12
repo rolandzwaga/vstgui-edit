@@ -7,7 +7,7 @@
  */
 
 import type { Component, JSX } from 'solid-js';
-import { createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 import { hsvToRgb, rgbaToHex, clamp } from '../../../domain/colorPicker';
 import { KEYBOARD_STEP } from '../../../types/colorPicker';
 import styles from './ColorPicker.module.css';
@@ -31,11 +31,11 @@ export const GradientArea: Component<GradientAreaProps> = (props) => {
   const [isDragging, setIsDragging] = createSignal(false);
   let areaRef: HTMLDivElement | undefined;
 
-  // Calculate the hue color for the gradient background
-  const getHueColor = (): string => {
+  // Calculate the hue color for the gradient background - must be a memo for reactivity
+  const hueColor = createMemo((): string => {
     const rgb = hsvToRgb(props.hue, 100, 100);
     return rgbaToHex(rgb.r, rgb.g, rgb.b, 255);
-  };
+  });
 
   // Calculate saturation/brightness from mouse position
   const calculateFromPosition = (clientX: number, clientY: number) => {
@@ -52,7 +52,7 @@ export const GradientArea: Component<GradientAreaProps> = (props) => {
   };
 
   // Handle mouse down - start dragging
-  const handleMouseDown: JSX.EventHandler<HTMLDivElement, MouseEvent> = (e) => {
+  const handleMouseDown = (e: MouseEvent) => {
     if (props.disabled || e.button !== 0) return;
     e.preventDefault();
 
@@ -130,13 +130,13 @@ export const GradientArea: Component<GradientAreaProps> = (props) => {
     document.removeEventListener('mouseup', handleMouseUp);
   });
 
-  // Calculate thumb position
-  const thumbLeft = () => `${props.saturation}%`;
-  const thumbTop = () => `${100 - props.brightness}%`;
+  // Calculate thumb position - must be memos for reactivity
+  const thumbLeft = createMemo(() => `${props.saturation}%`);
+  const thumbTop = createMemo(() => `${100 - props.brightness}%`);
 
   return (
     <div
-      ref={areaRef}
+      ref={(el) => (areaRef = el)}
       data-testid="gradient-area"
       class={styles.gradientArea}
       role="slider"
@@ -147,7 +147,7 @@ export const GradientArea: Component<GradientAreaProps> = (props) => {
       aria-valuenow={props.saturation}
       aria-valuetext={`Saturation ${props.saturation}%, Brightness ${props.brightness}%`}
       aria-disabled={props.disabled ? 'true' : undefined}
-      style={{ '--hue-color': getHueColor() }}
+      style={{ '--hue-color': hueColor() }}
       onMouseDown={handleMouseDown}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}

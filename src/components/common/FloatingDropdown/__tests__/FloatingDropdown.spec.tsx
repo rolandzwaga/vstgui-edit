@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, cleanup } from '@solidjs/testing-library';
+import { render, fireEvent, cleanup, waitFor } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { FloatingDropdown } from '../FloatingDropdown';
+import { setAppContainer } from '../../../../stores/appContainerStore';
+
+// Helper to wait for next animation frame (click-outside listener is added after rAF)
+const waitForAnimationFrame = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 // Mock floating-ui
 vi.mock('@floating-ui/dom', () => ({
@@ -20,13 +25,20 @@ import { computePosition, autoUpdate } from '@floating-ui/dom';
 
 describe('FloatingDropdown', () => {
   let triggerRef: HTMLButtonElement | undefined;
+  let appContainerEl: HTMLDivElement | undefined;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Create a trigger element in the document
+    // Create an app container element (simulates <main> in App.tsx)
+    appContainerEl = document.createElement('div');
+    appContainerEl.setAttribute('data-testid', 'app-container');
+    document.body.appendChild(appContainerEl);
+    setAppContainer(appContainerEl);
+
+    // Create a trigger element inside the app container
     triggerRef = document.createElement('button');
     triggerRef.textContent = 'Trigger';
-    document.body.appendChild(triggerRef);
+    appContainerEl.appendChild(triggerRef);
   });
 
   afterEach(() => {
@@ -34,7 +46,12 @@ describe('FloatingDropdown', () => {
     if (triggerRef && triggerRef.parentNode) {
       triggerRef.parentNode.removeChild(triggerRef);
     }
+    if (appContainerEl && appContainerEl.parentNode) {
+      appContainerEl.parentNode.removeChild(appContainerEl);
+    }
+    setAppContainer(null);
     triggerRef = undefined;
+    appContainerEl = undefined;
   });
 
   describe('rendering', () => {
@@ -235,8 +252,11 @@ describe('FloatingDropdown', () => {
         </FloatingDropdown>
       ));
 
-      // Click outside
-      fireEvent.mouseDown(document.body);
+      // Wait for click-outside listener to be added (uses requestAnimationFrame)
+      await waitForAnimationFrame();
+
+      // Click outside (on app container, not on trigger or dropdown)
+      fireEvent.mouseDown(appContainerEl!);
 
       expect(onClose).toHaveBeenCalled();
     });
@@ -254,6 +274,9 @@ describe('FloatingDropdown', () => {
           <div data-testid="dropdown-content">Content</div>
         </FloatingDropdown>
       ));
+
+      // Wait for click-outside listener to be added (uses requestAnimationFrame)
+      await waitForAnimationFrame();
 
       const content = document.querySelector('[data-testid="dropdown-content"]');
       fireEvent.mouseDown(content!);
@@ -274,6 +297,9 @@ describe('FloatingDropdown', () => {
           <div>Content</div>
         </FloatingDropdown>
       ));
+
+      // Wait for click-outside listener to be added (uses requestAnimationFrame)
+      await waitForAnimationFrame();
 
       fireEvent.mouseDown(triggerRef!);
 

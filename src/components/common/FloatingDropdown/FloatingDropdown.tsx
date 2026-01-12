@@ -3,6 +3,7 @@ import { createEffect, onCleanup, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import type { Placement } from '@floating-ui/dom';
+import { appContainer } from '../../../stores/appContainerStore';
 
 export interface FloatingDropdownProps {
   /** Signal indicating if dropdown is open */
@@ -83,23 +84,36 @@ export const FloatingDropdown = (props: FloatingDropdownProps) => {
   });
 
   // Handle click outside
+  // Listens on the app container instead of document to avoid interference
+  // with Portal content (which renders as a sibling to the app container).
+  // This means clicks inside the Portal won't trigger the click-outside handler.
   createEffect(() => {
     if (!props.isOpen()) return;
 
+    const container = appContainer();
+    if (!container) return;
+
+    let frameId: number | undefined;
+
     const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (
-        props.triggerRef &&
-        dropdownRef &&
-        !props.triggerRef.contains(target) &&
-        !dropdownRef.contains(target)
-      ) {
-        props.onClose();
+      // Check if click is inside trigger
+      if (props.triggerRef && props.triggerRef.contains(e.target as Node)) {
+        return; // Click on trigger, don't close
       }
+
+      // Click is inside app container but outside trigger - close dropdown
+      props.onClose();
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    onCleanup(() => document.removeEventListener('mousedown', handleClickOutside));
+    // Delay adding listener to next frame to avoid catching the opening click
+    frameId = requestAnimationFrame(() => {
+      container.addEventListener('mousedown', handleClickOutside);
+    });
+
+    onCleanup(() => {
+      if (frameId !== undefined) cancelAnimationFrame(frameId);
+      container.removeEventListener('mousedown', handleClickOutside);
+    });
   });
 
   // Handle Escape key
@@ -120,7 +134,11 @@ export const FloatingDropdown = (props: FloatingDropdownProps) => {
   return (
     <Show when={props.isOpen()}>
       <Portal>
-        <div ref={setDropdownRef} class={props.class}>
+        <div
+          ref={setDropdownRef}
+          class={props.class}
+          data-floating-dropdown
+        >
           {props.children}
         </div>
       </Portal>

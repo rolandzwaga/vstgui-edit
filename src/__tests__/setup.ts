@@ -3,6 +3,7 @@ import { afterEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import { resetCanvas } from '../stores/canvasStore';
+import { resetColorPickerOpenStore } from '../stores/colorPickerOpenStore';
 
 if (typeof Element.prototype.scrollIntoView !== 'function') {
   Element.prototype.scrollIntoView = function () {};
@@ -31,4 +32,5 @@ if (typeof ResizeObserver === 'undefined') {
 afterEach(() => {
   cleanup();
   resetCanvas();
+  resetColorPickerOpenStore();
 });

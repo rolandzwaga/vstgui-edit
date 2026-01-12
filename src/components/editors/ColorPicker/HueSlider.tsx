@@ -6,9 +6,8 @@
  */
 
 import type { Component, JSX } from 'solid-js';
-import { createSignal, onCleanup } from 'solid-js';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 import { clamp } from '../../../domain/colorPicker';
-import { KEYBOARD_STEP } from '../../../types/colorPicker';
 import styles from './ColorPicker.module.css';
 
 export interface HueSliderProps {
@@ -24,19 +23,19 @@ export interface HueSliderProps {
 
 export const HueSlider: Component<HueSliderProps> = (props) => {
   const [isDragging, setIsDragging] = createSignal(false);
-  let trackRef: HTMLDivElement | undefined;
+  let containerRef: HTMLDivElement | undefined;
 
   // Calculate hue from mouse position
   const calculateFromPosition = (clientX: number): number => {
-    if (!trackRef) return props.value;
+    if (!containerRef) return props.value;
 
-    const rect = trackRef.getBoundingClientRect();
+    const rect = containerRef.getBoundingClientRect();
     const x = clamp(clientX - rect.left, 0, rect.width);
     return Math.round((x / rect.width) * 360);
   };
 
   // Handle mouse down - start dragging
-  const handleMouseDown: JSX.EventHandler<HTMLDivElement, MouseEvent> = (e) => {
+  const handleMouseDown = (e: MouseEvent) => {
     if (props.disabled || e.button !== 0) return;
     e.preventDefault();
 
@@ -51,7 +50,7 @@ export const HueSlider: Component<HueSliderProps> = (props) => {
 
   // Handle mouse move during drag
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging() || !trackRef) return;
+    if (!isDragging() || !containerRef) return;
 
     const hue = calculateFromPosition(e.clientX);
     props.onChange(hue);
@@ -107,11 +106,12 @@ export const HueSlider: Component<HueSliderProps> = (props) => {
     document.removeEventListener('mouseup', handleMouseUp);
   });
 
-  // Calculate thumb position
-  const thumbPosition = () => `${(props.value / 360) * 100}%`;
+  // Calculate thumb position - must be a memo for reactivity
+  const thumbPosition = createMemo(() => `${(props.value / 360) * 100}%`);
 
   return (
     <div
+      ref={(el) => (containerRef = el)}
       data-testid="hue-slider"
       class={styles.sliderContainer}
       role="slider"
@@ -122,14 +122,13 @@ export const HueSlider: Component<HueSliderProps> = (props) => {
       aria-valuenow={Math.round(props.value)}
       aria-valuetext={`${Math.round(props.value)} degrees`}
       aria-disabled={props.disabled ? 'true' : undefined}
+      onMouseDown={handleMouseDown}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
       <div
-        ref={trackRef}
         data-testid="hue-track"
         class={`${styles.sliderTrack} ${styles.hueTrack}`}
-        onMouseDown={handleMouseDown}
       />
       <div
         data-testid="hue-thumb"

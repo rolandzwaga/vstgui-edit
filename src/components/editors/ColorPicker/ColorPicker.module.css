@@ -5,6 +5,166 @@
  */
 
 /* =============================================================================
+   Wrapper Container
+   ============================================================================= */
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* =============================================================================
+   Trigger Button (Level 1 Dropdown)
+   ============================================================================= */
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicator {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   Simple Dropdown (Level 1)
+   ============================================================================= */
+
+.dropdown {
+  min-width: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.customColorButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.customColorButton:hover {
+  background: var(--color-item-hover-bg);
+}
+
+.customColorIcon {
+  font-size: 16px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+.colorList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.colorOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.colorOption:hover {
+  background: var(--color-item-hover-bg);
+}
+
+.colorOption.selected {
+  background: var(--color-primary-100);
+}
+
+.optionSwatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.optionName {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   Advanced Picker Dropdown (Level 2)
+   ============================================================================= */
+
+.advancedPickerDropdown {
+  width: 264px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+}
+
+/* =============================================================================
    Gradient Area (Saturation-Brightness)
    ============================================================================= */
 
@@ -33,6 +193,7 @@
   inset: 0;
   background: linear-gradient(to right, white, var(--hue-color, red));
   border-radius: inherit;
+  pointer-events: none;
 }
 
 /* Brightness gradient (transparent to black) */
@@ -41,6 +202,7 @@
   inset: 0;
   background: linear-gradient(to bottom, transparent, black);
   border-radius: inherit;
+  pointer-events: none;
 }
 
 .gradientThumb {
@@ -66,6 +228,7 @@
   height: 12px;
   margin: 8px 0;
   outline: none;
+  cursor: pointer;
 }
 
 .sliderContainer:focus-visible {
@@ -82,7 +245,7 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius-sm);
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .sliderThumb {
@@ -142,6 +305,7 @@
     transparent,
     var(--alpha-color, red)
   );
+  pointer-events: none;
 }
 
 /* =============================================================================
@@ -428,15 +592,18 @@
    ============================================================================= */
 
 .popupTrigger {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
   padding: 4px 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
   cursor: pointer;
-  min-width: 100px;
 }
 
 .popupTrigger:hover {

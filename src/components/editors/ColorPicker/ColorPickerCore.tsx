@@ -14,6 +14,7 @@ import {
   rgbaToHex,
   addRecentColor,
   parseHexToRgba,
+  VSTGUI_PREDEFINED_COLORS,
 } from '../../../domain/colorPicker';
 import { GradientArea } from './GradientArea';
 import { HueSlider } from './HueSlider';
@@ -29,8 +30,8 @@ export interface ColorPickerCoreProps {
   value: ColorValue;
   /** Original color value (for preview comparison) */
   originalValue: ColorValue;
-  /** Called when color changes */
-  onChange: (value: ColorValue, source: ColorSource) => void;
+  /** Called when color changes. originalString is set for document/predefined colors. */
+  onChange: (value: ColorValue, source: ColorSource, originalString?: string) => void;
   /** Called when edit is committed */
   onCommit: () => void;
   /** Document color names */
@@ -88,11 +89,27 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
 
   // Handle swatch selection
   const handleSwatchSelect = (value: string, source: ColorSource) => {
-    // For document colors and predefined colors, pass through the value
-    // For hex colors, parse and update
-    if (source === 'document-color' || source === 'predefined-color') {
-      // These are passed through as-is
-      // The parent component handles document color resolution
+    if (source === 'document-color') {
+      // For document colors, resolve the hex value for preview but preserve the name
+      const hexValue = props.documentColorValues?.[value];
+      const parsed = hexValue
+        ? parseHexToColorValue(hexValue)
+        : createColorValue(128, 128, 128, 255); // Gray fallback if no hex available
+      if (parsed) {
+        props.onChange(parsed, source, value); // Pass the color name as originalString
+        props.onCommit();
+      }
+    } else if (source === 'predefined-color') {
+      // For predefined colors, look up the hex value from the predefined list
+      const colorName = value.replace('~ ', ''); // Remove the "~ " prefix
+      const predefined = VSTGUI_PREDEFINED_COLORS.find((c) => c.name === colorName);
+      if (predefined) {
+        const parsed = parseHexToColorValue(predefined.value);
+        if (parsed) {
+          props.onChange(parsed, source, value); // Pass the "~ Name" format as originalString
+          props.onCommit();
+        }
+      }
     } else {
       // Recent colors are hex values
       const parsed = parseHexToColorValue(value);
@@ -103,11 +120,18 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
     }
   };
 
-  // Handle commit - add to recent colors
-  const handleCommit = () => {
+  // Handle commit from gradient area - commits and closes the picker
+  const handleGradientCommit = () => {
     const hex = currentHex();
     addRecentColor(hex);
     props.onCommit();
+  };
+
+  // Handle commit from sliders - just adds to recent colors, does NOT close picker
+  const handleSliderCommit = () => {
+    const hex = currentHex();
+    addRecentColor(hex);
+    // Don't call props.onCommit() - sliders shouldn't close the picker
   };
 
   // Handle revert to original color
@@ -120,7 +144,7 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
     const parsed = parseHexToColorValue(hex);
     if (parsed) {
       props.onChange(parsed, 'visual-picker');
-      handleCommit();
+      handleGradientCommit();
     }
   };
 
@@ -132,7 +156,7 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
         saturation={props.value.s}
         brightness={props.value.v}
         onChange={handleGradientChange}
-        onCommit={handleCommit}
+        onCommit={handleGradientCommit}
         disabled={props.disabled}
       />
 
@@ -140,7 +164,7 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
       <HueSlider
         value={props.value.h}
         onChange={handleHueChange}
-        onCommit={handleCommit}
+        onCommit={handleSliderCommit}
         disabled={props.disabled}
       />
 
@@ -149,7 +173,7 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
         value={props.value.a}
         color={{ r: props.value.r, g: props.value.g, b: props.value.b }}
         onChange={handleAlphaChange}
-        onCommit={handleCommit}
+        onCommit={handleSliderCommit}
         disabled={props.disabled}
       />
 
@@ -199,7 +223,7 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
         <HexInput
           value={currentHex()}
           onChange={handleHexChange}
-          onCommit={handleCommit}
+          onCommit={handleGradientCommit}
           disabled={props.disabled}
         />
       </Show>
@@ -308,12 +332,13 @@ export const ColorPickerCore: Component<ColorPickerCoreProps> = (props) => {
         </div>
       </Show>
 
-      {/* Color Swatches */}
+      {/* Color Swatches - hide document colors since they're in the simple dropdown */}
       <ColorSwatches
         documentColors={props.documentColors}
         documentColorValues={props.documentColorValues}
         selectedValue={currentHex()}
         onSelect={handleSwatchSelect}
+        showDocument={false}
       />
     </div>
   );

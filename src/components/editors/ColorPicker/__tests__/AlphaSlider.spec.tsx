@@ -72,9 +72,9 @@ describe('AlphaSlider', () => {
       const onChange = vi.fn();
       const { container } = render(() => <AlphaSlider {...defaultProps} onChange={onChange} />);
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -86,7 +86,7 @@ describe('AlphaSlider', () => {
         toJSON: () => {},
       });
 
-      fireEvent.mouseDown(track, { clientX: 0, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 0, clientY: 6, button: 0 });
 
       expect(onChange).toHaveBeenCalledWith(0);
     });
@@ -95,9 +95,9 @@ describe('AlphaSlider', () => {
       const onChange = vi.fn();
       const { container } = render(() => <AlphaSlider {...defaultProps} onChange={onChange} />);
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -109,7 +109,7 @@ describe('AlphaSlider', () => {
         toJSON: () => {},
       });
 
-      fireEvent.mouseDown(track, { clientX: 200, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 200, clientY: 6, button: 0 });
 
       expect(onChange).toHaveBeenCalledWith(255);
     });
@@ -118,9 +118,9 @@ describe('AlphaSlider', () => {
       const onChange = vi.fn();
       const { container } = render(() => <AlphaSlider {...defaultProps} onChange={onChange} />);
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -132,7 +132,7 @@ describe('AlphaSlider', () => {
         toJSON: () => {},
       });
 
-      fireEvent.mouseDown(track, { clientX: 100, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 100, clientY: 6, button: 0 });
 
       // 100/200 * 255 = 127.5, rounded to 128
       expect(onChange).toHaveBeenCalledWith(128);
@@ -148,9 +148,9 @@ describe('AlphaSlider', () => {
       const onChange = vi.fn();
       const { container } = render(() => <AlphaSlider {...defaultProps} onChange={onChange} />);
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -163,7 +163,7 @@ describe('AlphaSlider', () => {
       });
 
       // Start drag at left
-      fireEvent.mouseDown(track, { clientX: 0, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 0, clientY: 6, button: 0 });
       expect(onChange).toHaveBeenCalledWith(0);
 
       // Drag to center
@@ -179,9 +179,9 @@ describe('AlphaSlider', () => {
       const onCommit = vi.fn();
       const { container } = render(() => <AlphaSlider {...defaultProps} onCommit={onCommit} />);
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -193,7 +193,7 @@ describe('AlphaSlider', () => {
         toJSON: () => {},
       });
 
-      fireEvent.mouseDown(track, { clientX: 100, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 100, clientY: 6, button: 0 });
       fireEvent.mouseUp(document);
 
       expect(onCommit).toHaveBeenCalled();
@@ -292,9 +292,9 @@ describe('AlphaSlider', () => {
         <AlphaSlider {...defaultProps} disabled={true} onChange={onChange} />
       ));
 
-      const track = container.querySelector('[data-testid="alpha-track"]') as HTMLElement;
+      const slider = container.querySelector('[data-testid="alpha-slider"]') as HTMLElement;
 
-      vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      vi.spyOn(slider, 'getBoundingClientRect').mockReturnValue({
         left: 0,
         top: 0,
         width: 200,
@@ -306,7 +306,7 @@ describe('AlphaSlider', () => {
         toJSON: () => {},
       });
 
-      fireEvent.mouseDown(track, { clientX: 100, clientY: 6, button: 0 });
+      fireEvent.mouseDown(slider, { clientX: 100, clientY: 6, button: 0 });
 
       expect(onChange).not.toHaveBeenCalled();
     });

@@ -112,11 +112,40 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
     props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
+  // Track color editing session: original value and pending (uncommitted) value
+  const [colorOriginalValue, setColorOriginalValue] = createSignal<string | null>(null);
+  const [colorPendingValue, setColorPendingValue] = createSignal<string | null>(null);
+
   const handleColorChange = (newValue: string) => {
-    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
-    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
+    // Capture original value on first change in an editing session
+    if (colorOriginalValue() === null) {
+      setColorOriginalValue(props.entry.value ?? '');
+    }
+    // Track the pending value (what we'll commit)
+    setColorPendingValue(newValue);
+    // Live preview - just update the value, don't commit yet
     props.onValueChange?.(props.entry.name, newValue);
-    props.onValueCommit?.(props.entry.name, newValue, original);
+  };
+
+  const handleColorCommit = () => {
+    // Commit on explicit user action (OK, Enter, swatch selection)
+    const original = props.entry.isMixed ? '__MIXED__' : (colorOriginalValue() ?? props.entry.value ?? '');
+    const currentValue = colorPendingValue() ?? props.entry.value ?? '';
+    props.onValueCommit?.(props.entry.name, currentValue, original);
+    // Reset for next editing session
+    setColorOriginalValue(null);
+    setColorPendingValue(null);
+  };
+
+  const handleColorCancel = () => {
+    // Revert to original value
+    const original = colorOriginalValue();
+    if (original !== null) {
+      props.onValueChange?.(props.entry.name, original);
+    }
+    // Reset for next editing session
+    setColorOriginalValue(null);
+    setColorPendingValue(null);
   };
 
   const handleFontChange = (newValue: string) => {
@@ -192,9 +221,10 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               value={props.entry.value ?? ''}
               documentColors={props.documentColors ?? []}
               onChange={handleColorChange}
-              onCommit={() => {}}
-              onCancel={() => {}}
+              onCommit={handleColorCommit}
+              onCancel={handleColorCancel}
               disabled={!props.editable}
+              attributeName={props.entry.name}
             />
           </div>
         </Match>
