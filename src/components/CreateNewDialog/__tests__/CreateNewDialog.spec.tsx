@@ -127,4 +127,51 @@ describe('CreateNewDialog', () => {
       vi.useRealTimers();
     });
   });
+
+  describe('container class dropdown', () => {
+    it('dropdown shows default value "CViewContainer"', () => {
+      renderDialog(true);
+      const dropdown = screen.getByLabelText('Container Class') as HTMLSelectElement;
+      expect(dropdown.value).toBe('CViewContainer');
+    });
+
+    it('dropdown shows all 7 container classes', () => {
+      renderDialog(true);
+      const dropdown = screen.getByLabelText('Container Class');
+      const options = dropdown.querySelectorAll('option');
+      expect(options.length).toBe(7);
+
+      const optionValues = Array.from(options).map((o) => o.value);
+      expect(optionValues).toContain('CViewContainer');
+      expect(optionValues).toContain('CScrollView');
+      expect(optionValues).toContain('CRowColumnView');
+      expect(optionValues).toContain('CSplitView');
+      expect(optionValues).toContain('CLayeredViewContainer');
+      expect(optionValues).toContain('UIViewSwitchContainer');
+      expect(optionValues).toContain('CShadowViewContainer');
+    });
+
+    it('selecting different container class passes it to onCreate', () => {
+      renderDialog(true);
+
+      const dropdown = screen.getByLabelText('Container Class');
+      fireEvent.change(dropdown, { target: { value: 'CScrollView' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(mockOnCreate).toHaveBeenCalledWith({
+        width: 400,
+        height: 300,
+        containerClass: 'CScrollView',
+      });
+    });
+
+    it('CViewContainer is first in the dropdown order', () => {
+      renderDialog(true);
+      const dropdown = screen.getByLabelText('Container Class');
+      const firstOption = dropdown.querySelector('option');
+      expect(firstOption?.value).toBe('CViewContainer');
+    });
+  });
 });
