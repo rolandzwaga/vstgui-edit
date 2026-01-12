@@ -102,7 +102,9 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
               </label>
               <input
                 id="dialog-width"
-                type="text"
+                type="number"
+                min="1"
+                max="10000"
                 class={`${styles.input} ${widthError() ? styles.inputError : ''}`}
                 data-testid="dialog-width-input"
                 value={width()}
@@ -125,7 +127,9 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
               </label>
               <input
                 id="dialog-height"
-                type="text"
+                type="number"
+                min="1"
+                max="10000"
                 class={`${styles.input} ${heightError() ? styles.inputError : ''}`}
                 data-testid="dialog-height-input"
                 value={height()}

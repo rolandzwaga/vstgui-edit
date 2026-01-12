@@ -283,18 +283,19 @@ describe('CreateNewDialog', () => {
       expect(mockOnCreate).not.toHaveBeenCalled();
     });
 
-    it('shows error for non-numeric value', () => {
+    it('number inputs have min and max attributes', () => {
       renderDialog(true);
 
-      const widthInput = screen.getByLabelText('Width');
-      fireEvent.input(widthInput, { target: { value: 'abc' } });
-      fireEvent.change(widthInput, { target: { value: 'abc' } });
+      const widthInput = screen.getByLabelText('Width') as HTMLInputElement;
+      const heightInput = screen.getByLabelText('Height') as HTMLInputElement;
 
-      const createButton = screen.getByRole('button', { name: 'Create' });
-      fireEvent.click(createButton);
+      expect(widthInput.type).toBe('number');
+      expect(widthInput.min).toBe('1');
+      expect(widthInput.max).toBe('10000');
 
-      expect(screen.getByText('Must be a number')).toBeInTheDocument();
-      expect(mockOnCreate).not.toHaveBeenCalled();
+      expect(heightInput.type).toBe('number');
+      expect(heightInput.min).toBe('1');
+      expect(heightInput.max).toBe('10000');
     });
 
     it('clears error when user types in field', () => {
