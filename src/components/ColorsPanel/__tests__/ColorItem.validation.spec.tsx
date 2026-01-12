@@ -80,55 +80,7 @@ describe('ColorItem - Validation', () => {
     });
   });
 
-  describe('given value validation', () => {
-    it('should show error for invalid hex format', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, 'invalid{Enter}');
-
-      expect(mockUpdateColorValue).not.toHaveBeenCalled();
-      expect(screen.getByTestId('color-value-error')).toBeInTheDocument();
-    });
-
-    it('should accept valid hex with alpha', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, '#AABBCCDD{Enter}');
-
-      expect(mockUpdateColorValue).toHaveBeenCalledWith('Primary', '#AABBCCDD');
-      expect(screen.queryByTestId('color-value-error')).not.toBeInTheDocument();
-    });
-
-    it('should accept valid hex without alpha', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, '#AABBCC{Enter}');
-
-      expect(mockUpdateColorValue).toHaveBeenCalledWith('Primary', '#AABBCC');
-    });
-
-    it('should show error styling on input', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, 'xyz{Enter}');
-
-      expect(input).toHaveAttribute('aria-invalid', 'true');
-    });
-  });
+  // Note: Value validation is now handled by the ColorPickerCore component
+  // which uses the gradient area, hue slider, and hex input for color selection.
+  // The ColorPickerCore validates hex input internally.
 });

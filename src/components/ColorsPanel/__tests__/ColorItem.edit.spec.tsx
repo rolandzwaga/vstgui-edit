@@ -99,61 +99,26 @@ describe('ColorItem - Edit Mode', () => {
   });
 
   describe('given value editing', () => {
-    it('should enter edit mode on double-click value', async () => {
+    it('should open color picker on double-click value', async () => {
       const user = userEvent.setup();
       render(() => <ColorItem name="Primary" value="#FF0000FF" />);
 
       await user.dblClick(screen.getByTestId('color-value'));
 
-      expect(screen.getByTestId('color-value-input')).toBeInTheDocument();
+      // Color picker core should be rendered in a floating dropdown
+      await waitFor(() => {
+        expect(screen.getByTestId('hue-slider')).toBeInTheDocument();
+      });
     });
 
-    it('should show current value in input', async () => {
+    it('should not open picker when readonly', async () => {
       const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
+      render(() => <ColorItem name="Primary" value="#FF0000FF" isReadOnly />);
 
       await user.dblClick(screen.getByTestId('color-value'));
 
-      const input = screen.getByTestId('color-value-input') as HTMLInputElement;
-      expect(input.value).toBe('#FF0000FF');
-    });
-
-    it('should save value on blur', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, '#00FF00FF');
-      await user.tab();
-
-      expect(mockUpdateColorValue).toHaveBeenCalledWith('Primary', '#00FF00FF');
-    });
-
-    it('should save value on Enter', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, '#00FF00FF{Enter}');
-
-      expect(mockUpdateColorValue).toHaveBeenCalledWith('Primary', '#00FF00FF');
-    });
-
-    it('should cancel edit on Escape', async () => {
-      const user = userEvent.setup();
-      render(() => <ColorItem name="Primary" value="#FF0000FF" />);
-
-      await user.dblClick(screen.getByTestId('color-value'));
-      const input = screen.getByTestId('color-value-input');
-      await user.clear(input);
-      await user.type(input, '#00FF00FF{Escape}');
-
-      expect(mockUpdateColorValue).not.toHaveBeenCalled();
-      expect(screen.queryByTestId('color-value-input')).not.toBeInTheDocument();
+      // Picker should not open
+      expect(screen.queryByTestId('hue-slider')).not.toBeInTheDocument();
     });
   });
 
