@@ -88,8 +88,13 @@
   font-family: var(--font-family-mono);
 }
 
-.button {
+.buttonGroup {
+  display: flex;
+  gap: var(--spacing-3);
   margin-top: var(--spacing-4);
+}
+
+.button {
   padding: var(--spacing-2) var(--spacing-4);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -106,6 +111,27 @@
 }
 
 .button:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.buttonSecondary {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.buttonSecondary:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.buttonSecondary:focus {
   outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
 }

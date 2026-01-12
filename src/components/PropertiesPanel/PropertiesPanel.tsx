@@ -108,6 +108,13 @@ export const PropertiesPanel: Component = () => {
     return bitmaps ? Object.keys(bitmaps) : [];
   });
 
+  const documentControlTags = createMemo(() => {
+    const doc = documentStore.document;
+    if (!doc) return [];
+    const controlTags = doc['vstgui-ui-description']['control-tags'];
+    return controlTags ? Object.keys(controlTags) : [];
+  });
+
   const handleCopy = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -192,6 +199,7 @@ export const PropertiesPanel: Component = () => {
                     documentColorValues={documentColorValues()}
                     documentFonts={documentFonts()}
                     documentBitmaps={documentBitmaps()}
+                    documentControlTags={documentControlTags()}
                     getOriginalValues={getOriginalValues}
                   />
                 )}

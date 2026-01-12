@@ -31,7 +31,16 @@ export const CollapsibleSection: Component<CollapsibleSectionProps> = (props) =>
           </span>
         </button>
         <Show when={props.headerActions}>
-          <div class={styles.headerActions} onClick={(e) => e.stopPropagation()}>
+          <div
+            class={styles.headerActions}
+            onClick={(e) => {
+              e.stopPropagation();
+              // Expand section if closed when clicking header actions
+              if (!isExpanded()) {
+                setIsExpanded(true);
+              }
+            }}
+          >
             {props.headerActions}
           </div>
         </Show>

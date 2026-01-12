@@ -1,10 +1,12 @@
 import { createStore, produce } from 'solid-js/store';
 import { formatOrigin, parsePoint } from '../domain/canvas';
+import { createDocument } from '../domain/createNew/documentFactory';
 import { parseUidesc } from '../domain/parser';
 import { generateDuplicateName, isValidTemplateName } from '../domain/templates/validation';
 import type { RemovedVariableReference } from '../domain/variables/historyOperations';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
+import type { NewDocumentConfig } from '../types/createNew';
 import type {
   TemplateDefinition,
   TemplatesDefinition,
@@ -207,6 +209,50 @@ export function reset(): void {
   resetTemplateStore();
   resetGuidesStore();
   resetLockHideStore();
+}
+
+/**
+ * Creates a new uidesc document and sets it as the active document.
+ *
+ * This function:
+ * 1. Resets all canvas/editing state (canvas, template, guides, lock/hide stores)
+ * 2. Creates a new document from the config
+ * 3. Sets the document in the store with parseState: 'valid'
+ * 4. Sets format as 'json' (detectedFormat and originalFormat)
+ * 5. Clears file-related state (content, metadata, fileHandle)
+ * 6. Marks document as NOT dirty (isDirty: false)
+ * 7. Selects the first template
+ * 8. Applies default preferences
+ */
+export function createNewDocument(config: NewDocumentConfig): void {
+  // Reset canvas and editing state
+  resetCanvas();
+  resetTemplateStore();
+  resetGuidesStore();
+  resetLockHideStore();
+
+  // Create the new document
+  const newDoc = createDocument(config);
+
+  // Set the document in the store
+  setStore({
+    document: newDoc,
+    parseState: 'valid',
+    parseErrors: null,
+    detectedFormat: 'json',
+    originalFormat: 'json',
+    isDirty: false,
+    content: null,
+    metadata: null,
+    fileHandle: null,
+    lastSavedAt: null,
+  });
+
+  // Select the first template
+  selectFirstTemplate(newDoc);
+
+  // Apply default visibility/enabled states from preferences
+  applyDefaultStatesOnDocumentLoad();
 }
 
 export function markDirty(): void {

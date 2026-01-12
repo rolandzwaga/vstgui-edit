@@ -16,6 +16,7 @@ export type EditorType =
   | 'font' // Font picker (document resources)
   | 'bitmap' // Bitmap picker (document resources)
   | 'gradient' // Gradient picker (document resources)
+  | 'control-tag' // Control tag picker (document resources)
   | 'readonly'; // Display only, not editable
 
 /**
@@ -126,6 +127,14 @@ export interface FontPickerProps extends EditorProps {
 export interface BitmapPickerProps extends EditorProps {
   /** Available bitmap names from document bitmaps */
   documentBitmaps: string[];
+}
+
+/**
+ * Props for ControlTagPicker component.
+ */
+export interface ControlTagPickerProps extends EditorProps {
+  /** Available control tag names from document control-tags */
+  documentControlTags: string[];
 }
 
 /**

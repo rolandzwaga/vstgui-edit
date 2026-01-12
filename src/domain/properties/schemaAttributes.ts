@@ -133,6 +133,7 @@ function getEditorTypeFromProperty(prop: PropertyDefinition, name: string): Edit
   if (name === 'font') return 'font';
   if (name === 'bitmap' || name.endsWith('-bitmap')) return 'bitmap';
   if (name === 'gradient' || name.endsWith('-gradient')) return 'gradient';
+  if (name === 'control-tag') return 'control-tag';
 
   return 'text';
 }

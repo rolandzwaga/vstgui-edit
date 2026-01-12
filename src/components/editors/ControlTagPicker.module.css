@@ -1,0 +1,96 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-neutral-400);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicator {
+  margin-left: 4px;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+.dropdown {
+  position: fixed;
+  z-index: 1000;
+  min-width: 150px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.tagList {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.tagOption {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.tagOption:hover,
+.tagOption.highlighted {
+  background: var(--color-neutral-100);
+}
+
+.tagOption[aria-selected="true"] {
+  background: var(--color-primary-100);
+  font-weight: 500;
+}
+
+.tagOption[aria-selected="true"].highlighted {
+  background: var(--color-primary-500);
+  color: #fff;
+}
+
+.emptyState {
+  padding: 12px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-style: italic;
+}

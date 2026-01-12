@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js';
-import { createEffect, onCleanup, Show } from 'solid-js';
+import { createEffect, createRenderEffect, onCleanup, Show } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import type { Placement } from '@floating-ui/dom';
@@ -87,7 +87,8 @@ export const FloatingDropdown = (props: FloatingDropdownProps) => {
   // Listens on the app container instead of document to avoid interference
   // with Portal content (which renders as a sibling to the app container).
   // This means clicks inside the Portal won't trigger the click-outside handler.
-  createEffect(() => {
+  // Uses createRenderEffect to ensure listener is registered synchronously when isOpen changes.
+  createRenderEffect(() => {
     if (!props.isOpen()) return;
 
     const container = appContainer();
@@ -117,7 +118,8 @@ export const FloatingDropdown = (props: FloatingDropdownProps) => {
   });
 
   // Handle Escape key
-  createEffect(() => {
+  // Uses createRenderEffect to ensure listener is registered synchronously when isOpen changes.
+  createRenderEffect(() => {
     if (!props.isOpen()) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {

@@ -1,5 +1,7 @@
-import { For, Show } from 'solid-js';
-import { documentStore, loadFile, setDragging, reset } from '../../stores/documentStore';
+import { createSignal, For, Show } from 'solid-js';
+import { documentStore, loadFile, setDragging, reset, createNewDocument } from '../../stores/documentStore';
+import type { NewDocumentConfig } from '../../types/createNew';
+import { CreateNewDialog } from '../CreateNewDialog';
 import styles from './UploadZone.module.css';
 
 const hasParseErrors = () =>
@@ -7,6 +9,20 @@ const hasParseErrors = () =>
 
 export function UploadZone() {
   let fileInputRef: HTMLInputElement | undefined;
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
+
+  const handleCreateNew = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCreate = (config: NewDocumentConfig) => {
+    createNewDocument(config);
+    setIsCreateDialogOpen(false);
+  };
+
+  const handleCloseDialog = () => {
+    setIsCreateDialogOpen(false);
+  };
 
   const handleDragEnter = (e: DragEvent) => {
     e.preventDefault();
@@ -149,10 +165,15 @@ export function UploadZone() {
         <p class={styles.title}>
           {documentStore.uploadState === 'dragging' ? 'Drop file here' : 'Drag and drop a .uidesc file'}
         </p>
-        <p class={styles.subtitle}>or click the button below</p>
-        <button class={styles.button} onClick={handleButtonClick} type="button">
-          Browse files
-        </button>
+        <p class={styles.subtitle}>or click the buttons below</p>
+        <div class={styles.buttonGroup}>
+          <button class={styles.button} onClick={handleButtonClick} type="button">
+            Browse files
+          </button>
+          <button class={styles.buttonSecondary} onClick={handleCreateNew} type="button">
+            Create New
+          </button>
+        </div>
       </Show>
 
       <input
@@ -161,6 +182,12 @@ export function UploadZone() {
         accept=".uidesc"
         class={styles.fileInput}
         onChange={handleFileSelect}
+      />
+
+      <CreateNewDialog
+        isOpen={isCreateDialogOpen()}
+        onClose={handleCloseDialog}
+        onCreate={handleCreate}
       />
     </div>
   );

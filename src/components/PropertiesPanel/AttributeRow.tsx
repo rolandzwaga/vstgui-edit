@@ -11,6 +11,7 @@ import { EnumEditor } from '../editors/EnumEditor';
 import { ColorPicker } from '../editors/ColorPicker/';
 import { FontPicker } from '../editors/FontPicker';
 import { BitmapPicker } from '../editors/BitmapPicker';
+import { ControlTagPicker } from '../editors/ControlTagPicker';
 import styles from './AttributeRow.module.css';
 
 export interface AttributeRowProps {
@@ -23,6 +24,7 @@ export interface AttributeRowProps {
   documentColorValues?: Record<string, string>;
   documentFonts?: string[];
   documentBitmaps?: string[];
+  documentControlTags?: string[];
   /** Get per-view original values for batch edit undo (used when isMixed=true) */
   getOriginalValues?: (name: string) => Record<string, string | undefined>;
 }
@@ -44,6 +46,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isFontType = () => editorType() === 'font';
   const isBitmapType = () => editorType() === 'bitmap';
   const isGradientType = () => editorType() === 'gradient';
+  const isControlTagType = () => editorType() === 'control-tag';
   const canEdit = () => props.editable && !isReadonly();
   const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
@@ -163,6 +166,13 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
     props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
+  const handleControlTagChange = (newValue: string) => {
+    // For mixed values, pass '__MIXED__' marker so commit handler can fetch per-view originals
+    const original = props.entry.isMixed ? '__MIXED__' : (props.entry.value ?? '');
+    props.onValueChange?.(props.entry.name, newValue);
+    props.onValueCommit?.(props.entry.name, newValue, original);
+  };
+
   const handleCancel = () => {
     setEditValue(originalValue());
     // No need to call onValueChange - we only propagate on commit now
@@ -248,6 +258,18 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               value={props.entry.value ?? ''}
               documentBitmaps={props.documentBitmaps ?? []}
               onChange={handleBitmapChange}
+              onCommit={() => {}}
+              onCancel={() => {}}
+              disabled={!props.editable}
+            />
+          </div>
+        </Match>
+        <Match when={isControlTagType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <ControlTagPicker
+              value={props.entry.value ?? ''}
+              documentControlTags={props.documentControlTags ?? []}
+              onChange={handleControlTagChange}
               onCommit={() => {}}
               onCancel={() => {}}
               disabled={!props.editable}

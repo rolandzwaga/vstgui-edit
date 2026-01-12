@@ -107,7 +107,7 @@ export const ATTRIBUTE_TYPE_MAP: Record<string, AttributeTypeConfig> = {
   'uidesc-label': { editorType: 'text' },
   'custom-view-name': { editorType: 'text' },
   'sub-controller': { editorType: 'text' },
-  'control-tag': { editorType: 'text' },
+  'control-tag': { editorType: 'control-tag' },
 };
 
 export function getAttributeConfig(attrName: string): AttributeTypeConfig {

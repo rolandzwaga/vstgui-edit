@@ -58,7 +58,6 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
     const newValue = adjustValue(step());
     if (newValue !== null) {
       props.onChange(newValue);
-      props.onCommit();
     }
   };
 
@@ -66,7 +65,6 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
     const newValue = adjustValue(-step());
     if (newValue !== null) {
       props.onChange(newValue);
-      props.onCommit();
     }
   };
 
@@ -105,6 +103,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           type="button"
           class={styles.spinButton}
           onClick={handleDecrement}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={decrementDisabled()}
           aria-label="Decrement"
         >
@@ -129,6 +128,7 @@ export const NumberEditor: Component<NumberEditorProps> = (props) => {
           type="button"
           class={styles.spinButton}
           onClick={handleIncrement}
+          onMouseDown={(e) => e.preventDefault()}
           disabled={incrementDisabled()}
           aria-label="Increment"
         >
