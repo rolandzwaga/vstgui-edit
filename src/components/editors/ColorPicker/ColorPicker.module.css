@@ -1,0 +1,684 @@
+/**
+ * ColorPicker Component Styles
+ *
+ * Advanced color picker with gradient area, sliders, inputs, and swatches.
+ */
+
+/* =============================================================================
+   Wrapper Container
+   ============================================================================= */
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* =============================================================================
+   Trigger Button (Level 1 Dropdown)
+   ============================================================================= */
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicator {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   Simple Dropdown (Level 1)
+   ============================================================================= */
+
+.dropdown {
+  min-width: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.customColorButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.customColorButton:hover {
+  background: var(--color-item-hover-bg);
+}
+
+.customColorIcon {
+  font-size: 16px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+.colorList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.colorOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.colorOption:hover {
+  background: var(--color-item-hover-bg);
+}
+
+.colorOption.selected {
+  background: var(--color-primary-100);
+}
+
+.optionSwatch {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.optionName {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   Advanced Picker Dropdown (Level 2)
+   ============================================================================= */
+
+.advancedPickerDropdown {
+  width: 264px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+}
+
+/* =============================================================================
+   Gradient Area (Saturation-Brightness)
+   ============================================================================= */
+
+.gradientArea {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  cursor: crosshair;
+  border-radius: var(--radius-sm);
+  user-select: none;
+  outline: none;
+}
+
+.gradientArea:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.gradientArea[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Saturation gradient (white to hue color) */
+.gradientSaturation {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, white, var(--hue-color, red));
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Brightness gradient (transparent to black) */
+.gradientBrightness {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, black);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.gradientThumb {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    0 2px 4px rgb(0 0 0 / 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* =============================================================================
+   Slider Base Styles
+   ============================================================================= */
+
+.sliderContainer {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  margin: 8px 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.sliderContainer:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.sliderContainer[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sliderTrack {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+.sliderThumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.3),
+    0 2px 4px rgb(0 0 0 / 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* =============================================================================
+   Hue Slider
+   ============================================================================= */
+
+.hueTrack {
+  background: linear-gradient(
+    to right,
+    hsl(0deg 100% 50%),
+    hsl(60deg 100% 50%),
+    hsl(120deg 100% 50%),
+    hsl(180deg 100% 50%),
+    hsl(240deg 100% 50%),
+    hsl(300deg 100% 50%),
+    hsl(360deg 100% 50%)
+  );
+}
+
+/* =============================================================================
+   Alpha Slider
+   ============================================================================= */
+
+.alphaTrack {
+  /* Checkerboard pattern for transparency indication */
+  background-image:
+    linear-gradient(45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-checkerboard) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+  background-color: var(--color-checkerboard-base);
+}
+
+.alphaGradient {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--alpha-color, red)
+  );
+  pointer-events: none;
+}
+
+/* =============================================================================
+   Color Inputs (HEX/RGB/HSL Tabs)
+   ============================================================================= */
+
+.inputTabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-secondary);
+  padding: 2px;
+}
+
+.tab {
+  flex: 1;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: all 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+}
+
+.tab:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+  outline: none;
+}
+
+.tabActive {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.inputPanel {
+  min-height: 32px;
+}
+
+.hexInput {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+}
+
+.hexInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.inputError {
+  border-color: var(--color-error) !important;
+}
+
+.errorMessage {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+}
+
+/* =============================================================================
+   RGB/HSL Input Fields
+   ============================================================================= */
+
+.rgbInputs,
+.hslInputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.fieldInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* =============================================================================
+   Color Swatches
+   ============================================================================= */
+
+.swatchesSection {
+  margin-top: 8px;
+}
+
+.swatchesHeader {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.swatchGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.swatch {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.swatch:hover {
+  transform: scale(1.1);
+}
+
+.swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.swatchSelected {
+  border: 2px solid var(--color-primary);
+}
+
+.swatchMissing {
+  border: 2px dashed var(--color-error);
+  position: relative;
+}
+
+.swatchMissing::after {
+  content: '?';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  font-weight: bold;
+}
+
+/* =============================================================================
+   Color Preview (Old vs New)
+   ============================================================================= */
+
+.previewRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.previewContainer {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.previewColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.previewSwatchContainer {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+
+  /* Checkerboard background for transparency */
+  background-image:
+    linear-gradient(45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-checkerboard) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+  background-color: var(--color-checkerboard-base);
+}
+
+.previewSwatch {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.previewLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.previewOld {
+  cursor: pointer;
+}
+
+.previewOld:hover {
+  border-color: var(--color-primary);
+}
+
+.previewOld:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+/* =============================================================================
+   Eyedropper Button
+   ============================================================================= */
+
+.eyedropperButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.eyedropperButton:hover {
+  background: var(--color-surface-secondary);
+  border-color: var(--color-border-hover);
+}
+
+.eyedropperButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.eyedropperButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.eyedropperIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   Popup Mode
+   ============================================================================= */
+
+.popupTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.popupTrigger:hover {
+  border-color: var(--color-border-hover);
+}
+
+.popupTrigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.popupTrigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.triggerSwatch {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  position: relative;
+
+  /* Checkerboard for transparency */
+  background-image:
+    linear-gradient(45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-checkerboard) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-checkerboard) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-checkerboard) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+  background-color: var(--color-checkerboard-base);
+}
+
+.triggerColor {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.triggerValue {
+  flex: 1;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popupDropdown {
+  width: 240px;
+  padding: 12px;
+}
+
+/* =============================================================================
+   Inline Mode
+   ============================================================================= */
+
+.inlineContainer {
+  width: 240px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+/* =============================================================================
+   Focus Indicators (WCAG 2.1 AA)
+   ============================================================================= */
+
+*:focus-visible {
+  outline: none;
+}
+
+.focusRing {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}

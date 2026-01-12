@@ -1,14 +1,29 @@
-import { type Component, createSignal, Show } from 'solid-js';
+import { type Component, createSignal, createMemo, Show } from 'solid-js';
 import { getColors, updateColorName, updateColorValue } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
+import {
+  isColorPickerOpen,
+  openColorPicker,
+  closeColorPicker,
+} from '../../stores/colorPickerOpenStore';
 import {
   createEditColorNameOperation,
   createEditColorValueOperation,
 } from '../../domain/colors/historyOperations';
-import { validateHexColor, validateColorName } from '../../domain/colors/validation';
+import { validateColorName } from '../../domain/colors/validation';
+import {
+  createColorValue,
+  parseHexToRgba,
+  rgbaToHex,
+  addRecentColor,
+} from '../../domain/colorPicker';
+import type { ColorValue, ColorSource } from '../../types/colorPicker';
+import { FloatingDropdown } from '../common/FloatingDropdown';
+import { ColorPickerCore } from '../editors/ColorPicker/ColorPickerCore';
 import { ColorSwatch } from './ColorSwatch';
 import { truncateColorName, formatColorForDisplay } from '../../domain/colors';
 import styles from './ColorItem.module.css';
+import pickerStyles from '../editors/ColorPicker/ColorPicker.module.css';
 
 export interface ColorItemProps {
   name: string;
@@ -21,21 +36,43 @@ export interface ColorItemProps {
 
 export const ColorItem: Component<ColorItemProps> = (props) => {
   const [editingName, setEditingName] = createSignal(false);
-  const [editingValue, setEditingValue] = createSignal(false);
   const [nameInput, setNameInput] = createSignal('');
-  const [valueInput, setValueInput] = createSignal('');
   const [nameError, setNameError] = createSignal<string | null>(null);
-  const [valueError, setValueError] = createSignal<string | null>(null);
   const [isHovered, setIsHovered] = createSignal(false);
+
+  // Color picker state
+  const [workingColor, setWorkingColor] = createSignal<ColorValue | null>(null);
+  let valueRef: HTMLSpanElement | undefined;
+
+  // Use color name as unique identifier for picker store
+  const pickerKey = () => `colors-panel-${props.name}`;
+  const isPickerOpen = () => isColorPickerOpen(pickerKey());
+
+  // Helper to parse hex to ColorValue
+  const parseHexToColorValue = (hex: string): ColorValue => {
+    const rgba = parseHexToRgba(hex);
+    if (rgba) {
+      return createColorValue(rgba.r, rgba.g, rgba.b, rgba.a);
+    }
+    // Default to red if parsing fails
+    return createColorValue(255, 0, 0, 255);
+  };
+
+  // Current color as ColorValue
+  const currentColorValue = createMemo(() => parseHexToColorValue(props.value));
+
+  // Active color for picker (working color or current)
+  const activeColorValue = createMemo(() => workingColor() ?? currentColorValue());
 
   const displayName = () => truncateColorName(props.name);
   const displayValue = () => formatColorForDisplay(props.value);
   const needsTooltip = () => props.name.length > 30;
 
   const previewColor = () => {
-    if (editingValue()) {
-      const validation = validateHexColor(valueInput());
-      return validation.valid ? valueInput() : props.value;
+    // Show working color when picker is open
+    if (isPickerOpen() && workingColor()) {
+      const wc = workingColor()!;
+      return rgbaToHex(wc.r, wc.g, wc.b, wc.a);
     }
     return props.value;
   };
@@ -49,9 +86,42 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
 
   const handleValueDblClick = () => {
     if (props.isReadOnly) return;
-    setValueInput(props.value);
-    setValueError(null);
-    setEditingValue(true);
+    // Open color picker instead of text input
+    setWorkingColor(currentColorValue());
+    openColorPicker(pickerKey(), props.value);
+  };
+
+  // === Color Picker Handlers ===
+
+  const handlePickerChange = (color: ColorValue, _source: ColorSource) => {
+    // Update working color for live preview
+    setWorkingColor(color);
+  };
+
+  const handlePickerCommit = () => {
+    const color = workingColor() ?? currentColorValue();
+    const newValue = rgbaToHex(color.r, color.g, color.b, color.a);
+
+    // Add to recent colors
+    addRecentColor(newValue);
+
+    // Save if changed
+    if (newValue !== props.value) {
+      const oldValue = updateColorValue(props.name, newValue);
+      if (oldValue !== null) {
+        pushOperation(createEditColorValueOperation(props.name, oldValue, newValue));
+      }
+    }
+
+    // Close and reset
+    setWorkingColor(null);
+    closeColorPicker();
+  };
+
+  const handlePickerCancel = () => {
+    // Close without saving
+    setWorkingColor(null);
+    closeColorPicker();
   };
 
   const saveName = () => {
@@ -79,36 +149,9 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
     setNameError(null);
   };
 
-  const saveValue = () => {
-    const newValue = valueInput().trim();
-
-    if (newValue === props.value) {
-      setEditingValue(false);
-      return;
-    }
-
-    const validation = validateHexColor(newValue);
-    if (!validation.valid) {
-      setValueError(validation.error ?? 'Invalid hex color');
-      return;
-    }
-
-    const oldValue = updateColorValue(props.name, newValue);
-    if (oldValue !== null) {
-      pushOperation(createEditColorValueOperation(props.name, oldValue, newValue));
-    }
-    setEditingValue(false);
-    setValueError(null);
-  };
-
   const cancelNameEdit = () => {
     setEditingName(false);
     setNameError(null);
-  };
-
-  const cancelValueEdit = () => {
-    setEditingValue(false);
-    setValueError(null);
   };
 
   const handleNameKeyDown = (e: KeyboardEvent) => {
@@ -118,16 +161,6 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       cancelNameEdit();
-    }
-  };
-
-  const handleValueKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      saveValue();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      cancelValueEdit();
     }
   };
 
@@ -179,40 +212,32 @@ export const ColorItem: Component<ColorItemProps> = (props) => {
             </Show>
           </div>
         </Show>
-        <Show
-          when={editingValue()}
-          fallback={
-            <span
-              class={styles.value}
-              data-testid="color-value"
-              onDblClick={handleValueDblClick}
-            >
-              {displayValue()}
-            </span>
-          }
+        <span
+          ref={valueRef}
+          class={styles.value}
+          data-testid="color-value"
+          onDblClick={handleValueDblClick}
         >
-          <div class={styles.editContainer}>
-            <input
-              type="text"
-              class={`${styles.input} ${styles.valueInput} ${valueError() ? styles.inputError : ''}`}
-              data-testid="color-value-input"
-              value={valueInput()}
-              onInput={(e) => {
-                setValueInput(e.currentTarget.value);
-                setValueError(null);
-              }}
-              onKeyDown={handleValueKeyDown}
-              onBlur={saveValue}
-              aria-invalid={!!valueError()}
-              ref={(el) => setTimeout(() => el.focus(), 0)}
-            />
-            <Show when={valueError()}>
-              <span class={styles.error} data-testid="color-value-error">
-                {valueError()}
-              </span>
-            </Show>
-          </div>
-        </Show>
+          {displayValue()}
+        </span>
+
+        {/* Color Picker Dropdown */}
+        <FloatingDropdown
+          isOpen={isPickerOpen}
+          onClose={handlePickerCancel}
+          triggerRef={valueRef}
+          class={pickerStyles.advancedPickerDropdown}
+        >
+          <ColorPickerCore
+            value={activeColorValue()}
+            originalValue={currentColorValue()}
+            onChange={handlePickerChange}
+            onCommit={handlePickerCommit}
+            documentColors={[]}
+            documentColorValues={{}}
+            disabled={props.isReadOnly}
+          />
+        </FloatingDropdown>
       </div>
       <Show when={props.usageCount && props.usageCount > 0}>
         <button

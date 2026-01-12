@@ -24,6 +24,7 @@ import {
 } from './domain/theme';
 import { documentStore, getTemplate } from './stores/documentStore';
 import { undo, redo } from './stores/historyStore';
+import { setAppContainer } from './stores/appContainerStore';
 import { openPreferences, initializePreferences, preferencesStore } from './stores/preferencesStore';
 import { PreferencesPanel } from './components/PreferencesPanel';
 import { searchStore } from './stores/searchStore';
@@ -128,7 +129,10 @@ export default function App() {
   };
 
   return (
-    <main style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}>
+    <main
+      ref={setAppContainer}
+      style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}
+    >
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
         <>

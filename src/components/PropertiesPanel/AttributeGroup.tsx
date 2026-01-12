@@ -13,6 +13,7 @@ export interface AttributeGroupProps {
   onValueCommit?: (name: string, newValue: string, originalValue: string) => void;
   editable?: boolean;
   documentColors?: string[];
+  documentColorValues?: Record<string, string>;
   documentFonts?: string[];
   documentBitmaps?: string[];
   /** Get per-view original values for batch edit undo */
@@ -64,6 +65,7 @@ export const AttributeGroup: Component<AttributeGroupProps> = (props) => {
                 onValueCommit={props.onValueCommit}
                 editable={props.editable}
                 documentColors={props.documentColors}
+                documentColorValues={props.documentColorValues}
                 documentFonts={props.documentFonts}
                 documentBitmaps={props.documentBitmaps}
                 getOriginalValues={props.getOriginalValues}

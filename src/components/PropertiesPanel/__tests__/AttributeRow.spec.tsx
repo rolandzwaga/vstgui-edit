@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '@solidjs/testing-library';
+import { render, screen, fireEvent, waitFor } from '@solidjs/testing-library';
 import { AttributeRow } from '../AttributeRow';
 import type { AttributeEntry } from '../../../types/properties';
 
@@ -325,7 +325,7 @@ describe('AttributeRow', () => {
     });
 
     // T043: verify color picker batch edit with mixed values
-    it('should pass __MIXED__ marker for color picker with mixed values', () => {
+    it('should pass __MIXED__ marker for color picker with mixed values', async () => {
       const onValueCommit = vi.fn();
       render(() => (
         <AttributeRow
@@ -341,13 +341,18 @@ describe('AttributeRow', () => {
         />
       ));
 
-      // Color picker is a custom button dropdown
-      const combobox = screen.getByRole('combobox');
-      fireEvent.click(combobox); // Open dropdown
+      // Color picker trigger button
+      const trigger = screen.getByTestId('color-picker-trigger');
+      fireEvent.click(trigger); // Open dropdown
 
-      // Click on a color option
-      const option = screen.getByRole('option', { name: 'MyRed' });
-      fireEvent.click(option);
+      // Wait for dropdown to render
+      await waitFor(() => {
+        expect(screen.getByTestId('color-option-MyRed')).toBeInTheDocument();
+      });
+
+      // Click on a document color option
+      const colorOption = screen.getByTestId('color-option-MyRed');
+      fireEvent.click(colorOption);
 
       expect(onValueCommit).toHaveBeenCalledWith('background-color', 'MyRed', '__MIXED__');
     });

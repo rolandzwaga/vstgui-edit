@@ -87,6 +87,13 @@ export const PropertiesPanel: Component = () => {
     return colors ? Object.keys(colors) : [];
   });
 
+  const documentColorValues = createMemo(() => {
+    const doc = documentStore.document;
+    if (!doc) return {};
+    const colors = doc['vstgui-ui-description'].colors;
+    return colors ?? {};
+  });
+
   const documentFonts = createMemo(() => {
     const doc = documentStore.document;
     if (!doc) return [];
@@ -182,6 +189,7 @@ export const PropertiesPanel: Component = () => {
                     onValueCommit={handleValueCommit}
                     editable={true}
                     documentColors={documentColors()}
+                    documentColorValues={documentColorValues()}
                     documentFonts={documentFonts()}
                     documentBitmaps={documentBitmaps()}
                     getOriginalValues={getOriginalValues}

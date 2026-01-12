@@ -210,6 +210,15 @@
   --color-item-readonly-bg: var(--color-neutral-50);
   --color-item-readonly-text: var(--color-neutral-500);
 
+  /* Color Picker */
+  --color-checkerboard: #cccccc;
+  --color-checkerboard-base: #ffffff;
+  --color-focus-ring: rgba(59, 130, 246, 0.5);
+  --color-border-hover: var(--color-neutral-400);
+  --radius-xs: 0.125rem;
+  --font-mono: var(--font-family-mono);
+  --color-error: var(--color-error-500);
+
   /* Ruler Colors */
   --ruler-thickness: 20px;
   --ruler-font-size: 10px;
@@ -344,6 +353,13 @@
 
   /* Overlay (slightly lighter for dark theme) */
   --color-overlay: rgb(0 0 0 / 0.7);
+
+  /* Color Picker - Dark theme */
+  --color-checkerboard: #555555;
+  --color-checkerboard-base: #333333;
+  --color-focus-ring: rgba(96, 165, 250, 0.5);
+  --color-border-hover: #737373;
+  --color-error: #f87171;
 }
 
 /* Global Reset & Base Styles */

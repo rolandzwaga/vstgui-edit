@@ -1,6 +1,11 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup, waitFor } from '@solidjs/testing-library';
 import { EnumEditor } from '../EnumEditor';
+import { setAppContainer } from '../../../stores/appContainerStore';
+
+// Helper to wait for next animation frame (click-outside listener is added after rAF)
+const waitForAnimationFrame = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 describe('EnumEditor', () => {
   const defaultProps = {
@@ -11,12 +16,24 @@ describe('EnumEditor', () => {
     onCancel: vi.fn(),
   };
 
+  let appContainerEl: HTMLDivElement | undefined;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set up app container for FloatingDropdown click-outside detection
+    appContainerEl = document.createElement('div');
+    appContainerEl.setAttribute('data-testid', 'app-container');
+    document.body.appendChild(appContainerEl);
+    setAppContainer(appContainerEl);
   });
 
   afterEach(() => {
     cleanup();
+    if (appContainerEl && appContainerEl.parentNode) {
+      appContainerEl.parentNode.removeChild(appContainerEl);
+    }
+    setAppContainer(null);
+    appContainerEl = undefined;
   });
 
   describe('rendering', () => {
@@ -293,23 +310,21 @@ describe('EnumEditor', () => {
 
   describe('blur handling', () => {
     it('should close dropdown when clicking outside component', async () => {
-      render(() => (
-        <div>
-          <EnumEditor {...defaultProps} />
-          <button data-testid="other-button">Other</button>
-        </div>
-      ));
+      render(() => <EnumEditor {...defaultProps} />);
       const button = screen.getByRole('combobox');
-      
+
       fireEvent.click(button);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('listbox')).toBeInTheDocument();
       });
-      
-      const otherButton = screen.getByTestId('other-button');
-      fireEvent.mouseDown(otherButton);
-      
+
+      // Wait for click-outside listener to be added (uses requestAnimationFrame)
+      await waitForAnimationFrame();
+
+      // Click on app container (outside the trigger) to trigger click-outside
+      fireEvent.mouseDown(appContainerEl!);
+
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
       });
