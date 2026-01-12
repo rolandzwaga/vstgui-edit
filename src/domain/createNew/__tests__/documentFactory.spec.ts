@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { NewDocumentConfig } from '../../../types/createNew';
 import {
   createDocument,
-  DEFAULT_TEMPLATE_NAME,
-  DEFAULT_ORIGIN,
   DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_ORIGIN,
+  DEFAULT_TEMPLATE_NAME,
 } from '../documentFactory';
 
 describe('createDocument', () => {

@@ -5,9 +5,9 @@
 // Types re-exported from types module
 export type {
   ContainerClass,
-  NewDocumentConfig,
-  DimensionValidationResult,
   CreateNewDialogProps,
+  DimensionValidationResult,
+  NewDocumentConfig,
 } from '../../types/createNew';
 
 export {
@@ -15,14 +15,12 @@ export {
   DEFAULT_CONFIG,
   DIMENSION_CONSTRAINTS,
 } from '../../types/createNew';
-
-// Validation functions
-export { validateDimension, validateDimensions, areDimensionsValid } from './validation';
-
 // Document factory
 export {
   createDocument,
-  DEFAULT_TEMPLATE_NAME,
-  DEFAULT_ORIGIN,
   DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_ORIGIN,
+  DEFAULT_TEMPLATE_NAME,
 } from './documentFactory';
+// Validation functions
+export { areDimensionsValid, validateDimension, validateDimensions } from './validation';

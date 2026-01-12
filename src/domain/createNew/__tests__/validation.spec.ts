@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateDimension, validateDimensions, areDimensionsValid } from '../validation';
+import { areDimensionsValid, validateDimension, validateDimensions } from '../validation';
 
 describe('validateDimension', () => {
   describe('valid values', () => {

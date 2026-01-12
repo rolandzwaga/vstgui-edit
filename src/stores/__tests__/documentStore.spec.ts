@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockContainer, createMockDocument, createMockUidescFile, createMockView } from '../../__tests__/helpers/fixtures';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
+import type { NewDocumentConfig } from '../../types/createNew';
 import {
   addView,
   createNewDocument,
@@ -15,7 +16,6 @@ import {
   setDocumentForTest,
   setDragging,
 } from '../documentStore';
-import type { NewDocumentConfig } from '../../types/createNew';
 
 describe('documentStore', () => {
   beforeEach(() => {
