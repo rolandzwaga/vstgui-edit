@@ -20,6 +20,7 @@ export interface AttributeRowProps {
   onValueCommit?: (name: string, newValue: string, originalValue: string) => void;
   editable?: boolean;
   documentColors?: string[];
+  documentColorValues?: Record<string, string>;
   documentFonts?: string[];
   documentBitmaps?: string[];
   /** Get per-view original values for batch edit undo (used when isMixed=true) */
@@ -220,6 +221,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
             <ColorPicker
               value={props.entry.value ?? ''}
               documentColors={props.documentColors ?? []}
+              documentColorValues={props.documentColorValues}
               onChange={handleColorChange}
               onCommit={handleColorCommit}
               onCancel={handleColorCancel}
