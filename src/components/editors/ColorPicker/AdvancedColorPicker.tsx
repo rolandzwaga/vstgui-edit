@@ -279,7 +279,7 @@ export const AdvancedColorPicker: Component<AdvancedColorPickerProps> = (props) 
       >
         <Show when={isHexValue()}>
           <span
-            class={styles.swatch}
+            class={styles.dropdownTriggerSwatch}
             style={{ 'background-color': swatchColor() }}
           />
         </Show>
