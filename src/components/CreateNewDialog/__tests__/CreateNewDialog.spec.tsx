@@ -225,4 +225,126 @@ describe('CreateNewDialog', () => {
       expect(mockOnClose).not.toHaveBeenCalled();
     });
   });
+
+  describe('input validation', () => {
+    it('shows error for empty width', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: '' } });
+      fireEvent.change(widthInput, { target: { value: '' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Width is required')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('shows error for empty height', () => {
+      renderDialog(true);
+
+      const heightInput = screen.getByLabelText('Height');
+      fireEvent.input(heightInput, { target: { value: '' } });
+      fireEvent.change(heightInput, { target: { value: '' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Height is required')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('shows error for value below minimum (0)', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: '0' } });
+      fireEvent.change(widthInput, { target: { value: '0' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Must be at least 1')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('shows error for value above maximum (10001)', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: '10001' } });
+      fireEvent.change(widthInput, { target: { value: '10001' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Must be at most 10000')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('shows error for non-numeric value', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: 'abc' } });
+      fireEvent.change(widthInput, { target: { value: 'abc' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Must be a number')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('clears error when user types in field', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+
+      // Trigger error
+      fireEvent.input(widthInput, { target: { value: '' } });
+      fireEvent.change(widthInput, { target: { value: '' } });
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+      expect(screen.getByText('Width is required')).toBeInTheDocument();
+
+      // Type something - error should clear
+      fireEvent.input(widthInput, { target: { value: '5' } });
+      expect(screen.queryByText('Width is required')).not.toBeInTheDocument();
+    });
+
+    it('applies error styling to invalid input', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: '' } });
+      fireEvent.change(widthInput, { target: { value: '' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      // Check for error styling (class contains 'inputError')
+      expect(widthInput.className).toMatch(/inputError/);
+    });
+
+    it('validates both fields and shows multiple errors', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      const heightInput = screen.getByLabelText('Height');
+
+      fireEvent.input(widthInput, { target: { value: '' } });
+      fireEvent.change(widthInput, { target: { value: '' } });
+      fireEvent.input(heightInput, { target: { value: '-5' } });
+      fireEvent.change(heightInput, { target: { value: '-5' } });
+
+      const createButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(createButton);
+
+      expect(screen.getByText('Width is required')).toBeInTheDocument();
+      expect(screen.getByText('Must be at least 1')).toBeInTheDocument();
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+  });
 });
