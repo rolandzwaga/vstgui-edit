@@ -3,6 +3,7 @@ import { createMockContainer, createMockDocument, createMockUidescFile, createMo
 import { testInRoot } from '../../__tests__/helpers/solidjs';
 import {
   addView,
+  createNewDocument,
   documentStore,
   duplicateView,
   loadFile,
@@ -14,6 +15,7 @@ import {
   setDocumentForTest,
   setDragging,
 } from '../documentStore';
+import type { NewDocumentConfig } from '../../types/createNew';
 
 describe('documentStore', () => {
   beforeEach(() => {
@@ -606,6 +608,101 @@ describe('documentStore', () => {
         const newContainer = template?.children?.['1'];
         expect(newContainer?.attributes.origin).toBe('70, 70');
         expect(newContainer?.children?.['0']?.attributes.class).toBe('CTextLabel');
+      });
+    });
+  });
+
+  describe('createNewDocument', () => {
+    const defaultConfig: NewDocumentConfig = {
+      width: 800,
+      height: 600,
+      containerClass: 'CViewContainer',
+    };
+
+    beforeEach(() => {
+      testInRoot(() => {
+        reset();
+      });
+    });
+
+    it('should set document with correct structure', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+
+        expect(documentStore.document).not.toBeNull();
+        expect(documentStore.document?.['vstgui-ui-description']).toBeDefined();
+        expect(documentStore.document?.['vstgui-ui-description']?.version).toBe('1');
+        expect(documentStore.document?.['vstgui-ui-description']?.templates?.view).toBeDefined();
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.view;
+        expect(template?.attributes.class).toBe('CViewContainer');
+        expect(template?.attributes.size).toBe('800, 600');
+        expect(template?.attributes.origin).toBe('0, 0');
+        expect(template?.attributes['background-color']).toBe('~ BlackCColor');
+      });
+    });
+
+    it('should set parseState to valid', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+        expect(documentStore.parseState).toBe('valid');
+      });
+    });
+
+    it('should set detectedFormat and originalFormat to json', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+        expect(documentStore.detectedFormat).toBe('json');
+        expect(documentStore.originalFormat).toBe('json');
+      });
+    });
+
+    it('should set isDirty to false', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+        expect(documentStore.isDirty).toBe(false);
+      });
+    });
+
+    it('should clear fileHandle, lastSavedAt, metadata', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+        expect(documentStore.fileHandle).toBeNull();
+        expect(documentStore.lastSavedAt).toBeNull();
+        expect(documentStore.metadata).toBeNull();
+      });
+    });
+
+    it('should clear content', () => {
+      testInRoot(() => {
+        createNewDocument(defaultConfig);
+        expect(documentStore.content).toBeNull();
+      });
+    });
+
+    it('should use config container class', () => {
+      testInRoot(() => {
+        createNewDocument({
+          width: 400,
+          height: 300,
+          containerClass: 'CScrollView',
+        });
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.view;
+        expect(template?.attributes.class).toBe('CScrollView');
+      });
+    });
+
+    it('should use config dimensions', () => {
+      testInRoot(() => {
+        createNewDocument({
+          width: 1024,
+          height: 768,
+          containerClass: 'CViewContainer',
+        });
+
+        const template = documentStore.document?.['vstgui-ui-description']?.templates?.view;
+        expect(template?.attributes.size).toBe('1024, 768');
       });
     });
   });
