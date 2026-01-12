@@ -347,4 +347,50 @@ describe('CreateNewDialog', () => {
       expect(mockOnCreate).not.toHaveBeenCalled();
     });
   });
+
+  describe('accessibility', () => {
+    it('dialog has role="dialog"', () => {
+      renderDialog(true);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('dialog has aria-modal="true"', () => {
+      renderDialog(true);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-modal', 'true');
+    });
+
+    it('dialog has aria-labelledby pointing to title', () => {
+      renderDialog(true);
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-labelledby', 'create-new-dialog-title');
+
+      const title = document.getElementById('create-new-dialog-title');
+      expect(title).toHaveTextContent('Create New Document');
+    });
+
+    it('width input has associated label via id', () => {
+      renderDialog(true);
+      const widthInput = screen.getByLabelText('Width');
+      expect(widthInput).toHaveAttribute('id', 'dialog-width');
+    });
+
+    it('height input has associated label via id', () => {
+      renderDialog(true);
+      const heightInput = screen.getByLabelText('Height');
+      expect(heightInput).toHaveAttribute('id', 'dialog-height');
+    });
+
+    it('container class dropdown has associated label via id', () => {
+      renderDialog(true);
+      const dropdown = screen.getByLabelText('Container Class');
+      expect(dropdown).toHaveAttribute('id', 'dialog-container-class');
+    });
+
+    it('close button has aria-label', () => {
+      renderDialog(true);
+      const closeButton = screen.getByRole('button', { name: 'Close' });
+      expect(closeButton).toHaveAttribute('aria-label', 'Close');
+    });
+  });
 });
