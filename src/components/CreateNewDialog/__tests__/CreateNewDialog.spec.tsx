@@ -174,4 +174,55 @@ describe('CreateNewDialog', () => {
       expect(firstOption?.value).toBe('CViewContainer');
     });
   });
+
+  describe('cancel and close', () => {
+    it('Cancel button calls onClose', () => {
+      renderDialog(true);
+
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+      fireEvent.click(cancelButton);
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('X button calls onClose', () => {
+      renderDialog(true);
+
+      const closeButton = screen.getByRole('button', { name: 'Close' });
+      fireEvent.click(closeButton);
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('Escape key calls onClose', () => {
+      renderDialog(true);
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'Escape' });
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('clicking backdrop calls onClose', () => {
+      renderDialog(true);
+
+      const backdrop = screen.getByTestId('dialog-backdrop');
+      fireEvent.click(backdrop);
+
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+      expect(mockOnCreate).not.toHaveBeenCalled();
+    });
+
+    it('clicking dialog content does not call onClose', () => {
+      renderDialog(true);
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.click(dialog);
+
+      expect(mockOnClose).not.toHaveBeenCalled();
+    });
+  });
 });
