@@ -1,5 +1,9 @@
 import { type Component, createEffect, createSignal, For, Show } from 'solid-js';
-import { validateDimensions, areDimensionsValid } from '../../domain/createNew/validation';
+import {
+  validateDimension,
+  validateDimensions,
+  areDimensionsValid,
+} from '../../domain/createNew/validation';
 import {
   CONTAINER_CLASSES,
   DEFAULT_CONFIG,
@@ -67,6 +71,20 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
     }
   };
 
+  const handleWidthBlur = () => {
+    const result = validateDimension(width(), 'Width');
+    if (!result.valid) {
+      setWidthError(result.error ?? 'Invalid width');
+    }
+  };
+
+  const handleHeightBlur = () => {
+    const result = validateDimension(height(), 'Height');
+    if (!result.valid) {
+      setHeightError(result.error ?? 'Invalid height');
+    }
+  };
+
   return (
     <Show when={props.isOpen}>
       <div
@@ -112,6 +130,7 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
                   setWidth(e.currentTarget.value);
                   setWidthError(null);
                 }}
+                onBlur={handleWidthBlur}
                 onKeyDown={handleKeyDown}
                 ref={widthInputRef}
               />
@@ -137,6 +156,7 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
                   setHeight(e.currentTarget.value);
                   setHeightError(null);
                 }}
+                onBlur={handleHeightBlur}
                 onKeyDown={handleKeyDown}
               />
               <Show when={heightError()}>

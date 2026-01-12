@@ -298,6 +298,26 @@ describe('CreateNewDialog', () => {
       expect(heightInput.max).toBe('10000');
     });
 
+    it('validates width on blur with invalid value', () => {
+      renderDialog(true);
+
+      const widthInput = screen.getByLabelText('Width');
+      fireEvent.input(widthInput, { target: { value: '-5' } });
+      fireEvent.blur(widthInput);
+
+      expect(screen.getByText('Must be at least 1')).toBeInTheDocument();
+    });
+
+    it('validates height on blur with invalid value', () => {
+      renderDialog(true);
+
+      const heightInput = screen.getByLabelText('Height');
+      fireEvent.input(heightInput, { target: { value: '50000' } });
+      fireEvent.blur(heightInput);
+
+      expect(screen.getByText('Must be at most 10000')).toBeInTheDocument();
+    });
+
     it('clears error when user types in field', () => {
       renderDialog(true);
 
