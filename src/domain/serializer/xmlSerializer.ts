@@ -115,7 +115,6 @@ export function serializeToXml(doc: VSTGUIUIDescription): string {
   }
 
   if (vstgui.templates && Object.keys(vstgui.templates).length > 0) {
-    lines.push('  <templates>');
     for (const [name, template] of Object.entries(vstgui.templates)) {
       const templateAttrs: string[] = [`name="${escapeXml(name)}"`];
       for (const [key, value] of Object.entries(template.attributes)) {
@@ -125,16 +124,15 @@ export function serializeToXml(doc: VSTGUIUIDescription): string {
       }
 
       if (template.children && Object.keys(template.children).length > 0) {
-        lines.push(`    <template ${templateAttrs.join(' ')}>`);
+        lines.push(`  <template ${templateAttrs.join(' ')}>`);
         for (const child of Object.values(template.children)) {
-          lines.push(serializeView(child as ViewNode, '      '));
+          lines.push(serializeView(child as ViewNode, '    '));
         }
-        lines.push('    </template>');
+        lines.push('  </template>');
       } else {
-        lines.push(`    <template ${templateAttrs.join(' ')}/>`);
+        lines.push(`  <template ${templateAttrs.join(' ')}/>`);
       }
     }
-    lines.push('  </templates>');
   }
 
   lines.push('</vstgui-ui-description>');
