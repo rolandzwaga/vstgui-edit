@@ -45,16 +45,14 @@ const COMPREHENSIVE_XML = `<?xml version="1.0" encoding="UTF-8"?>
     <variable name="windowHeight" value="600"/>
     <variable name="pluginName" value="MyPlugin"/>
   </variables>
-  <templates>
-    <template name="MainView" class="CViewContainer" origin="0, 0" size="800, 600" background-color="~Background">
-      <view class="CTextLabel" origin="10, 10" size="200, 30" title="Hello World" font="~MainFont"/>
-      <view class="CViewContainer" origin="10, 50" size="300, 200">
-        <view class="CKnob" origin="5, 5" size="50, 50" bitmap="knob"/>
-        <view class="CSlider" origin="60, 5" size="100, 20"/>
-      </view>
-    </template>
-    <template name="SettingsView" class="CViewContainer" origin="0, 0" size="400, 300"/>
-  </templates>
+  <template name="MainView" class="CViewContainer" origin="0, 0" size="800, 600" background-color="~Background">
+    <view class="CTextLabel" origin="10, 10" size="200, 30" title="Hello World" font="~MainFont"/>
+    <view class="CViewContainer" origin="10, 50" size="300, 200">
+      <view class="CKnob" origin="5, 5" size="50, 50" bitmap="knob"/>
+      <view class="CSlider" origin="60, 5" size="100, 20"/>
+    </view>
+  </template>
+  <template name="SettingsView" class="CViewContainer" origin="0, 0" size="400, 300"/>
 </vstgui-ui-description>`;
 
 describe('XML Round-Trip Serialization', () => {
@@ -167,9 +165,7 @@ describe('XML Round-Trip Serialization', () => {
   <colors>
     <color name="Test&amp;Color" rgba="#ff0000ff"/>
   </colors>
-  <templates>
-    <template name="View" class="CView" origin="0, 0" size="100, 100" title="Say &quot;Hello&quot;"/>
-  </templates>
+  <template name="View" class="CView" origin="0, 0" size="100, 100" title="Say &quot;Hello&quot;"/>
 </vstgui-ui-description>`;
 
     const originalDoc = parseXml(xmlWithSpecialChars);

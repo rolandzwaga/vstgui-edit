@@ -93,11 +93,9 @@ describe('serializeToXml', () => {
       });
       const result = serializeToXml(doc);
 
-      expect(result).toContain('<templates>');
       expect(result).toMatch(/<template name="MainView".*class="CViewContainer"/);
       expect(result).toMatch(/<template name="MainView".*origin="0, 0"/);
       expect(result).toMatch(/<template name="MainView".*size="400, 300"/);
-      expect(result).toContain('</templates>');
     });
 
     test('serializes nested children as view elements', () => {
