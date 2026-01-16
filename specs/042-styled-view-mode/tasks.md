@@ -246,7 +246,7 @@
 - [X] T071 [P] Update CLAUDE.md Recent Changes table with 042-styled-view-mode entry
 - [X] T072 Run all tests with npm test to verify complete test coverage
 - [X] T073 Verify mode toggle response time under 100ms (SC-008) - toggle is simple store update, well under 100ms
-- [ ] T074 **Commit**: Stage and commit Polish phase changes with message "docs(042): update CLAUDE.md with styled view mode documentation"
+- [X] T074 **Commit**: Stage and commit Polish phase changes with message "docs(042): update CLAUDE.md with styled view mode documentation"
 
 ---
 
@@ -256,10 +256,10 @@
 
 **CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
 
-- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
-- [ ] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
-- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
-- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+- [X] TQG-1 **CSS Linting**: Run `npm run lint:css` - Fix ALL errors and warnings
+- [X] TQG-2 **Code Quality**: Run `npm run check` - Fix ALL errors and warnings
+- [X] TQG-3 **Type Safety**: Run `npm run typecheck` - Fix ALL errors and warnings
+- [X] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
 
 **If Quality Gates Fail**:
 1. STOP - do not proceed to Git Verification
