@@ -21,14 +21,14 @@
 
 **Purpose**: Type definitions and store foundation that all user stories depend on
 
-- [ ] T001 Create type definitions in src/types/viewMode.ts (ViewMode, ResolvedColor, StyledViewProps, OverlayStyle, ViewModeState, constants)
-- [ ] T002 [P] Add CanvasPreferences interface to src/domain/preferences/types.ts with viewMode field
-- [ ] T003 [P] Add canvas section to DEFAULT_PREFERENCES in src/domain/preferences/defaults.ts
-- [ ] T004 [P] Update preferences schema in src/domain/preferences/schema.ts for canvas.viewMode validation
-- [ ] T005 Create viewModeStore in src/stores/viewModeStore.ts with setViewMode, toggleViewMode, resetViewModeStore, initializeViewMode
-- [ ] T006 Add setViewModePreference function to src/stores/preferencesStore.ts
-- [ ] T007 Update applyDefaultStatesOnDocumentLoad in src/stores/preferencesStore.ts to initialize viewMode
-- [ ] T008 **Commit**: Stage and commit Phase 1 changes with message "feat(042): add view mode types and store foundation"
+- [X] T001 Create type definitions in src/types/viewMode.ts (ViewMode, ResolvedColor, StyledViewProps, OverlayStyle, ViewModeState, constants)
+- [X] T002 [P] Add CanvasPreferences interface to src/domain/preferences/types.ts with viewMode field
+- [X] T003 [P] Add canvas section to DEFAULT_PREFERENCES in src/domain/preferences/defaults.ts
+- [X] T004 [P] Update preferences schema in src/domain/preferences/schema.ts for canvas.viewMode validation
+- [X] T005 Create viewModeStore in src/stores/viewModeStore.ts with setViewMode, toggleViewMode, resetViewModeStore, initializeViewMode
+- [X] T006 Add setViewModePreference function to src/stores/preferencesStore.ts
+- [X] T007 Update applyDefaultStatesOnDocumentLoad in src/stores/preferencesStore.ts to initialize viewMode
+- [X] T008 **Commit**: Stage and commit Phase 1 changes with message "feat(042): add view mode types and store foundation"
 
 ---
 
