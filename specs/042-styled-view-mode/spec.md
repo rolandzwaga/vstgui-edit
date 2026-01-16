@@ -125,7 +125,7 @@ As a plugin developer, I want child views to naturally obscure their parent's ba
 
 - What happens when a color reference exists in the view but the colors section is missing from the document? Falls back to wireframe style for that view.
 - How does system handle circular color references (ColorA references ColorB which references ColorA)? Treats as unresolved and falls back to wireframe.
-- What happens when frame-width is "0" or negative? Treat as no frame (no stroke rendered).
+- What happens when frame-width is "0" or negative? If frame-width is explicitly "0" or negative, treat as no frame (no stroke rendered). If frame-width is not specified, default to 1px.
 - How does system handle views with opacity attribute? Apply opacity to the entire view group in styled mode.
 - What happens when background-color is an empty string? Treat as undefined, fall back to wireframe.
 
