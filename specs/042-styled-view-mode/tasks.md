@@ -84,7 +84,7 @@
 - [X] T026 [US1] Create index export in src/components/ViewModeToolbar/index.ts
 - [X] T027 [US1] Add ViewModeToolbar to MainToolbar in src/components/MainToolbar/MainToolbar.tsx (after GridToolbar)
 - [X] T028 [US1] Add P shortcut handler to src/hooks/canvas/useCanvasKeyboard.ts (call toggleViewMode)
-- [ ] T029 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(042): add view mode toggle toolbar and P shortcut"
+- [X] T029 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(042): add view mode toggle toolbar and P shortcut"
 
 **Checkpoint**: User Story 1 complete - users can toggle modes via button or P key, preference persists
 
@@ -100,15 +100,15 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T030 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T031 [P] [US2] Write tests for ViewRectangle styled rendering in src/components/Canvas/__tests__/ViewRectangle.spec.tsx (styled mode with background-color, frame-color, frame-width, document color reference, predefined color reference)
+- [X] T030 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T031 [P] [US2] Write tests for ViewRectangle styled rendering in src/components/Canvas/__tests__/ViewRectangle.spec.tsx (styled mode with background-color, frame-color, frame-width, document color reference, predefined color reference)
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] Modify ViewRectangle props interface in src/components/Canvas/ViewRectangle.tsx to accept viewMode and styledProps
-- [ ] T033 [US2] Implement styled rendering in ViewRectangle (inline fill, stroke, stroke-width when styled mode + resolved colors)
-- [ ] T034 [US2] Add computed styled props to Canvas component in src/components/Canvas/Canvas.tsx (use buildStyledViewPropsMap, pass to ViewRectangle)
-- [ ] T035 [US2] Pass viewMode from viewModeStore to ViewRectangle in Canvas.tsx
+- [X] T032 [US2] Modify ViewRectangle props interface in src/components/Canvas/ViewRectangle.tsx to accept viewMode and styledProps
+- [X] T033 [US2] Implement styled rendering in ViewRectangle (inline fill, stroke, stroke-width when styled mode + resolved colors)
+- [X] T034 [US2] Add computed styled props to Canvas component in src/components/Canvas/Canvas.tsx (use buildStyledViewPropsMap, pass to ViewRectangle)
+- [X] T035 [US2] Pass viewMode from viewModeStore to ViewRectangle in Canvas.tsx
 - [ ] T036 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(042): render views with document colors in styled mode"
 
 **Checkpoint**: User Story 2 complete - views display actual colors in Styled mode

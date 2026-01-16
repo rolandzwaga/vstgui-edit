@@ -37,7 +37,7 @@ import { GuidesOverlay } from './Guides';
 import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
-  const { renderableViews, visibleViews, templateBounds, selectedViews, hoveredView, isEmpty } = useCanvasData();
+  const { renderableViews, visibleViews, templateBounds, selectedViews, hoveredView, isEmpty, styledViewPropsMap } = useCanvasData();
   const [canvasMousePosition, setCanvasMousePosition] = createSignal<{ x: number; y: number } | null>(null);
 
   const handleDelete = () => {
@@ -165,7 +165,13 @@ export const Canvas: Component = () => {
               {(bounds) => <TemplateBounds bounds={bounds()} />}
             </Show>
             <For each={visibleViews()}>
-              {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
+              {(view) => (
+                <ViewRectangle
+                  view={view}
+                  allViews={renderableViews()}
+                  styledProps={styledViewPropsMap().get(view.id)}
+                />
+              )}
             </For>
             <For each={selectedViews()}>
               {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}

@@ -1,6 +1,8 @@
 import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
+import type { StyledViewProps } from '../../types/viewMode';
 import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
+import { viewModeStore } from '../../stores/viewModeStore';
 import { isAncestorOfSelected } from '../../domain/canvas/ancestors';
 import styles from './Canvas.module.css';
 
@@ -11,6 +13,8 @@ export interface ViewRectangleProps {
   view: RenderableView;
   /** All views in the hierarchy for ancestor calculation */
   allViews?: RenderableView[];
+  /** Styled rendering props for styled mode */
+  styledProps?: StyledViewProps;
 }
 
 /**
@@ -76,6 +80,54 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     setHovered(null);
   };
 
+  /**
+   * Determines if styled rendering should be used.
+   * True when in styled mode AND styledProps are provided AND not using wireframe fallback.
+   */
+  const useStyledRendering = () => {
+    return (
+      viewModeStore.mode === 'styled' &&
+      props.styledProps !== undefined &&
+      !props.styledProps.useWireframeFallback
+    );
+  };
+
+  /**
+   * Gets the fill attribute for the rect.
+   * In styled mode, uses the resolved background color.
+   * In wireframe mode, returns undefined to let CSS handle it.
+   */
+  const getFill = () => {
+    if (useStyledRendering() && props.styledProps?.backgroundColor) {
+      return props.styledProps.backgroundColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the stroke attribute for the rect.
+   * In styled mode, uses the resolved frame color.
+   * In wireframe mode, returns undefined to let CSS handle it.
+   */
+  const getStroke = () => {
+    if (useStyledRendering() && props.styledProps?.frameColor) {
+      return props.styledProps.frameColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the stroke-width attribute for the rect.
+   * In styled mode, uses the frame width from styledProps.
+   * In wireframe mode, returns undefined to let CSS handle it.
+   */
+  const getStrokeWidth = () => {
+    if (useStyledRendering() && props.styledProps?.frameColor) {
+      return props.styledProps.frameWidth;
+    }
+    return undefined;
+  };
+
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
       <rect
@@ -85,6 +137,9 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
+        fill={getFill()}
+        stroke={getStroke()}
+        stroke-width={getStrokeWidth()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

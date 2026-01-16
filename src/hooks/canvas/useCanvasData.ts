@@ -1,12 +1,14 @@
 import { type Accessor, createMemo } from 'solid-js';
 import { parseSize } from '../../domain/canvas/coordinates';
 import { flattenHierarchy } from '../../domain/canvas/flattenHierarchy';
-import { documentStore, getParentId, getTemplate } from '../../stores/documentStore';
+import { buildStyledViewProps } from '../../domain/viewMode/styledViewProps';
+import { documentStore, getParentId, getTemplate, getView } from '../../stores/documentStore';
 import { isViewOrAncestorHidden } from '../../stores/lockHideStore';
 import { selectionStore } from '../../stores/selectionStore';
 import { templateStore } from '../../stores/templateStore';
 import type { RenderableView, TemplateBounds } from '../../types/canvas';
 import type { TemplateDefinition } from '../../types/uidesc';
+import type { StyledViewProps } from '../../types/viewMode';
 
 export interface UseCanvasDataResult {
   activeTemplate: Accessor<[string, TemplateDefinition] | null>;
@@ -16,6 +18,8 @@ export interface UseCanvasDataResult {
   selectedViews: Accessor<RenderableView[]>;
   hoveredView: Accessor<RenderableView | null>;
   isEmpty: Accessor<boolean>;
+  /** Map of view ID to styled props for styled mode rendering */
+  styledViewPropsMap: Accessor<Map<string, StyledViewProps>>;
 }
 
 export function useCanvasData(): UseCanvasDataResult {
@@ -78,6 +82,27 @@ export function useCanvasData(): UseCanvasDataResult {
     return renderableViews().find(v => v.id === hoveredId) ?? null;
   });
 
+  /**
+   * Computes styled view props for all visible views.
+   * Uses the document's colors definition for color resolution.
+   */
+  const styledViewPropsMap = createMemo((): Map<string, StyledViewProps> => {
+    const views = visibleViews();
+    const doc = documentStore.document;
+    const documentColors = doc?.['vstgui-ui-description']?.colors;
+    const map = new Map<string, StyledViewProps>();
+
+    for (const view of views) {
+      const viewNode = getView(view.id);
+      if (viewNode) {
+        const styledProps = buildStyledViewProps(viewNode.attributes, documentColors);
+        map.set(view.id, styledProps);
+      }
+    }
+
+    return map;
+  });
+
   return {
     activeTemplate,
     renderableViews,
@@ -86,5 +111,6 @@ export function useCanvasData(): UseCanvasDataResult {
     selectedViews,
     hoveredView,
     isEmpty,
+    styledViewPropsMap,
   };
 }

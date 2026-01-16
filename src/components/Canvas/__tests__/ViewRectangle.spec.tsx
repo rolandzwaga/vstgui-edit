@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@solidjs/testing-library';
 import { ViewRectangle } from '../ViewRectangle';
+import { resetViewModeStore, setViewMode } from '../../../stores/viewModeStore';
 import type { RenderableView } from '../../../types/canvas';
+import type { StyledViewProps } from '../../../types/viewMode';
 
 const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView => ({
   id: 'test-view',
@@ -299,6 +301,175 @@ describe('ViewRectangle', () => {
       const classAttr = rect?.getAttribute('class') ?? '';
 
       expect(classAttr).toMatch(/custom/i);
+    });
+  });
+
+  describe('Given styled mode rendering (US2 - document colors)', () => {
+    const createMockStyledProps = (
+      overrides: Partial<StyledViewProps> = {}
+    ): StyledViewProps => ({
+      backgroundColor: null,
+      frameColor: null,
+      frameWidth: 1,
+      isTransparent: false,
+      opacity: 1.0,
+      useWireframeFallback: true,
+      ...overrides,
+    });
+
+    beforeEach(() => {
+      resetViewModeStore();
+    });
+
+    afterEach(() => {
+      cleanup();
+    });
+
+    it('should render with inline fill when styled mode and background-color is provided', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'container' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#FF5500FF',
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      expect(rect).toHaveAttribute('fill', '#FF5500FF');
+    });
+
+    it('should render with inline stroke when styled mode and frame-color is provided', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'control' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#FFFFFFFF',
+        frameColor: '#000000FF',
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      expect(rect).toHaveAttribute('stroke', '#000000FF');
+    });
+
+    it('should render with inline stroke-width when styled mode and frame-width is provided', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'display' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#CCCCCCFF',
+        frameColor: '#333333FF',
+        frameWidth: 3,
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      expect(rect).toHaveAttribute('stroke-width', '3');
+    });
+
+    it('should use resolved hex color from document color reference', () => {
+      // The color resolution happens in the parent, we just verify it renders
+      setViewMode('styled');
+      const view = createMockView({ category: 'container' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#3366AAFF', // Resolved from document color "Primary"
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      expect(rect).toHaveAttribute('fill', '#3366AAFF');
+    });
+
+    it('should use resolved hex color from predefined color reference', () => {
+      // Resolved from predefined ~BlackCColor
+      setViewMode('styled');
+      const view = createMockView({ category: 'control' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#000000FF',
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      expect(rect).toHaveAttribute('fill', '#000000FF');
+    });
+
+    it('should NOT apply inline styles in wireframe mode even with styledProps', () => {
+      setViewMode('wireframe');
+      const view = createMockView({ category: 'container' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#FF5500FF',
+        frameColor: '#000000FF',
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // In wireframe mode, CSS classes control styling, not inline styles
+      expect(rect).not.toHaveAttribute('fill', '#FF5500FF');
+      expect(rect).not.toHaveAttribute('stroke', '#000000FF');
+    });
+
+    it('should work without styledProps (backward compatibility)', () => {
+      setViewMode('wireframe');
+      const view = createMockView({ category: 'control' });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // Should render normally with CSS classes
+      expect(rect).toBeInTheDocument();
+      const classAttr = rect?.getAttribute('class') ?? '';
+      expect(classAttr).toMatch(/control/i);
     });
   });
 });
