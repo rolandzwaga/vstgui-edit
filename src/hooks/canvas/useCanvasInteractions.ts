@@ -32,6 +32,7 @@ import {
   resizeStore,
   startResize,
   updateResize,
+  updateResizePreview,
 } from '../../stores/resizeStore';
 import {
   clearSelection,
@@ -139,6 +140,28 @@ export function useCanvasInteractions(
     );
 
     updateResize(canvasPoint, e.shiftKey, e.altKey);
+
+    // Apply snapping for preview if enabled (Alt disables snap)
+    const gridSnapEnabled = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey;
+    const guideSnapEnabled = guidesStore.isSnapEnabled && !e.altKey;
+
+    if (gridSnapEnabled || guideSnapEnabled) {
+      const handle = resizeStore.activeHandle;
+      if (handle) {
+        const threshold = getEffectiveThreshold(gridStore.snapThreshold, gridStore.size);
+        const snapResult = applySnapToResizeWithGuides(
+          resizeStore.newOrigin,
+          resizeStore.newSize,
+          handle,
+          gridStore.size,
+          guidesStore.guides,
+          threshold,
+          gridSnapEnabled,
+          guideSnapEnabled
+        );
+        updateResizePreview(snapResult.origin, snapResult.size);
+      }
+    }
   };
 
   const handleResizeUp = (e: MouseEvent) => {
@@ -204,8 +227,13 @@ export function useCanvasInteractions(
     const point = getHandlePosition(handle, view);
     const origin = { x: view.relativeX, y: view.relativeY };
     const size = { width: view.width, height: view.height };
+    // Calculate parent offset for absolute positioning of resize preview
+    const parentOffsetValue = {
+      x: view.absoluteX - view.relativeX,
+      y: view.absoluteY - view.relativeY,
+    };
 
-    startResize(handle, view.id, point, origin, size);
+    startResize(handle, view.id, point, origin, size, parentOffsetValue);
 
     document.addEventListener('mousemove', handleResizeMove);
     document.addEventListener('mouseup', handleResizeUp);

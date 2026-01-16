@@ -12,6 +12,8 @@ const [originalOrigin, setOriginalOrigin] = createSignal<Point | null>(null);
 const [originalSize, setOriginalSize] = createSignal<Size | null>(null);
 const [newOrigin, setNewOrigin] = createSignal<Point>({ x: 0, y: 0 });
 const [newSize, setNewSize] = createSignal<Size>({ width: 0, height: 0 });
+// Parent offset for calculating absolute position during resize preview
+const [parentOffset, setParentOffset] = createSignal<Point>({ x: 0, y: 0 });
 
 export const resizeStore = {
   get isResizing() {
@@ -41,6 +43,9 @@ export const resizeStore = {
   get newSize() {
     return newSize();
   },
+  get parentOffset() {
+    return parentOffset();
+  },
 };
 
 export function startResize(
@@ -48,7 +53,8 @@ export function startResize(
   targetViewId: string,
   point: Point,
   origin: Point,
-  size: Size
+  size: Size,
+  parentOffsetValue: Point = { x: 0, y: 0 }
 ): void {
   setIsResizing(true);
   setActiveHandle(handle);
@@ -59,6 +65,7 @@ export function startResize(
   setOriginalSize(size);
   setNewOrigin({ ...origin });
   setNewSize({ ...size });
+  setParentOffset(parentOffsetValue);
 }
 
 export function updateResize(point: Point, shiftHeld: boolean, altHeld: boolean): void {
@@ -101,6 +108,11 @@ export function cancelResize(): void {
   resetResize();
 }
 
+export function updateResizePreview(origin: Point, size: Size): void {
+  setNewOrigin(origin);
+  setNewSize(size);
+}
+
 export function resetResize(): void {
   setIsResizing(false);
   setActiveHandle(null);
@@ -111,4 +123,5 @@ export function resetResize(): void {
   setOriginalSize(null);
   setNewOrigin({ x: 0, y: 0 });
   setNewSize({ width: 0, height: 0 });
+  setParentOffset({ x: 0, y: 0 });
 }
