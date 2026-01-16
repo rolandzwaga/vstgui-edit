@@ -23,6 +23,7 @@ function generateUniqueColorName(existingColors: Record<string, string>): string
 }
 
 export const ColorsPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [pendingDelete, setPendingDelete] = createSignal<{ name: string; value: string; usageCount: number } | null>(null);
   const [usagePopover, setUsagePopover] = createSignal<{ name: string; usages: ColorUsage[] } | null>(null);
 
@@ -46,6 +47,14 @@ export const ColorsPanel: Component = () => {
 
     addColor(newName, defaultValue);
     pushOperation(createAddColorOperation(newName, defaultValue));
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const handleDeleteRequest = (name: string) => {
@@ -95,7 +104,7 @@ export const ColorsPanel: Component = () => {
         headerActions={<AddColorButton onClick={handleAddColor} disabled={!hasDocument()} />}
       >
         <Show when={hasColors()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Color definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Color definitions" class={styles.list}>
             <For each={colors()}>
               {(color) => (
                 <ColorItem

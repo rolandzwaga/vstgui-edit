@@ -27,6 +27,7 @@ import { EmptyState } from './EmptyState';
 import styles from './VariablesPanel.module.css';
 
 export const VariablesPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
     value: string;
@@ -67,6 +68,14 @@ export const VariablesPanel: Component = () => {
 
     addVariable(name, value);
     pushOperation(createAddVariableOperation(name, value));
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const handleDeleteRequest = (name: string) => {
@@ -116,7 +125,7 @@ export const VariablesPanel: Component = () => {
         headerActions={<AddVariableButton onClick={handleAddVariable} disabled={!hasDocument()} />}
       >
         <Show when={hasVariables()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Variable definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Variable definitions" class={styles.list}>
             <For each={variables()}>
               {(variable) => (
                 <VariableItem

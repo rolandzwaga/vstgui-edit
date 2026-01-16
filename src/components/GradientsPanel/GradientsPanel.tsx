@@ -45,6 +45,7 @@ const DEFAULT_GRADIENT_STOPS: GradientColorStop[] = [
 ];
 
 export const GradientsPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
     stops: GradientColorStop[];
@@ -86,6 +87,14 @@ export const GradientsPanel: Component = () => {
 
     addGradient(newName, DEFAULT_GRADIENT_STOPS);
     pushOperation(createAddGradientOperation(newName, DEFAULT_GRADIENT_STOPS));
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const handleRename = (oldName: string, newName: string) => {
@@ -149,7 +158,7 @@ export const GradientsPanel: Component = () => {
         headerActions={<AddGradientButton onClick={handleAddGradient} disabled={!hasDocument()} />}
       >
         <Show when={hasGradients()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Gradient definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Gradient definitions" class={styles.list}>
             <For each={gradients()}>
               {(item) => (
                 <GradientItem

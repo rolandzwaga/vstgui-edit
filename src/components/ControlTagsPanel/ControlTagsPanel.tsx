@@ -28,6 +28,7 @@ import { EmptyState } from './EmptyState';
 import styles from './ControlTagsPanel.module.css';
 
 export const ControlTagsPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [showAddDialog, setShowAddDialog] = createSignal(false);
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
@@ -74,6 +75,14 @@ export const ControlTagsPanel: Component = () => {
     addControlTag(name, tagId);
     pushOperation(createAddControlTagOperation(name, tagId));
     setShowAddDialog(false);
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const suggestedName = () => generateUniqueTagName(getControlTags() ?? {});
@@ -126,7 +135,7 @@ export const ControlTagsPanel: Component = () => {
         headerActions={<AddControlTagButton onClick={handleOpenAddDialog} disabled={!hasDocument()} />}
       >
         <Show when={hasControlTags()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Control tag definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Control tag definitions" class={styles.list}>
             <For each={controlTags()}>
               {(tag) => (
                 <ControlTagItem

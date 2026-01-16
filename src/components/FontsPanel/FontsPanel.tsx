@@ -36,6 +36,7 @@ function generateUniqueFontName(existingFonts: Record<string, FontDefinition>): 
 }
 
 export const FontsPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
     fontDef: FontDefinition;
@@ -79,6 +80,14 @@ export const FontsPanel: Component = () => {
 
     addFont(newName, defaultFont);
     pushOperation(createAddFontOperation(newName, defaultFont));
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const handleDeleteRequest = (name: string) => {
@@ -128,7 +137,7 @@ export const FontsPanel: Component = () => {
         headerActions={<AddFontButton onClick={handleAddFont} disabled={!hasDocument()} />}
       >
         <Show when={hasFonts()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Font definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Font definitions" class={styles.list}>
             <For each={fonts()}>
               {(font) => (
                 <FontItem

@@ -37,6 +37,7 @@ function generateUniqueBitmapName(existingBitmaps: Record<string, string | Bitma
 }
 
 export const BitmapsPanel: Component = () => {
+  let listRef: HTMLDivElement | undefined;
   const [pendingDelete, setPendingDelete] = createSignal<{
     name: string;
     bitmap: string | BitmapDefinition;
@@ -79,6 +80,14 @@ export const BitmapsPanel: Component = () => {
 
     addBitmap(newName, defaultBitmap);
     pushOperation(createAddBitmapOperation(newName, defaultBitmap));
+
+    // Scroll the new item into view after DOM updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const lastItem = listRef?.lastElementChild;
+        lastItem?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
   };
 
   const handleDeleteRequest = (name: string) => {
@@ -129,7 +138,7 @@ export const BitmapsPanel: Component = () => {
         headerActions={<AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />}
       >
         <Show when={hasBitmaps()} fallback={<EmptyState />}>
-          <div role="list" aria-label="Bitmap definitions" class={styles.list}>
+          <div ref={listRef} role="list" aria-label="Bitmap definitions" class={styles.list}>
             <For each={bitmaps()}>
               {(item) => (
                 <BitmapItem
