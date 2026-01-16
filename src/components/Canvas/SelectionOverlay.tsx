@@ -5,10 +5,13 @@
  * Handles are positioned at corners and edge midpoints.
  * Resize functionality is triggered via onResizeStart callback.
  * Shows lock indicator for locked views.
+ * Supports adaptive colors in styled mode based on background luminance.
  */
 import { Show, type Component } from 'solid-js';
 import { isLocked } from '../../stores/lockHideStore';
+import { viewModeStore } from '../../stores/viewModeStore';
 import type { RenderableView } from '../../types/canvas';
+import type { OverlayStyle } from '../../types/viewMode';
 import { HANDLE_CURSORS, HANDLE_SIZE, type HandlePosition } from '../../types/selection';
 import { LockIndicator } from './LockIndicator';
 import styles from './SelectionOverlay.module.css';
@@ -17,6 +20,8 @@ export interface SelectionOverlayProps {
   view: RenderableView;
   /** Callback when resize is initiated via handle mousedown */
   onResizeStart?: (handle: HandlePosition, view: RenderableView) => void;
+  /** Adaptive overlay style for styled mode */
+  overlayStyle?: OverlayStyle;
 }
 
 /**
@@ -41,10 +46,48 @@ const HANDLE_POSITIONS_CONFIG: Array<{
 /**
  * Renders selection overlay with border and resize handles.
  * For locked views, shows a lock indicator and hides resize handles.
+ * In styled mode, uses adaptive colors based on background luminance.
  */
 export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
   const handleRadius = HANDLE_SIZE / 2;
   const viewIsLocked = () => isLocked(props.view.id);
+
+  /**
+   * Checks if we should use styled mode adaptive colors.
+   */
+  const useAdaptiveColors = () => {
+    return viewModeStore.mode === 'styled' && props.overlayStyle !== undefined;
+  };
+
+  /**
+   * Gets the fill color for the selection border.
+   */
+  const getFill = () => {
+    if (useAdaptiveColors()) {
+      return props.overlayStyle!.fillColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the stroke color for the selection border.
+   */
+  const getStroke = () => {
+    if (useAdaptiveColors()) {
+      return props.overlayStyle!.strokeColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the fill opacity for the selection border.
+   */
+  const getFillOpacity = () => {
+    if (useAdaptiveColors()) {
+      return props.overlayStyle!.fillOpacity;
+    }
+    return undefined;
+  };
 
   return (
     <g
@@ -61,6 +104,9 @@ export const SelectionOverlay: Component<SelectionOverlayProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
+        fill={getFill()}
+        stroke={getStroke()}
+        fill-opacity={getFillOpacity()}
         aria-hidden="true"
       />
 

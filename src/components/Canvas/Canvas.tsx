@@ -13,6 +13,7 @@ import {
   createDeleteOperation,
   deleteSelectedViews,
 } from '../../domain/canvas/viewOperations';
+import { getAdaptiveOverlayStyle } from '../../domain/viewMode/luminance';
 import { useTooltip } from '../../hooks/useTooltip';
 import { canvasStore } from '../../stores/canvasStore';
 import { pushOperation } from '../../stores/historyStore';
@@ -174,7 +175,19 @@ export const Canvas: Component = () => {
               )}
             </For>
             <For each={selectedViews()}>
-              {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}
+              {(view) => {
+                const styledProps = styledViewPropsMap().get(view.id);
+                const overlayStyle = styledProps?.backgroundColor
+                  ? getAdaptiveOverlayStyle(styledProps.backgroundColor)
+                  : undefined;
+                return (
+                  <SelectionOverlay
+                    view={view}
+                    onResizeStart={handleResizeStart}
+                    overlayStyle={overlayStyle}
+                  />
+                );
+              }}
             </For>
             <DragPreview views={selectedViews()} />
             <ResizePreview />
