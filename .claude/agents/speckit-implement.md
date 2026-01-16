@@ -1,6 +1,7 @@
 ---
 name: speckit-implement
 color: green
+model: opus
 description: Implementation agent. Executes tasks from tasks.md by writing code. Follows the plan exactly without external research.
 tools:
   - Read
@@ -9,6 +10,7 @@ tools:
   - Bash
   - Glob
   - Grep
+skills: claude-file
 ---
 
 # Implementation Agent
