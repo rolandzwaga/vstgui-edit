@@ -24,10 +24,7 @@ export interface FitResult {
  * @param viewportSize - The size of the viewport
  * @returns FitResult with zoom level and pan offset at origin
  */
-export function calculateFitZoom(
-  templateSize: Size,
-  viewportSize: Size
-): FitResult {
+export function calculateFitZoom(templateSize: Size, viewportSize: Size): FitResult {
   // Handle edge cases with 0 dimensions
   if (
     templateSize.width <= 0 ||

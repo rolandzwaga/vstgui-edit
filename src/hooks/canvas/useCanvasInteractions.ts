@@ -142,7 +142,8 @@ export function useCanvasInteractions(
     updateResize(canvasPoint, e.shiftKey, e.altKey);
 
     // Apply snapping for preview if enabled (Alt disables snap, Shift disables for aspect ratio lock)
-    const gridSnapEnabled = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey && !e.shiftKey;
+    const gridSnapEnabled =
+      gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey && !e.shiftKey;
     const guideSnapEnabled = guidesStore.isSnapEnabled && !e.altKey && !e.shiftKey;
 
     if (gridSnapEnabled || guideSnapEnabled) {
@@ -178,7 +179,8 @@ export function useCanvasInteractions(
 
       if (originalOrigin && originalSize && handle) {
         // Disable snap when Shift is held (aspect ratio lock)
-        const gridSnapEnabled = gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey && !e.shiftKey;
+        const gridSnapEnabled =
+          gridStore.isSnapEnabled && gridStore.isVisible && !e.altKey && !e.shiftKey;
         const guideSnapEnabled = guidesStore.isSnapEnabled && !e.altKey && !e.shiftKey;
 
         if (gridSnapEnabled || guideSnapEnabled) {
