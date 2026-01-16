@@ -390,31 +390,32 @@ describe('canvasStore', () => {
       testInRoot(() => {
         resetCanvas();
         // Viewport: 800x600, Template: 1600x1200
-        // Expected zoom: ~0.45, centered pan
+        // Zoom: min(800/1600, 600/1200) = 0.5, pan at origin
         fitToView({ width: 800, height: 600 }, { width: 1600, height: 1200 });
-        expect(canvasStore.zoomLevel).toBeCloseTo(0.45, 2);
-        expect(canvasStore.panOffset.x).toBeCloseTo(40, 0);
-        expect(canvasStore.panOffset.y).toBeCloseTo(30, 0);
+        expect(canvasStore.zoomLevel).toBe(0.5);
+        expect(canvasStore.panOffset.x).toBe(0);
+        expect(canvasStore.panOffset.y).toBe(0);
       });
     });
 
-    test('caps zoom at 1.0 for small templates', () => {
+    test('zooms to fit small templates (no cap at 1.0)', () => {
       testInRoot(() => {
         resetCanvas();
         // Viewport: 800x600, Template: 100x100 (small)
+        // Zoom: min(800/100, 600/100) = 6
         fitToView({ width: 800, height: 600 }, { width: 100, height: 100 });
-        expect(canvasStore.zoomLevel).toBe(1.0);
+        expect(canvasStore.zoomLevel).toBe(6);
       });
     });
 
-    test('centers template in viewport', () => {
+    test('positions template at top-left origin', () => {
       testInRoot(() => {
         resetCanvas();
         // Viewport: 800x600, Template: 400x300
-        // zoom = 1.0 (capped), center: (800-400)/2 = 200, (600-300)/2 = 150
+        // Pan is always at origin (0, 0) for top-left anchored fit
         fitToView({ width: 800, height: 600 }, { width: 400, height: 300 });
-        expect(canvasStore.panOffset.x).toBe(200);
-        expect(canvasStore.panOffset.y).toBe(150);
+        expect(canvasStore.panOffset.x).toBe(0);
+        expect(canvasStore.panOffset.y).toBe(0);
       });
     });
 

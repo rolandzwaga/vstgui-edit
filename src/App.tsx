@@ -22,6 +22,7 @@ import {
   updateTheme,
   subscribeToSystemThemeChanges,
 } from './domain/theme';
+import { RULER_THICKNESS } from './domain/rulers';
 import { documentStore, getTemplate } from './stores/documentStore';
 import { undo, redo } from './stores/historyStore';
 import { setAppContainer } from './stores/appContainerStore';
@@ -113,8 +114,10 @@ export default function App() {
   });
 
   const handleFitToView = () => {
-    const viewportWidth = window.innerWidth - 64;
-    const viewportHeight = window.innerHeight - 200;
+    // Account for: left sidebar (240px) + right properties panel (280px) + ruler + padding
+    const viewportWidth = window.innerWidth - 240 - 280 - RULER_THICKNESS - 32 - 25;
+    // Account for: main toolbar (~48px) + ruler + padding
+    const viewportHeight = window.innerHeight - 48 - RULER_THICKNESS - 32;
 
     const activeId = templateStore.activeTemplateId;
     if (!activeId) return;

@@ -52,7 +52,7 @@ export const ZoomToolbar: Component<ZoomToolbarProps> = (props) => {
 
       <button
         type="button"
-        class={styles.button}
+        class={`${styles.button} ${styles.textButton}`}
         onClick={() => resetZoom()}
         aria-label="Reset zoom to 100%"
       >
@@ -61,7 +61,7 @@ export const ZoomToolbar: Component<ZoomToolbarProps> = (props) => {
 
       <button
         type="button"
-        class={styles.button}
+        class={`${styles.button} ${styles.textButton}`}
         onClick={() => props.onFitToView?.()}
         aria-label="Fit to view"
       >
