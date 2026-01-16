@@ -48,4 +48,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   save: {
     format: null, // Uses file's original format
   },
+
+  canvas: {
+    viewMode: 'wireframe',
+  },
 };

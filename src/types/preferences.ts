@@ -7,6 +7,7 @@
 export { DEFAULT_PREFERENCES } from '../domain/preferences/defaults';
 export type {
   AlignmentToolbarState,
+  CanvasPreferences,
   CustomGuidesPreferences,
   GridPreferences,
   // Preference Types
@@ -29,4 +30,5 @@ export type {
   ThemePreferences,
   UIPreferences,
   UserPreferences,
+  ViewMode,
 } from '../domain/preferences/types';
