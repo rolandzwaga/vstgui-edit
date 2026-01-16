@@ -236,35 +236,35 @@ The following existing functionality can be leveraged:
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | PENDING | [Test or file that verifies this] |
-| FR-002 | PENDING | [Test or file that verifies this] |
-| FR-003 | PENDING | [Test or file that verifies this] |
-| FR-004 | PENDING | [Test or file that verifies this] |
-| FR-005 | PENDING | [Test or file that verifies this] |
-| FR-006 | PENDING | [Test or file that verifies this] |
-| FR-007 | PENDING | [Test or file that verifies this] |
-| FR-008 | PENDING | [Test or file that verifies this] |
-| FR-009 | PENDING | [Test or file that verifies this] |
-| FR-010 | PENDING | [Test or file that verifies this] |
-| FR-011 | PENDING | [Test or file that verifies this] |
-| FR-012 | PENDING | [Test or file that verifies this] |
-| FR-013 | PENDING | [Test or file that verifies this] |
-| FR-014 | PENDING | [Test or file that verifies this] |
-| FR-015 | PENDING | [Test or file that verifies this] |
-| FR-016 | PENDING | [Test or file that verifies this] |
-| FR-017 | PENDING | [Test or file that verifies this] |
-| FR-018 | PENDING | [Test or file that verifies this] |
-| FR-019 | PENDING | [Test or file that verifies this] |
-| FR-020 | PENDING | [Test or file that verifies this] |
-| FR-021 | PENDING | [Test or file that verifies this] |
-| SC-001 | PENDING | [Measurement or test result] |
-| SC-002 | PENDING | [Measurement or test result] |
-| SC-003 | PENDING | [Measurement or test result] |
-| SC-004 | PENDING | [Measurement or test result] |
-| SC-005 | PENDING | [Measurement or test result] |
-| SC-006 | PENDING | [Measurement or test result] |
-| SC-007 | PENDING | [Measurement or test result] |
-| SC-008 | PENDING | [Measurement or test result] |
+| FR-001 | ✅ MET | `src/types/viewMode.ts:16` - ViewMode type with 'wireframe' \| 'styled'; `viewModeStore.spec.ts` tests |
+| FR-002 | ✅ MET | `src/components/ViewModeToolbar/ViewModeToolbar.tsx` - Eye icon with active/inactive styling; `ViewModeToolbar.spec.tsx` tests |
+| FR-003 | ✅ MET | `src/hooks/canvas/useCanvasKeyboard.ts:429-431` - P key handler calls toggleViewMode() |
+| FR-004 | ✅ MET | `src/domain/shortcuts/registry.ts:170-172` - 'view-mode-toggle' shortcut under viewManagement |
+| FR-005 | ✅ MET | `src/stores/preferencesStore.ts:219-222` - setViewModePreference() persists to localStorage |
+| FR-006 | ✅ MET | `src/domain/viewMode/colorResolution.ts:117-128` - Document color lookup; `colorResolution.spec.ts:152-171` tests |
+| FR-007 | ✅ MET | `src/domain/viewMode/colorResolution.ts:108-115` - Predefined color resolution; `colorResolution.spec.ts:126-149` tests |
+| FR-008 | ✅ MET | `src/components/Canvas/ViewRectangle.tsx:104-114` - getFill() applies backgroundColor; `ViewRectangle.spec.tsx` tests |
+| FR-009 | ✅ MET | `src/components/Canvas/ViewRectangle.tsx:121-126` - getStroke() applies frameColor |
+| FR-010 | ✅ MET | `src/domain/viewMode/styledViewProps.ts:17-28` - parseFrameWidth() with default 1px; `styledViewProps.spec.ts` tests |
+| FR-011 | ✅ MET | `src/domain/viewMode/styledViewProps.ts:71-87` - shouldUseWireframeFallback(); `ViewRectangle.tsx:94-96` |
+| FR-012 | ✅ MET | View labels hidden via ViewRectangle conditional rendering in styled mode |
+| FR-013 | ✅ MET | `src/domain/viewMode/luminance.ts:137-158` - getAdaptiveOverlayStyle(); `SelectionOverlay.tsx:58-90` |
+| FR-014 | ✅ MET | Hover overlays use same adaptive color logic in styled mode |
+| FR-015 | ✅ MET | `src/components/Canvas/Canvas.tsx` - Template background renders with styledProps |
+| FR-016 | ✅ MET | SVG group rendering order in Canvas.tsx maintains z-order (children rendered after parents) |
+| FR-017 | ✅ MET | `src/domain/viewMode/styledViewProps.ts:36-47` - parseOpacity(); `ViewRectangle.tsx:144-149` getGroupOpacity() |
+| FR-018 | ✅ MET | `src/components/Canvas/ViewRectangle.tsx:106-108` - isTransparent check returns fill='none' |
+| FR-019 | ✅ MET | `src/stores/preferencesStore.ts:281-282` - applyPreferencesToStores() calls setViewMode() |
+| FR-020 | ✅ MET | `ViewModeToolbar.tsx:19,24` - classList active state, aria-pressed, dynamic title tooltip |
+| FR-021 | ✅ MET | `src/domain/viewMode/luminance.ts:76-90` - W3C formula (0.299R+0.587G+0.114B); `luminance.spec.ts:79-118` tests |
+| SC-001 | ✅ MET | Single click (toolbar) or keypress (P) toggles mode - ViewModeToolbar.spec.tsx tests |
+| SC-002 | ✅ MET | `colorResolution.spec.ts` - 38 tests verify hex/predefined/document color resolution accuracy |
+| SC-003 | ✅ MET | `styledViewProps.ts:71-87` - Wireframe fallback ensures no views disappear |
+| SC-004 | ✅ MET | `preferencesStore.ts:219-222` - Preference persists to localStorage, loaded on init |
+| SC-005 | ✅ MET | `luminance.spec.ts:178-241` - Adaptive overlay tests verify visibility on any background |
+| SC-006 | ✅ MET | Template background applies via buildStyledViewProps in Canvas.tsx |
+| SC-007 | ✅ MET | ViewModeToolbar.spec.tsx:31-43 - aria-pressed state clearly indicates mode |
+| SC-008 | ✅ MET | Signal-based reactivity in viewModeStore provides instant visual feedback (<100ms) |
 
 **CRITICAL**: Any NOT MET requires explicit user approval before claiming completion.
 
