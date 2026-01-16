@@ -109,7 +109,7 @@
 - [X] T033 [US2] Implement styled rendering in ViewRectangle (inline fill, stroke, stroke-width when styled mode + resolved colors)
 - [X] T034 [US2] Add computed styled props to Canvas component in src/components/Canvas/Canvas.tsx (use buildStyledViewPropsMap, pass to ViewRectangle)
 - [X] T035 [US2] Pass viewMode from viewModeStore to ViewRectangle in Canvas.tsx
-- [ ] T036 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(042): render views with document colors in styled mode"
+- [X] T036 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat(042): render views with document colors in styled mode"
 
 **Checkpoint**: User Story 2 complete - views display actual colors in Styled mode
 
@@ -125,15 +125,15 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T037 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T038 [P] [US3] Write tests for wireframe fallback in src/components/Canvas/__tests__/ViewRectangle.spec.tsx (no background-color uses wireframe, unresolvable reference uses wireframe, transparent view has no fill, frame-width applied even in wireframe fallback)
+- [X] T037 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T038 [P] [US3] Write tests for wireframe fallback in src/components/Canvas/__tests__/ViewRectangle.spec.tsx (no background-color uses wireframe, unresolvable reference uses wireframe, transparent view has no fill, frame-width applied even in wireframe fallback)
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement wireframe fallback logic in ViewRectangle (useWireframeFallback renders category-colored outline)
-- [ ] T040 [US3] Handle transparent="true" views in ViewRectangle (fill: none, allow background show-through)
-- [ ] T041 [US3] Apply frame-width from uidesc even for wireframe fallback views
-- [ ] T042 [US3] Handle view opacity attribute in ViewRectangle (CSS opacity on group element)
+- [X] T039 [US3] Implement wireframe fallback logic in ViewRectangle (useWireframeFallback renders category-colored outline)
+- [X] T040 [US3] Handle transparent="true" views in ViewRectangle (fill: none, allow background show-through)
+- [X] T041 [US3] Apply frame-width from uidesc even for wireframe fallback views
+- [X] T042 [US3] Handle view opacity attribute in ViewRectangle (CSS opacity on group element)
 - [ ] T043 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat(042): add wireframe fallback for unstyled views"
 
 **Checkpoint**: User Story 3 complete - all views visible regardless of color definition

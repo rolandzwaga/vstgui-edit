@@ -472,4 +472,158 @@ describe('ViewRectangle', () => {
       expect(classAttr).toMatch(/control/i);
     });
   });
+
+  describe('Given wireframe fallback rendering (US3 - fallback for unstyled views)', () => {
+    const createMockStyledProps = (
+      overrides: Partial<StyledViewProps> = {}
+    ): StyledViewProps => ({
+      backgroundColor: null,
+      frameColor: null,
+      frameWidth: 1,
+      isTransparent: false,
+      opacity: 1.0,
+      useWireframeFallback: true,
+      ...overrides,
+    });
+
+    beforeEach(() => {
+      resetViewModeStore();
+    });
+
+    afterEach(() => {
+      cleanup();
+    });
+
+    it('should use wireframe CSS styling when no background-color is defined', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'container' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: null, // No background color
+        useWireframeFallback: true,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // Should NOT have inline fill when using wireframe fallback
+      expect(rect).not.toHaveAttribute('fill');
+      // Should have CSS class for category-colored wireframe
+      const classAttr = rect?.getAttribute('class') ?? '';
+      expect(classAttr).toMatch(/container/i);
+    });
+
+    it('should use wireframe when unresolvable color reference', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'control' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: null, // Unresolved reference becomes null
+        useWireframeFallback: true,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // Wireframe fallback - no inline fill
+      expect(rect).not.toHaveAttribute('fill');
+      const classAttr = rect?.getAttribute('class') ?? '';
+      expect(classAttr).toMatch(/control/i);
+    });
+
+    it('should render transparent view with fill none', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'display' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: null,
+        isTransparent: true,
+        useWireframeFallback: false, // Transparent views don't use wireframe fallback
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // Transparent view should have fill: none
+      expect(rect).toHaveAttribute('fill', 'none');
+    });
+
+    it('should apply frame-color even in wireframe fallback', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'container' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: null,
+        frameColor: '#FF0000FF', // Frame color IS defined
+        frameWidth: 2,
+        useWireframeFallback: true,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      const rect = group.querySelector('rect');
+
+      // Should still apply frame color from uidesc
+      expect(rect).toHaveAttribute('stroke', '#FF0000FF');
+      expect(rect).toHaveAttribute('stroke-width', '2');
+    });
+
+    it('should apply group opacity when opacity is specified', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'control' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#FFFFFFFF',
+        opacity: 0.5,
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      expect(group).toHaveAttribute('opacity', '0.5');
+    });
+
+    it('should NOT apply opacity attribute when opacity is 1.0 (default)', () => {
+      setViewMode('styled');
+      const view = createMockView({ category: 'control' });
+      const styledProps = createMockStyledProps({
+        backgroundColor: '#FFFFFFFF',
+        opacity: 1.0,
+        useWireframeFallback: false,
+      });
+
+      render(() => (
+        <svg>
+          <ViewRectangle view={view} styledProps={styledProps} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('view-test-view');
+      // Default opacity should not add the attribute
+      expect(group).not.toHaveAttribute('opacity');
+    });
+  });
 });

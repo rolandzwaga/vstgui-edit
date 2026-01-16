@@ -81,23 +81,32 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   };
 
   /**
-   * Determines if styled rendering should be used.
+   * Checks if we're in styled mode with styledProps available.
+   */
+  const isInStyledMode = () => {
+    return viewModeStore.mode === 'styled' && props.styledProps !== undefined;
+  };
+
+  /**
+   * Determines if styled rendering should be used for fill.
    * True when in styled mode AND styledProps are provided AND not using wireframe fallback.
    */
   const useStyledRendering = () => {
-    return (
-      viewModeStore.mode === 'styled' &&
-      props.styledProps !== undefined &&
-      !props.styledProps.useWireframeFallback
-    );
+    return isInStyledMode() && !props.styledProps!.useWireframeFallback;
   };
 
   /**
    * Gets the fill attribute for the rect.
-   * In styled mode, uses the resolved background color.
-   * In wireframe mode, returns undefined to let CSS handle it.
+   * - Transparent views: fill = 'none'
+   * - Styled rendering: uses resolved background color
+   * - Wireframe mode/fallback: undefined (CSS handles it)
    */
   const getFill = () => {
+    // Check for transparent views first
+    if (isInStyledMode() && props.styledProps?.isTransparent) {
+      return 'none';
+    }
+
     if (useStyledRendering() && props.styledProps?.backgroundColor) {
       return props.styledProps.backgroundColor;
     }
@@ -106,11 +115,11 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
   /**
    * Gets the stroke attribute for the rect.
-   * In styled mode, uses the resolved frame color.
+   * In styled mode, uses the resolved frame color (even for wireframe fallback).
    * In wireframe mode, returns undefined to let CSS handle it.
    */
   const getStroke = () => {
-    if (useStyledRendering() && props.styledProps?.frameColor) {
+    if (isInStyledMode() && props.styledProps?.frameColor) {
       return props.styledProps.frameColor;
     }
     return undefined;
@@ -118,18 +127,29 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
   /**
    * Gets the stroke-width attribute for the rect.
-   * In styled mode, uses the frame width from styledProps.
+   * In styled mode, uses the frame width from styledProps (even for wireframe fallback).
    * In wireframe mode, returns undefined to let CSS handle it.
    */
   const getStrokeWidth = () => {
-    if (useStyledRendering() && props.styledProps?.frameColor) {
+    if (isInStyledMode() && props.styledProps?.frameColor) {
       return props.styledProps.frameWidth;
     }
     return undefined;
   };
 
+  /**
+   * Gets the opacity attribute for the group element.
+   * Only applies when opacity is not 1.0 (to avoid cluttering the DOM).
+   */
+  const getGroupOpacity = () => {
+    if (isInStyledMode() && props.styledProps?.opacity !== undefined && props.styledProps.opacity < 1.0) {
+      return props.styledProps.opacity;
+    }
+    return undefined;
+  };
+
   return (
-    <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
+    <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id} opacity={getGroupOpacity()}>
       <rect
         data-testid={`view-rect-${props.view.id}`}
         class={rectClass()}
