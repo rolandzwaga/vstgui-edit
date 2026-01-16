@@ -153,10 +153,21 @@ export const AdvancedColorPicker: Component<AdvancedColorPickerProps> = (props) 
     return rgbaToHex(color.r, color.g, color.b, color.a);
   });
 
-  // Check if value is a hex color (for display)
-  const isHexValue = createMemo(() => {
+  // Check if value can be resolved to a color (hex, document color, or predefined)
+  const hasResolvedColor = createMemo(() => {
     const val = props.value;
-    return val && (val.startsWith('#') || /^[0-9A-Fa-f]{6,8}$/.test(val));
+    if (!val) return false;
+
+    // Hex color
+    if (val.startsWith('#') || /^[0-9A-Fa-f]{6,8}$/.test(val)) return true;
+
+    // Predefined color ref
+    if (isPredefinedColorRef(val)) return true;
+
+    // Document color
+    if (props.documentColorValues && props.documentColorValues[val]) return true;
+
+    return false;
   });
 
   // === Level 1: Simple Dropdown Handlers ===
@@ -277,7 +288,7 @@ export const AdvancedColorPicker: Component<AdvancedColorPickerProps> = (props) 
         aria-haspopup="listbox"
         data-testid="color-picker-trigger"
       >
-        <Show when={isHexValue()}>
+        <Show when={hasResolvedColor()}>
           <span
             class={styles.dropdownTriggerSwatch}
             style={{ 'background-color': swatchColor() }}
