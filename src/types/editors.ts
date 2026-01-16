@@ -12,6 +12,7 @@ export type EditorType =
   | 'number' // Numeric input with optional range
   | 'boolean' // Checkbox toggle
   | 'enum' // Dropdown with fixed options
+  | 'autosize' // Visual anchor diagram for autosize flags
   | 'color' // Color picker (document resources + hex)
   | 'font' // Font picker (document resources)
   | 'bitmap' // Bitmap picker (document resources)

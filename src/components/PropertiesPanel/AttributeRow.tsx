@@ -12,6 +12,7 @@ import { ColorPicker } from '../editors/ColorPicker/';
 import { FontPicker } from '../editors/FontPicker';
 import { BitmapPicker } from '../editors/BitmapPicker';
 import { ControlTagPicker } from '../editors/ControlTagPicker';
+import { AutosizeEditor } from '../editors/AutosizeEditor';
 import styles from './AttributeRow.module.css';
 
 export interface AttributeRowProps {
@@ -47,6 +48,7 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
   const isBitmapType = () => editorType() === 'bitmap';
   const isGradientType = () => editorType() === 'gradient';
   const isControlTagType = () => editorType() === 'control-tag';
+  const isAutosizeType = () => editorType() === 'autosize';
   const canEdit = () => props.editable && !isReadonly();
   const canInlineEdit = () => isTextType() || isPointType() || isNumberType() || isGradientType();
 
@@ -173,6 +175,42 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
     props.onValueCommit?.(props.entry.name, newValue, original);
   };
 
+  // Track autosize editing session: original value and pending (uncommitted) value
+  const [autosizeOriginalValue, setAutosizeOriginalValue] = createSignal<string | null>(null);
+  const [autosizePendingValue, setAutosizePendingValue] = createSignal<string | null>(null);
+
+  const handleAutosizeChange = (newValue: string) => {
+    // Capture original value on first change in an editing session
+    if (autosizeOriginalValue() === null) {
+      setAutosizeOriginalValue(props.entry.value ?? '');
+    }
+    // Track the pending value (what we'll commit)
+    setAutosizePendingValue(newValue);
+    // Live preview - just update the value, don't commit yet
+    props.onValueChange?.(props.entry.name, newValue);
+  };
+
+  const handleAutosizeCommit = () => {
+    // Commit on explicit user action (Done button or click outside)
+    const original = props.entry.isMixed ? '__MIXED__' : (autosizeOriginalValue() ?? props.entry.value ?? '');
+    const currentValue = autosizePendingValue() ?? props.entry.value ?? '';
+    props.onValueCommit?.(props.entry.name, currentValue, original);
+    // Reset for next editing session
+    setAutosizeOriginalValue(null);
+    setAutosizePendingValue(null);
+  };
+
+  const handleAutosizeCancel = () => {
+    // Revert to original value
+    const original = autosizeOriginalValue();
+    if (original !== null) {
+      props.onValueChange?.(props.entry.name, original);
+    }
+    // Reset for next editing session
+    setAutosizeOriginalValue(null);
+    setAutosizePendingValue(null);
+  };
+
   const handleCancel = () => {
     setEditValue(originalValue());
     // No need to call onValueChange - we only propagate on commit now
@@ -273,6 +311,19 @@ export const AttributeRow: Component<AttributeRowProps> = (props) => {
               onCommit={() => {}}
               onCancel={() => {}}
               disabled={!props.editable}
+            />
+          </div>
+        </Match>
+        <Match when={isAutosizeType() && canEdit()}>
+          <div class={styles.editorContainer}>
+            <AutosizeEditor
+              value={props.entry.value ?? ''}
+              onChange={handleAutosizeChange}
+              onCommit={handleAutosizeCommit}
+              onCancel={handleAutosizeCancel}
+              disabled={!props.editable}
+              placeholder={props.entry.isMixed ? 'Mixed' : undefined}
+              attributeName={props.entry.name}
             />
           </div>
         </Match>

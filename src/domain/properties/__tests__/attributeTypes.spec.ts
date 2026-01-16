@@ -55,9 +55,9 @@ describe('attributeTypes', () => {
       });
     });
 
-    test('autosize has flags for multi-select', () => {
+    test('autosize has autosize editor type with flags', () => {
       expect(ATTRIBUTE_TYPE_MAP['autosize']).toEqual({
-        editorType: 'enum',
+        editorType: 'autosize',
         flags: ['left', 'right', 'top', 'bottom', 'row', 'column'],
       });
     });

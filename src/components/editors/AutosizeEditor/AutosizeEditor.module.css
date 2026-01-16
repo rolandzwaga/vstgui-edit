@@ -1,0 +1,229 @@
+/**
+ * AutosizeEditor Component Styles
+ *
+ * Visual anchor diagram editor for the VSTGUI autosize property.
+ */
+
+/* =============================================================================
+   Wrapper Container
+   ============================================================================= */
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* =============================================================================
+   Trigger Button
+   ============================================================================= */
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--color-neutral-400);
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.trigger.error {
+  border-color: var(--color-error);
+}
+
+.value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
+.indicator {
+  margin-left: 4px;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   Dropdown Container
+   ============================================================================= */
+
+.dropdown {
+  min-width: 140px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+/* =============================================================================
+   Visual Diagram
+   ============================================================================= */
+
+.diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.edgeRow {
+  display: flex;
+  justify-content: center;
+}
+
+.middleRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Central reference rectangle */
+.rectangle {
+  width: 48px;
+  height: 32px;
+  border: 2px dashed var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface-secondary);
+}
+
+/* =============================================================================
+   Edge Buttons (L/R/T/B)
+   ============================================================================= */
+
+.edgeButton {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-family-base);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.edgeButton:hover {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.edgeButton:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.edgeButton.active {
+  background: var(--color-primary-500);
+  color: var(--color-text-on-primary);
+  border-color: var(--color-primary-600);
+}
+
+.edgeButton.active:hover {
+  background: var(--color-primary-600);
+}
+
+/* =============================================================================
+   Stretch Group (Row/Column)
+   ============================================================================= */
+
+.stretchGroup {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.stretchButton {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stretchButton:hover {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.stretchButton:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+.stretchButton.active {
+  background: var(--color-primary-500);
+  color: var(--color-text-on-primary);
+  border-color: var(--color-primary-600);
+}
+
+.stretchButton.active:hover {
+  background: var(--color-primary-600);
+}
+
+/* =============================================================================
+   Done Button
+   ============================================================================= */
+
+.doneButton {
+  width: 100%;
+  margin-top: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-family-base);
+  border: 1px solid var(--color-primary-500);
+  border-radius: 4px;
+  background: var(--color-primary-500);
+  color: var(--color-text-on-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.doneButton:hover {
+  background: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+}
+
+.doneButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}

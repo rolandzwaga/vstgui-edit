@@ -116,6 +116,8 @@ function mapRefToEditorType(ref: string): EditorType {
       return 'number';
     case 'gradientDefinition':
       return 'gradient';
+    case 'autosizeValue':
+      return 'autosize';
     default:
       return 'text';
   }

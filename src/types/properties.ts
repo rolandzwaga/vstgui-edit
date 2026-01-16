@@ -4,6 +4,7 @@ export type EditorType =
   | 'boolean'
   | 'number'
   | 'enum'
+  | 'autosize'
   | 'font'
   | 'bitmap'
   | 'gradient'

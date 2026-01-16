@@ -62,9 +62,9 @@ export const ATTRIBUTE_TYPE_MAP: Record<string, AttributeTypeConfig> = {
     options: ['clip', 'truncate', 'wrap'],
   },
 
-  // Autosize (multi-flag enum)
+  // Autosize (visual anchor diagram)
   autosize: {
-    editorType: 'enum',
+    editorType: 'autosize',
     flags: ['left', 'right', 'top', 'bottom', 'row', 'column'],
   },
 
