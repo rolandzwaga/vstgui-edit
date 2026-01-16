@@ -66,7 +66,8 @@ export function useCanvasData(): UseCanvasDataResult {
   const selectedViews = createMemo((): RenderableView[] => {
     const views = renderableViews();
     const selectedIds = selectionStore.selectedIds;
-    return views.filter(view => selectedIds.has(view.id));
+    // Filter out hidden views - they shouldn't show selection overlay
+    return views.filter(view => selectedIds.has(view.id) && !isViewOrAncestorHidden(view.id, getParentId));
   });
 
   const hoveredView = createMemo((): RenderableView | null => {

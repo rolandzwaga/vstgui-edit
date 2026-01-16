@@ -2,7 +2,7 @@
  * Zoom utilities for canvas navigation.
  *
  * Provides constants and functions for calculating zoom levels
- * with cursor-centered zooming behavior.
+ * with top-left anchored zooming behavior.
  */
 import type { Point } from '../../types/canvas';
 
@@ -45,33 +45,24 @@ export function formatZoomPercent(zoom: number): string {
 }
 
 /**
- * Calculates the pan offset adjustment needed to keep the cursor point
- * stationary when zooming.
+ * Calculates the pan offset adjustment needed when zooming.
  *
- * Algorithm:
- * 1. Get cursor position relative to canvas wrapper
- * 2. Calculate canvas-space point under cursor at old zoom
- * 3. Calculate new pan offset to keep same point under cursor at new zoom
+ * Uses top-left anchored zoom: the canvas origin (0,0) stays at the same
+ * screen position. Since screen position of (0,0) = panOffset, no adjustment
+ * is needed - we simply return the current pan unchanged.
+ *
+ * Note: Parameters are kept for API compatibility, allowing easy switch
+ * back to cursor-centered zoom if needed.
  */
 export function calculateZoomPanAdjustment(
-  cursorX: number,
-  cursorY: number,
-  wrapperRect: DOMRect,
+  _cursorX: number,
+  _cursorY: number,
+  _wrapperRect: DOMRect,
   currentPan: Point,
-  oldZoom: number,
-  newZoom: number
+  _oldZoom: number,
+  _newZoom: number
 ): Point {
-  // Cursor position relative to wrapper origin
-  const relX = cursorX - wrapperRect.left;
-  const relY = cursorY - wrapperRect.top;
-
-  // Canvas-space point under cursor (before zoom)
-  const canvasX = (relX - currentPan.x) / oldZoom;
-  const canvasY = (relY - currentPan.y) / oldZoom;
-
-  // New pan offset to keep same canvas point under cursor
-  const newPanX = relX - canvasX * newZoom;
-  const newPanY = relY - canvasY * newZoom;
-
-  return { x: newPanX, y: newPanY };
+  // Top-left anchored zoom: canvas origin (0,0) stays at same screen position
+  // Screen position of (0,0) = currentPan, so no adjustment needed
+  return { x: currentPan.x, y: currentPan.y };
 }

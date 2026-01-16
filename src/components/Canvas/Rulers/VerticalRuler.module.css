@@ -45,11 +45,12 @@
 
 .label {
   position: absolute;
-  left: 12px;
+  right: 2px;
   font-size: var(--ruler-font-size);
   font-family: var(--font-family-mono);
   color: var(--ruler-label-color);
-  transform: translateY(-50%);
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: right center;
   white-space: nowrap;
   line-height: 1;
 }

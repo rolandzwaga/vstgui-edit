@@ -3,10 +3,20 @@
  * Styles for the uidesc visual editor canvas
  */
 
+/* Canvas viewport - fills available space to capture wheel events */
+.canvasViewport {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--color-canvas-background);
+}
+
 /* Canvas wrapper - dimensions set inline to match template bounds */
 .canvasWrapper {
   background-color: var(--color-canvas-background);
   outline: none; /* Remove default focus outline, canvas uses cursor feedback instead */
+  transform-origin: 0 0; /* Scale from top-left corner for top-left anchored zoom */
 }
 
 /* Canvas SVG - renders at actual pixel dimensions */

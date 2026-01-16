@@ -1,4 +1,4 @@
-import { type Component, For, Show } from 'solid-js';
+import { type Component, For, Show, createSignal } from 'solid-js';
 import { FontAwesomeIcon } from 'solid-fontawesome';
 import {
   createMultiReorderOperation,
@@ -7,7 +7,13 @@ import {
 import { getParentId, reparentView, reorderView } from '../../stores/documentStore';
 import { isExpanded, toggleExpanded } from '../../stores/hierarchyStore';
 import { pushOperation } from '../../stores/historyStore';
-import { isHidden, isLocked } from '../../stores/lockHideStore';
+import {
+  isHidden,
+  isLocked,
+  lockSelectedWithHistory,
+  toggleHideSelectedWithHistory,
+  unlockSelectedWithHistory,
+} from '../../stores/lockHideStore';
 import { isSelected, select, selectionStore, toggleSelect } from '../../stores/selectionStore';
 import type { TreeNode as TreeNodeType } from '../../types/hierarchy';
 import { useHierarchyDragContext } from './HierarchyDragContext';
@@ -22,6 +28,7 @@ export interface TreeNodeProps {
 
 export const TreeNode: Component<TreeNodeProps> = (props) => {
   const { state: dragState, actions: dragActions } = useHierarchyDragContext();
+  const [isHovered, setIsHovered] = createSignal(false);
 
   const indentPx = () => props.node.depth * INDENT_SIZE;
   const expanded = () => isExpanded(props.node.id);
@@ -29,6 +36,9 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   const iconName = () => CATEGORY_ICON_NAMES[props.node.category];
   const viewIsLocked = () => isLocked(props.node.id);
   const viewIsHidden = () => isHidden(props.node.id);
+
+  // Show action buttons on hover or when item has active state
+  const showActionButtons = () => isHovered() || viewIsLocked() || viewIsHidden();
 
   const isDragging = () => dragState.isDragging && dragState.draggedIds.includes(props.node.id);
   const isDropTarget = () => dragState.dropTargetId === props.node.id;
@@ -105,6 +115,20 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
   const handleDragLeave = () => {
     if (dragState.dropTargetId === props.node.id) {
       dragActions.updateDropTarget(null, null);
+    }
+  };
+
+  const handleToggleHide = (e: MouseEvent) => {
+    e.stopPropagation();
+    toggleHideSelectedWithHistory(new Set([props.node.id]));
+  };
+
+  const handleToggleLock = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (viewIsLocked()) {
+      unlockSelectedWithHistory(new Set([props.node.id]));
+    } else {
+      lockSelectedWithHistory(new Set([props.node.id]));
     }
   };
 
@@ -235,6 +259,8 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
         style={{ 'padding-left': `${indentPx()}px` }}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
@@ -260,25 +286,31 @@ export const TreeNode: Component<TreeNodeProps> = (props) => {
           <FontAwesomeIcon icon={iconName()} />
         </span>
         <span class={styles.label}>{props.node.label}</span>
-        <span class={styles.statusIcons}>
-          <Show when={viewIsLocked()}>
-            <span
-              class={styles.lockIcon}
-              data-testid={`lock-indicator-${props.node.id}`}
-              title="Locked"
-            >
-              <FontAwesomeIcon icon="lock" />
-            </span>
-          </Show>
-          <Show when={viewIsHidden()}>
-            <span
-              class={styles.hideIcon}
-              data-testid={`hide-indicator-${props.node.id}`}
-              title="Hidden"
-            >
-              <FontAwesomeIcon icon="eye-slash" />
-            </span>
-          </Show>
+        <span
+          class={`${styles.actionButtons} ${showActionButtons() ? styles.visible : ''}`}
+        >
+          <button
+            type="button"
+            class={`${styles.actionButton} ${styles.hideButton} ${viewIsHidden() ? styles.active : ''}`}
+            data-testid={`hide-button-${props.node.id}`}
+            title={viewIsHidden() ? 'Show view' : 'Hide view'}
+            aria-label={viewIsHidden() ? 'Show view' : 'Hide view'}
+            aria-pressed={viewIsHidden()}
+            onClick={handleToggleHide}
+          >
+            <FontAwesomeIcon icon={viewIsHidden() ? 'eye-slash' : 'eye'} />
+          </button>
+          <button
+            type="button"
+            class={`${styles.actionButton} ${styles.lockButton} ${viewIsLocked() ? styles.active : ''}`}
+            data-testid={`lock-button-${props.node.id}`}
+            title={viewIsLocked() ? 'Unlock view' : 'Lock view'}
+            aria-label={viewIsLocked() ? 'Unlock view' : 'Lock view'}
+            aria-pressed={viewIsLocked()}
+            onClick={handleToggleLock}
+          >
+            <FontAwesomeIcon icon={viewIsLocked() ? 'lock' : 'lock-open'} />
+          </button>
         </span>
       </div>
       <Show when={props.node.hasChildren && expanded()}>

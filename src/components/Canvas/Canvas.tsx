@@ -103,7 +103,7 @@ export const Canvas: Component = () => {
 
   return (
     <Show when={!isEmpty()} fallback={<EmptyState />}>
-      <div>
+      <div class={styles.canvasViewport} onWheel={handleWheel}>
         <div
           ref={(el) => {
             wrapperRef(el);
@@ -139,7 +139,6 @@ export const Canvas: Component = () => {
           onMouseDown={handlePanMouseDown}
           onMouseMove={handleCanvasMouseMove}
           onMouseLeave={handleCanvasMouseLeave}
-          onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           onContextMenu={handleContextMenu}
           onDragOver={handleDragOver}

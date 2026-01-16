@@ -102,9 +102,12 @@ describe('calculateZoomPanAdjustment', () => {
     toJSON: () => ({}),
   });
 
-  test('keeps cursor point stationary when zooming in at center', () => {
+  // Top-left anchored zoom: pan offset stays unchanged regardless of cursor position
+  // This keeps the canvas origin (0,0) at the same screen position during zoom
+
+  test('returns current pan unchanged when zooming in', () => {
     const wrapperRect = createMockRect(0, 0, 800, 600);
-    const cursorX = 400; // center
+    const cursorX = 400;
     const cursorY = 300;
     const currentPan = { x: 0, y: 0 };
     const oldZoom = 1.0;
@@ -112,15 +115,12 @@ describe('calculateZoomPanAdjustment', () => {
 
     const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
 
-    // Canvas point under cursor before: (400, 300)
-    // After zoom to 2x, to keep same canvas point under cursor:
-    // newPan.x = 400 - 400 * 2 = -400
-    // newPan.y = 300 - 300 * 2 = -300
-    expect(newPan.x).toBeCloseTo(-400);
-    expect(newPan.y).toBeCloseTo(-300);
+    // Top-left anchored: pan stays the same
+    expect(newPan.x).toBe(0);
+    expect(newPan.y).toBe(0);
   });
 
-  test('keeps cursor point stationary when zooming out', () => {
+  test('returns current pan unchanged when zooming out', () => {
     const wrapperRect = createMockRect(0, 0, 800, 600);
     const cursorX = 400;
     const cursorY = 300;
@@ -130,15 +130,12 @@ describe('calculateZoomPanAdjustment', () => {
 
     const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
 
-    // Canvas point under cursor before: (400/2, 300/2) = (200, 150)
-    // After zoom to 1x:
-    // newPan.x = 400 - 200 * 1 = 200
-    // newPan.y = 300 - 150 * 1 = 150
-    expect(newPan.x).toBeCloseTo(200);
-    expect(newPan.y).toBeCloseTo(150);
+    // Top-left anchored: pan stays the same
+    expect(newPan.x).toBe(0);
+    expect(newPan.y).toBe(0);
   });
 
-  test('works with existing pan offset', () => {
+  test('preserves existing pan offset', () => {
     const wrapperRect = createMockRect(0, 0, 800, 600);
     const cursorX = 400;
     const cursorY = 300;
@@ -148,71 +145,61 @@ describe('calculateZoomPanAdjustment', () => {
 
     const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
 
-    // Canvas point under cursor: (400 - 100) / 1 = 300, (300 - 50) / 1 = 250
-    // After zoom to 2x:
-    // newPan.x = 400 - 300 * 2 = -200
-    // newPan.y = 300 - 250 * 2 = -200
-    expect(newPan.x).toBeCloseTo(-200);
-    expect(newPan.y).toBeCloseTo(-200);
+    // Top-left anchored: pan stays the same
+    expect(newPan.x).toBe(100);
+    expect(newPan.y).toBe(50);
   });
 
-  test('handles cursor at wrapper origin (0, 0)', () => {
-    const wrapperRect = createMockRect(100, 100, 800, 600);
-    const cursorX = 100; // at wrapper left
-    const cursorY = 100; // at wrapper top
-    const currentPan = { x: 0, y: 0 };
-    const oldZoom = 1.0;
-    const newZoom = 2.0;
-
-    const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
-
-    // Cursor relative to wrapper: (0, 0)
-    // Canvas point: (0, 0)
-    // After zoom: pan stays at (0, 0) because we're zooming at origin
-    expect(newPan.x).toBeCloseTo(0);
-    expect(newPan.y).toBeCloseTo(0);
-  });
-
-  test('handles non-origin wrapper position', () => {
-    const wrapperRect = createMockRect(200, 150, 800, 600);
-    const cursorX = 600; // relative to wrapper: 400
-    const cursorY = 450; // relative to wrapper: 300
-    const currentPan = { x: 0, y: 0 };
+  test('preserves negative pan offset', () => {
+    const wrapperRect = createMockRect(0, 0, 800, 600);
+    const cursorX = 400;
+    const cursorY = 300;
+    const currentPan = { x: -200, y: -150 };
     const oldZoom = 1.0;
     const newZoom = 1.5;
 
     const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
 
-    // Cursor relative: (400, 300)
-    // Canvas point: (400, 300)
-    // After zoom to 1.5x:
-    // newPan.x = 400 - 400 * 1.5 = -200
-    // newPan.y = 300 - 300 * 1.5 = -150
-    expect(newPan.x).toBeCloseTo(-200);
-    expect(newPan.y).toBeCloseTo(-150);
+    // Top-left anchored: pan stays the same
+    expect(newPan.x).toBe(-200);
+    expect(newPan.y).toBe(-150);
   });
 
-  test('returns pan that keeps point stationary (mathematical verification)', () => {
-    const wrapperRect = createMockRect(0, 0, 1000, 800);
-    const cursorX = 500;
-    const cursorY = 400;
-    const currentPan = { x: 50, y: -30 };
+  test('ignores cursor position (top-left anchored)', () => {
+    const wrapperRect = createMockRect(0, 0, 800, 600);
+    const currentPan = { x: 50, y: 30 };
+    const oldZoom = 1.0;
+    const newZoom = 2.0;
+
+    // Different cursor positions should all return the same pan
+    const pan1 = calculateZoomPanAdjustment(0, 0, wrapperRect, currentPan, oldZoom, newZoom);
+    const pan2 = calculateZoomPanAdjustment(400, 300, wrapperRect, currentPan, oldZoom, newZoom);
+    const pan3 = calculateZoomPanAdjustment(800, 600, wrapperRect, currentPan, oldZoom, newZoom);
+
+    expect(pan1.x).toBe(50);
+    expect(pan1.y).toBe(30);
+    expect(pan2.x).toBe(50);
+    expect(pan2.y).toBe(30);
+    expect(pan3.x).toBe(50);
+    expect(pan3.y).toBe(30);
+  });
+
+  test('ignores wrapper rect position (top-left anchored)', () => {
+    const currentPan = { x: 75, y: -25 };
     const oldZoom = 1.5;
     const newZoom = 2.5;
 
-    const newPan = calculateZoomPanAdjustment(cursorX, cursorY, wrapperRect, currentPan, oldZoom, newZoom);
+    // Different wrapper positions should all return the same pan
+    const pan1 = calculateZoomPanAdjustment(500, 400, createMockRect(0, 0, 800, 600), currentPan, oldZoom, newZoom);
+    const pan2 = calculateZoomPanAdjustment(500, 400, createMockRect(100, 100, 800, 600), currentPan, oldZoom, newZoom);
+    const pan3 = calculateZoomPanAdjustment(500, 400, createMockRect(200, 150, 1000, 800), currentPan, oldZoom, newZoom);
 
-    // Verify: the canvas point under cursor should be the same before and after
-    // Before: canvasPoint = (cursorRel - pan) / zoom
-    const canvasXBefore = (500 - 50) / 1.5;
-    const canvasYBefore = (400 - (-30)) / 1.5;
-
-    // After: canvasPoint = (cursorRel - newPan) / newZoom
-    const canvasXAfter = (500 - newPan.x) / 2.5;
-    const canvasYAfter = (400 - newPan.y) / 2.5;
-
-    expect(canvasXAfter).toBeCloseTo(canvasXBefore);
-    expect(canvasYAfter).toBeCloseTo(canvasYBefore);
+    expect(pan1.x).toBe(75);
+    expect(pan1.y).toBe(-25);
+    expect(pan2.x).toBe(75);
+    expect(pan2.y).toBe(-25);
+    expect(pan3.x).toBe(75);
+    expect(pan3.y).toBe(-25);
   });
 });
 
