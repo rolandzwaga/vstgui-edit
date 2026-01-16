@@ -31,7 +31,7 @@ export const SHORTCUT_CATEGORIES: ShortcutCategoryMeta[] = [
  * Complete registry of all keyboard shortcuts.
  * Single source of truth for all shortcut definitions.
  *
- * Total: 44 shortcuts across 10 categories
+ * Total: 45 shortcuts across 10 categories
  */
 export const SHORTCUT_REGISTRY: ShortcutDefinition[] = [
   // Canvas Navigation (10)
@@ -165,7 +165,13 @@ export const SHORTCUT_REGISTRY: ShortcutDefinition[] = [
     context: 'when views selected',
   },
 
-  // View Management (5)
+  // View Management (6)
+  {
+    id: 'view-mode-toggle',
+    keys: 'P',
+    description: 'Toggle Wireframe/Styled View Mode',
+    category: 'viewManagement',
+  },
   {
     id: 'view-smart-guides',
     keys: 'S',

@@ -43,20 +43,20 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T009 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T010 [P] Write tests for colorResolution in src/domain/viewMode/__tests__/colorResolution.spec.ts (hex colors, predefined colors, document references, circular protection, null cases)
-- [ ] T011 [P] Write tests for luminance in src/domain/viewMode/__tests__/luminance.spec.ts (calculateLuminance, isLightColor, isDarkColor, getAdaptiveOverlayStyle, parseColorToRgb)
-- [ ] T012 [P] Write tests for styledViewProps in src/domain/viewMode/__tests__/styledViewProps.spec.ts (buildStyledViewProps, parseFrameWidth, parseOpacity, parseTransparent, shouldUseWireframeFallback)
-- [ ] T013 [P] Write tests for viewModeStore in src/stores/__tests__/viewModeStore.spec.ts (initial state, setViewMode, toggleViewMode, resetViewModeStore, initializeViewMode)
+- [X] T009 **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T010 [P] Write tests for colorResolution in src/domain/viewMode/__tests__/colorResolution.spec.ts (hex colors, predefined colors, document references, circular protection, null cases)
+- [X] T011 [P] Write tests for luminance in src/domain/viewMode/__tests__/luminance.spec.ts (calculateLuminance, isLightColor, isDarkColor, getAdaptiveOverlayStyle, parseColorToRgb)
+- [X] T012 [P] Write tests for styledViewProps in src/domain/viewMode/__tests__/styledViewProps.spec.ts (buildStyledViewProps, parseFrameWidth, parseOpacity, parseTransparent, shouldUseWireframeFallback)
+- [X] T013 [P] Write tests for viewModeStore in src/stores/__tests__/viewModeStore.spec.ts (initial state, setViewMode, toggleViewMode, resetViewModeStore, initializeViewMode)
 
 ### Implementation for Foundational Phase
 
-- [ ] T014 Create domain module index in src/domain/viewMode/index.ts (export all functions)
-- [ ] T015 Implement colorResolution in src/domain/viewMode/colorResolution.ts (resolveColor, isHexColor, hexToRgba, normalizeHexColor)
-- [ ] T016 Implement luminance in src/domain/viewMode/luminance.ts (calculateLuminance, isLightColor, isDarkColor, getAdaptiveOverlayStyle, getDefaultOverlayStyle, parseColorToRgb)
-- [ ] T017 Implement styledViewProps in src/domain/viewMode/styledViewProps.ts (buildStyledViewProps, shouldUseWireframeFallback, parseFrameWidth, parseOpacity, parseTransparent, buildStyledViewPropsMap)
-- [ ] T018 Add CSS tokens for styled overlay colors to src/styles/tokens.css (--color-styled-overlay-light, --color-styled-overlay-dark, --color-styled-fallback-stroke)
-- [ ] T019 **Commit**: Stage and commit Phase 2 changes with message "feat(042): implement view mode domain functions"
+- [X] T014 Create domain module index in src/domain/viewMode/index.ts (export all functions)
+- [X] T015 Implement colorResolution in src/domain/viewMode/colorResolution.ts (resolveColor, isHexColor, hexToRgba, normalizeHexColor)
+- [X] T016 Implement luminance in src/domain/viewMode/luminance.ts (calculateLuminance, isLightColor, isDarkColor, getAdaptiveOverlayStyle, getDefaultOverlayStyle, parseColorToRgb)
+- [X] T017 Implement styledViewProps in src/domain/viewMode/styledViewProps.ts (buildStyledViewProps, shouldUseWireframeFallback, parseFrameWidth, parseOpacity, parseTransparent, buildStyledViewPropsMap)
+- [X] T018 Add CSS tokens for styled overlay colors to src/styles/tokens.css (--color-styled-overlay-light, --color-styled-overlay-dark, --color-styled-fallback-stroke)
+- [X] T019 **Commit**: Stage and commit Phase 2 changes with message "feat(042): implement view mode domain functions"
 
 **Checkpoint**: Foundation ready - domain functions tested, component work can begin
 
@@ -72,18 +72,18 @@
 
 > **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
 
-- [ ] T020 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
-- [ ] T021 [P] [US1] Write tests for ViewModeToolbar in src/components/ViewModeToolbar/__tests__/ViewModeToolbar.spec.tsx (render, click toggle, active state, tooltip, aria-pressed)
-- [ ] T022 [P] [US1] Write tests for P keyboard shortcut in src/hooks/canvas/__tests__/useCanvasKeyboard.spec.ts (P key toggles mode)
+- [X] T020 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [X] T021 [P] [US1] Write tests for ViewModeToolbar in src/components/ViewModeToolbar/__tests__/ViewModeToolbar.spec.tsx (render, click toggle, active state, tooltip, aria-pressed)
+- [X] T022 [P] [US1] Write tests for P keyboard shortcut in src/hooks/canvas/__tests__/useCanvasKeyboard.spec.ts (P key toggles mode)
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Register P shortcut in src/domain/shortcuts/registry.ts under viewManagement category with id 'view-styled-mode'
-- [ ] T024 [US1] Create ViewModeToolbar.module.css in src/components/ViewModeToolbar/ViewModeToolbar.module.css (toolbar, button, buttonActive, icon classes)
-- [ ] T025 [US1] Implement ViewModeToolbar component in src/components/ViewModeToolbar/ViewModeToolbar.tsx (eye icon, active state, tooltip with P shortcut hint)
-- [ ] T026 [US1] Create index export in src/components/ViewModeToolbar/index.ts
-- [ ] T027 [US1] Add ViewModeToolbar to MainToolbar in src/components/MainToolbar/MainToolbar.tsx (after GridToolbar)
-- [ ] T028 [US1] Add P shortcut handler to src/hooks/canvas/useCanvasKeyboard.ts (call toggleViewMode)
+- [X] T023 [US1] Register P shortcut in src/domain/shortcuts/registry.ts under viewManagement category with id 'view-styled-mode'
+- [X] T024 [US1] Create ViewModeToolbar.module.css in src/components/ViewModeToolbar/ViewModeToolbar.module.css (toolbar, button, buttonActive, icon classes)
+- [X] T025 [US1] Implement ViewModeToolbar component in src/components/ViewModeToolbar/ViewModeToolbar.tsx (eye icon, active state, tooltip with P shortcut hint)
+- [X] T026 [US1] Create index export in src/components/ViewModeToolbar/index.ts
+- [X] T027 [US1] Add ViewModeToolbar to MainToolbar in src/components/MainToolbar/MainToolbar.tsx (after GridToolbar)
+- [X] T028 [US1] Add P shortcut handler to src/hooks/canvas/useCanvasKeyboard.ts (call toggleViewMode)
 - [ ] T029 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat(042): add view mode toggle toolbar and P shortcut"
 
 **Checkpoint**: User Story 1 complete - users can toggle modes via button or P key, preference persists
