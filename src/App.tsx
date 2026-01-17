@@ -2,7 +2,11 @@ import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { RulerContainer } from './components/Canvas/Rulers';
+import { ConfirmDialog } from './components/ConfirmDialog';
+import { CreateNewDialog } from './components/CreateNewDialog';
 import { FindPanel } from './components/FindPanel';
+import { OrphanWarningDialog } from './components/OrphanWarningDialog';
+import { ProjectList } from './components/ProjectList';
 import { TemplatesPanel } from './components/TemplatesPanel';
 import { HierarchyPanel } from './components/HierarchyPanel';
 import { ColorsPanel } from './components/ColorsPanel';
@@ -16,7 +20,10 @@ import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 import { StorageWarning } from './components/StorageWarning';
 
+import { createDocument } from './domain/createNew/documentFactory';
 import { cleanupLegacyStorage } from './domain/project/legacyStorage';
+import type { OrphanedBitmap, Project } from './domain/project/types';
+import type { NewDocumentConfig } from './types/createNew';
 import { handleSearchShortcut } from './domain/search/shortcuts';
 import { detectConflicts } from './domain/shortcuts';
 import {
@@ -25,7 +32,7 @@ import {
   subscribeToSystemThemeChanges,
 } from './domain/theme';
 import { RULER_THICKNESS } from './domain/rulers';
-import { documentStore, getTemplate } from './stores/documentStore';
+import { documentStore, getTemplate, loadFile, createNewDocument } from './stores/documentStore';
 import { undo, redo } from './stores/historyStore';
 import { setAppContainer } from './stores/appContainerStore';
 import { openPreferences, initializePreferences, preferencesStore } from './stores/preferencesStore';
@@ -34,7 +41,16 @@ import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
 import { toggleViewMode } from './stores/viewModeStore';
-import { initializeProjectStore, projectStore } from './stores/projectStore';
+import {
+  initializeProjectStore,
+  projectStore,
+  listProjects,
+  openProject,
+  deleteProject,
+  renameProject,
+  closeProjectList,
+  createProject,
+} from './stores/projectStore';
 import { closeDatabase } from './services/indexedDB/database';
 import './styles/tokens.css';
 
@@ -44,6 +60,16 @@ const QUOTA_CHECK_INTERVAL = 5 * 60 * 1000;
 export default function App() {
   // Track if storage warning has been dismissed
   const [storageWarningDismissed, setStorageWarningDismissed] = createSignal(false);
+
+  // Project list state
+  const [projects, setProjects] = createSignal<Project[]>([]);
+  const [deleteConfirmProject, setDeleteConfirmProject] = createSignal<Project | null>(null);
+
+  // Create New dialog state
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
+
+  // Orphan warning dialog state
+  const [orphanedBitmaps, setOrphanedBitmaps] = createSignal<OrphanedBitmap[]>([]);
 
   // Clean up legacy localStorage keys from before project-based storage
   cleanupLegacyStorage();
@@ -162,6 +188,97 @@ export default function App() {
     fitToView({ width: viewportWidth, height: viewportHeight }, { width, height });
   };
 
+  // ProjectList handlers
+  const handleCloseProjectList = () => {
+    closeProjectList();
+  };
+
+  const handleOpenProject = async (id: string) => {
+    const project = await openProject(id);
+    if (project) {
+      // Parse the uidesc content to load into documentStore
+      const file = new File([project.uidescContent], `${project.name}.uidesc`, {
+        type: 'text/plain',
+      });
+      await loadFile(file);
+      closeProjectList();
+    }
+  };
+
+  const handleDeleteProject = (id: string) => {
+    const project = projects().find(p => p.id === id);
+    if (project) {
+      setDeleteConfirmProject(project);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    const project = deleteConfirmProject();
+    if (!project) return;
+
+    const success = await deleteProject(project.id);
+    if (success) {
+      const loadedProjects = await listProjects();
+      setProjects(loadedProjects);
+    }
+    setDeleteConfirmProject(null);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmProject(null);
+  };
+
+  const handleRenameProject = async (id: string, newName: string): Promise<boolean> => {
+    const result = await renameProject(id, newName);
+    if (result) {
+      const updatedProjects = await listProjects();
+      setProjects(updatedProjects);
+    }
+    return result;
+  };
+
+  // Load projects when project list opens
+  createEffect(() => {
+    if (projectStore.isProjectListOpen && !projectStore.isSessionOnly) {
+      listProjects().then(setProjects);
+    }
+  });
+
+  // Create New dialog handlers
+  const handleOpenCreateDialog = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCloseCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+  };
+
+  const handleCreate = async (config: NewDocumentConfig) => {
+    setIsCreateDialogOpen(false);
+
+    if (projectStore.isSessionOnly) {
+      // In session-only mode, just create the document without a project
+      createNewDocument(config);
+    } else if (config.projectName) {
+      // Create project with the provided name
+      const doc = createDocument(config);
+      const content = JSON.stringify(doc);
+      await createProject(config.projectName, content, 'json');
+
+      // Load the document into documentStore
+      createNewDocument(config);
+    }
+  };
+
+  // Orphan warning dialog handlers
+  const handleOrphanedBitmaps = (orphans: OrphanedBitmap[]) => {
+    setOrphanedBitmaps(orphans);
+  };
+
+  const handleOrphanWarningDismiss = () => {
+    setOrphanedBitmaps([]);
+  };
+
   return (
     <main
       ref={setAppContainer}
@@ -192,7 +309,11 @@ export default function App() {
               <VariablesPanel />
             </div>
             <div style={{ flex: 1, "min-width": 0, display: 'flex', "flex-direction": 'column' }}>
-              <MainToolbar onFitToView={handleFitToView} />
+              <MainToolbar
+                onFitToView={handleFitToView}
+                onNewProject={handleOpenCreateDialog}
+                onOrphanedBitmaps={handleOrphanedBitmaps}
+              />
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 <RulerContainer>
                   <Canvas />
@@ -229,10 +350,48 @@ export default function App() {
         </Show>
         <h1 style={{ "margin-bottom": '1.5rem', "text-align": 'center' }}>VSTGUI-Edit</h1>
         <div style={{ "max-width": '600px', margin: '0 auto' }}>
-          <UploadZone />
+          <UploadZone onNewProject={handleOpenCreateDialog} />
         </div>
         </>
       )}
+
+      {/* ProjectList modal - available in both upload zone and editor */}
+      <ProjectList
+        isOpen={projectStore.isProjectListOpen}
+        projects={projects()}
+        onClose={handleCloseProjectList}
+        onOpen={handleOpenProject}
+        onDelete={handleDeleteProject}
+        onRename={handleRenameProject}
+      />
+
+      {/* Delete confirmation dialog for projects */}
+      <ConfirmDialog
+        isOpen={deleteConfirmProject() !== null}
+        title="Delete Project"
+        message={`Are you sure you want to delete "${deleteConfirmProject()?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+      {/* Create New dialog - available in both upload zone and editor */}
+      <CreateNewDialog
+        isOpen={isCreateDialogOpen()}
+        onClose={handleCloseCreateDialog}
+        onCreate={handleCreate}
+        requiresProjectName={!projectStore.isSessionOnly}
+      />
+
+      {/* Orphan warning dialog - shown after replace uidesc if orphans detected */}
+      <OrphanWarningDialog
+        isOpen={orphanedBitmaps().length > 0}
+        orphanedBitmaps={orphanedBitmaps()}
+        onConfirm={handleOrphanWarningDismiss}
+        onCancel={handleOrphanWarningDismiss}
+      />
     </main>
   );
 }

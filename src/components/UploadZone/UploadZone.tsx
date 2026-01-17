@@ -1,5 +1,5 @@
-import { createSignal, For, Show, createEffect, onMount } from 'solid-js';
-import { documentStore, loadFile, setDragging, reset, createNewDocument } from '../../stores/documentStore';
+import { For, Show } from 'solid-js';
+import { documentStore, loadFile, setDragging, reset } from '../../stores/documentStore';
 import {
   projectStore,
   openNameDialog,
@@ -8,124 +8,27 @@ import {
   clearPendingFile,
   createProject,
   openProjectList,
-  closeProjectList,
-  listProjects,
-  openProject,
-  deleteProject,
-  renameProject,
 } from '../../stores/projectStore';
-import { createDocument } from '../../domain/createNew/documentFactory';
-import type { Project } from '../../domain/project/types';
-import type { NewDocumentConfig } from '../../types/createNew';
-import { ConfirmDialog } from '../ConfirmDialog';
-import { CreateNewDialog } from '../CreateNewDialog';
 import { ProjectNameDialog } from '../ProjectNameDialog';
-import { ProjectList } from '../ProjectList';
 import styles from './UploadZone.module.css';
+
+export interface UploadZoneProps {
+  /** Callback when Create New button is clicked. Opens the Create New dialog at App level. */
+  onNewProject?: () => void;
+}
 
 const hasParseErrors = () =>
   documentStore.parseState === 'invalid' && documentStore.parseErrors && documentStore.parseErrors.length > 0;
 
-export function UploadZone() {
+export function UploadZone(props: UploadZoneProps) {
   let fileInputRef: HTMLInputElement | undefined;
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
-  const [projects, setProjects] = createSignal<Project[]>([]);
-  // Store pending new document config for project creation flow
-  const [pendingNewDocConfig, setPendingNewDocConfig] = createSignal<NewDocumentConfig | null>(null);
-  // Delete confirmation state
-  const [deleteConfirmProject, setDeleteConfirmProject] = createSignal<Project | null>(null);
-
-  // Load projects when component mounts (if not in session-only mode)
-  onMount(async () => {
-    if (!projectStore.isSessionOnly) {
-      const loadedProjects = await listProjects();
-      setProjects(loadedProjects);
-    }
-  });
 
   const handleCreateNew = () => {
-    setIsCreateDialogOpen(true);
+    props.onNewProject?.();
   };
 
-  const handleOpenProjectList = async () => {
-    // Refresh project list before opening
-    if (!projectStore.isSessionOnly) {
-      const loadedProjects = await listProjects();
-      setProjects(loadedProjects);
-    }
+  const handleOpenProjectList = () => {
     openProjectList();
-  };
-
-  const handleCloseProjectList = () => {
-    closeProjectList();
-  };
-
-  const handleOpenProject = async (id: string) => {
-    const project = await openProject(id);
-    if (project) {
-      // Parse the uidesc content to load into documentStore
-      const file = new File([project.uidescContent], `${project.name}.uidesc`, {
-        type: 'text/plain',
-      });
-      // Load the file directly - this parses and sets documentStore.parseState to 'valid'
-      // We don't use handleFileUpload because that would trigger the name dialog
-      await loadFile(file);
-      closeProjectList();
-    }
-  };
-
-  /**
-   * Show delete confirmation dialog for a project.
-   */
-  const handleDeleteProject = (id: string) => {
-    const project = projects().find(p => p.id === id);
-    if (project) {
-      setDeleteConfirmProject(project);
-    }
-  };
-
-  /**
-   * Confirm and execute project deletion.
-   */
-  const handleConfirmDelete = async () => {
-    const project = deleteConfirmProject();
-    if (!project) return;
-
-    const success = await deleteProject(project.id);
-    if (success) {
-      // Refresh the project list
-      const loadedProjects = await listProjects();
-      setProjects(loadedProjects);
-    }
-    setDeleteConfirmProject(null);
-  };
-
-  /**
-   * Cancel project deletion.
-   */
-  const handleCancelDelete = () => {
-    setDeleteConfirmProject(null);
-  };
-
-  const handleCreate = async (config: NewDocumentConfig) => {
-    setIsCreateDialogOpen(false);
-
-    if (projectStore.isSessionOnly) {
-      // In session-only mode, just create the document without a project
-      createNewDocument(config);
-    } else if (config.projectName) {
-      // Create project directly with the provided name
-      const doc = createDocument(config);
-      const content = JSON.stringify(doc);
-      await createProject(config.projectName, content, 'json');
-
-      // Load the document into documentStore
-      createNewDocument(config);
-    }
-  };
-
-  const handleCloseDialog = () => {
-    setIsCreateDialogOpen(false);
   };
 
   const handleDragEnter = (e: DragEvent) => {
@@ -188,25 +91,12 @@ export function UploadZone() {
 
   /**
    * Handle project name confirmation from the dialog.
-   * Handles both file upload and new document creation flows.
+   * Only handles file upload flow - Create New is handled at App level.
    */
   const handleNameConfirm = async (name: string) => {
-    const pendingConfig = pendingNewDocConfig();
     const pending = projectStore.pendingFile;
 
-    if (pendingConfig) {
-      // New document creation flow
-      const doc = createDocument(pendingConfig);
-      const content = JSON.stringify(doc);
-      await createProject(name, content, 'json');
-
-      // Load the document into documentStore
-      createNewDocument(pendingConfig);
-
-      // Clean up
-      setPendingNewDocConfig(null);
-      closeNameDialog();
-    } else if (pending) {
+    if (pending) {
       // File upload flow
       await createProject(name, pending.content, pending.format);
 
@@ -223,21 +113,7 @@ export function UploadZone() {
    */
   const handleNameCancel = () => {
     clearPendingFile();
-    setPendingNewDocConfig(null);
     closeNameDialog();
-  };
-
-  /**
-   * Handle project rename from ProjectList.
-   */
-  const handleRenameProject = async (id: string, newName: string): Promise<boolean> => {
-    const result = await renameProject(id, newName);
-    if (result) {
-      // Refresh the project list
-      const updatedProjects = await listProjects();
-      setProjects(updatedProjects);
-    }
-    return result;
   };
 
   const handleButtonClick = () => {
@@ -365,13 +241,6 @@ export function UploadZone() {
         onChange={handleFileSelect}
       />
 
-      <CreateNewDialog
-        isOpen={isCreateDialogOpen()}
-        onClose={handleCloseDialog}
-        onCreate={handleCreate}
-        requiresProjectName={!projectStore.isSessionOnly}
-      />
-
       <Show when={projectStore.nameDialogMode}>
         {(mode) => (
           <ProjectNameDialog
@@ -383,26 +252,6 @@ export function UploadZone() {
           />
         )}
       </Show>
-
-      <ProjectList
-        isOpen={projectStore.isProjectListOpen}
-        projects={projects()}
-        onClose={handleCloseProjectList}
-        onOpen={handleOpenProject}
-        onDelete={handleDeleteProject}
-        onRename={handleRenameProject}
-      />
-
-      <ConfirmDialog
-        isOpen={deleteConfirmProject() !== null}
-        title="Delete Project"
-        message={`Are you sure you want to delete "${deleteConfirmProject()?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="destructive"
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-      />
     </div>
   );
 }
