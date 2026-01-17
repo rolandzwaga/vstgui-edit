@@ -122,36 +122,38 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   };
 
   /**
-   * Gets the fill attribute for styled mode.
-   * Returns the background color or undefined to let CSS handle it.
+   * Gets the inline style for styled mode rendering.
+   *
+   * SVG specificity: inline styles > CSS rules > presentation attributes.
+   * We must use inline styles to override CSS class fill/stroke values.
+   * See: https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/fill
    */
-  const getFill = () => {
+  const getInlineStyle = (): string | undefined => {
+    if (!isInStyledMode()) {
+      return undefined;
+    }
+
+    const parts: string[] = [];
+
+    // Handle transparent views
+    if (props.styledProps?.isTransparent) {
+      parts.push('fill: none');
+      return parts.join('; ');
+    }
+
+    // Handle styled rendering (has background color)
     if (useStyledRendering() && props.styledProps?.backgroundColor) {
-      return props.styledProps.backgroundColor;
+      parts.push(`fill: ${props.styledProps.backgroundColor}`);
+      parts.push('fill-opacity: 1'); // Override .viewRect's fill-opacity: 0.1
     }
-    return undefined;
-  };
 
-  /**
-   * Gets the stroke attribute for styled mode.
-   * Returns the frame color or undefined to let CSS handle it.
-   */
-  const getStroke = () => {
-    if (isInStyledMode() && props.styledProps?.frameColor) {
-      return props.styledProps.frameColor;
+    // Apply frame color/width in styled mode
+    if (props.styledProps?.frameColor) {
+      parts.push(`stroke: ${props.styledProps.frameColor}`);
+      parts.push(`stroke-width: ${props.styledProps.frameWidth ?? 1}`);
     }
-    return undefined;
-  };
 
-  /**
-   * Gets the stroke-width attribute for styled mode.
-   * Returns the frame width or undefined to let CSS handle it.
-   */
-  const getStrokeWidth = () => {
-    if (isInStyledMode() && props.styledProps?.frameColor) {
-      return props.styledProps.frameWidth;
-    }
-    return undefined;
+    return parts.length > 0 ? parts.join('; ') : undefined;
   };
 
   return (
@@ -163,9 +165,7 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
-        fill={getFill()}
-        stroke={getStroke()}
-        stroke-width={getStrokeWidth()}
+        style={getInlineStyle()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

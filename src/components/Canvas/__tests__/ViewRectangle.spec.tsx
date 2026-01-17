@@ -343,10 +343,10 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#FF5500FF');
+      expect(rect).toHaveStyle({ fill: '#FF5500FF' });
     });
 
-    it('should render with stroke attribute when styled mode and frame-color is provided', () => {
+    it('should render with stroke style when styled mode and frame-color is provided', () => {
       setViewMode('styled');
       const view = createMockView({ category: 'control' });
       const styledProps = createMockStyledProps({
@@ -364,10 +364,10 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('stroke', '#000000FF');
+      expect(rect).toHaveStyle({ stroke: '#000000FF' });
     });
 
-    it('should render with stroke-width attribute when styled mode and frame-width is provided', () => {
+    it('should render with stroke-width style when styled mode and frame-width is provided', () => {
       setViewMode('styled');
       const view = createMockView({ category: 'display' });
       const styledProps = createMockStyledProps({
@@ -386,7 +386,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('stroke-width', '3');
+      expect(rect).toHaveStyle({ 'stroke-width': '3' });
     });
 
     it('should use resolved hex color from document color reference', () => {
@@ -407,7 +407,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#3366AAFF');
+      expect(rect).toHaveStyle({ fill: '#3366AAFF' });
     });
 
     it('should use resolved hex color from predefined color reference', () => {
@@ -428,10 +428,10 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#000000FF');
+      expect(rect).toHaveStyle({ fill: '#000000FF' });
     });
 
-    it('should NOT apply SVG attributes in wireframe mode even with styledProps', () => {
+    it('should NOT apply inline styles in wireframe mode even with styledProps', () => {
       setViewMode('wireframe');
       const view = createMockView({ category: 'container' });
       const styledProps = createMockStyledProps({
@@ -449,9 +449,9 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // In wireframe mode, CSS classes control styling, not SVG attributes
-      expect(rect).not.toHaveAttribute('fill', '#FF5500FF');
-      expect(rect).not.toHaveAttribute('stroke', '#000000FF');
+      // In wireframe mode, CSS classes control styling, no inline styles
+      expect(rect).not.toHaveStyle({ fill: '#FF5500FF' });
+      expect(rect).not.toHaveStyle({ stroke: '#000000FF' });
     });
 
     it('should work without styledProps (backward compatibility)', () => {
@@ -583,9 +583,9 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // Should still apply frame color from uidesc (via SVG attributes)
-      expect(rect).toHaveAttribute('stroke', '#FF0000FF');
-      expect(rect).toHaveAttribute('stroke-width', '2');
+      // Should still apply frame color from uidesc (via inline styles)
+      expect(rect).toHaveStyle({ stroke: '#FF0000FF' });
+      expect(rect).toHaveStyle({ 'stroke-width': '2' });
     });
 
     it('should apply group opacity when opacity is specified', () => {
