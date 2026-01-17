@@ -17,6 +17,7 @@ import {
 import { createDocument } from '../../domain/createNew/documentFactory';
 import type { Project } from '../../domain/project/types';
 import type { NewDocumentConfig } from '../../types/createNew';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { CreateNewDialog } from '../CreateNewDialog';
 import { ProjectNameDialog } from '../ProjectNameDialog';
 import { ProjectList } from '../ProjectList';
@@ -31,6 +32,8 @@ export function UploadZone() {
   const [projects, setProjects] = createSignal<Project[]>([]);
   // Store pending new document config for project creation flow
   const [pendingNewDocConfig, setPendingNewDocConfig] = createSignal<NewDocumentConfig | null>(null);
+  // Delete confirmation state
+  const [deleteConfirmProject, setDeleteConfirmProject] = createSignal<Project | null>(null);
 
   // Load projects when component mounts (if not in session-only mode)
   onMount(async () => {
@@ -70,13 +73,37 @@ export function UploadZone() {
     }
   };
 
-  const handleDeleteProject = async (id: string) => {
-    const success = await deleteProject(id);
+  /**
+   * Show delete confirmation dialog for a project.
+   */
+  const handleDeleteProject = (id: string) => {
+    const project = projects().find(p => p.id === id);
+    if (project) {
+      setDeleteConfirmProject(project);
+    }
+  };
+
+  /**
+   * Confirm and execute project deletion.
+   */
+  const handleConfirmDelete = async () => {
+    const project = deleteConfirmProject();
+    if (!project) return;
+
+    const success = await deleteProject(project.id);
     if (success) {
       // Refresh the project list
       const loadedProjects = await listProjects();
       setProjects(loadedProjects);
     }
+    setDeleteConfirmProject(null);
+  };
+
+  /**
+   * Cancel project deletion.
+   */
+  const handleCancelDelete = () => {
+    setDeleteConfirmProject(null);
   };
 
   const handleCreate = (config: NewDocumentConfig) => {
@@ -358,6 +385,17 @@ export function UploadZone() {
         onOpen={handleOpenProject}
         onDelete={handleDeleteProject}
         onRename={handleRenameProject}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirmProject() !== null}
+        title="Delete Project"
+        message={`Are you sure you want to delete "${deleteConfirmProject()?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
       />
     </div>
   );
