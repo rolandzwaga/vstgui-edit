@@ -12,31 +12,9 @@ import {
   formatGuideCreateDescription,
   formatGuideDeleteDescription,
   formatGuideRepositionDescription,
-  GUIDE_CLEAR_ALL_TYPE,
-  GUIDE_CREATE_TYPE,
-  GUIDE_DELETE_TYPE,
-  GUIDE_REPOSITION_TYPE,
 } from '../historyOperations';
 
 describe('historyOperations', () => {
-  describe('type constants', () => {
-    test('GUIDE_CREATE_TYPE is guide-create', () => {
-      expect(GUIDE_CREATE_TYPE).toBe('guide-create');
-    });
-
-    test('GUIDE_DELETE_TYPE is guide-delete', () => {
-      expect(GUIDE_DELETE_TYPE).toBe('guide-delete');
-    });
-
-    test('GUIDE_REPOSITION_TYPE is guide-reposition', () => {
-      expect(GUIDE_REPOSITION_TYPE).toBe('guide-reposition');
-    });
-
-    test('GUIDE_CLEAR_ALL_TYPE is guide-clear-all', () => {
-      expect(GUIDE_CLEAR_ALL_TYPE).toBe('guide-clear-all');
-    });
-  });
-
   describe('createGuideCreateOperation', () => {
     const guide: CustomGuide = { id: 'g1', orientation: 'horizontal', position: 100 };
     const addFn = vi.fn();

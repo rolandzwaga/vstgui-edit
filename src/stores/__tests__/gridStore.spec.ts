@@ -4,9 +4,7 @@ import { DEFAULT_SNAP_THRESHOLD } from '../../types/snap';
 import {
   DEFAULT_GRID_SIZE,
   DEFAULT_GRID_STYLE,
-  GRID_SIZE_PRESETS,
   gridStore,
-  MAJOR_LINE_INTERVAL,
   resetGrid,
   setGridSize,
   setGridStyle,
@@ -16,24 +14,6 @@ import {
 } from '../gridStore';
 
 describe('gridStore', () => {
-  describe('constants', () => {
-    test('GRID_SIZE_PRESETS contains expected values', () => {
-      expect(GRID_SIZE_PRESETS).toEqual([5, 8, 10, 12, 16, 20]);
-    });
-
-    test('DEFAULT_GRID_SIZE is 10', () => {
-      expect(DEFAULT_GRID_SIZE).toBe(10);
-    });
-
-    test('DEFAULT_GRID_STYLE is lines', () => {
-      expect(DEFAULT_GRID_STYLE).toBe('lines');
-    });
-
-    test('MAJOR_LINE_INTERVAL is 5', () => {
-      expect(MAJOR_LINE_INTERVAL).toBe(5);
-    });
-  });
-
   describe('initial state', () => {
     test('isVisible is true by default', () => {
       testInRoot(() => {

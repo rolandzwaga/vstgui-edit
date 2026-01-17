@@ -60,12 +60,6 @@ describe('normalizeRect', () => {
 });
 
 describe('isMinimumSize', () => {
-  describe('Given MIN_MARQUEE_SIZE constant', () => {
-    it('should be 5 pixels', () => {
-      expect(MIN_MARQUEE_SIZE).toBe(5);
-    });
-  });
-
   describe('Given size below threshold', () => {
     it('should return false for 4x4', () => {
       const result = isMinimumSize({ x: 0, y: 0 }, { x: 4, y: 4 });

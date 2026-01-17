@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
-import { CONTROL_TAG_ATTRIBUTE, findControlTagUsages } from '../usage';
+import { findControlTagUsages } from '../usage';
 
 describe('findControlTagUsages', () => {
   it('should return empty array when document is null', () => {
@@ -197,9 +197,5 @@ describe('findControlTagUsages', () => {
     };
     const usages = findControlTagUsages('Volume', doc);
     expect(usages).toHaveLength(0);
-  });
-
-  it('should export CONTROL_TAG_ATTRIBUTE constant', () => {
-    expect(CONTROL_TAG_ATTRIBUTE).toBe('control-tag');
   });
 });

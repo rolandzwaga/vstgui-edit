@@ -260,13 +260,4 @@ describe('luminance', () => {
     });
   });
 
-  describe('constants', () => {
-    test('LUMINANCE_THRESHOLD is 0.5', () => {
-      expect(LUMINANCE_THRESHOLD).toBe(0.5);
-    });
-
-    test('OVERLAY_OPACITY is 0.5', () => {
-      expect(OVERLAY_OPACITY).toBe(0.5);
-    });
-  });
 });

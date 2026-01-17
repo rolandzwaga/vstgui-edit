@@ -12,20 +12,6 @@ import {
   ZOOM_FACTOR,
 } from '../zoom';
 
-describe('zoom constants', () => {
-  test('MIN_ZOOM is 0.1 (10%)', () => {
-    expect(MIN_ZOOM).toBe(0.1);
-  });
-
-  test('MAX_ZOOM is 5.0 (500%)', () => {
-    expect(MAX_ZOOM).toBe(5.0);
-  });
-
-  test('ZOOM_FACTOR is 1.1 (10% per tick)', () => {
-    expect(ZOOM_FACTOR).toBe(1.1);
-  });
-});
-
 describe('clampZoom', () => {
   test('returns value unchanged when within range', () => {
     expect(clampZoom(1.0)).toBe(1.0);

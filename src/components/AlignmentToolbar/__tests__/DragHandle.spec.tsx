@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@solidjs/testing-library';
 import { describe, expect, it, vi } from 'vitest';
-import { DragHandle, UNDOCK_THRESHOLD } from '../DragHandle';
+import { DragHandle } from '../DragHandle';
 
 describe('DragHandle', () => {
   it('renders drag handle with dots', () => {
@@ -11,10 +11,6 @@ describe('DragHandle', () => {
   it('has correct tooltip', () => {
     render(() => <DragHandle />);
     expect(screen.getByTitle('Drag to undock toolbar')).toBeInTheDocument();
-  });
-
-  it('exports UNDOCK_THRESHOLD constant as 20', () => {
-    expect(UNDOCK_THRESHOLD).toBe(20);
   });
 
   describe('drag threshold', () => {

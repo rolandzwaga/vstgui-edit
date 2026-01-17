@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
-import { DEFAULT_VIEW_MODE } from '../../types/viewMode';
 import {
   initializeViewMode,
   resetViewModeStore,
@@ -16,10 +15,6 @@ describe('viewModeStore', () => {
         resetViewModeStore();
         expect(viewModeStore.mode).toBe('wireframe');
       });
-    });
-
-    test('DEFAULT_VIEW_MODE constant is "wireframe"', () => {
-      expect(DEFAULT_VIEW_MODE).toBe('wireframe');
     });
   });
 

@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { Project, ProjectStoreState } from '../../domain/project/types';
+import type { Project } from '../../domain/project/types';
 import { DB_NAME, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../../domain/project/types';
 import { closeDatabase, openDatabase } from '../../services/indexedDB/database';
 import { projectService } from '../../services/indexedDB/projectService';
 import { canvasStore, resetCanvas } from '../canvasStore';
+import { reset as resetDocumentStore, setDocumentForTest } from '../documentStore';
 import { hierarchyStore, resetHierarchy } from '../hierarchyStore';
 import {
   cancelAutoSaveTimers,
@@ -24,7 +25,6 @@ import {
   setIsSessionOnly,
   setPendingFile,
   setSaveStatus,
-  updateProjectContent,
   updateProjectEditorState,
 } from '../projectStore';
 import { propertiesStore, resetProperties } from '../propertiesStore';
@@ -304,14 +304,21 @@ describe('projectStore', () => {
   });
 
   describe('auto-save', () => {
+    // Helper to create a simple uidesc document
+    function createTestDoc(value: string) {
+      return { 'vstgui-ui-description': { version: '1' as const, test: value } };
+    }
+
     beforeEach(async () => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
       await openDatabase();
+      resetDocumentStore();
     });
 
     afterEach(() => {
       cancelAutoSaveTimers();
       vi.useRealTimers();
+      resetDocumentStore();
     });
 
     // Helper to wait for async save operations to complete
@@ -324,11 +331,15 @@ describe('projectStore', () => {
 
     describe('scheduleDocumentSave', () => {
       test('saves document after 2 second debounce', async () => {
-        const project = await createProject('Auto Save Test', '{"old": true}', 'json');
+        // Create project with initial content
+        const initialContent = JSON.stringify(createTestDoc('old'));
+        const project = await createProject('Auto Save Test', initialContent, 'json');
         expect(project).not.toBeNull();
 
-        // Update content and schedule save
-        updateProjectContent('{"new": true}');
+        // Set up documentStore with the new document to be saved
+        // performDocumentSave() serializes documentStore.document, not currentProject.uidescContent
+        setDocumentForTest(createTestDoc('new'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // Advance time by less than debounce period
@@ -337,21 +348,24 @@ describe('projectStore', () => {
 
         // Should still have old content in IndexedDB
         const beforeSave = await projectService.get(project!.id);
-        expect(beforeSave?.uidescContent).toBe('{"old": true}');
+        expect(beforeSave?.uidescContent).toBe(initialContent);
 
         // Advance past debounce period
         await vi.advanceTimersByTimeAsync(1100);
         await flushSaveOperations();
 
-        // Should now have new content
+        // Should now have new content (serialized from documentStore.document)
         const afterSave = await projectService.get(project!.id);
-        expect(afterSave?.uidescContent).toBe('{"new": true}');
+        expect(JSON.parse(afterSave!.uidescContent)).toEqual(createTestDoc('new'));
       });
 
       test('resets timer on subsequent document changes', async () => {
-        const project = await createProject('Timer Reset Test', '{"v": 0}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('v0'));
+        const project = await createProject('Timer Reset Test', initialContent, 'json');
 
-        updateProjectContent('{"v": 1}');
+        // Set up first change
+        setDocumentForTest(createTestDoc('v1'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // Advance 1.5 seconds
@@ -359,7 +373,7 @@ describe('projectStore', () => {
         await flushSaveOperations();
 
         // Make another change - should reset timer
-        updateProjectContent('{"v": 2}');
+        setDocumentForTest(createTestDoc('v2'));
         scheduleDocumentSave();
 
         // Advance another 1.5 seconds (total 3s, but only 1.5s since last change)
@@ -368,22 +382,24 @@ describe('projectStore', () => {
 
         // Should still not have saved
         const beforeSave = await projectService.get(project!.id);
-        expect(beforeSave?.uidescContent).toBe('{"v": 0}');
+        expect(beforeSave?.uidescContent).toBe(initialContent);
 
         // Advance past debounce for second change
         await vi.advanceTimersByTimeAsync(600);
         await flushSaveOperations();
 
-        // Now should have v: 2
+        // Now should have v2
         const afterSave = await projectService.get(project!.id);
-        expect(afterSave?.uidescContent).toBe('{"v": 2}');
+        expect(JSON.parse(afterSave!.uidescContent)).toEqual(createTestDoc('v2'));
       });
 
       test('does not save in session-only mode', async () => {
-        const project = await createProject('Session Only Test', '{"old": true}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('old'));
+        const project = await createProject('Session Only Test', initialContent, 'json');
         setIsSessionOnly(true);
 
-        updateProjectContent('{"new": true}');
+        setDocumentForTest(createTestDoc('new'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         await vi.advanceTimersByTimeAsync(2500);
@@ -391,13 +407,15 @@ describe('projectStore', () => {
 
         // IndexedDB should still have old content (save was skipped)
         const stored = await projectService.get(project!.id);
-        expect(stored?.uidescContent).toBe('{"old": true}');
+        expect(stored?.uidescContent).toBe(initialContent);
       });
 
       test('sets saveStatus to saved after successful save', async () => {
-        await createProject('Status Test', '{}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('initial'));
+        await createProject('Status Test', initialContent, 'json');
 
-        updateProjectContent('{"updated": true}');
+        setDocumentForTest(createTestDoc('updated'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         await vi.advanceTimersByTimeAsync(2100);
@@ -407,9 +425,11 @@ describe('projectStore', () => {
       });
 
       test('clears isDirty after successful save', async () => {
-        await createProject('Dirty Test', '{}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('initial'));
+        await createProject('Dirty Test', initialContent, 'json');
 
-        updateProjectContent('{"updated": true}');
+        setDocumentForTest(createTestDoc('updated'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         expect(projectStore.isDirty).toBe(true);
@@ -421,11 +441,13 @@ describe('projectStore', () => {
       });
 
       test('updates lastSavedAt after successful save', async () => {
-        await createProject('Timestamp Test', '{}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('initial'));
+        await createProject('Timestamp Test', initialContent, 'json');
 
         expect(projectStore.lastSavedAt).toBeNull();
 
-        updateProjectContent('{"updated": true}');
+        setDocumentForTest(createTestDoc('updated'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         await vi.advanceTimersByTimeAsync(2100);
@@ -493,11 +515,13 @@ describe('projectStore', () => {
 
     describe('dual timers', () => {
       test('document save triggers include all current state', async () => {
-        const project = await createProject('Dual Timer Test', '{"v": 0}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('v0'));
+        const project = await createProject('Dual Timer Test', initialContent, 'json');
 
         // Update both content and state
-        updateProjectContent('{"v": 1}');
+        setDocumentForTest(createTestDoc('v1'));
         updateProjectEditorState({ zoomLevel: 2.0 });
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // At 2.5 seconds, document save fires - saves ALL current state
@@ -505,13 +529,14 @@ describe('projectStore', () => {
         await flushSaveOperations();
 
         const afterSave = await projectService.get(project!.id);
-        expect(afterSave?.uidescContent).toBe('{"v": 1}');
+        expect(JSON.parse(afterSave!.uidescContent)).toEqual(createTestDoc('v1'));
         expect(afterSave?.editorState.zoomLevel).toBe(2.0); // All current state is saved
       });
 
       test('document save timer and state save timer run independently', async () => {
         // Create project
-        const project = await createProject('Independent Timer Test', '{}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('initial'));
+        const project = await createProject('Independent Timer Test', initialContent, 'json');
 
         // Schedule state save first (10s timer)
         updateProjectEditorState({ zoomLevel: 1.5 });
@@ -521,7 +546,8 @@ describe('projectStore', () => {
         await vi.advanceTimersByTimeAsync(5000);
         await flushSaveOperations();
 
-        updateProjectContent('{"changed": true}');
+        setDocumentForTest(createTestDoc('changed'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // At 7.5 seconds, doc timer fires (5s + 2.5s)
@@ -530,7 +556,7 @@ describe('projectStore', () => {
 
         // Doc save saved all current state
         const afterDocSave = await projectService.get(project!.id);
-        expect(afterDocSave?.uidescContent).toBe('{"changed": true}');
+        expect(JSON.parse(afterDocSave!.uidescContent)).toEqual(createTestDoc('changed'));
         expect(afterDocSave?.editorState.zoomLevel).toBe(1.5);
 
         // State timer should still fire at 10s from start
@@ -543,10 +569,12 @@ describe('projectStore', () => {
       });
 
       test('each timer only resets its own debounce', async () => {
-        const project = await createProject('Reset Test', '{"v": 0}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('v0'));
+        const project = await createProject('Reset Test', initialContent, 'json');
 
         // Start document timer
-        updateProjectContent('{"v": 1}');
+        setDocumentForTest(createTestDoc('v1'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // After 1 second, schedule state timer (should NOT reset document timer)
@@ -561,16 +589,18 @@ describe('projectStore', () => {
         await flushSaveOperations();
 
         const afterDocSave = await projectService.get(project!.id);
-        expect(afterDocSave?.uidescContent).toBe('{"v": 1}');
+        expect(JSON.parse(afterDocSave!.uidescContent)).toEqual(createTestDoc('v1'));
         expect(afterDocSave?.editorState.zoomLevel).toBe(1.5);
       });
     });
 
     describe('cancelAutoSaveTimers', () => {
       test('cancels pending document save', async () => {
-        const project = await createProject('Cancel Doc Test', '{"old": true}', 'json');
+        const initialContent = JSON.stringify(createTestDoc('old'));
+        const project = await createProject('Cancel Doc Test', initialContent, 'json');
 
-        updateProjectContent('{"new": true}');
+        setDocumentForTest(createTestDoc('new'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // Cancel before debounce completes
@@ -582,7 +612,7 @@ describe('projectStore', () => {
 
         // Should still have old content
         const stored = await projectService.get(project!.id);
-        expect(stored?.uidescContent).toBe('{"old": true}');
+        expect(stored?.uidescContent).toBe(initialContent);
       });
 
       test('cancels pending state save', async () => {
@@ -607,27 +637,12 @@ describe('projectStore', () => {
     describe('performance', () => {
       test('auto-save completes within 200ms for typical document changes', async () => {
         // Create a project with typical content size
-        const typicalContent = JSON.stringify({
-          'vstgui-ui-description': {
-            version: '1',
-            templates: {
-              view: {
-                class: 'CViewContainer',
-                attributes: { size: '600, 400' },
-                children: [
-                  { class: 'CTextButton', attributes: { title: 'Button 1', size: '100, 30' } },
-                  { class: 'CTextButton', attributes: { title: 'Button 2', size: '100, 30' } },
-                  { class: 'CTextLabel', attributes: { title: 'Label', size: '200, 20' } },
-                ],
-              },
-            },
-          },
-        });
-        const project = await createProject('Perf Test', typicalContent, 'json');
+        const typicalContent = JSON.stringify(createTestDoc('initial'));
+        await createProject('Perf Test', typicalContent, 'json');
 
-        // Update content
-        const updatedContent = typicalContent.replace('Button 1', 'Modified Button');
-        updateProjectContent(updatedContent);
+        // Set up documentStore with modified content
+        setDocumentForTest(createTestDoc('modified'));
+        setIsDirty(true);
         scheduleDocumentSave();
 
         // Trigger the save by advancing past debounce

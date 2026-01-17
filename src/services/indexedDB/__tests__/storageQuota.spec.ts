@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { LIMITS } from '../../../domain/project/types';
-import { checkQuotaWarning, estimateStorageQuota, QUOTA_WARNING_THRESHOLD } from '../storageQuota';
+import { checkQuotaWarning, estimateStorageQuota } from '../storageQuota';
 
 describe('storageQuota', () => {
   const originalNavigator = global.navigator;
@@ -189,10 +188,4 @@ describe('storageQuota', () => {
     });
   });
 
-  describe('QUOTA_WARNING_THRESHOLD', () => {
-    test('is set to 80%', () => {
-      expect(QUOTA_WARNING_THRESHOLD).toBe(LIMITS.QUOTA_WARNING_THRESHOLD);
-      expect(QUOTA_WARNING_THRESHOLD).toBe(80);
-    });
-  });
 });

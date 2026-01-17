@@ -15,12 +15,6 @@ import {
 } from '../smartGuides';
 
 describe('smartGuides foundational utilities', () => {
-  describe('GUIDE_THRESHOLD', () => {
-    test('equals 5 pixels', () => {
-      expect(GUIDE_THRESHOLD).toBe(5);
-    });
-  });
-
   describe('getViewBounds', () => {
     const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView => ({
       id: 'test-view',

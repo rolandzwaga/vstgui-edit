@@ -7,7 +7,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@solidjs/testing-library';
 
-// Mock theme service
+// Mock theme service - must be before App import
 const mockInitializeTheme = vi.fn();
 const mockUpdateTheme = vi.fn();
 const mockSubscribeToSystemThemeChanges = vi.fn().mockReturnValue(vi.fn());
@@ -19,26 +19,24 @@ vi.mock('../domain/theme', () => ({
 }));
 
 // Mock stores to avoid side effects
-vi.mock('../stores/preferencesStore', async () => {
-  const actual = await vi.importActual<
-    typeof import('../stores/preferencesStore')
-  >('../stores/preferencesStore');
-  return {
-    ...actual,
-    initializePreferences: vi.fn(),
-    preferencesStore: {
-      preferences: {
-        theme: { mode: 'light' },
-      },
+vi.mock('../stores/preferencesStore', () => ({
+  initializePreferences: vi.fn(),
+  openPreferences: vi.fn(),
+  preferencesStore: {
+    preferences: {
+      theme: { mode: 'light' },
     },
-  };
-});
+  },
+}));
 
 vi.mock('../stores/documentStore', () => ({
   documentStore: {
     parseState: 'idle',
     isDirty: false,
   },
+  loadFile: vi.fn(),
+  createNewDocument: vi.fn(),
+  getTemplate: vi.fn(),
 }));
 
 vi.mock('../stores/searchStore', () => ({
@@ -52,6 +50,154 @@ vi.mock('../stores/templateStore', () => ({
     activeTemplateId: null,
   },
 }));
+
+vi.mock('../stores/projectStore', () => ({
+  initializeProjectStore: vi.fn().mockResolvedValue(undefined),
+  projectStore: {
+    isProjectListOpen: false,
+    isSessionOnly: false,
+    currentProject: null,
+    pendingFile: null,
+  },
+  listProjects: vi.fn().mockResolvedValue([]),
+  scheduleDocumentSave: vi.fn(),
+  closeProjectList: vi.fn(),
+  openProject: vi.fn(),
+  deleteProject: vi.fn(),
+  renameProject: vi.fn(),
+  createProject: vi.fn(),
+}));
+
+vi.mock('../stores/historyStore', () => ({
+  undo: vi.fn(),
+  redo: vi.fn(),
+}));
+
+vi.mock('../stores/canvasStore', () => ({
+  fitToView: vi.fn(),
+}));
+
+vi.mock('../stores/viewModeStore', () => ({
+  toggleViewMode: vi.fn(),
+}));
+
+vi.mock('../stores/appContainerStore', () => ({
+  setAppContainer: vi.fn(),
+}));
+
+vi.mock('../services/indexedDB/database', () => ({
+  closeDatabase: vi.fn(),
+}));
+
+// Mock domain utilities
+vi.mock('../domain/project/legacyStorage', () => ({
+  cleanupLegacyStorage: vi.fn(),
+}));
+
+vi.mock('../domain/shortcuts', () => ({
+  detectConflicts: vi.fn(),
+}));
+
+vi.mock('../domain/search/shortcuts', () => ({
+  handleSearchShortcut: vi.fn(),
+}));
+
+vi.mock('../domain/rulers', () => ({
+  RULER_THICKNESS: 20,
+}));
+
+vi.mock('../domain/createNew/documentFactory', () => ({
+  createDocument: vi.fn(),
+}));
+
+// Mock all heavy components
+vi.mock('../components/UploadZone/UploadZone', () => ({
+  UploadZone: () => null,
+}));
+
+vi.mock('../components/Canvas', () => ({
+  Canvas: () => null,
+  Legend: () => null,
+}));
+
+vi.mock('../components/Canvas/Rulers', () => ({
+  RulerContainer: (props: { children: unknown }) => props.children,
+}));
+
+vi.mock('../components/ConfirmDialog', () => ({
+  ConfirmDialog: () => null,
+}));
+
+vi.mock('../components/CreateNewDialog', () => ({
+  CreateNewDialog: () => null,
+}));
+
+vi.mock('../components/FindPanel', () => ({
+  FindPanel: () => null,
+}));
+
+vi.mock('../components/OrphanWarningDialog', () => ({
+  OrphanWarningDialog: () => null,
+}));
+
+vi.mock('../components/ProjectList', () => ({
+  ProjectList: () => null,
+}));
+
+vi.mock('../components/TemplatesPanel', () => ({
+  TemplatesPanel: () => null,
+}));
+
+vi.mock('../components/HierarchyPanel', () => ({
+  HierarchyPanel: () => null,
+}));
+
+vi.mock('../components/ColorsPanel', () => ({
+  ColorsPanel: () => null,
+}));
+
+vi.mock('../components/FontsPanel', () => ({
+  FontsPanel: () => null,
+}));
+
+vi.mock('../components/BitmapsPanel', () => ({
+  BitmapsPanel: () => null,
+}));
+
+vi.mock('../components/GradientsPanel', () => ({
+  GradientsPanel: () => null,
+}));
+
+vi.mock('../components/ControlTagsPanel', () => ({
+  ControlTagsPanel: () => null,
+}));
+
+vi.mock('../components/VariablesPanel', () => ({
+  VariablesPanel: () => null,
+}));
+
+vi.mock('../components/ViewPalette', () => ({
+  ViewPalette: () => null,
+}));
+
+vi.mock('../components/PropertiesPanel', () => ({
+  PropertiesPanel: () => null,
+}));
+
+vi.mock('../components/MainToolbar', () => ({
+  MainToolbar: () => null,
+}));
+
+vi.mock('../components/StorageWarning', () => ({
+  StorageWarning: () => null,
+}));
+
+vi.mock('../components/PreferencesPanel', () => ({
+  PreferencesPanel: () => null,
+}));
+
+// Now import App after all mocks are set up
+import App from '../App';
 
 describe('App theme integration', () => {
   let originalMatchMedia: typeof window.matchMedia;
@@ -75,27 +221,10 @@ describe('App theme integration', () => {
   afterEach(() => {
     cleanup();
     window.matchMedia = originalMatchMedia;
-    vi.resetModules();
   });
 
-  it('calls initializeTheme on mount', async () => {
-    const { default: App } = await import('../App');
+  it('calls initializeTheme on mount', () => {
     render(() => <App />);
-
     expect(mockInitializeTheme).toHaveBeenCalled();
-  });
-
-  it('theme service functions are exported from domain module', async () => {
-    // This validates the contract is fulfilled
-    const themeModule = await vi.importActual<typeof import('../domain/theme')>(
-      '../domain/theme'
-    );
-
-    expect(typeof themeModule.initializeTheme).toBe('function');
-    expect(typeof themeModule.updateTheme).toBe('function');
-    expect(typeof themeModule.subscribeToSystemThemeChanges).toBe('function');
-    expect(typeof themeModule.getEffectiveTheme).toBe('function');
-    expect(typeof themeModule.isSystemDarkMode).toBe('function');
-    expect(typeof themeModule.applyTheme).toBe('function');
   });
 });

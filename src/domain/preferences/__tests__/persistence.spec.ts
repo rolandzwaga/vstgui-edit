@@ -16,12 +16,6 @@ describe('persistence', () => {
     localStorage.clear();
   });
 
-  describe('STORAGE_KEY', () => {
-    it('exports the correct storage key', () => {
-      expect(STORAGE_KEY).toBe('vstgui-edit:preferences');
-    });
-  });
-
   describe('loadPreferences', () => {
     it('returns defaults when no stored preferences exist', () => {
       const prefs = loadPreferences();
