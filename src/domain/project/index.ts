@@ -60,5 +60,23 @@ export {
   STORES,
   THUMBNAIL,
 } from './types';
+// Thumbnail
+export type { ThumbnailResult, ThumbnailTemplate, ThumbnailView } from './thumbnail';
+export {
+  createPlaceholderThumbnail,
+  extractFirstTemplate,
+  generateThumbnail,
+  renderThumbnail,
+} from './thumbnail';
 // Validation
 export { LIMITS, sanitizeProjectName, validateProjectName } from './validation';
+// Project Validation
+export type { ProjectValidationResult } from './projectValidation';
+export { validateProjectRecord } from './projectValidation';
+// Legacy Storage Cleanup
+export {
+  LEGACY_KEYS,
+  cleanupLegacyStorage,
+  getExistingLegacyKeys,
+  hasLegacyStorage,
+} from './legacyStorage';

@@ -24,7 +24,7 @@
     "@fortawesome/free-solid-svg-icons": "7.1.0",
     "@solidjs/router": "0.15.4",
     "ajv": "8.17.1",
-    "fflate": "^0.8.2",
+    "fflate": "0.8.2",
     "solid-fontawesome": "0.2.1",
     "solid-js": "1.9.10"
   },
@@ -35,7 +35,7 @@
     "@testing-library/user-event": "14.6.1",
     "@types/node": "25.0.9",
     "@vitest/coverage-v8": "4.0.17",
-    "fake-indexeddb": "^6.2.5",
+    "fake-indexeddb": "6.2.5",
     "jsdom": "27.4.0",
     "json-schema-to-typescript": "15.0.4",
     "knip": "5.81.0",

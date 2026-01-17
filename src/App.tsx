@@ -16,6 +16,7 @@ import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
 import { StorageWarning } from './components/StorageWarning';
 
+import { cleanupLegacyStorage } from './domain/project/legacyStorage';
 import { handleSearchShortcut } from './domain/search/shortcuts';
 import { detectConflicts } from './domain/shortcuts';
 import {
@@ -43,6 +44,9 @@ const QUOTA_CHECK_INTERVAL = 5 * 60 * 1000;
 export default function App() {
   // Track if storage warning has been dismissed
   const [storageWarningDismissed, setStorageWarningDismissed] = createSignal(false);
+
+  // Clean up legacy localStorage keys from before project-based storage
+  cleanupLegacyStorage();
 
   // Initialize preferences from localStorage on mount
   initializePreferences();

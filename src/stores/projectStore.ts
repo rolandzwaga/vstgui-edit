@@ -19,6 +19,7 @@ import type {
   UidescFormat,
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
+import { generateThumbnail } from '../domain/project/thumbnail';
 import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
 import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
@@ -179,6 +180,25 @@ export async function initializeProjectStore(): Promise<void> {
 // ============================================================================
 
 /**
+ * Generates a thumbnail from uidesc content.
+ * Returns null if generation fails.
+ */
+function generateThumbnailFromContent(uidescContent: string): string | null {
+  try {
+    const parseResult = parseUidesc(uidescContent);
+    if (!parseResult.success) {
+      return null;
+    }
+    const thumbnailResult = generateThumbnail(
+      parseResult.document as unknown as Record<string, unknown>
+    );
+    return thumbnailResult.success ? thumbnailResult.dataUrl : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Creates a new project and sets it as current.
  *
  * @param name - Project name
@@ -194,6 +214,9 @@ export async function createProject(
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
 
+  // Generate thumbnail from the uidesc content
+  const thumbnailDataUrl = generateThumbnailFromContent(uidescContent);
+
   const project: Project = {
     id,
     name,
@@ -203,7 +226,7 @@ export async function createProject(
     uidescFormat,
     editorState: { ...DEFAULT_EDITOR_STATE },
     settings: { ...DEFAULT_PROJECT_SETTINGS },
-    thumbnailDataUrl: null,
+    thumbnailDataUrl,
   };
 
   // In session-only mode, we still set the project but don't persist
@@ -410,9 +433,13 @@ async function performDocumentSave(): Promise<void> {
   try {
     setStore({ saveStatus: 'saving' });
 
+    // Regenerate thumbnail when document content changes
+    const thumbnailDataUrl = generateThumbnailFromContent(project.uidescContent);
+
     const updatedProject: Project = {
       ...toPlainProject(project),
       updatedAt: new Date().toISOString(),
+      thumbnailDataUrl: thumbnailDataUrl ?? project.thumbnailDataUrl,
     };
 
     await projectService.update(updatedProject);
