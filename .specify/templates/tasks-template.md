@@ -12,6 +12,8 @@ description: "Task list template for feature implementation"
 
 **Testing Guide**: Use `/testing-guide` skill before writing tests. This ensures SolidJS-specific patterns (microtask flushing, testInRoot, etc.) are followed.
 
+**SolidJS Guide**: Use `/solidjs-guide` skill before writing components or stores. This ensures proper reactivity patterns and SolidJS idioms are followed.
+
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -296,6 +298,7 @@ With multiple developers:
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - **Testing Guide**: Use `/testing-guide` skill before writing tests (SolidJS-specific patterns)
+- **SolidJS Guide**: Use `/solidjs-guide` skill before writing components or stores (reactivity patterns)
 - Verify tests fail before implementing
 - **Commit after each phase** - each phase ends with a commit task
 - Stop at any checkpoint to validate story independently

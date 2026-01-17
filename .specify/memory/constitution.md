@@ -339,7 +339,7 @@ import type { Component, JSX } from 'solid-js';
 ### When Writing Code:
 1. **STOP** before writing any hook-like code
 2. **ASK**: "Is this a React pattern or SolidJS pattern?"
-3. **VERIFY**: Check SolidJS documentation if uncertain
+3. **VERIFY**: Use `/solidjs-guide` skill for patterns and best practices
 4. **NEVER GUESS**: Ask user if you're not 100% sure
 
 ### Consequences of Violation:

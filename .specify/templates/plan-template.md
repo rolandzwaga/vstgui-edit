@@ -21,7 +21,8 @@
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 **Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
-**Testing Guide**: Use `/testing-guide` skill - MUST be consulted for all test tasks  
+**Testing Guide**: Use `/testing-guide` skill - MUST be consulted for all test tasks
+**SolidJS Guide**: Use `/solidjs-guide` skill - MUST be consulted for component/store implementation
 **Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
 **Project Type**: [single/web/mobile - determines source structure]  
 **Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
