@@ -826,4 +826,102 @@ describe('projectStore', () => {
       });
     });
   });
+
+  describe('createEmptyProject', () => {
+    beforeEach(async () => {
+      await openDatabase();
+    });
+
+    test('creates project with default uidesc structure', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Empty Project');
+
+      expect(result).not.toBeNull();
+      expect(result?.name).toBe('Empty Project');
+
+      // Parse the uidesc content to verify structure
+      const content = JSON.parse(result!.uidescContent);
+      expect(content['vstgui-ui-description']).toBeDefined();
+      expect(content['vstgui-ui-description'].version).toBe('1');
+      expect(content['vstgui-ui-description'].templates).toBeDefined();
+    });
+
+    test('creates project with default template named "view"', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Template Test');
+
+      const content = JSON.parse(result!.uidescContent);
+      const templates = content['vstgui-ui-description'].templates;
+
+      expect(templates.view).toBeDefined();
+      expect(templates.view.attributes.class).toBe('CViewContainer');
+    });
+
+    test('creates template with default dimensions', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Dimensions Test');
+
+      const content = JSON.parse(result!.uidescContent);
+      const viewAttrs = content['vstgui-ui-description'].templates.view.attributes;
+
+      expect(viewAttrs.size).toBe('400, 300');
+      expect(viewAttrs.origin).toBe('0, 0');
+    });
+
+    test('creates project with default settings', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Settings Test');
+
+      expect(result?.settings).toEqual(DEFAULT_PROJECT_SETTINGS);
+    });
+
+    test('creates project with default editor state', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Editor State Test');
+
+      expect(result?.editorState).toEqual(DEFAULT_EDITOR_STATE);
+    });
+
+    test('sets uidescFormat to json', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Format Test');
+
+      expect(result?.uidescFormat).toBe('json');
+    });
+
+    test('sets current project after creation', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Current Test');
+
+      expect(projectStore.currentProject).toEqual(result);
+    });
+
+    test('stores project in IndexedDB', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+
+      const result = await createEmptyProject('Storage Test');
+
+      const stored = await projectService.get(result!.id);
+      expect(stored).toBeDefined();
+      expect(stored?.name).toBe('Storage Test');
+    });
+
+    test('works in session-only mode without persisting', async () => {
+      const { createEmptyProject } = await import('../projectStore');
+      setIsSessionOnly(true);
+
+      const result = await createEmptyProject('Session Only');
+
+      // Returns the project but doesn't persist it
+      expect(result).not.toBeNull();
+      expect(projectStore.currentProject).toEqual(result);
+    });
+  });
 });

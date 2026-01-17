@@ -372,4 +372,107 @@ describe('UploadZone', () => {
       vi.useRealTimers();
     });
   });
+
+  describe('Create New with Project Storage', () => {
+    beforeEach(async () => {
+      reset();
+      resetProjectStore();
+      // Not session-only - storage is available
+      setIsSessionOnly(false);
+    });
+
+    afterEach(() => {
+      cleanup();
+    });
+
+    it('should show ProjectNameDialog after CreateNewDialog when not in session-only mode', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+      const { openDatabase } = await import('../../../services/indexedDB/database');
+      await openDatabase();
+
+      render(() => <UploadZone />);
+
+      // Open the Create New dialog
+      const createButton = screen.getByRole('button', { name: /create new/i });
+      fireEvent.click(createButton);
+
+      // Fill in dimensions and submit
+      const dialogCreateButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(dialogCreateButton);
+
+      await Promise.resolve();
+
+      // ProjectNameDialog should now be open
+      expect(screen.getByText('Create Project')).toBeInTheDocument();
+
+      vi.useRealTimers();
+    });
+
+    it('should create project when ProjectNameDialog is confirmed', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+      const { openDatabase } = await import('../../../services/indexedDB/database');
+      const { projectStore } = await import('../../../stores/projectStore');
+      await openDatabase();
+
+      render(() => <UploadZone />);
+
+      // Open and submit CreateNewDialog
+      const createButton = screen.getByRole('button', { name: /create new/i });
+      fireEvent.click(createButton);
+      const dialogCreateButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(dialogCreateButton);
+
+      await Promise.resolve();
+
+      // Enter project name
+      const nameInput = screen.getByLabelText('Project Name');
+      fireEvent.input(nameInput, { target: { value: 'My New Project' } });
+      fireEvent.change(nameInput, { target: { value: 'My New Project' } });
+
+      // Click Create in ProjectNameDialog
+      const confirmButton = screen.getByRole('button', { name: /^create$/i });
+      fireEvent.click(confirmButton);
+
+      // Wait for async project creation
+      await waitFor(() => {
+        expect(projectStore.currentProject).not.toBeNull();
+      });
+
+      // Project should be created and set as current
+      expect(projectStore.currentProject?.name).toBe('My New Project');
+
+      vi.useRealTimers();
+    });
+
+    it('should cancel project creation when ProjectNameDialog is cancelled', async () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+      const { openDatabase } = await import('../../../services/indexedDB/database');
+      const { projectStore } = await import('../../../stores/projectStore');
+      await openDatabase();
+
+      render(() => <UploadZone />);
+
+      // Open and submit CreateNewDialog
+      const createButton = screen.getByRole('button', { name: /create new/i });
+      fireEvent.click(createButton);
+      const dialogCreateButton = screen.getByRole('button', { name: 'Create' });
+      fireEvent.click(dialogCreateButton);
+
+      await Promise.resolve();
+
+      // ProjectNameDialog should be open
+      expect(screen.getByText('Create Project')).toBeInTheDocument();
+
+      // Cancel
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      fireEvent.click(cancelButton);
+
+      await Promise.resolve();
+
+      // Project should not be created
+      expect(projectStore.currentProject).toBeNull();
+
+      vi.useRealTimers();
+    });
+  });
 });

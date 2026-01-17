@@ -13,6 +13,7 @@ import {
   openProject,
   deleteProject,
 } from '../../stores/projectStore';
+import { createDocument } from '../../domain/createNew/documentFactory';
 import type { Project } from '../../domain/project/types';
 import type { NewDocumentConfig } from '../../types/createNew';
 import { CreateNewDialog } from '../CreateNewDialog';
@@ -27,6 +28,8 @@ export function UploadZone() {
   let fileInputRef: HTMLInputElement | undefined;
   const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
   const [projects, setProjects] = createSignal<Project[]>([]);
+  // Store pending new document config for project creation flow
+  const [pendingNewDocConfig, setPendingNewDocConfig] = createSignal<NewDocumentConfig | null>(null);
 
   // Load projects when component mounts (if not in session-only mode)
   onMount(async () => {
@@ -76,8 +79,16 @@ export function UploadZone() {
   };
 
   const handleCreate = (config: NewDocumentConfig) => {
-    createNewDocument(config);
     setIsCreateDialogOpen(false);
+
+    if (projectStore.isSessionOnly) {
+      // In session-only mode, just create the document without a project
+      createNewDocument(config);
+    } else {
+      // Store the config and show project name dialog
+      setPendingNewDocConfig(config);
+      openNameDialog('create');
+    }
   };
 
   const handleCloseDialog = () => {
@@ -144,27 +155,42 @@ export function UploadZone() {
 
   /**
    * Handle project name confirmation from the dialog.
+   * Handles both file upload and new document creation flows.
    */
   const handleNameConfirm = async (name: string) => {
+    const pendingConfig = pendingNewDocConfig();
     const pending = projectStore.pendingFile;
-    if (!pending) {
+
+    if (pendingConfig) {
+      // New document creation flow
+      const doc = createDocument(pendingConfig);
+      const content = JSON.stringify(doc);
+      await createProject(name, content, 'json');
+
+      // Load the document into documentStore
+      createNewDocument(pendingConfig);
+
+      // Clean up
+      setPendingNewDocConfig(null);
       closeNameDialog();
-      return;
+    } else if (pending) {
+      // File upload flow
+      await createProject(name, pending.content, pending.format);
+
+      // Clean up
+      clearPendingFile();
+      closeNameDialog();
+    } else {
+      closeNameDialog();
     }
-
-    // Create the project
-    await createProject(name, pending.content, pending.format);
-
-    // Clean up
-    clearPendingFile();
-    closeNameDialog();
   };
 
   /**
-   * Handle name dialog cancel - clear pending file.
+   * Handle name dialog cancel - clear pending state.
    */
   const handleNameCancel = () => {
     clearPendingFile();
+    setPendingNewDocConfig(null);
     closeNameDialog();
   };
 

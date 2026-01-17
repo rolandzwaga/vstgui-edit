@@ -596,3 +596,46 @@ export async function deleteProject(id: string): Promise<boolean> {
     return false;
   }
 }
+
+// ============================================================================
+// Empty Project Creation
+// ============================================================================
+
+/**
+ * Creates a default empty uidesc document structure.
+ * Used for creating new projects without importing an existing file.
+ */
+function createDefaultUidescContent(): string {
+  const doc = {
+    'vstgui-ui-description': {
+      version: '1',
+      templates: {
+        view: {
+          attributes: {
+            class: 'CViewContainer',
+            origin: '0, 0',
+            size: '400, 300',
+            'background-color': '~ BlackCColor',
+          },
+        },
+      },
+    },
+  };
+  return JSON.stringify(doc);
+}
+
+/**
+ * Creates a new empty project with default uidesc structure.
+ *
+ * This function creates a project with:
+ * - A default uidesc JSON structure with a single "view" template
+ * - Default project settings
+ * - Default editor state
+ *
+ * @param name - Project name
+ * @returns The created project, or null if failed
+ */
+export async function createEmptyProject(name: string): Promise<Project | null> {
+  const uidescContent = createDefaultUidescContent();
+  return createProject(name, uidescContent, 'json');
+}
