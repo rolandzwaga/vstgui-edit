@@ -1,4 +1,4 @@
-import { createEffect, onCleanup, onMount, Show } from 'solid-js';
+import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { RulerContainer } from './components/Canvas/Rulers';
@@ -14,6 +14,7 @@ import { VariablesPanel } from './components/VariablesPanel';
 import { ViewPalette } from './components/ViewPalette';
 import { PropertiesPanel } from './components/PropertiesPanel';
 import { MainToolbar } from './components/MainToolbar';
+import { StorageWarning } from './components/StorageWarning';
 
 import { handleSearchShortcut } from './domain/search/shortcuts';
 import { detectConflicts } from './domain/shortcuts';
@@ -36,7 +37,13 @@ import { initializeProjectStore, projectStore } from './stores/projectStore';
 import { closeDatabase } from './services/indexedDB/database';
 import './styles/tokens.css';
 
+// Storage quota check interval (5 minutes)
+const QUOTA_CHECK_INTERVAL = 5 * 60 * 1000;
+
 export default function App() {
+  // Track if storage warning has been dismissed
+  const [storageWarningDismissed, setStorageWarningDismissed] = createSignal(false);
+
   // Initialize preferences from localStorage on mount
   initializePreferences();
 
@@ -156,6 +163,14 @@ export default function App() {
       ref={setAppContainer}
       style={{ padding: '1rem', margin: '0 auto', "padding-top":  documentStore.parseState === 'valid' ? 0 : '2rem'}}
     >
+      {/* Storage warning - shown at top when quota exceeds threshold */}
+      <Show when={!projectStore.isSessionOnly && !storageWarningDismissed()}>
+        <StorageWarning
+          recheckInterval={QUOTA_CHECK_INTERVAL}
+          onDismiss={() => setStorageWarningDismissed(true)}
+        />
+      </Show>
+
       {/* Show upload zone when no document, canvas when document loaded */}
       {documentStore.parseState === 'valid' ? (
         <>

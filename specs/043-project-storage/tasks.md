@@ -347,7 +347,7 @@
 - [X] T112 [US8] Update Toolbar tests in `src/components/Toolbar/__tests__/Toolbar.spec.tsx` (test "Save As..." menu item appears when project open)
 - [X] T113 [US8] Modify Toolbar in `src/components/Toolbar/Toolbar.tsx` (add "Save As..." menu option, shows ProjectNameDialog, calls projectStore.duplicateProject)
 
-- [ ] T114 [US8] **Commit**: Stage and commit User Story 8 changes
+- [X] T114 [US8] **Commit**: Stage and commit User Story 8 changes
 
 **Checkpoint**: Users can now duplicate projects
 
@@ -363,20 +363,20 @@
 
 ### Bitmap Integration
 
-- [ ] T115 [US9] Modify bitmap picker integration (location TBD based on existing implementation) to call bitmapService.add when user uploads bitmap
-- [ ] T116 [US9] Modify bitmap display (location TBD) to fetch from bitmapService.getByProject and create object URLs for display
-- [ ] T117 [US9] Add cleanup for object URLs using URL.revokeObjectURL when bitmaps are unloaded
+- [X] T115 [US9] Modify bitmap picker integration (location TBD based on existing implementation) to call bitmapService.add when user uploads bitmap - SKIPPED: No bitmap upload UI exists yet; bitmapService infrastructure is complete
+- [X] T116 [US9] Modify bitmap display (location TBD) to fetch from bitmapService.getByProject and create object URLs for display - SKIPPED: No bitmap display component exists yet; bitmapService infrastructure is complete
+- [X] T117 [US9] Add cleanup for object URLs using URL.revokeObjectURL when bitmaps are unloaded - SKIPPED: No bitmap display component exists yet
 
 ### Storage Warning Integration
 
-- [ ] T118 [US9] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with StorageWarning tests
-- [ ] T119 [US9] Create StorageWarning tests in `src/components/StorageWarning/__tests__/StorageWarning.spec.tsx` (test warning appears at 80% quota, shows usage stats, dismissible, reappears on next quota check)
-- [ ] T120 [US9] Implement StorageWarning in `src/components/StorageWarning/StorageWarning.tsx` (banner component, shows used/available space, percentage bar, dismiss button, calls storageQuota.checkQuotaWarning)
-- [ ] T121 [US9] Create StorageWarning styles in `src/components/StorageWarning/StorageWarning.module.css` (warning banner styling, progress bar, dismiss button)
+- [X] T118 [US9] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with StorageWarning tests
+- [X] T119 [US9] Create StorageWarning tests in `src/components/StorageWarning/__tests__/StorageWarning.spec.tsx` (test warning appears at 80% quota, shows usage stats, dismissible, reappears on next quota check)
+- [X] T120 [US9] Implement StorageWarning in `src/components/StorageWarning/StorageWarning.tsx` (banner component, shows used/available space, percentage bar, dismiss button, calls storageQuota.checkQuotaWarning)
+- [X] T121 [US9] Create StorageWarning styles in `src/components/StorageWarning/StorageWarning.module.css` (warning banner styling, progress bar, dismiss button)
 
 ### App Integration
 
-- [ ] T122 [US9] Modify App in `src/App.tsx` (periodic quota check using setInterval, show StorageWarning when threshold exceeded, cleanup interval on unmount)
+- [X] T122 [US9] Modify App in `src/App.tsx` (periodic quota check using setInterval, show StorageWarning when threshold exceeded, cleanup interval on unmount)
 
 - [ ] T123 [US9] **Commit**: Stage and commit User Story 9 changes
 
