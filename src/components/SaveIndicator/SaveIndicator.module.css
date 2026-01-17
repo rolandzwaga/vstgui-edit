@@ -3,12 +3,12 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-1) var(--spacing-2);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
   user-select: none;
   /* Fixed width to prevent layout shifts when text changes */
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .text {
