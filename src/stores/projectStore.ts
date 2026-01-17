@@ -21,11 +21,12 @@ import type {
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
 import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
+import { serializeToJson, serializeToXml } from '../domain/serializer';
 import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
 import { restoreCanvasState } from './canvasStore';
-import { setDocumentForTest as setDocumentStoreContent } from './documentStore';
+import { documentStore, setDocumentForTest as setDocumentStoreContent } from './documentStore';
 import { restoreHierarchyState } from './hierarchyStore';
 import { restorePropertiesState } from './propertiesStore';
 import { setActiveTemplate } from './templateStore';
@@ -423,6 +424,7 @@ function toPlainProject(project: Project): Project {
 
 /**
  * Performs the actual document save to IndexedDB.
+ * Serializes the current document from documentStore before saving.
  */
 async function performDocumentSave(): Promise<void> {
   const project = store.currentProject;
@@ -430,14 +432,25 @@ async function performDocumentSave(): Promise<void> {
     return;
   }
 
+  // Get the current document from documentStore and serialize it
+  const document = documentStore.document;
+  if (!document) {
+    return;
+  }
+
   try {
     setStore({ saveStatus: 'saving' });
 
-    // Regenerate thumbnail when document content changes
-    const thumbnailDataUrl = generateThumbnailFromContent(project.uidescContent);
+    // Serialize document to the project's format
+    const serializedContent =
+      project.uidescFormat === 'xml' ? serializeToXml(document) : serializeToJson(document);
+
+    // Regenerate thumbnail from the serialized content
+    const thumbnailDataUrl = generateThumbnailFromContent(serializedContent);
 
     const updatedProject: Project = {
       ...toPlainProject(project),
+      uidescContent: serializedContent,
       updatedAt: new Date().toISOString(),
       thumbnailDataUrl: thumbnailDataUrl ?? project.thumbnailDataUrl,
     };

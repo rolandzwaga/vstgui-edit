@@ -50,6 +50,7 @@ import {
   renameProject,
   closeProjectList,
   createProject,
+  scheduleDocumentSave,
 } from './stores/projectStore';
 import { closeDatabase } from './services/indexedDB/database';
 import './styles/tokens.css';
@@ -121,6 +122,15 @@ export default function App() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     onCleanup(() => window.removeEventListener('beforeunload', handleBeforeUnload));
+  });
+
+  // Auto-save: schedule document save when document becomes dirty
+  // The actual serialization happens in performDocumentSave (debounced by 2 seconds)
+  createEffect(() => {
+    // Only trigger when dirty and a project is open (not in session-only mode)
+    if (documentStore.isDirty && projectStore.currentProject && !projectStore.isSessionOnly) {
+      scheduleDocumentSave();
+    }
   });
 
   // Global keyboard shortcuts for Find/Replace, Preferences, and Undo/Redo
