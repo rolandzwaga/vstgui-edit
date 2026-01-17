@@ -8,8 +8,11 @@ import {
   updateBitmapName,
   updateBitmapProperty,
   updateViewAttribute,
+  uploadBitmap,
+  type UploadBitmapResult,
 } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
+import { projectStore } from '../../stores/projectStore';
 import {
   createAddBitmapOperation,
   createDeleteBitmapOperation,
@@ -17,9 +20,11 @@ import {
 } from '../../domain/bitmaps/historyOperations';
 import { findBitmapUsages, type BitmapUsage } from '../../domain/bitmaps/usage';
 import { normalizeBitmap } from '../../domain/bitmaps/thumbnail';
+import { bitmapService } from '../../services/indexedDB/bitmapService';
 import { CollapsibleSection } from '../CollapsibleSection';
-import { BitmapItem } from './BitmapItem';
 import { AddBitmapButton } from './AddBitmapButton';
+import { BitmapConflictDialog } from './BitmapConflictDialog';
+import { BitmapItem } from './BitmapItem';
 import { EmptyState } from './EmptyState';
 import styles from './BitmapsPanel.module.css';
 
@@ -47,6 +52,12 @@ export const BitmapsPanel: Component = () => {
     name: string;
     usages: BitmapUsage[];
   } | null>(null);
+  const [uploadConflict, setUploadConflict] = createSignal<{
+    file: File;
+    originalFilename: string;
+    suggestedName: string;
+  } | null>(null);
+  const [uploadError, setUploadError] = createSignal<string | null>(null);
 
   onMount(() => {
     initBitmapHistoryOperations(
@@ -57,6 +68,8 @@ export const BitmapsPanel: Component = () => {
       updateViewAttribute
     );
   });
+
+  const projectId = () => projectStore.currentProject?.id ?? null;
 
   const bitmaps = createMemo(() => {
     const bitmapMap = getBitmaps();
@@ -104,11 +117,28 @@ export const BitmapsPanel: Component = () => {
     }
   };
 
-  const performDelete = (name: string, bitmap: string | BitmapDefinition) => {
+  const performDelete = async (name: string, bitmap: string | BitmapDefinition) => {
+    const currentProjectId = projectId();
+
+    // Look up IndexedDB blob before deleting (if it exists)
+    let indexedDBBitmap = undefined;
+    if (currentProjectId) {
+      const blobs = await bitmapService.getByProject(currentProjectId);
+      indexedDBBitmap = blobs.find((b) => b.name === name);
+
+      // Delete from IndexedDB if it exists
+      if (indexedDBBitmap) {
+        await bitmapService.delete(indexedDBBitmap.id);
+      }
+    }
+
+    // Delete from uidesc document
     const result = deleteBitmap(name);
     if (result !== null) {
       const normalized = normalizeBitmap(bitmap);
-      pushOperation(createDeleteBitmapOperation(name, normalized, result.removedReferences));
+      pushOperation(
+        createDeleteBitmapOperation(name, normalized, result.removedReferences, indexedDBBitmap)
+      );
     }
     setPendingDelete(null);
   };
@@ -130,6 +160,53 @@ export const BitmapsPanel: Component = () => {
     return findBitmapUsages(name, documentStore.document).length;
   };
 
+  const handleUpload = async (bitmapName: string, file: File) => {
+    setUploadError(null);
+
+    // Upload to the existing bitmap (update its path and blob)
+    const result: UploadBitmapResult = await uploadBitmap(file, { targetBitmapName: bitmapName });
+
+    if (result.success) {
+      // Upload successful - nothing more to do
+      return;
+    }
+
+    // Show error
+    setUploadError(result.error ?? 'Upload failed');
+  };
+
+  const handleConflictReplace = async () => {
+    const conflict = uploadConflict();
+    if (!conflict) return;
+
+    setUploadConflict(null);
+    const result = await uploadBitmap(conflict.file, { conflictResolution: 'replace' });
+
+    if (!result.success && result.error) {
+      setUploadError(result.error);
+    }
+  };
+
+  const handleConflictAddNew = async () => {
+    const conflict = uploadConflict();
+    if (!conflict) return;
+
+    setUploadConflict(null);
+    const result = await uploadBitmap(conflict.file, { conflictResolution: 'rename' });
+
+    if (!result.success && result.error) {
+      setUploadError(result.error);
+    }
+  };
+
+  const handleConflictCancel = () => {
+    setUploadConflict(null);
+  };
+
+  const clearUploadError = () => {
+    setUploadError(null);
+  };
+
   return (
     <div class={styles.panel} data-testid="bitmaps-panel">
       <CollapsibleSection
@@ -144,12 +221,27 @@ export const BitmapsPanel: Component = () => {
                 <BitmapItem
                   name={item.name}
                   bitmap={item.bitmap}
+                  projectId={projectId()}
                   onDelete={handleDeleteRequest}
                   usageCount={getUsageCount(item.name)}
                   onUsageClick={handleUsageClick}
+                  onUpload={handleUpload}
                 />
               )}
             </For>
+          </div>
+        </Show>
+        <Show when={uploadError()}>
+          <div class={styles.errorBanner} data-testid="upload-error">
+            <span>{uploadError()}</span>
+            <button
+              type="button"
+              class={styles.closeButton}
+              onClick={clearUploadError}
+              aria-label="Dismiss error"
+            >
+              ×
+            </button>
           </div>
         </Show>
         <Show when={pendingDelete()}>
@@ -211,6 +303,17 @@ export const BitmapsPanel: Component = () => {
                 </ul>
               </div>
             </div>
+          )}
+        </Show>
+        <Show when={uploadConflict()}>
+          {(conflict) => (
+            <BitmapConflictDialog
+              filename={conflict().originalFilename}
+              suggestedName={conflict().suggestedName}
+              onReplace={handleConflictReplace}
+              onAddNew={handleConflictAddNew}
+              onCancel={handleConflictCancel}
+            />
           )}
         </Show>
       </CollapsibleSection>

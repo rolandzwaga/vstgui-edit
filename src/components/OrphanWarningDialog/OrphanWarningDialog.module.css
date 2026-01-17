@@ -4,14 +4,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0 0 0 / 0.5);
   z-index: 1000;
 }
 
 .dialog {
-  background: var(--color-surface, #ffffff);
+  background: var(--color-surface, #fff);
   border-radius: 8px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 24px rgb(0 0 0 / 0.2);
   max-width: 480px;
   width: 100%;
   max-height: 80vh;
@@ -51,7 +51,7 @@
   margin: 0 0 16px;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--color-text-secondary, #666666);
+  color: var(--color-text-secondary, #666);
 }
 
 .bitmapList {
@@ -85,7 +85,7 @@
 
 .bitmapSize {
   font-size: 12px;
-  color: var(--color-text-tertiary, #999999);
+  color: var(--color-text-tertiary, #999);
   flex-shrink: 0;
   margin-left: 12px;
 }
@@ -94,7 +94,7 @@
   margin: 12px 0 0;
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-secondary, #666666);
+  color: var(--color-text-secondary, #666);
   text-align: right;
 }
 
@@ -110,7 +110,7 @@
   padding: 8px 16px;
   border: 1px solid var(--color-border, #e0e0e0);
   border-radius: 6px;
-  background: var(--color-surface, #ffffff);
+  background: var(--color-surface, #fff);
   color: var(--color-text, #1a1a1a);
   font-size: 14px;
   font-weight: 500;
@@ -127,7 +127,7 @@
   border: 1px solid transparent;
   border-radius: 6px;
   background: var(--color-warning-500, #f59e0b);
-  color: #ffffff;
+  color: #fff;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -152,7 +152,7 @@
 }
 
 [data-theme="dark"] .explanation {
-  color: var(--color-text-secondary-dark, #999999);
+  color: var(--color-text-secondary-dark, #999);
 }
 
 [data-theme="dark"] .bitmapList {
@@ -169,11 +169,11 @@
 }
 
 [data-theme="dark"] .bitmapSize {
-  color: var(--color-text-tertiary-dark, #777777);
+  color: var(--color-text-tertiary-dark, #777);
 }
 
 [data-theme="dark"] .totalSize {
-  color: var(--color-text-secondary-dark, #999999);
+  color: var(--color-text-secondary-dark, #999);
 }
 
 [data-theme="dark"] .footer {

@@ -1,13 +1,29 @@
 import { createStore, produce } from 'solid-js/store';
+import {
+  checkBitmapNameConflict,
+  generateUniqueBitmapName,
+  getBaseName,
+  readImageFile,
+  validateImageFile,
+} from '../domain/bitmaps/fileHandling';
+import {
+  createUpdateBitmapUploadOperation,
+  createUploadBitmapOperation,
+  type UploadBitmapData,
+} from '../domain/bitmaps/historyOperations';
+import { invalidateThumbnailCache, normalizeBitmap } from '../domain/bitmaps/thumbnail';
 import { formatOrigin, parsePoint } from '../domain/canvas';
 import { createDocument } from '../domain/createNew/documentFactory';
 import { parseUidesc } from '../domain/parser';
+import type { Bitmap } from '../domain/project/types';
 import { generateDuplicateName, isValidTemplateName } from '../domain/templates/validation';
 import type { RemovedVariableReference } from '../domain/variables/historyOperations';
+import { bitmapService } from '../services/indexedDB/bitmapService';
 import type { DocumentMetadata, DocumentStoreState } from '../types';
 import type { Point, Size } from '../types/canvas';
 import type { NewDocumentConfig } from '../types/createNew';
 import type {
+  BitmapDefinition,
   TemplateDefinition,
   TemplatesDefinition,
   ViewNode,
@@ -15,8 +31,10 @@ import type {
 } from '../types/uidesc';
 import { resetCanvas } from './canvasStore';
 import { resetGuidesStore } from './guidesStore';
+import { pushOperation } from './historyStore';
 import { resetLockHideStore } from './lockHideStore';
 import { applyDefaultStatesOnDocumentLoad } from './preferencesStore';
+import { projectStore } from './projectStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -1893,7 +1911,7 @@ export function deleteColor(
   return { oldValue, removedReferences };
 }
 
-import type { BitmapDefinition, FontDefinition } from '../types/uidesc';
+import type { FontDefinition } from '../types/uidesc';
 
 const FONT_ATTRIBUTES = ['font'];
 
@@ -2225,6 +2243,269 @@ export function deleteBitmap(
 
   markDirty();
   return { bitmap: bitmapCopy, removedReferences };
+}
+
+// ============================================================================
+// Bitmap Upload
+// ============================================================================
+
+/**
+ * Result of a bitmap upload operation.
+ */
+export interface UploadBitmapResult {
+  /** Whether the upload was successful */
+  success: boolean;
+  /** The name the bitmap was saved under (may differ from filename if renamed) */
+  bitmapName?: string;
+  /** Error message if upload failed */
+  error?: string;
+  /** Whether there was a name conflict that needs resolution */
+  needsConflictResolution?: boolean;
+  /** The original filename (without path) */
+  originalFilename?: string;
+  /** Suggested alternative name if there's a conflict */
+  suggestedName?: string;
+}
+
+/**
+ * Options for bitmap upload.
+ */
+export interface UploadBitmapOptions {
+  /** When set, updates this existing bitmap instead of creating a new one */
+  targetBitmapName?: string;
+  /** How to handle name conflicts (only used when targetBitmapName is not set) */
+  conflictResolution?: 'replace' | 'rename';
+}
+
+/**
+ * Uploads a bitmap file to the document and IndexedDB.
+ *
+ * The bitmap is stored in two places:
+ * 1. The uidesc document (with path set to the filename)
+ * 2. IndexedDB (the actual blob for thumbnail display)
+ *
+ * If targetBitmapName is provided, updates that existing bitmap's path and blob.
+ * Otherwise, creates a new bitmap. If a bitmap with the same name already exists,
+ * returns with needsConflictResolution=true. Call again with conflictResolution='replace'
+ * or 'rename' to complete the upload.
+ *
+ * @param file - The image file to upload
+ * @param options - Upload options (targetBitmapName or conflictResolution)
+ * @returns Promise resolving to the upload result
+ */
+export async function uploadBitmap(
+  file: File,
+  options?: UploadBitmapOptions | 'replace' | 'rename'
+): Promise<UploadBitmapResult> {
+  // Normalize options parameter (support legacy string form)
+  const opts: UploadBitmapOptions =
+    typeof options === 'string' ? { conflictResolution: options } : (options ?? {});
+  // Check for document
+  const doc = store.document;
+  if (!doc) {
+    return { success: false, error: 'No document loaded' };
+  }
+
+  // Check for project (needed for IndexedDB storage)
+  const currentProject = projectStore.currentProject;
+  if (!currentProject) {
+    return { success: false, error: 'No project open. Save the project first.' };
+  }
+
+  // Validate the file
+  const validation = validateImageFile(file);
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
+  }
+
+  // Read the image file
+  let imageData: Awaited<ReturnType<typeof readImageFile>>;
+  try {
+    imageData = await readImageFile(file);
+  } catch (readErr) {
+    return {
+      success: false,
+      error: readErr instanceof Error ? readErr.message : 'Failed to read image file',
+    };
+  }
+
+  // Get existing bitmap names
+  const existingBitmaps = getBitmaps() ?? {};
+  const existingNames = Object.keys(existingBitmaps);
+
+  // Handle update of existing bitmap (targetBitmapName provided)
+  if (opts.targetBitmapName) {
+    const targetName = opts.targetBitmapName;
+
+    // Verify the target bitmap exists
+    if (!(targetName in existingBitmaps)) {
+      return { success: false, error: `Bitmap "${targetName}" not found` };
+    }
+
+    // Remove existing blob from IndexedDB if it exists
+    const existingBlobs = await bitmapService.getByProject(currentProject.id);
+    const existingBlob = existingBlobs.find(b => b.name === targetName);
+    if (existingBlob) {
+      await bitmapService.delete(existingBlob.id);
+    }
+
+    // Check if bitmap should be renamed (has default "New Bitmap" name)
+    const isDefaultName = /^New Bitmap( \d+)?$/.test(targetName);
+    const baseName = getBaseName(imageData.filename);
+    const otherNames = existingNames.filter(n => n !== targetName);
+    const shouldRename = isDefaultName && !otherNames.includes(baseName);
+
+    // Get the original path before any changes
+    const normalized = normalizeBitmap(existingBitmaps[targetName]);
+    const originalPath = normalized.path;
+
+    // Determine final name (rename if appropriate)
+    let finalName = targetName;
+    if (shouldRename) {
+      const renamed = updateBitmapName(targetName, baseName);
+      if (renamed) {
+        finalName = baseName;
+      }
+    }
+
+    // Update the bitmap's path in the document (use bitmaps/ prefix for VSTGUI convention)
+    const newPath = `bitmaps/${imageData.filename}`;
+    updateBitmapProperty(finalName, 'path', newPath);
+
+    // Create the IndexedDB bitmap record
+    const indexedDBBitmap: Bitmap = {
+      id: crypto.randomUUID(),
+      projectId: currentProject.id,
+      name: finalName,
+      blob: imageData.blob,
+      mimeType: imageData.mimeType,
+      width: imageData.width,
+      height: imageData.height,
+      size: imageData.blob.size,
+      addedAt: new Date().toISOString(),
+    };
+
+    // Store in IndexedDB
+    try {
+      await bitmapService.add(indexedDBBitmap);
+    } catch {
+      // Rollback path change
+      updateBitmapProperty(finalName, 'path', originalPath);
+      // Rollback name change if renamed
+      if (shouldRename && finalName !== targetName) {
+        updateBitmapName(finalName, targetName);
+      }
+      return {
+        success: false,
+        error: 'Failed to store bitmap in database',
+      };
+    }
+
+    // Invalidate thumbnail cache so it refreshes
+    invalidateThumbnailCache(currentProject.id, finalName);
+
+    // Create a single compound history operation for the entire upload
+    pushOperation(
+      createUpdateBitmapUploadOperation({
+        originalName: targetName,
+        finalName,
+        originalPath,
+        newPath,
+        indexedDBBitmap,
+        projectId: currentProject.id,
+      })
+    );
+
+    return {
+      success: true,
+      bitmapName: finalName,
+    };
+  }
+
+  // Creating a new bitmap - handle name conflicts
+  const baseName = getBaseName(imageData.filename);
+  const conflict = checkBitmapNameConflict(imageData.filename, existingNames);
+
+  // Handle name conflict
+  if (conflict.hasConflict && !opts.conflictResolution) {
+    return {
+      success: false,
+      needsConflictResolution: true,
+      originalFilename: baseName,
+      suggestedName: conflict.suggestedName,
+    };
+  }
+
+  // Determine final bitmap name
+  let finalName: string;
+  if (conflict.hasConflict) {
+    if (opts.conflictResolution === 'replace') {
+      finalName = baseName;
+      // Delete existing bitmap first (without history - it'll be part of upload operation)
+      const existingBitmap = existingBitmaps[baseName];
+      if (existingBitmap) {
+        // Remove existing blob from IndexedDB if it exists
+        const existingBlobs = await bitmapService.getByProject(currentProject.id);
+        const existingBlob = existingBlobs.find(b => b.name === baseName);
+        if (existingBlob) {
+          await bitmapService.delete(existingBlob.id);
+        }
+        // Remove from document (will be re-added below)
+        deleteBitmap(baseName);
+      }
+    } else {
+      // 'rename' - use suggested unique name
+      finalName = generateUniqueBitmapName(baseName, existingNames);
+    }
+  } else {
+    finalName = baseName;
+  }
+
+  // Create the bitmap definition for uidesc (just the filename as path)
+  const bitmapDefinition: BitmapDefinition = {
+    path: imageData.filename,
+  };
+
+  // Create the IndexedDB bitmap record
+  const indexedDBBitmap: Bitmap = {
+    id: crypto.randomUUID(),
+    projectId: currentProject.id,
+    name: finalName,
+    blob: imageData.blob,
+    mimeType: imageData.mimeType,
+    width: imageData.width,
+    height: imageData.height,
+    size: imageData.blob.size,
+    addedAt: new Date().toISOString(),
+  };
+
+  // Add to uidesc document
+  addBitmap(finalName, bitmapDefinition);
+
+  // Store in IndexedDB
+  try {
+    await bitmapService.add(indexedDBBitmap);
+  } catch {
+    // Rollback document change
+    deleteBitmap(finalName);
+    return {
+      success: false,
+      error: 'Failed to store bitmap in database',
+    };
+  }
+
+  // Create and push history operation
+  const uploadData: UploadBitmapData = {
+    bitmapName: finalName,
+    bitmapDefinition,
+    indexedDBBitmap,
+  };
+  pushOperation(createUploadBitmapOperation(uploadData));
+
+  return {
+    success: true,
+    bitmapName: finalName,
+  };
 }
 
 import type { GradientColorStop } from '../types/uidesc';

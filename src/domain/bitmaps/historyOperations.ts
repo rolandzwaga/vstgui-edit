@@ -1,10 +1,25 @@
+import { bitmapService } from '../../services/indexedDB/bitmapService';
 import type { HistoryOperation } from '../../types/history';
 import type { BitmapDefinition } from '../../types/uidesc';
+import type { Bitmap } from '../project/types';
+import { invalidateThumbnailCache } from './thumbnail';
 
 export interface RemovedBitmapReference {
   viewId: string;
   attribute: string;
   value: string;
+}
+
+/**
+ * Data needed to undo/redo a bitmap upload operation.
+ */
+export interface UploadBitmapData {
+  /** The name of the bitmap in the uidesc document */
+  bitmapName: string;
+  /** The bitmap definition to add to uidesc */
+  bitmapDefinition: BitmapDefinition;
+  /** The full IndexedDB bitmap record (includes blob) */
+  indexedDBBitmap: Bitmap;
 }
 
 type AddBitmapFn = (name: string, bitmap: BitmapDefinition | string) => void;
@@ -86,7 +101,8 @@ export function createEditBitmapPropertyOperation(
 export function createDeleteBitmapOperation(
   name: string,
   bitmap: BitmapDefinition | string,
-  removedReferences: RemovedBitmapReference[] = []
+  removedReferences: RemovedBitmapReference[] = [],
+  indexedDBBitmap?: Bitmap
 ): HistoryOperation {
   return {
     type: 'delete-bitmap',
@@ -97,7 +113,155 @@ export function createDeleteBitmapOperation(
       for (const ref of removedReferences) {
         storeUpdateViewAttribute(ref.viewId, ref.attribute, ref.value);
       }
+      // Restore blob to IndexedDB if it existed
+      if (indexedDBBitmap) {
+        bitmapService.add(indexedDBBitmap).catch(err => {
+          console.error('Failed to restore bitmap to IndexedDB during undo:', err);
+        });
+        invalidateThumbnailCache(indexedDBBitmap.projectId, name);
+      }
     },
-    redo: () => storeDeleteBitmap(name),
+    redo: () => {
+      storeDeleteBitmap(name);
+      // Delete blob from IndexedDB if it existed
+      if (indexedDBBitmap) {
+        bitmapService.delete(indexedDBBitmap.id).catch(err => {
+          console.error('Failed to delete bitmap from IndexedDB during redo:', err);
+        });
+        invalidateThumbnailCache(indexedDBBitmap.projectId, name);
+      }
+    },
+  };
+}
+
+/**
+ * Creates a history operation for uploading a bitmap file.
+ *
+ * This operation handles both:
+ * - Adding/removing the bitmap definition in the uidesc document
+ * - Adding/removing the blob in IndexedDB
+ *
+ * On undo: removes from uidesc AND deletes blob from IndexedDB
+ * On redo: adds back to uidesc AND re-stores blob in IndexedDB
+ *
+ * @param data - The upload data containing bitmap name, definition, and IndexedDB record
+ * @returns A history operation that can be undone/redone
+ */
+export function createUploadBitmapOperation(data: UploadBitmapData): HistoryOperation {
+  const { bitmapName, bitmapDefinition, indexedDBBitmap } = data;
+  let removedReferences: RemovedBitmapReference[] = [];
+
+  return {
+    type: 'add-bitmap',
+    description: `Upload bitmap "${bitmapName}"`,
+    timestamp: Date.now(),
+    undo: () => {
+      // Remove from uidesc document
+      const result = storeDeleteBitmap(bitmapName);
+      if (result) {
+        removedReferences = result.removedReferences;
+      }
+
+      // Delete blob from IndexedDB
+      bitmapService.delete(indexedDBBitmap.id).catch(err => {
+        console.error('Failed to delete bitmap from IndexedDB during undo:', err);
+      });
+
+      // Invalidate thumbnail cache
+      invalidateThumbnailCache(indexedDBBitmap.projectId, bitmapName);
+    },
+    redo: () => {
+      // Add back to uidesc document
+      storeAddBitmap(bitmapName, bitmapDefinition);
+
+      // Restore view references
+      for (const ref of removedReferences) {
+        storeUpdateViewAttribute(ref.viewId, ref.attribute, ref.value);
+      }
+
+      // Re-store blob in IndexedDB
+      bitmapService.add(indexedDBBitmap).catch(err => {
+        console.error('Failed to re-add bitmap to IndexedDB during redo:', err);
+      });
+
+      // Invalidate thumbnail cache (so it gets re-fetched)
+      invalidateThumbnailCache(indexedDBBitmap.projectId, bitmapName);
+    },
+  };
+}
+
+/**
+ * Data needed to undo/redo updating an existing bitmap with a new upload.
+ */
+export interface UpdateBitmapUploadData {
+  /** Original bitmap name before any rename */
+  originalName: string;
+  /** Final bitmap name after rename (same as originalName if no rename) */
+  finalName: string;
+  /** Original path before upload */
+  originalPath: string;
+  /** New path after upload */
+  newPath: string;
+  /** The IndexedDB bitmap record to store/delete */
+  indexedDBBitmap: Bitmap;
+  /** Project ID for cache invalidation */
+  projectId: string;
+}
+
+/**
+ * Creates a history operation for updating an existing bitmap with an uploaded file.
+ *
+ * This handles:
+ * - Renaming the bitmap (if it had a default "New Bitmap" name)
+ * - Updating the path property
+ * - Managing the IndexedDB blob
+ *
+ * On undo: reverts name, reverts path, deletes blob from IndexedDB
+ * On redo: re-applies name, re-applies path, re-stores blob in IndexedDB
+ */
+export function createUpdateBitmapUploadOperation(data: UpdateBitmapUploadData): HistoryOperation {
+  const { originalName, finalName, originalPath, newPath, indexedDBBitmap, projectId } = data;
+  const wasRenamed = originalName !== finalName;
+
+  return {
+    type: 'edit-bitmap-property',
+    description: wasRenamed
+      ? `Upload and rename bitmap "${originalName}" to "${finalName}"`
+      : `Upload to bitmap "${finalName}"`,
+    timestamp: Date.now(),
+    undo: () => {
+      // Delete blob from IndexedDB first
+      bitmapService.delete(indexedDBBitmap.id).catch(err => {
+        console.error('Failed to delete bitmap from IndexedDB during undo:', err);
+      });
+
+      // Revert path
+      storeUpdateBitmapProperty(finalName, 'path', originalPath);
+
+      // Revert name if it was renamed
+      if (wasRenamed) {
+        storeUpdateBitmapName(finalName, originalName);
+      }
+
+      // Invalidate thumbnail cache
+      invalidateThumbnailCache(projectId, wasRenamed ? originalName : finalName);
+    },
+    redo: () => {
+      // Re-apply name if it was renamed
+      if (wasRenamed) {
+        storeUpdateBitmapName(originalName, finalName);
+      }
+
+      // Re-apply path
+      storeUpdateBitmapProperty(finalName, 'path', newPath);
+
+      // Re-store blob in IndexedDB
+      bitmapService.add(indexedDBBitmap).catch(err => {
+        console.error('Failed to re-add bitmap to IndexedDB during redo:', err);
+      });
+
+      // Invalidate thumbnail cache
+      invalidateThumbnailCache(projectId, finalName);
+    },
   };
 }

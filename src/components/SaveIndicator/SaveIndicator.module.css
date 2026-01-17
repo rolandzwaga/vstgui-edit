@@ -7,6 +7,7 @@
   color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
   user-select: none;
+
   /* Fixed width to prevent layout shifts when text changes */
   min-width: 100px;
 }

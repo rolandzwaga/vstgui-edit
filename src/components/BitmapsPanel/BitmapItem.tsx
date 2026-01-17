@@ -8,20 +8,27 @@ import {
 } from '../../domain/bitmaps/historyOperations';
 import { validateBitmapName } from '../../domain/bitmaps/validation';
 import { truncateBitmapName, formatBitmapForDisplay } from '../../domain/bitmaps/formatting';
-import { normalizeBitmap, getBitmapPath } from '../../domain/bitmaps/thumbnail';
+import { normalizeBitmap } from '../../domain/bitmaps/thumbnail';
 import { BitmapThumbnail } from './BitmapThumbnail';
+import { NinepartEditor } from '../editors/NinepartEditor';
 import styles from './BitmapItem.module.css';
 
 export interface BitmapItemProps {
   name: string;
   bitmap: string | BitmapDefinition;
+  /** Project ID for IndexedDB thumbnail lookup */
+  projectId: string | null;
   isReadOnly?: boolean;
   onDelete?: (name: string) => void;
   usageCount?: number;
   onUsageClick?: (name: string) => void;
+  /** Called when user selects a file to upload for this bitmap */
+  onUpload?: (name: string, file: File) => void;
 }
 
 export const BitmapItem: Component<BitmapItemProps> = (props) => {
+  let fileInputRef: HTMLInputElement | undefined;
+
   const [editingName, setEditingName] = createSignal(false);
   const [nameInput, setNameInput] = createSignal('');
   const [nameError, setNameError] = createSignal<string | null>(null);
@@ -30,6 +37,8 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
   const [pathInput, setPathInput] = createSignal('');
   const [scaleFactorInput, setScaleFactorInput] = createSignal('');
   const [ninepartInput, setNinepartInput] = createSignal('');
+  const [ninepartOriginal, setNinepartOriginal] = createSignal('');
+  const [isUploading, setIsUploading] = createSignal(false);
 
   const displayName = () => truncateBitmapName(props.name);
   const pathDisplay = () => formatBitmapForDisplay(props.bitmap);
@@ -97,22 +106,9 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
       const normalized = normalizeBitmap(props.bitmap);
       setPathInput(normalized.path);
       setScaleFactorInput(normalized['scale-factor'] ?? '');
-      setNinepartInput(normalized['nineparttiled-offsets'] ?? '');
-    }
-  };
-
-  const handlePathBlur = () => {
-    const newValue = pathInput().trim();
-    const currentPath = getBitmapPath(props.bitmap);
-    if (newValue === currentPath || !newValue) {
-      setPathInput(currentPath);
-      return;
-    }
-    const oldValue = updateBitmapProperty(props.name, 'path', newValue);
-    if (oldValue !== null) {
-      pushOperation(
-        createEditBitmapPropertyOperation(props.name, 'path', oldValue ?? '', newValue)
-      );
+      const ninepartValue = normalized['nineparttiled-offsets'] ?? '';
+      setNinepartInput(ninepartValue);
+      setNinepartOriginal(ninepartValue);
     }
   };
 
@@ -131,19 +127,49 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
     }
   };
 
-  const handleNinepartBlur = () => {
+  const handleNinepartChange = (value: string) => {
+    setNinepartInput(value);
+    // Apply the change immediately for live preview
+    updateBitmapProperty(props.name, 'nineparttiled-offsets', value);
+  };
+
+  const handleNinepartCommit = () => {
     const newValue = ninepartInput().trim();
-    const normalized = normalizeBitmap(props.bitmap);
-    const oldValue = normalized['nineparttiled-offsets'] ?? '';
+    const oldValue = ninepartOriginal();
     if (newValue === oldValue) {
       return;
     }
-    const result = updateBitmapProperty(props.name, 'nineparttiled-offsets', newValue);
-    if (result !== null) {
-      pushOperation(
-        createEditBitmapPropertyOperation(props.name, 'nineparttiled-offsets', oldValue, newValue)
-      );
+    // Value already applied via onChange, just push the history operation
+    pushOperation(
+      createEditBitmapPropertyOperation(props.name, 'nineparttiled-offsets', oldValue, newValue)
+    );
+    // Update original for next edit
+    setNinepartOriginal(newValue);
+  };
+
+  const handleNinepartCancel = () => {
+    const oldValue = ninepartOriginal();
+    setNinepartInput(oldValue);
+    // Revert to original value
+    updateBitmapProperty(props.name, 'nineparttiled-offsets', oldValue);
+  };
+
+  const handleUploadClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    fileInputRef?.click();
+  };
+
+  const handleFileSelect = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file && props.onUpload) {
+      setIsUploading(true);
+      props.onUpload(props.name, file);
+      // Reset uploading state will be handled by parent after upload completes
+      setIsUploading(false);
     }
+    // Reset input so same file can be selected again
+    input.value = '';
   };
 
   return (
@@ -155,7 +181,11 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div class={styles.header} onClick={handleItemClick}>
-        <BitmapThumbnail bitmap={props.bitmap} />
+        <BitmapThumbnail
+          bitmap={props.bitmap}
+          bitmapName={props.name}
+          projectId={props.projectId}
+        />
         <div class={styles.info}>
           <Show
             when={editingName()}
@@ -240,24 +270,49 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
 
       <Show when={isExpanded()}>
         <div class={styles.properties} data-testid="bitmap-properties">
+          <div class={styles.uploadRow}>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/bmp"
+              class={styles.hiddenFileInput}
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              data-testid="bitmap-file-input"
+            />
+            <button
+              type="button"
+              class={styles.uploadButton}
+              onClick={handleUploadClick}
+              disabled={props.isReadOnly || isUploading()}
+              data-testid="bitmap-upload-button"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M7 1v9M4 4l3-3 3 3M2 10v2h10v-2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Upload Image</span>
+            </button>
+          </div>
           <div class={styles.propertyRow}>
             <label class={styles.propertyLabel}>Path</label>
-            <input
-              type="text"
-              class={styles.propertyInput}
-              data-testid="bitmap-path-input"
-              value={pathInput()}
-              onInput={(e) => setPathInput(e.currentTarget.value)}
-              onBlur={handlePathBlur}
-            />
+            <span class={styles.pathValue} data-testid="bitmap-path-value" title={pathInput()}>
+              {pathInput() || '(no file)'}
+            </span>
           </div>
           <div class={styles.propertyRow}>
             <label class={styles.propertyLabel}>Scale</label>
             <input
-              type="text"
+              type="number"
               class={`${styles.propertyInput} ${styles.shortInput}`}
               data-testid="bitmap-scale-input"
               placeholder="1"
+              min="1"
+              step="1"
               value={scaleFactorInput()}
               onInput={(e) => setScaleFactorInput(e.currentTarget.value)}
               onBlur={handleScaleFactorBlur}
@@ -265,15 +320,16 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
           </div>
           <div class={styles.propertyRow}>
             <label class={styles.propertyLabel}>9-part</label>
-            <input
-              type="text"
-              class={styles.propertyInput}
-              data-testid="bitmap-ninepart-input"
-              placeholder="top, left, bottom, right"
-              value={ninepartInput()}
-              onInput={(e) => setNinepartInput(e.currentTarget.value)}
-              onBlur={handleNinepartBlur}
-            />
+            <div class={styles.ninepartEditorContainer} onClick={(e) => e.stopPropagation()}>
+              <NinepartEditor
+                value={ninepartInput()}
+                onChange={handleNinepartChange}
+                onCommit={handleNinepartCommit}
+                onCancel={handleNinepartCancel}
+                disabled={props.isReadOnly}
+                attributeName={`bitmap-${props.name}-ninepart`}
+              />
+            </div>
           </div>
         </div>
       </Show>
