@@ -21,6 +21,7 @@ import { marqueeStore } from '../../stores/marqueeStore';
 import { dragStore } from '../../stores/dragStore';
 import { resizeStore } from '../../stores/resizeStore';
 import { setCursorPosition, clearCursorPosition } from '../../stores/rulerStore';
+import { viewModeStore } from '../../stores/viewModeStore';
 import { ContextMenu } from '../ContextMenu';
 import { EmptyState } from './EmptyState';
 import { Grid } from './Grid';
@@ -151,7 +152,8 @@ export const Canvas: Component = () => {
             transform: `translate(${canvasStore.panOffset.x}px, ${canvasStore.panOffset.y}px) scale(${canvasStore.zoomLevel})`,
           }}
         >
-          <Show when={templateBounds()}>
+          {/* Grid only shown in wireframe mode - in styled mode, view backgrounds cover it anyway */}
+          <Show when={viewModeStore.mode === 'wireframe' && templateBounds()}>
             {(bounds) => <Grid width={bounds().width} height={bounds().height} />}
           </Show>
           <svg

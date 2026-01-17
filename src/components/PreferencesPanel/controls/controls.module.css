@@ -139,12 +139,8 @@
   transform: rotate(180deg);
 }
 
-/* Dropdown */
+/* Dropdown - position/z-index/min-width set by FloatingDropdown component */
 .selectDropdown {
-  position: absolute;
-  z-index: var(--z-dropdown);
-  min-width: 100%;
-  margin-top: var(--spacing-1);
   padding: var(--spacing-1);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);

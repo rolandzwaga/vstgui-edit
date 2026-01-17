@@ -4,6 +4,7 @@ import { ViewRectangle } from '../ViewRectangle';
 import { resetViewModeStore, setViewMode } from '../../../stores/viewModeStore';
 import type { RenderableView } from '../../../types/canvas';
 import type { StyledViewProps } from '../../../types/viewMode';
+import styles from '../Canvas.module.css';
 
 const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView => ({
   id: 'test-view',
@@ -325,7 +326,7 @@ describe('ViewRectangle', () => {
       cleanup();
     });
 
-    it('should render with inline fill when styled mode and background-color is provided', () => {
+    it('should render with fill attribute when styled mode and background-color is provided', () => {
       setViewMode('styled');
       const view = createMockView({ category: 'container' });
       const styledProps = createMockStyledProps({
@@ -345,7 +346,7 @@ describe('ViewRectangle', () => {
       expect(rect).toHaveStyle({ fill: '#FF5500FF' });
     });
 
-    it('should render with inline stroke when styled mode and frame-color is provided', () => {
+    it('should render with stroke style when styled mode and frame-color is provided', () => {
       setViewMode('styled');
       const view = createMockView({ category: 'control' });
       const styledProps = createMockStyledProps({
@@ -366,7 +367,7 @@ describe('ViewRectangle', () => {
       expect(rect).toHaveStyle({ stroke: '#000000FF' });
     });
 
-    it('should render with inline stroke-width when styled mode and frame-width is provided', () => {
+    it('should render with stroke-width style when styled mode and frame-width is provided', () => {
       setViewMode('styled');
       const view = createMockView({ category: 'display' });
       const styledProps = createMockStyledProps({
@@ -448,7 +449,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // In wireframe mode, CSS classes control styling, not inline styles
+      // In wireframe mode, CSS classes control styling, no inline styles
       expect(rect).not.toHaveStyle({ fill: '#FF5500FF' });
       expect(rect).not.toHaveStyle({ stroke: '#000000FF' });
     });
@@ -559,8 +560,8 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // Transparent view should have fill: none (via inline style)
-      expect(rect).toHaveStyle({ fill: 'none' });
+      // Transparent view should have the styledTransparent class (which sets fill: none)
+      expect(rect).toHaveClass(styles.styledTransparent);
     });
 
     it('should apply frame-color even in wireframe fallback', () => {
@@ -582,7 +583,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // Should still apply frame color from uidesc (via inline style)
+      // Should still apply frame color from uidesc (via inline styles)
       expect(rect).toHaveStyle({ stroke: '#FF0000FF' });
       expect(rect).toHaveStyle({ 'stroke-width': '2' });
     });

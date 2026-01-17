@@ -51,8 +51,14 @@ export const FloatingDropdown = (props: FloatingDropdownProps) => {
   // Ref callback that sets up autoUpdate when dropdown mounts
   const setDropdownRef = (el: HTMLDivElement) => {
     dropdownRef = el;
-    // Apply fixed positioning immediately
+    // Apply fixed positioning and high z-index immediately (above modals)
     el.style.position = 'fixed';
+    el.style.zIndex = '350'; // --z-modal-dropdown
+
+    // Set min-width based on trigger element width
+    if (props.triggerRef) {
+      el.style.minWidth = `${props.triggerRef.offsetWidth}px`;
+    }
 
     if (el && props.triggerRef) {
       rafId = requestAnimationFrame(() => {
