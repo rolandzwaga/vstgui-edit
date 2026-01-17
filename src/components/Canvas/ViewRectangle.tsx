@@ -1,4 +1,4 @@
-import { Show, type Component } from 'solid-js';
+import { Show, type Component, type JSX } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
 import type { StyledViewProps } from '../../types/viewMode';
 import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
@@ -101,48 +101,6 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   };
 
   /**
-   * Gets the fill attribute for the rect.
-   * - Transparent views: fill = 'none'
-   * - Styled rendering: uses resolved background color
-   * - Wireframe mode/fallback: undefined (CSS handles it)
-   */
-  const getFill = () => {
-    // Check for transparent views first
-    if (isInStyledMode() && props.styledProps?.isTransparent) {
-      return 'none';
-    }
-
-    if (useStyledRendering() && props.styledProps?.backgroundColor) {
-      return props.styledProps.backgroundColor;
-    }
-    return undefined;
-  };
-
-  /**
-   * Gets the stroke attribute for the rect.
-   * In styled mode, uses the resolved frame color (even for wireframe fallback).
-   * In wireframe mode, returns undefined to let CSS handle it.
-   */
-  const getStroke = () => {
-    if (isInStyledMode() && props.styledProps?.frameColor) {
-      return props.styledProps.frameColor;
-    }
-    return undefined;
-  };
-
-  /**
-   * Gets the stroke-width attribute for the rect.
-   * In styled mode, uses the frame width from styledProps (even for wireframe fallback).
-   * In wireframe mode, returns undefined to let CSS handle it.
-   */
-  const getStrokeWidth = () => {
-    if (isInStyledMode() && props.styledProps?.frameColor) {
-      return props.styledProps.frameWidth;
-    }
-    return undefined;
-  };
-
-  /**
    * Gets the opacity attribute for the group element.
    * Only applies when opacity is not 1.0 (to avoid cluttering the DOM).
    */
@@ -156,30 +114,33 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   /**
    * Gets the inline style object for styled mode rendering.
    * Uses inline style to override CSS class styles with highest specificity.
+   * Note: SolidJS style objects use camelCase for CSS properties.
    */
-  const getRectStyle = (): Record<string, string> | undefined => {
+  const getRectStyle = (): JSX.CSSProperties | undefined => {
     if (!isInStyledMode()) {
       return undefined;
     }
 
-    const style: Record<string, string> = {};
+    const style: JSX.CSSProperties = {};
 
     // Handle transparent views
     if (props.styledProps?.isTransparent) {
       style.fill = 'none';
+      // Still need to override fill-opacity to prevent CSS class from affecting transparent rendering
+      style['fill-opacity'] = 1;
       return style;
     }
 
     // Handle styled rendering (has background color)
     if (useStyledRendering() && props.styledProps?.backgroundColor) {
       style.fill = props.styledProps.backgroundColor;
-      style['fill-opacity'] = '1'; // Override .viewRect fill-opacity: 0.1
+      style['fill-opacity'] = 1; // Override .viewRect fill-opacity: 0.1
     }
 
     // Apply frame color/width in styled mode (both for styled and wireframe fallback)
     if (props.styledProps?.frameColor) {
       style.stroke = props.styledProps.frameColor;
-      style['stroke-width'] = String(props.styledProps.frameWidth ?? 1);
+      style['stroke-width'] = props.styledProps.frameWidth ?? 1;
     }
 
     return Object.keys(style).length > 0 ? style : undefined;
