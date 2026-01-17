@@ -10,7 +10,7 @@ tools:
   - Bash
   - Glob
   - Grep
-skills: claude-file
+skills: claude-file, testing-guide
 ---
 
 # Implementation Agent
