@@ -1,6 +1,8 @@
 import { Show, type Component } from 'solid-js';
 import type { RenderableView } from '../../types/canvas';
+import type { StyledViewProps } from '../../types/viewMode';
 import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
+import { viewModeStore } from '../../stores/viewModeStore';
 import { isAncestorOfSelected } from '../../domain/canvas/ancestors';
 import styles from './Canvas.module.css';
 
@@ -11,6 +13,8 @@ export interface ViewRectangleProps {
   view: RenderableView;
   /** All views in the hierarchy for ancestor calculation */
   allViews?: RenderableView[];
+  /** Styled rendering props for styled mode */
+  styledProps?: StyledViewProps;
 }
 
 /**
@@ -47,9 +51,14 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
   /**
    * Builds the CSS class string based on category, selection, hover, and parent state.
+   * In styled mode with actual colors, omits the category class to prevent CSS override.
    */
   const rectClass = () => {
-    const classes = [styles.viewRect, styles[props.view.category]];
+    const classes = [styles.viewRect];
+    // Only add category class if NOT using styled rendering (CSS would override inline styles)
+    if (!useStyledRendering()) {
+      classes.push(styles[props.view.category]);
+    }
     if (isSelected(props.view.id)) {
       classes.push(styles.selected);
     } else if (isParentOfSelected()) {
@@ -76,8 +85,108 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     setHovered(null);
   };
 
+  /**
+   * Checks if we're in styled mode with styledProps available.
+   */
+  const isInStyledMode = () => {
+    return viewModeStore.mode === 'styled' && props.styledProps !== undefined;
+  };
+
+  /**
+   * Determines if styled rendering should be used for fill.
+   * True when in styled mode AND styledProps are provided AND not using wireframe fallback.
+   */
+  const useStyledRendering = () => {
+    return isInStyledMode() && !props.styledProps!.useWireframeFallback;
+  };
+
+  /**
+   * Gets the fill attribute for the rect.
+   * - Transparent views: fill = 'none'
+   * - Styled rendering: uses resolved background color
+   * - Wireframe mode/fallback: undefined (CSS handles it)
+   */
+  const getFill = () => {
+    // Check for transparent views first
+    if (isInStyledMode() && props.styledProps?.isTransparent) {
+      return 'none';
+    }
+
+    if (useStyledRendering() && props.styledProps?.backgroundColor) {
+      return props.styledProps.backgroundColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the stroke attribute for the rect.
+   * In styled mode, uses the resolved frame color (even for wireframe fallback).
+   * In wireframe mode, returns undefined to let CSS handle it.
+   */
+  const getStroke = () => {
+    if (isInStyledMode() && props.styledProps?.frameColor) {
+      return props.styledProps.frameColor;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the stroke-width attribute for the rect.
+   * In styled mode, uses the frame width from styledProps (even for wireframe fallback).
+   * In wireframe mode, returns undefined to let CSS handle it.
+   */
+  const getStrokeWidth = () => {
+    if (isInStyledMode() && props.styledProps?.frameColor) {
+      return props.styledProps.frameWidth;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the opacity attribute for the group element.
+   * Only applies when opacity is not 1.0 (to avoid cluttering the DOM).
+   */
+  const getGroupOpacity = () => {
+    if (isInStyledMode() && props.styledProps?.opacity !== undefined && props.styledProps.opacity < 1.0) {
+      return props.styledProps.opacity;
+    }
+    return undefined;
+  };
+
+  /**
+   * Gets the inline style object for styled mode rendering.
+   * Uses inline style to override CSS class styles with highest specificity.
+   */
+  const getRectStyle = (): Record<string, string> | undefined => {
+    if (!isInStyledMode()) {
+      return undefined;
+    }
+
+    const style: Record<string, string> = {};
+
+    // Handle transparent views
+    if (props.styledProps?.isTransparent) {
+      style.fill = 'none';
+      return style;
+    }
+
+    // Handle styled rendering (has background color)
+    if (useStyledRendering() && props.styledProps?.backgroundColor) {
+      style.fill = props.styledProps.backgroundColor;
+      style['fill-opacity'] = '1'; // Override .viewRect fill-opacity: 0.1
+    }
+
+    // Apply frame color/width in styled mode (both for styled and wireframe fallback)
+    if (props.styledProps?.frameColor) {
+      style.stroke = props.styledProps.frameColor;
+      style['stroke-width'] = String(props.styledProps.frameWidth ?? 1);
+    }
+
+    return Object.keys(style).length > 0 ? style : undefined;
+  };
+
   return (
-    <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id}>
+    <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id} opacity={getGroupOpacity()}>
       <rect
         data-testid={`view-rect-${props.view.id}`}
         class={rectClass()}
@@ -85,6 +194,7 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
+        style={getRectStyle()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

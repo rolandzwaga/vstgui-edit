@@ -1,6 +1,7 @@
 ---
 name: speckit-plan
 color: blue
+model: opus
 description: Implementation planning agent. Creates technical plans with research on libraries, APIs, and best practices. PRIMARY research agent.
 tools:
   - Read
@@ -13,6 +14,7 @@ tools:
   - WebFetch
   - mcp__context7__resolve-library-id
   - mcp__context7__get-library-docs
+skills: claude-file
 ---
 
 # Planning Agent

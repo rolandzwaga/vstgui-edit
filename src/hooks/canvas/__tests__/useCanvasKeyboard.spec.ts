@@ -14,6 +14,7 @@ import {
   resetLockHideStore,
 } from '../../../stores/lockHideStore';
 import { resetSelection, select, selectAll, selectionStore } from '../../../stores/selectionStore';
+import { resetViewModeStore, setViewMode, viewModeStore } from '../../../stores/viewModeStore';
 import { type CancelCallbacks, useCanvasKeyboard } from '../useCanvasKeyboard';
 
 describe('useCanvasKeyboard', () => {
@@ -31,6 +32,7 @@ describe('useCanvasKeyboard', () => {
       resetSelection();
       resetClipboard();
       resetLockHideStore();
+      resetViewModeStore();
     });
     vi.clearAllMocks();
   });
@@ -1632,6 +1634,152 @@ describe('useCanvasKeyboard', () => {
 
         expect(isHidden('MainView-0')).toBe(true);
         expect(isHidden('MainView-1')).toBe(true);
+      });
+    });
+  });
+
+  describe('P key view mode toggle', () => {
+    it('should toggle from wireframe to styled mode on P key', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(viewModeStore.mode).toBe('wireframe');
+
+        const event = createKeyboardEvent('p');
+        handleKeyDown(event);
+
+        expect(viewModeStore.mode).toBe('styled');
+      });
+    });
+
+    it('should toggle from styled to wireframe mode on P key', () => {
+      testInRoot(() => {
+        setViewMode('styled');
+
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {
+                '0': createMockView({ class: 'CTextLabel' }),
+              }
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal([
+          createMockRenderableView({ id: 'MainView-0' }),
+        ]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(viewModeStore.mode).toBe('styled');
+
+        const event = createKeyboardEvent('P');
+        handleKeyDown(event);
+
+        expect(viewModeStore.mode).toBe('wireframe');
+      });
+    });
+
+    it('should not toggle view mode when ctrl key is pressed', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal<ReturnType<typeof createMockRenderableView>[]>([]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        expect(viewModeStore.mode).toBe('wireframe');
+
+        const event = new KeyboardEvent('keydown', {
+          key: 'p',
+          ctrlKey: true,
+          bubbles: true,
+          cancelable: true,
+        });
+        Object.defineProperty(event, 'target', { value: document.body, writable: false });
+        handleKeyDown(event);
+
+        expect(viewModeStore.mode).toBe('wireframe');
+      });
+    });
+
+    it('should not toggle view mode when focus is in an input field', () => {
+      testInRoot(() => {
+        const doc = createMockDocument({
+          templates: {
+            MainView: createMockContainer(
+              { origin: '0, 0', size: '800, 600' },
+              {}
+            ),
+          },
+        });
+        setDocumentForTest(doc);
+
+        const [renderableViews] = createSignal<ReturnType<typeof createMockRenderableView>[]>([]);
+        const [templateBounds] = createSignal({ width: 800, height: 600 });
+
+        const { handleKeyDown } = useCanvasKeyboard({
+          renderableViews,
+          templateBounds,
+          cancelCallbacks: mockCancelCallbacks,
+        });
+
+        const input = document.createElement('input');
+        document.body.appendChild(input);
+
+        const event = new KeyboardEvent('keydown', {
+          key: 'p',
+          bubbles: true,
+          cancelable: true,
+        });
+        Object.defineProperty(event, 'target', { value: input, writable: false });
+        handleKeyDown(event);
+
+        expect(viewModeStore.mode).toBe('wireframe');
+
+        document.body.removeChild(input);
       });
     });
   });

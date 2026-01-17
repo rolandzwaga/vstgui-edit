@@ -107,6 +107,21 @@ export interface UIPreferences {
 }
 
 // ============================================================================
+// Canvas Preferences
+// ============================================================================
+
+/** Canvas view mode options */
+export type ViewMode = 'wireframe' | 'styled';
+
+/**
+ * Canvas display settings.
+ */
+export interface CanvasPreferences {
+  /** Default view mode when opening a document */
+  viewMode: ViewMode;
+}
+
+// ============================================================================
 // Save Preferences
 // ============================================================================
 
@@ -153,6 +168,9 @@ export interface UserPreferences {
 
   /** Save format settings (migrated from legacy keys) */
   save: SavePreferences;
+
+  /** Canvas display settings */
+  canvas: CanvasPreferences;
 }
 
 // ============================================================================

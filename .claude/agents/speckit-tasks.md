@@ -1,6 +1,7 @@
 ---
 name: speckit-tasks
 color: yellow
+model: sonnet
 description: Task generation agent. Breaks implementation plans into actionable, dependency-ordered tasks organized by user story.
 tools:
   - Read
@@ -8,6 +9,7 @@ tools:
   - Edit
   - Bash
   - Glob
+skills: claude-file
 ---
 
 # Task Generation Agent

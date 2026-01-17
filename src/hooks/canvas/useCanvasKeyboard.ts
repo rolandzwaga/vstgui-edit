@@ -45,6 +45,7 @@ import { openPreferencesToSection, preferencesStore } from '../../stores/prefere
 import { cancelResize, resizeStore } from '../../stores/resizeStore';
 import { clearSelection, selectAll, selectionStore } from '../../stores/selectionStore';
 import { toggleSmartGuides } from '../../stores/smartGuidesStore';
+import { toggleViewMode } from '../../stores/viewModeStore';
 import type { AlignmentType } from '../../types/alignment';
 import type { Point, RenderableView, TemplateBounds } from '../../types/canvas';
 import { NUDGE_DISTANCE, NUDGE_DISTANCE_FAST } from '../../types/history';
@@ -425,6 +426,9 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
     } else if (e.key === 's' || e.key === 'S') {
       e.preventDefault();
       toggleSmartGuides();
+    } else if (e.key === 'p' || e.key === 'P') {
+      e.preventDefault();
+      toggleViewMode();
     }
   };
 

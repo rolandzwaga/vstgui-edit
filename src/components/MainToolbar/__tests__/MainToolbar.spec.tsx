@@ -100,11 +100,11 @@ describe('MainToolbar', () => {
       expect(toolbar).toHaveAttribute('aria-label', 'Main toolbar');
     });
 
-    test('contains nested toolbars for zoom, grid, and alignment', () => {
+    test('contains nested toolbars for zoom, grid, view mode, and alignment', () => {
       render(() => <MainToolbar />);
       const toolbars = screen.getAllByRole('toolbar');
-      // Main toolbar + ZoomToolbar + GridToolbar + AlignmentToolbar = 4
-      expect(toolbars.length).toBe(4);
+      // Main toolbar + ZoomToolbar + GridToolbar + ViewModeToolbar + AlignmentToolbar = 5
+      expect(toolbars.length).toBe(5);
     });
   });
 });

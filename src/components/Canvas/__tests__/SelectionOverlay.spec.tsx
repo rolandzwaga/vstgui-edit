@@ -2,10 +2,12 @@
  * SelectionOverlay Tests
  * Tests for the selection overlay component (border + 8 resize handles)
  */
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@solidjs/testing-library';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@solidjs/testing-library';
 import { SelectionOverlay } from '../SelectionOverlay';
+import { resetViewModeStore, setViewMode } from '../../../stores/viewModeStore';
 import type { RenderableView } from '../../../types/canvas';
+import type { OverlayStyle } from '../../../types/viewMode';
 
 const createMockView = (overrides: Partial<RenderableView> = {}): RenderableView => ({
   id: 'test-view',
@@ -205,6 +207,147 @@ describe('SelectionOverlay', () => {
       for (const handle of handles) {
         expect(handle).toHaveAttribute('r', '4');
       }
+    });
+  });
+
+  describe('Given adaptive overlay colors (US4 - selection overlays)', () => {
+    const createOverlayStyle = (fillColor: string, strokeColor: string, fillOpacity = 0.5): OverlayStyle => ({
+      fillColor,
+      fillOpacity,
+      strokeColor,
+    });
+
+    beforeEach(() => {
+      resetViewModeStore();
+    });
+
+    afterEach(() => {
+      cleanup();
+    });
+
+    it('should use white overlay when styled mode with dark background', () => {
+      setViewMode('styled');
+      const view = createMockView();
+      const overlayStyle = createOverlayStyle('#FFFFFF', '#FFFFFF');
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      expect(rect).toHaveAttribute('fill', '#FFFFFF');
+      expect(rect).toHaveAttribute('stroke', '#FFFFFF');
+    });
+
+    it('should use dark overlay when styled mode with light background', () => {
+      setViewMode('styled');
+      const view = createMockView();
+      const overlayStyle = createOverlayStyle('#000000', '#000000');
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      expect(rect).toHaveAttribute('fill', '#000000');
+      expect(rect).toHaveAttribute('stroke', '#000000');
+    });
+
+    it('should NOT use inline styles in wireframe mode even with overlayStyle', () => {
+      setViewMode('wireframe');
+      const view = createMockView();
+      const overlayStyle = createOverlayStyle('#FFFFFF', '#FFFFFF');
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      // In wireframe mode, CSS classes control styling
+      expect(rect).not.toHaveAttribute('fill', '#FFFFFF');
+      expect(rect).not.toHaveAttribute('stroke', '#FFFFFF');
+    });
+
+    it('should use dark overlay for pure white #FFFFFF background', () => {
+      setViewMode('styled');
+      const view = createMockView();
+      // Dark overlay for light background
+      const overlayStyle = createOverlayStyle('#000000', '#000000');
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      expect(rect).toHaveAttribute('fill', '#000000');
+    });
+
+    it('should use white overlay for pure black #000000 background', () => {
+      setViewMode('styled');
+      const view = createMockView();
+      // White overlay for dark background
+      const overlayStyle = createOverlayStyle('#FFFFFF', '#FFFFFF');
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      expect(rect).toHaveAttribute('fill', '#FFFFFF');
+    });
+
+    it('should apply fill-opacity from overlayStyle in styled mode', () => {
+      setViewMode('styled');
+      const view = createMockView();
+      const overlayStyle = createOverlayStyle('#000000', '#000000', 0.3);
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} overlayStyle={overlayStyle} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      expect(rect).toHaveAttribute('fill-opacity', '0.3');
+    });
+
+    it('should work without overlayStyle (backward compatibility)', () => {
+      setViewMode('wireframe');
+      const view = createMockView();
+
+      render(() => (
+        <svg>
+          <SelectionOverlay view={view} />
+        </svg>
+      ));
+
+      const group = screen.getByTestId('selection-overlay-test-view');
+      const rect = group.querySelector('rect[data-role="selection-border"]');
+
+      // Should render normally with CSS classes
+      expect(rect).toBeInTheDocument();
     });
   });
 });

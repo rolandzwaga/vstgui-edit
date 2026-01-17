@@ -113,5 +113,19 @@ export const PREFERENCES_SCHEMA: JSONSchemaType<UserPreferences> = {
         },
       },
     },
+
+    canvas: {
+      type: 'object',
+      nullable: true,
+      additionalProperties: false,
+      required: [],
+      properties: {
+        viewMode: {
+          type: 'string',
+          enum: ['wireframe', 'styled'],
+          nullable: true,
+        },
+      },
+    },
   },
 } as unknown as JSONSchemaType<UserPreferences>;

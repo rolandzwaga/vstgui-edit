@@ -31,6 +31,7 @@ vi.mock('../../../stores/documentStore', () => ({
     return lastDash > 0 ? viewId.substring(0, lastDash) : null;
   },
   isRoot: (viewId: string) => viewId === 'TestTemplate',
+  getView: () => null,
 }));
 
 vi.mock('../../../stores/templateStore', () => ({

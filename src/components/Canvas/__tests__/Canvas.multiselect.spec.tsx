@@ -24,6 +24,7 @@ vi.mock('../../../stores/documentStore', () => ({
     return doc?.['vstgui-ui-description']?.templates?.[name];
   },
   getParentId: () => null,
+  getView: () => null,
 }));
 
 vi.mock('../../../stores/templateStore', () => ({

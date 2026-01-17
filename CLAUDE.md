@@ -340,6 +340,16 @@ npx tsc --noEmit                   # Type check
 | `isCategoryExpanded(id)` | Check if category is expanded |
 | `resetShortcutsPanelStore()` | Reset to initial state (for testing) |
 
+### viewModeStore (`src/stores/viewModeStore.ts`)
+**Purpose**: Canvas view mode state (wireframe/styled rendering)
+
+| Export | Description |
+|--------|-------------|
+| `viewModeStore` | State: `mode` ('wireframe' \| 'styled') |
+| `setViewMode(mode)` | Set view mode to wireframe or styled |
+| `toggleViewMode()` | Toggle between wireframe and styled (P key) |
+| `resetViewModeStore()` | Reset to wireframe mode (for testing) |
+
 ---
 
 ## Domain Utilities
@@ -496,6 +506,25 @@ createEffect(() => {
   }
 });
 ```
+
+### ViewMode (`src/domain/viewMode/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `index.ts` | `resolveColorReference(ref, colors)` - resolves document or predefined color references |
+| `styledViewProps.ts` | `buildStyledViewProps(attrs, colors)` - builds StyledViewProps from view attributes |
+| `luminance.ts` | `calculateLuminance(color)` - returns 0-1 luminance value |
+| | `isLightColor(color)`, `isDarkColor(color)` - luminance >= 0.5 tests |
+| | `getAdaptiveOverlayStyle(bgColor)` - returns OverlayStyle for selection/hover |
+| | `getDefaultOverlayStyle()` - default selection blue overlay |
+
+**StyledViewProps** (`src/types/viewMode.ts`):
+- `backgroundColor: string | null` - resolved hex color
+- `frameColor: string | null` - resolved hex color
+- `frameWidth: number` - border width (default 1)
+- `isTransparent: boolean` - view has transparent="true"
+- `opacity: number` - 0-1 opacity
+- `useWireframeFallback: boolean` - no valid background color
 
 **Keyboard Shortcuts** (Ctrl+Shift+...):
 - `L`: Align Left | `C`: Align Center | `R`: Align Right
@@ -684,10 +713,12 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 042-styled-view-mode: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
 - 041-create-new-uidesc: Added SolidJS 1.9.10, Vite 7.3.0
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-17 | 042-styled-view-mode | Styled view mode toggle (P key), document color rendering, adaptive selection overlays, wireframe fallback, opacity/transparency support, 254 tests |
 | 01-12 | 040-advanced-color-picker | Advanced color picker with HSB gradient, hue/alpha sliders, HEX/RGB/HSL input, document/predefined/recent color swatches, eyedropper tool, popup/inline modes, 307 tests |
 | 01-11 | 038-keyboard-shortcuts | Keyboard shortcuts panel (? / Ctrl+/), 44 shortcuts across 10 categories, centralized registry, searchable list, conflict detection, platform-aware display (Ctrl/Cmd), Preferences integration |
 | 01-11 | 037-theme-support | Theme support: Light/Dark/System modes, FOIT prevention, CSS custom properties, matchMedia OS detection, ~23 tests |

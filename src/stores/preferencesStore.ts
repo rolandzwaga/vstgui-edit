@@ -16,6 +16,7 @@ import type {
   PreferencesState,
   SaveFormat,
   ThemeMode,
+  ViewMode,
 } from '../types/preferences';
 import {
   setGridSize,
@@ -26,6 +27,7 @@ import {
 } from './gridStore';
 import { setGuidesSnap } from './guidesStore';
 import { setSmartGuidesEnabled } from './smartGuidesStore';
+import { setViewMode } from './viewModeStore';
 
 // ============================================================================
 // Initial State
@@ -208,6 +210,19 @@ export function setAlignmentToolbarPreference(state: AlignmentToolbarState): voi
 }
 
 // ============================================================================
+// Canvas Preference Setters
+// ============================================================================
+
+/**
+ * Sets the view mode preference and applies to viewModeStore.
+ */
+export function setViewModePreference(mode: ViewMode): void {
+  setStore('preferences', 'canvas', 'viewMode', mode);
+  setViewMode(mode);
+  saveCurrentPreferences();
+}
+
+// ============================================================================
 // Initialization
 // ============================================================================
 
@@ -262,6 +277,9 @@ export function applyDefaultStatesOnDocumentLoad(): void {
 
   // Apply custom guides snap default
   setGuidesSnap(prefs.customGuides.snapEnabledByDefault);
+
+  // Apply view mode from preferences
+  setViewMode(prefs.canvas.viewMode);
 }
 
 // ============================================================================

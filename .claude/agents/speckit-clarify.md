@@ -1,5 +1,6 @@
 ---
 name: speckit-clarify
+model: sonnet
 color: orange
 description: Specification clarification agent. Identifies underspecified areas and asks targeted questions to reduce ambiguity.
 tools:
@@ -8,6 +9,7 @@ tools:
   - Edit
   - Bash
   - Glob
+skills: claude-file
 ---
 
 # Clarification Agent

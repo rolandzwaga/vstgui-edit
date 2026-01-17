@@ -200,6 +200,11 @@
   /* Custom Guide Colors */
   --color-custom-guide: #00bfff;
 
+  /* Styled View Mode - Overlay colors for adaptive selection/hover */
+  --color-styled-overlay-light: #ffffff;
+  --color-styled-overlay-dark: #000000;
+  --color-styled-fallback-stroke: var(--color-neutral-400);
+
   /* Colors Panel */
   --color-swatch-border: var(--color-neutral-300);
   --color-swatch-checkerboard-light: #cccccc;
@@ -360,6 +365,9 @@
   --color-focus-ring: rgba(96, 165, 250, 0.5);
   --color-border-hover: #737373;
   --color-error: #f87171;
+
+  /* Styled View Mode - Dark theme */
+  --color-styled-fallback-stroke: #737373;
 }
 
 /* Global Reset & Base Styles */

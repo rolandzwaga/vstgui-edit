@@ -13,6 +13,7 @@ import {
   createDeleteOperation,
   deleteSelectedViews,
 } from '../../domain/canvas/viewOperations';
+import { getAdaptiveOverlayStyle } from '../../domain/viewMode/luminance';
 import { useTooltip } from '../../hooks/useTooltip';
 import { canvasStore } from '../../stores/canvasStore';
 import { pushOperation } from '../../stores/historyStore';
@@ -37,7 +38,7 @@ import { GuidesOverlay } from './Guides';
 import styles from './Canvas.module.css';
 
 export const Canvas: Component = () => {
-  const { renderableViews, visibleViews, templateBounds, selectedViews, hoveredView, isEmpty } = useCanvasData();
+  const { renderableViews, visibleViews, templateBounds, selectedViews, hoveredView, isEmpty, styledViewPropsMap } = useCanvasData();
   const [canvasMousePosition, setCanvasMousePosition] = createSignal<{ x: number; y: number } | null>(null);
 
   const handleDelete = () => {
@@ -165,10 +166,28 @@ export const Canvas: Component = () => {
               {(bounds) => <TemplateBounds bounds={bounds()} />}
             </Show>
             <For each={visibleViews()}>
-              {(view) => <ViewRectangle view={view} allViews={renderableViews()} />}
+              {(view) => (
+                <ViewRectangle
+                  view={view}
+                  allViews={renderableViews()}
+                  styledProps={styledViewPropsMap().get(view.id)}
+                />
+              )}
             </For>
             <For each={selectedViews()}>
-              {(view) => <SelectionOverlay view={view} onResizeStart={handleResizeStart} />}
+              {(view) => {
+                const styledProps = styledViewPropsMap().get(view.id);
+                const overlayStyle = styledProps?.backgroundColor
+                  ? getAdaptiveOverlayStyle(styledProps.backgroundColor)
+                  : undefined;
+                return (
+                  <SelectionOverlay
+                    view={view}
+                    onResizeStart={handleResizeStart}
+                    overlayStyle={overlayStyle}
+                  />
+                );
+              }}
             </For>
             <DragPreview views={selectedViews()} />
             <ResizePreview />

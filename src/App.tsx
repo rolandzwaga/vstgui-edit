@@ -31,6 +31,7 @@ import { PreferencesPanel } from './components/PreferencesPanel';
 import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
+import { toggleViewMode } from './stores/viewModeStore';
 import './styles/tokens.css';
 
 export default function App() {
@@ -107,6 +108,13 @@ export default function App() {
       }
 
       handleSearchShortcut(e);
+
+      // P - Toggle view mode (wireframe/styled) (only when document loaded)
+      if ((e.key === 'p' || e.key === 'P') && !ctrlOrCmd && !e.altKey && !e.shiftKey && documentStore.parseState === 'valid') {
+        e.preventDefault();
+        toggleViewMode();
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
