@@ -35,8 +35,9 @@ export const ViewModeToolbar: Component = () => {
           stroke-linejoin="round"
           aria-hidden="true"
         >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <rect x="7" y="7" width="10" height="10" fill="currentColor" opacity="0.3" />
+          {/* Eye icon - outer path is the eye shape, circle is the pupil */}
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" fill={viewModeStore.mode === 'styled' ? 'currentColor' : 'none'} />
         </svg>
       </button>
     </div>
