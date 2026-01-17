@@ -20,6 +20,7 @@ A visual editor for VSTGUI `.uidesc` files. These files define the UI layout for
 - Custom guide lines (drag from rulers)
 - Rulers with cursor position indicator
 - Template bounds visualization
+- Styled view mode (P): preview colors and frames from uidesc properties
 
 ### View Editing
 - Click and marquee selection (Shift for multi-select)
