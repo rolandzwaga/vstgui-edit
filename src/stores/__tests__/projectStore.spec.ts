@@ -596,6 +596,49 @@ describe('projectStore', () => {
         expect(stored?.editorState.zoomLevel).toBe(1.0);
       });
     });
+
+    describe('performance', () => {
+      test('auto-save completes within 200ms for typical document changes', async () => {
+        // Create a project with typical content size
+        const typicalContent = JSON.stringify({
+          'vstgui-ui-description': {
+            version: '1',
+            templates: {
+              view: {
+                class: 'CViewContainer',
+                attributes: { size: '600, 400' },
+                children: [
+                  { class: 'CTextButton', attributes: { title: 'Button 1', size: '100, 30' } },
+                  { class: 'CTextButton', attributes: { title: 'Button 2', size: '100, 30' } },
+                  { class: 'CTextLabel', attributes: { title: 'Label', size: '200, 20' } },
+                ],
+              },
+            },
+          },
+        });
+        const project = await createProject('Perf Test', typicalContent, 'json');
+
+        // Update content
+        const updatedContent = typicalContent.replace('Button 1', 'Modified Button');
+        updateProjectContent(updatedContent);
+        scheduleDocumentSave();
+
+        // Trigger the save by advancing past debounce
+        await vi.advanceTimersByTimeAsync(2100);
+
+        // Measure time for the save operation to complete
+        const startTime = performance.now();
+        await flushSaveOperations();
+        const endTime = performance.now();
+
+        // Save should complete within 200ms
+        const saveTime = endTime - startTime;
+        expect(saveTime).toBeLessThan(200);
+
+        // Verify save was successful
+        expect(projectStore.saveStatus).toBe('saved');
+      });
+    });
   });
 
   describe('openProject', () => {
