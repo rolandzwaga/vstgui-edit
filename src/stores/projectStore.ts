@@ -26,7 +26,11 @@ import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
 import { restoreCanvasState } from './canvasStore';
-import { documentStore, setDocumentForTest as setDocumentStoreContent } from './documentStore';
+import {
+  documentStore,
+  markClean as markDocumentClean,
+  setDocumentForTest as setDocumentStoreContent,
+} from './documentStore';
 import { restoreHierarchyState } from './hierarchyStore';
 import { restorePropertiesState } from './propertiesStore';
 import { setActiveTemplate } from './templateStore';
@@ -457,6 +461,8 @@ async function performDocumentSave(): Promise<void> {
 
     await projectService.update(updatedProject);
 
+    // Clear dirty flags in both stores to prevent save loop
+    markDocumentClean();
     setStore({
       currentProject: updatedProject,
       isDirty: false,
