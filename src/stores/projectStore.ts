@@ -13,8 +13,9 @@ import type {
   SaveStatus,
   NameDialogMode,
   UidescFormat,
+  EditorState,
 } from '../domain/project/types';
-import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
+import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS, DEBOUNCE } from '../domain/project/types';
 import { openDatabase, closeDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
 
@@ -348,10 +349,193 @@ export async function deleteProject(id: string): Promise<boolean> {
  * Closes the current project.
  */
 export function closeCurrentProject(): void {
+  cancelAutoSaveTimers();
   setStore({
     currentProject: null,
     isDirty: false,
     saveStatus: 'idle',
     lastSavedAt: null,
+  });
+}
+
+// ============================================================================
+// Auto-Save Engine
+// ============================================================================
+
+/** Timer ID for document save debounce */
+let documentSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Timer ID for editor state save debounce */
+let stateSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Creates a plain object copy of a project for IndexedDB storage.
+ * SolidJS stores use Proxy objects that cannot be directly stored in IndexedDB.
+ */
+function toPlainProject(project: Project): Project {
+  return {
+    id: project.id,
+    name: project.name,
+    createdAt: project.createdAt,
+    updatedAt: project.updatedAt,
+    uidescContent: project.uidescContent,
+    uidescFormat: project.uidescFormat,
+    editorState: {
+      panOffset: { x: project.editorState.panOffset.x, y: project.editorState.panOffset.y },
+      zoomLevel: project.editorState.zoomLevel,
+      expandedHierarchyNodes: [...project.editorState.expandedHierarchyNodes],
+      expandedPropertyGroups: [...project.editorState.expandedPropertyGroups],
+      selectedTemplateId: project.editorState.selectedTemplateId,
+    },
+    settings: {
+      grid: {
+        size: project.settings.grid.size,
+        style: project.settings.grid.style,
+        visibleByDefault: project.settings.grid.visibleByDefault,
+      },
+      snap: {
+        enabledByDefault: project.settings.snap.enabledByDefault,
+        threshold: project.settings.snap.threshold,
+      },
+      smartGuides: {
+        enabledByDefault: project.settings.smartGuides.enabledByDefault,
+      },
+      customGuides: {
+        snapEnabledByDefault: project.settings.customGuides.snapEnabledByDefault,
+        guides: project.settings.customGuides.guides.map((g) => ({
+          id: g.id,
+          orientation: g.orientation,
+          position: g.position,
+        })),
+      },
+      theme: {
+        mode: project.settings.theme.mode,
+      },
+      autoSave: {
+        enabled: project.settings.autoSave.enabled,
+      },
+    },
+    thumbnailDataUrl: project.thumbnailDataUrl,
+  };
+}
+
+/**
+ * Performs the actual document save to IndexedDB.
+ */
+async function performDocumentSave(): Promise<void> {
+  const project = store.currentProject;
+  if (!project || store.isSessionOnly) {
+    return;
+  }
+
+  try {
+    setStore({ saveStatus: 'saving' });
+
+    const updatedProject: Project = {
+      ...toPlainProject(project),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await projectService.update(updatedProject);
+
+    setStore({
+      currentProject: updatedProject,
+      isDirty: false,
+      saveStatus: 'saved',
+      lastSavedAt: new Date(),
+    });
+  } catch (error) {
+    console.error('Failed to auto-save document:', error);
+    setStore({ saveStatus: 'error' });
+  }
+}
+
+/**
+ * Performs the actual editor state save to IndexedDB.
+ */
+async function performStateSave(): Promise<void> {
+  const project = store.currentProject;
+  if (!project || store.isSessionOnly) {
+    return;
+  }
+
+  try {
+    const updatedProject: Project = {
+      ...toPlainProject(project),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await projectService.update(updatedProject);
+
+    setStore({
+      currentProject: updatedProject,
+    });
+  } catch (error) {
+    console.error('Failed to auto-save editor state:', error);
+  }
+}
+
+/**
+ * Schedules a document save with 2 second debounce.
+ * Call this when uidesc content changes.
+ */
+export function scheduleDocumentSave(): void {
+  if (documentSaveTimer !== null) {
+    clearTimeout(documentSaveTimer);
+  }
+
+  documentSaveTimer = setTimeout(() => {
+    documentSaveTimer = null;
+    performDocumentSave();
+  }, DEBOUNCE.DOCUMENT);
+}
+
+/**
+ * Schedules an editor state save with 10 second debounce.
+ * Call this when pan, zoom, or panel states change.
+ */
+export function scheduleStateSave(): void {
+  if (stateSaveTimer !== null) {
+    clearTimeout(stateSaveTimer);
+  }
+
+  stateSaveTimer = setTimeout(() => {
+    stateSaveTimer = null;
+    performStateSave();
+  }, DEBOUNCE.EDITOR_STATE);
+}
+
+/**
+ * Cancels any pending auto-save timers.
+ * Call this when closing a project or shutting down.
+ */
+export function cancelAutoSaveTimers(): void {
+  if (documentSaveTimer !== null) {
+    clearTimeout(documentSaveTimer);
+    documentSaveTimer = null;
+  }
+  if (stateSaveTimer !== null) {
+    clearTimeout(stateSaveTimer);
+    stateSaveTimer = null;
+  }
+}
+
+/**
+ * Updates the current project's editor state.
+ *
+ * @param updates - Partial editor state updates
+ */
+export function updateProjectEditorState(updates: Partial<EditorState>): void {
+  const project = store.currentProject;
+  if (!project) return;
+
+  setStore({
+    currentProject: {
+      ...project,
+      editorState: {
+        ...project.editorState,
+        ...updates,
+      },
+    },
   });
 }

@@ -12,6 +12,7 @@ import {
   ZOOM_FACTOR,
 } from '../domain/canvas/zoom';
 import type { Point } from '../types/canvas';
+import { scheduleStateSave } from './projectStore';
 
 // --- Signals for pan state ---
 
@@ -80,10 +81,12 @@ export function updatePan(x: number, y: number): void {
 /**
  * End the current pan gesture.
  * Preserves panOffset for the next gesture.
+ * Schedules state save for project persistence.
  */
 export function endPan(): void {
   setIsPanning(false);
   setPanStart(null);
+  scheduleStateSave();
 }
 
 /**
@@ -99,9 +102,11 @@ export function resetPan(): void {
 
 /**
  * Set the zoom level, clamped to valid range [MIN_ZOOM, MAX_ZOOM].
+ * Schedules state save for project persistence.
  */
 export function setZoom(level: number): void {
   setZoomLevel(clampZoom(level));
+  scheduleStateSave();
 }
 
 /**
@@ -113,16 +118,20 @@ export function resetZoom(): void {
 
 /**
  * Zoom in by one step (multiply by ZOOM_FACTOR).
+ * Schedules state save for project persistence.
  */
 export function zoomIn(): void {
   setZoomLevel(clampZoom(zoomLevel() * ZOOM_FACTOR));
+  scheduleStateSave();
 }
 
 /**
  * Zoom out by one step (divide by ZOOM_FACTOR).
+ * Schedules state save for project persistence.
  */
 export function zoomOut(): void {
   setZoomLevel(clampZoom(zoomLevel() / ZOOM_FACTOR));
+  scheduleStateSave();
 }
 
 /**
@@ -137,6 +146,7 @@ export function resetCanvas(): void {
 /**
  * Apply zoom based on wheel delta, centered on cursor position.
  * Adjusts both zoom level and pan offset to keep the point under cursor stationary.
+ * Schedules state save for project persistence.
  */
 export function applyZoom(
   cursorX: number,
@@ -160,15 +170,18 @@ export function applyZoom(
 
     setPanOffset(newPan);
     setZoomLevel(newZoom);
+    scheduleStateSave();
   }
 }
 
 /**
  * Fit the template to the viewport with padding.
  * Sets zoom and pan to center the template in the viewport.
+ * Schedules state save for project persistence.
  */
 export function fitToView(viewportSize: Size, templateSize: Size): void {
   const result = calculateFitZoom(templateSize, viewportSize);
   setZoomLevel(result.zoom);
   setPanOffset({ x: result.panX, y: result.panY });
+  scheduleStateSave();
 }

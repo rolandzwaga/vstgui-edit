@@ -1,7 +1,16 @@
 import { createSignal, For, Show } from 'solid-js';
 import { documentStore, loadFile, setDragging, reset, createNewDocument } from '../../stores/documentStore';
+import {
+  projectStore,
+  openNameDialog,
+  closeNameDialog,
+  setPendingFile,
+  clearPendingFile,
+  createProject,
+} from '../../stores/projectStore';
 import type { NewDocumentConfig } from '../../types/createNew';
 import { CreateNewDialog } from '../CreateNewDialog';
+import { ProjectNameDialog } from '../ProjectNameDialog';
 import styles from './UploadZone.module.css';
 
 const hasParseErrors = () =>
@@ -50,7 +59,7 @@ export function UploadZone() {
 
     const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
-      await loadFile(files[0]);
+      await handleFileUpload(files[0]);
     }
   };
 
@@ -58,10 +67,54 @@ export function UploadZone() {
     const target = e.target as HTMLInputElement;
     const files = target.files;
     if (files && files.length > 0) {
-      await loadFile(files[0]);
+      await handleFileUpload(files[0]);
     }
     // Reset input so same file can be selected again
     target.value = '';
+  };
+
+  /**
+   * Handle file upload - loads the file and shows project name dialog if not in session-only mode.
+   */
+  const handleFileUpload = async (file: File) => {
+    await loadFile(file);
+
+    // If parse was successful and we're not in session-only mode, show name dialog
+    if (documentStore.parseState === 'valid' && !projectStore.isSessionOnly) {
+      // Store the file info and open the name dialog
+      setPendingFile({
+        content: documentStore.content!,
+        format: documentStore.detectedFormat === 'json' ? 'json' : 'xml',
+        filename: file.name,
+      });
+      openNameDialog('create');
+    }
+  };
+
+  /**
+   * Handle project name confirmation from the dialog.
+   */
+  const handleNameConfirm = async (name: string) => {
+    const pending = projectStore.pendingFile;
+    if (!pending) {
+      closeNameDialog();
+      return;
+    }
+
+    // Create the project
+    await createProject(name, pending.content, pending.format);
+
+    // Clean up
+    clearPendingFile();
+    closeNameDialog();
+  };
+
+  /**
+   * Handle name dialog cancel - clear pending file.
+   */
+  const handleNameCancel = () => {
+    clearPendingFile();
+    closeNameDialog();
   };
 
   const handleButtonClick = () => {
@@ -188,6 +241,14 @@ export function UploadZone() {
         isOpen={isCreateDialogOpen()}
         onClose={handleCloseDialog}
         onCreate={handleCreate}
+      />
+
+      <ProjectNameDialog
+        isOpen={projectStore.isNameDialogOpen}
+        mode={projectStore.nameDialogMode}
+        initialName={projectStore.pendingFile?.filename?.replace(/\.uidesc$/i, '') ?? ''}
+        onConfirm={handleNameConfirm}
+        onCancel={handleNameCancel}
       />
     </div>
   );

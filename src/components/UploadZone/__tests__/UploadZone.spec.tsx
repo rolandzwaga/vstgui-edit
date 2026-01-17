@@ -2,11 +2,15 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@solidjs/testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockUidescFile } from '../../../__tests__/helpers/fixtures';
 import { reset, documentStore, createNewDocument } from '../../../stores/documentStore';
+import { resetProjectStore, setIsSessionOnly } from '../../../stores/projectStore';
 import { UploadZone } from '../UploadZone';
 
 describe('UploadZone', () => {
   beforeEach(() => {
     reset();
+    resetProjectStore();
+    // Set session-only mode to prevent ProjectNameDialog from appearing
+    setIsSessionOnly(true);
   });
 
   describe('rendering and accessibility', () => {

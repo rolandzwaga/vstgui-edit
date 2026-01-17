@@ -1,6 +1,7 @@
 import { createSignal } from 'solid-js';
 import type { AttributeGroupId } from '../types/properties';
 import { ALL_GROUP_IDS } from '../types/properties';
+import { scheduleStateSave } from './projectStore';
 
 const [expandedGroups, setExpandedGroups] = createSignal<Set<AttributeGroupId>>(
   new Set(ALL_GROUP_IDS.filter(id => id !== 'identity'))
@@ -25,6 +26,7 @@ export function toggleGroup(groupId: AttributeGroupId): void {
   }
 
   setExpandedGroups(newSet);
+  scheduleStateSave();
 }
 
 export function expandGroup(groupId: AttributeGroupId): void {
@@ -35,6 +37,7 @@ export function expandGroup(groupId: AttributeGroupId): void {
     const newSet = new Set(current);
     newSet.add(groupId);
     setExpandedGroups(newSet);
+    scheduleStateSave();
   }
 }
 
@@ -46,6 +49,7 @@ export function collapseGroup(groupId: AttributeGroupId): void {
     const newSet = new Set(current);
     newSet.delete(groupId);
     setExpandedGroups(newSet);
+    scheduleStateSave();
   }
 }
 
