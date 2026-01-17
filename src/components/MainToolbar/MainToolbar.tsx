@@ -5,6 +5,7 @@ import { ExportMenu } from '../ExportMenu';
 import { GridToolbar } from '../GridToolbar';
 import { ProjectMenu } from '../ProjectMenu';
 import { SaveAsButton } from '../SaveAsButton';
+import { SaveIndicator } from '../SaveIndicator/SaveIndicator';
 import { ViewModeToolbar } from '../ViewModeToolbar';
 import { ZoomToolbar } from '../ZoomToolbar';
 import { PreferencesButton } from './PreferencesButton';
@@ -34,6 +35,7 @@ export const MainToolbar: Component<MainToolbarProps> = (props) => {
       />
       <SaveAsButton />
       <ExportMenu />
+      <SaveIndicator />
       <ZoomToolbar onFitToView={props.onFitToView} />
       <GridToolbar />
       <ViewModeToolbar />
