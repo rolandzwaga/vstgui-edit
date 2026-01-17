@@ -5,7 +5,6 @@
  * including importing, editing, and exporting without persistence.
  */
 
-import { createRoot } from 'solid-js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { projectService } from '../services/indexedDB/projectService';
 import {
@@ -18,8 +17,6 @@ import {
 } from '../stores/projectStore';
 
 describe('Session-Only Mode Integration', () => {
-  let dispose: () => void;
-
   beforeEach(() => {
     // Start fresh
     resetProjectStore();
@@ -28,7 +25,6 @@ describe('Session-Only Mode Integration', () => {
   });
 
   afterEach(() => {
-    if (dispose) dispose();
     resetProjectStore();
     vi.clearAllMocks();
   });
