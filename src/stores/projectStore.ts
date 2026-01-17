@@ -10,20 +10,25 @@ import { createStore } from 'solid-js/store';
 import type {
   EditorState,
   NameDialogMode,
+  OrphanedBitmap,
   PendingFileInfo,
   Project,
   ProjectStoreState,
+  ReplaceUidescResult,
   SaveStatus,
   UidescFormat,
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
 import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
+import { parseUidesc } from '../domain/parser';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
+import { bitmapService } from '../services/indexedDB/bitmapService';
 import { restoreCanvasState } from './canvasStore';
 import { restoreHierarchyState } from './hierarchyStore';
 import { restorePropertiesState } from './propertiesStore';
 import { setActiveTemplate } from './templateStore';
+import { setDocumentForTest as setDocumentStoreContent } from './documentStore';
 
 // ============================================================================
 // Initial State
@@ -739,4 +744,96 @@ export async function duplicateProject(
     console.error('Failed to duplicate project:', error);
     return null;
   }
+}
+
+// ============================================================================
+// Replace Uidesc
+// ============================================================================
+
+/**
+ * Extracts bitmap names referenced in a parsed uidesc document.
+ */
+function extractBitmapReferences(parsedDoc: Record<string, unknown>): Set<string> {
+  const references = new Set<string>();
+  const uidesc = parsedDoc['vstgui-ui-description'] as Record<string, unknown> | undefined;
+  if (!uidesc) return references;
+
+  const bitmaps = uidesc.bitmaps as Record<string, unknown> | undefined;
+  if (bitmaps) {
+    for (const name of Object.keys(bitmaps)) {
+      references.add(name);
+    }
+  }
+
+  return references;
+}
+
+/**
+ * Replaces the uidesc content in the current project.
+ *
+ * This operation:
+ * - Parses and validates the new uidesc content
+ * - Preserves project settings and editor state
+ * - Detects orphaned bitmaps (stored blobs no longer referenced)
+ * - Updates both IndexedDB and the document store
+ *
+ * @param newContent - The new uidesc content string
+ * @param newFormat - The format of the new content (json or xml)
+ * @returns Result object with success status and orphaned bitmaps list
+ */
+export async function replaceUidesc(
+  newContent: string,
+  newFormat: UidescFormat
+): Promise<ReplaceUidescResult> {
+  const project = store.currentProject;
+  if (!project) {
+    return { success: false, error: 'No project is open' };
+  }
+
+  // Parse and validate the new content
+  const parseResult = parseUidesc(newContent);
+  if (!parseResult.success) {
+    const errorMsg = parseResult.errors[0]?.message ?? 'Invalid uidesc content';
+    return { success: false, error: errorMsg };
+  }
+
+  // Extract bitmap references from new content
+  const newBitmapRefs = extractBitmapReferences(parseResult.document as Record<string, unknown>);
+
+  // Get stored bitmaps for this project
+  const storedBitmaps = store.isSessionOnly
+    ? []
+    : await bitmapService.getByProject(project.id);
+
+  // Find orphaned bitmaps (stored but not referenced in new content)
+  const orphanedBitmaps: OrphanedBitmap[] = storedBitmaps
+    .filter((bitmap) => !newBitmapRefs.has(bitmap.name))
+    .map((bitmap) => ({ name: bitmap.name, size: bitmap.size }));
+
+  // Update project in store
+  const updatedProject: Project = {
+    ...project,
+    uidescContent: newContent,
+    uidescFormat: newFormat,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Persist to IndexedDB if not in session-only mode
+  if (!store.isSessionOnly) {
+    try {
+      await projectService.update(toPlainProject(updatedProject));
+    } catch (error) {
+      console.error('Failed to persist replaced uidesc:', error);
+      return { success: false, error: 'Failed to save changes' };
+    }
+  }
+
+  // Update the project store
+  setStore({ currentProject: updatedProject, isDirty: false });
+
+  // Update the document store with parsed content
+  // setDocumentForTest also sets parseState to 'valid'
+  setDocumentStoreContent(parseResult.document);
+
+  return { success: true, orphanedBitmaps };
 }

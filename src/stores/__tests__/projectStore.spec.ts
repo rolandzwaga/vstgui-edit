@@ -1111,4 +1111,213 @@ describe('projectStore', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('replaceUidesc', () => {
+    beforeEach(async () => {
+      await openDatabase();
+    });
+
+    test('updates uidescContent in current project', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {"mycolor": "#FF0000FF"}}}';
+      const result = await replaceUidesc(newContent, 'json');
+
+      expect(result.success).toBe(true);
+      expect(projectStore.currentProject?.uidescContent).toBe(newContent);
+    });
+
+    test('updates uidescFormat when changed', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+
+      const xmlContent = '<?xml version="1.0" encoding="UTF-8"?><vstgui-ui-description version="1"></vstgui-ui-description>';
+      const result = await replaceUidesc(xmlContent, 'xml');
+
+      expect(result.success).toBe(true);
+      expect(projectStore.currentProject?.uidescFormat).toBe('xml');
+    });
+
+    test('preserves project settings', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const customSettings = {
+        ...DEFAULT_PROJECT_SETTINGS,
+        grid: { ...DEFAULT_PROJECT_SETTINGS.grid, size: 20 as const },
+      };
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      // Update project with custom settings
+      const updatedProjectData: Project = { ...project!, settings: customSettings };
+      await projectService.update(updatedProjectData);
+      setCurrentProject(updatedProjectData);
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {}}}';
+      await replaceUidesc(newContent, 'json');
+
+      expect(projectStore.currentProject?.settings.grid.size).toBe(20);
+    });
+
+    test('preserves editor state', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const customEditorState = {
+        ...DEFAULT_EDITOR_STATE,
+        zoomLevel: 2.0,
+        panOffset: { x: 100, y: 200 },
+      };
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const updatedProjectData: Project = { ...project!, editorState: customEditorState };
+      await projectService.update(updatedProjectData);
+      setCurrentProject(updatedProjectData);
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {}}}';
+      await replaceUidesc(newContent, 'json');
+
+      expect(projectStore.currentProject?.editorState.zoomLevel).toBe(2.0);
+      expect(projectStore.currentProject?.editorState.panOffset).toEqual({ x: 100, y: 200 });
+    });
+
+    test('updates updatedAt timestamp', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+      const originalUpdatedAt = project!.updatedAt;
+
+      // Wait a bit to ensure different timestamp
+      await new Promise((r) => setTimeout(r, 10));
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {}}}';
+      await replaceUidesc(newContent, 'json');
+
+      expect(new Date(projectStore.currentProject!.updatedAt).getTime()).toBeGreaterThan(
+        new Date(originalUpdatedAt).getTime()
+      );
+    });
+
+    test('returns orphaned bitmaps when they exist', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+      const { bitmapService } = await import('../../services/indexedDB/bitmapService');
+
+      // Create project with uidesc that references a bitmap
+      const project = await createProject(
+        'Test',
+        '{"vstgui-ui-description": {"version": "1", "bitmaps": {"mybitmap": {"path": "bitmap.png"}}}}',
+        'json'
+      );
+      setCurrentProject(project);
+
+      // Add a bitmap to storage that's referenced
+      await bitmapService.add({
+        id: crypto.randomUUID(),
+        projectId: project!.id,
+        name: 'mybitmap',
+        blob: new Blob(['test'], { type: 'image/png' }),
+        mimeType: 'image/png',
+        width: 100,
+        height: 100,
+        size: 4,
+        addedAt: new Date().toISOString(),
+      });
+
+      // Replace with uidesc that doesn't reference the bitmap
+      const newContent = '{"vstgui-ui-description": {"version": "1"}}';
+      const result = await replaceUidesc(newContent, 'json');
+
+      expect(result.success).toBe(true);
+      expect(result.orphanedBitmaps).toHaveLength(1);
+      expect(result.orphanedBitmaps![0].name).toBe('mybitmap');
+    });
+
+    test('returns empty orphanedBitmaps when all bitmaps are still referenced', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+      const { bitmapService } = await import('../../services/indexedDB/bitmapService');
+
+      // Create project with uidesc that references a bitmap
+      const project = await createProject(
+        'Test',
+        '{"vstgui-ui-description": {"version": "1", "bitmaps": {"mybitmap": {"path": "bitmap.png"}}}}',
+        'json'
+      );
+      expect(project).not.toBeNull();
+      setCurrentProject(project);
+
+      // Add a bitmap to storage
+      await bitmapService.add({
+        id: crypto.randomUUID(),
+        projectId: project!.id,
+        name: 'mybitmap',
+        blob: new Blob(['test'], { type: 'image/png' }),
+        mimeType: 'image/png',
+        width: 100,
+        height: 100,
+        size: 4,
+        addedAt: new Date().toISOString(),
+      });
+
+      // Replace with uidesc that still references the bitmap
+      const newContent = '{"vstgui-ui-description": {"version": "1", "bitmaps": {"mybitmap": {"path": "newpath.png"}}}}';
+      const result = await replaceUidesc(newContent, 'json');
+
+      expect(result.success).toBe(true);
+      expect(result.orphanedBitmaps).toHaveLength(0);
+    });
+
+    test('fails when no project is open', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const newContent = '{"vstgui-ui-description": {"version": "1"}}';
+      const result = await replaceUidesc(newContent, 'json');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('No project');
+    });
+
+    test('fails when uidesc content is invalid', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+
+      const invalidContent = 'not valid json';
+      const result = await replaceUidesc(invalidContent, 'json');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    test('persists changes to IndexedDB', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {"red": "#FF0000FF"}}}';
+      await replaceUidesc(newContent, 'json');
+
+      // Verify persisted in DB
+      const savedProject = await projectService.get(project!.id);
+      expect(savedProject?.uidescContent).toBe(newContent);
+    });
+
+    test('updates documentStore with new content', async () => {
+      const { replaceUidesc } = await import('../projectStore');
+      const { documentStore, setDocumentForTest } = await import('../documentStore');
+
+      const project = await createProject('Test', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      setCurrentProject(project);
+      setDocumentForTest({ 'vstgui-ui-description': { version: '1' } });
+
+      const newContent = '{"vstgui-ui-description": {"version": "1", "colors": {"blue": "#0000FFFF"}}}';
+      await replaceUidesc(newContent, 'json');
+
+      expect(documentStore.document).toBeDefined();
+      expect(documentStore.document?.['vstgui-ui-description']?.colors).toHaveProperty('blue');
+    });
+  });
 });

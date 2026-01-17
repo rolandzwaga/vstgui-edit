@@ -318,6 +318,35 @@ export interface ExportResult {
 }
 
 // ============================================================================
+// Replace Uidesc
+// ============================================================================
+
+/**
+ * Result of a replaceUidesc operation.
+ */
+export interface ReplaceUidescResult {
+  /** Whether the replace succeeded */
+  success: boolean;
+
+  /** Error message if failed */
+  error?: string;
+
+  /** List of bitmaps that are no longer referenced by the new uidesc */
+  orphanedBitmaps?: OrphanedBitmap[];
+}
+
+/**
+ * Information about an orphaned bitmap.
+ */
+export interface OrphanedBitmap {
+  /** Bitmap name */
+  name: string;
+
+  /** File size in bytes */
+  size: number;
+}
+
+// ============================================================================
 // Default Values
 // ============================================================================
 
