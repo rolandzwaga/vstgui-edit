@@ -203,19 +203,6 @@ npx tsc --noEmit                   # Type check
 | `startMarquee(point, additive, currentSel)` | Begin at point |
 | `updateMarquee/completeMarquee/cancelMarquee` | Gesture lifecycle |
 
-### saveFormatStore (`src/stores/saveFormatStore.ts`)
-**Purpose**: Save format selection and confirmation dialog state
-
-| Export | Description |
-|--------|-------------|
-| `saveFormatStore` | State: `selectedFormat`, `isDropdownOpen`, `isConfirmDialogOpen`, `pendingFormat`, `originalFormat` |
-| `initializeFormat(originalFormat)` | Set format from file, localStorage, or default to 'json' |
-| `openDropdown/closeDropdown` | Toggle format dropdown visibility |
-| `selectFormat(format)` | Select format, triggers confirmation if different from original |
-| `confirmFormatChange()` | Confirm pending format change, persist to localStorage |
-| `cancelFormatChange()` | Cancel pending change, close dialog |
-| `resetSaveFormatStore()` | Reset to initial state |
-
 ### rulerStore (`src/stores/rulerStore.ts`)
 **Purpose**: Cursor position state for ruler indicators
 
@@ -350,6 +337,69 @@ npx tsc --noEmit                   # Type check
 | `toggleViewMode()` | Toggle between wireframe and styled (P key) |
 | `resetViewModeStore()` | Reset to wireframe mode (for testing) |
 
+### projectStore (`src/stores/projectStore.ts`)
+**Purpose**: Project session management with IndexedDB persistence
+
+| Export | Description |
+|--------|-------------|
+| `projectStore` | State: `currentProject`, `isDirty`, `saveStatus`, `lastSavedAt`, `isSessionOnly`, `isProjectListOpen`, `isNameDialogOpen`, `nameDialogMode`, `pendingFile` |
+| `initializeProjectStore()` | Initialize IndexedDB, set isSessionOnly if unavailable |
+| `createProject(name, content, format)` | Create new project with thumbnail, persist to IndexedDB |
+| `createEmptyProject(name)` | Create project with default uidesc template |
+| `loadProject(id)` | Load project by ID from IndexedDB |
+| `openProject(id)` | Load project and restore editor state to stores |
+| `getAllProjects()` | List all projects sorted by updatedAt desc |
+| `saveCurrentProject()` | Persist current project to IndexedDB |
+| `updateProjectContent(content)` | Update uidesc content, mark dirty |
+| `updateProjectEditorState(updates)` | Update editor state (pan, zoom, etc.) |
+| `renameProject(id, newName)` | Rename project with validation |
+| `duplicateProject(sourceId, newName)` | Save As - duplicate with new name |
+| `deleteProject(id)` | Delete project from IndexedDB |
+| `replaceUidesc(content, format)` | Replace uidesc, detect orphaned bitmaps |
+| `closeCurrentProject()` | Close project, cancel auto-save timers |
+| `scheduleDocumentSave()` | Debounced save (2s) for content changes |
+| `scheduleStateSave()` | Debounced save (10s) for editor state |
+| `cancelAutoSaveTimers()` | Cancel pending auto-save timers |
+| `openProjectList()/closeProjectList()` | Toggle project list modal |
+| `openNameDialog(mode)/closeNameDialog()` | Toggle name dialog (create/rename/saveAs) |
+| `setPendingFile(info)/clearPendingFile()` | Set/clear pending file for import |
+| `resetProjectStore()` | Reset to initial state |
+
+**Auto-Save Timers**:
+- Document changes: 2 second debounce (`DEBOUNCE.DOCUMENT`)
+- Editor state: 10 second debounce (`DEBOUNCE.EDITOR_STATE`)
+
+---
+
+## IndexedDB Services (`src/services/indexedDB/`)
+
+### database.ts
+| Export | Description |
+|--------|-------------|
+| `openDatabase()` | Open/create IndexedDB with schema |
+| `getStore(name, mode)` | Get object store for transactions |
+| `promisifyRequest(request)` | Convert IDBRequest to Promise |
+| `closeDatabase()` | Close database connection |
+| `deleteDatabase()` | Delete entire database (testing) |
+
+### projectService.ts
+| Export | Description |
+|--------|-------------|
+| `projectService.create(project)` | Create project in IndexedDB |
+| `projectService.get(id)` | Get project by ID |
+| `projectService.getAll()` | Get all projects sorted by updatedAt |
+| `projectService.update(project)` | Update existing project |
+| `projectService.delete(id)` | Delete project by ID |
+
+### bitmapService.ts
+| Export | Description |
+|--------|-------------|
+| `bitmapService.create(bitmap)` | Store bitmap blob |
+| `bitmapService.get(projectId, name)` | Get bitmap by project and name |
+| `bitmapService.getByProject(projectId)` | Get all bitmaps for project |
+| `bitmapService.delete(projectId, name)` | Delete single bitmap |
+| `bitmapService.deleteByProject(projectId)` | Delete all bitmaps for project |
+
 ---
 
 ## Domain Utilities
@@ -394,16 +444,6 @@ npx tsc --noEmit                   # Type check
 | `attributeTypes.ts` | `ATTRIBUTE_TYPE_MAP`, `getAttributeType` → point/color/font/enum/boolean/text |
 | `validation.ts` | `validatePoint/Size/Number/Boolean/Color` → `{valid, error?}` |
 | `historyOperations.ts` | `createPropertyEditOperation(data, updateFn)` |
-
-### Save (`src/domain/save/`)
-
-| Function | Description |
-|----------|-------------|
-| `getFormatPreference()` | Get saved format from localStorage, returns `'json' \| 'xml' \| null` |
-| `setFormatPreference(format)` | Save format preference to localStorage |
-| `clearFormatPreference()` | Remove format preference from localStorage |
-| `isValidSaveFormat(value)` | Type guard for SaveFormat |
-| `STORAGE_KEY` | localStorage key: `'vstgui-edit:save-format'` |
 
 ### Guides (`src/domain/guides/`)
 
@@ -551,6 +591,55 @@ createEffect(() => {
 - `ColorFormat` - Input format: `'hex' | 'rgb' | 'hsl'`
 - `ColorSource` - Selection source: `'visual-picker' | 'hex-input' | 'rgb-input' | 'hsl-input' | 'document-color' | 'predefined-color' | 'recent-color'`
 - `PickerMode` - Display mode: `'popup' | 'inline'`
+
+### Project (`src/domain/project/`)
+
+| Module | Key Functions |
+|--------|---------------|
+| `types.ts` | `Project`, `ProjectStoreState`, `EditorState`, `ProjectSettings`, `UidescFormat`, `SaveStatus`, `NameDialogMode`, `DEBOUNCE`, `DEFAULT_EDITOR_STATE`, `DEFAULT_PROJECT_SETTINGS` |
+| `validation.ts` | `validateProjectName(name)` - returns `{valid, error?}`, `sanitizeProjectName(name)` - trim, normalize |
+| `projectValidation.ts` | `validateProjectRecord(project)` - validates IndexedDB records, returns `{isValid, errors, canRestore, repairedProject?}` |
+| `thumbnail.ts` | `generateThumbnail(document)` - renders first template to 200x150 PNG data URL |
+| | `extractFirstTemplate(document)` - extracts template data for rendering |
+| | `createPlaceholderThumbnail()` - "No Template" placeholder image |
+| `export.ts` | `exportAsJSON(doc)`, `exportAsXML(doc)`, `exportAsZIP(doc, name, bitmaps?)` |
+| | `createDownloadBlob(content, format)`, `triggerDownload(blob, filename)` |
+| | `getFileExtension(format)` - returns `.uidesc` or `.zip` |
+| `serialization.ts` | `serializeEditorState(state)`, `deserializeEditorState(data)` |
+| | `serializeProjectSettings(settings)`, `deserializeProjectSettings(data)` |
+| `legacyStorage.ts` | `cleanupLegacyStorage()` - removes old localStorage keys on startup |
+| | `LEGACY_KEYS` - `['vstgui-edit:preferences', 'vstgui-edit:alignment-toolbar', 'vstgui-edit:save-format', 'vstgui-edit:recent-colors']` |
+
+**Project Types** (`src/domain/project/types.ts`):
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  uidescContent: string;
+  uidescFormat: 'json' | 'xml';
+  editorState: EditorState;
+  settings: ProjectSettings;
+  thumbnailDataUrl: string | null;
+}
+```
+
+---
+
+## Project Components (`src/components/`)
+
+| Component | Purpose |
+|-----------|---------|
+| `ProjectList` | Modal with project grid, search/filter, sort by date |
+| `ProjectCard` | Card with thumbnail, name, format badge, rename/delete actions |
+| `ProjectNameDialog` | Name input for create/rename/saveAs with validation |
+| `SaveIndicator` | Status badge (Saving.../Saved/Error) in toolbar |
+| `ExportMenu` | Dropdown for JSON/XML/ZIP export options |
+| `StorageWarning` | Banner when storage quota > 80% |
+| `ConfirmDialog` | Generic confirmation modal |
+| `OrphanWarningDialog` | Shows orphaned bitmaps after uidesc replace |
+| `RecoveryDialog` | Handles corrupted projects with delete/restore options |
 
 ---
 
@@ -713,6 +802,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 043-project-storage: Added SolidJS 1.9.x, fflate (ZIP), native IndexedDB API
 - 042-styled-view-mode: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
 - 041-create-new-uidesc: Added SolidJS 1.9.10, Vite 7.3.0
 

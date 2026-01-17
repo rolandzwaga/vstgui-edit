@@ -1,0 +1,109 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: var(--color-warning-bg, #fef3c7);
+  border: 1px solid var(--color-warning-border, #fbbf24);
+  border-radius: 6px;
+  color: var(--color-warning-text, #92400e);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--color-warning-icon, #f59e0b);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.description {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-warning-text-secondary, #a16207);
+}
+
+.progressContainer {
+  width: 100%;
+  max-width: 300px;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: var(--color-warning-progress-bg, #fde68a);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-warning-progress-fill, #f59e0b);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.dismissButton {
+  flex-shrink: 0;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-warning-text, #92400e);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.dismissButton:hover {
+  background-color: var(--color-warning-dismiss-hover, rgba(0, 0, 0, 0.1));
+}
+
+.dismissButton:focus-visible {
+  outline: 2px solid var(--color-warning-border, #fbbf24);
+  outline-offset: 2px;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] .banner {
+  background-color: var(--color-warning-bg-dark, #422006);
+  border-color: var(--color-warning-border-dark, #b45309);
+  color: var(--color-warning-text-dark, #fde68a);
+}
+
+[data-theme="dark"] .description {
+  color: var(--color-warning-text-secondary-dark, #fcd34d);
+}
+
+[data-theme="dark"] .icon {
+  color: var(--color-warning-icon-dark, #fbbf24);
+}
+
+[data-theme="dark"] .progressBar {
+  background-color: var(--color-warning-progress-bg-dark, #78350f);
+}
+
+[data-theme="dark"] .progressFill {
+  background-color: var(--color-warning-progress-fill-dark, #fbbf24);
+}
+
+[data-theme="dark"] .dismissButton {
+  color: var(--color-warning-text-dark, #fde68a);
+}
+
+[data-theme="dark"] .dismissButton:hover {
+  background-color: var(--color-warning-dismiss-hover-dark, rgba(255, 255, 255, 0.1));
+}

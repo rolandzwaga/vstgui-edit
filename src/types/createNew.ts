@@ -47,6 +47,8 @@ export interface NewDocumentConfig {
   height: number;
   /** Container class for root template view */
   containerClass: ContainerClass;
+  /** Project name (required when creating a project, optional in session-only mode) */
+  projectName?: string;
 }
 
 /**
@@ -96,4 +98,6 @@ export interface CreateNewDialogProps {
   onClose: () => void;
   /** Called when user confirms creation with valid config */
   onCreate: (config: NewDocumentConfig) => void;
+  /** Whether a project name is required (false in session-only mode) */
+  requiresProjectName?: boolean;
 }

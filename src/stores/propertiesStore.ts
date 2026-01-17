@@ -1,6 +1,7 @@
 import { createSignal } from 'solid-js';
 import type { AttributeGroupId } from '../types/properties';
 import { ALL_GROUP_IDS } from '../types/properties';
+import { scheduleStateSave } from './projectStore';
 
 const [expandedGroups, setExpandedGroups] = createSignal<Set<AttributeGroupId>>(
   new Set(ALL_GROUP_IDS.filter(id => id !== 'identity'))
@@ -25,6 +26,7 @@ export function toggleGroup(groupId: AttributeGroupId): void {
   }
 
   setExpandedGroups(newSet);
+  scheduleStateSave();
 }
 
 export function expandGroup(groupId: AttributeGroupId): void {
@@ -35,6 +37,7 @@ export function expandGroup(groupId: AttributeGroupId): void {
     const newSet = new Set(current);
     newSet.add(groupId);
     setExpandedGroups(newSet);
+    scheduleStateSave();
   }
 }
 
@@ -46,6 +49,7 @@ export function collapseGroup(groupId: AttributeGroupId): void {
     const newSet = new Set(current);
     newSet.delete(groupId);
     setExpandedGroups(newSet);
+    scheduleStateSave();
   }
 }
 
@@ -56,4 +60,17 @@ export function isGroupExpanded(groupId: AttributeGroupId): boolean {
 
 export function resetProperties(): void {
   setExpandedGroups(new Set(ALL_GROUP_IDS.filter(id => id !== 'identity')));
+}
+
+/**
+ * Restore properties state from a project.
+ * Used when opening an existing project - does NOT trigger auto-save.
+ */
+export function restorePropertiesState(groupIds: string[]): void {
+  // Filter to only valid group IDs and exclude 'identity'
+  const validGroupIds = groupIds.filter(
+    (id): id is AttributeGroupId =>
+      ALL_GROUP_IDS.includes(id as AttributeGroupId) && id !== 'identity'
+  );
+  setExpandedGroups(new Set(validGroupIds));
 }

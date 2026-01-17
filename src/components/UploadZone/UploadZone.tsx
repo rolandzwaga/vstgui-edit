@@ -1,27 +1,34 @@
-import { createSignal, For, Show } from 'solid-js';
-import { documentStore, loadFile, setDragging, reset, createNewDocument } from '../../stores/documentStore';
-import type { NewDocumentConfig } from '../../types/createNew';
-import { CreateNewDialog } from '../CreateNewDialog';
+import { For, Show } from 'solid-js';
+import { documentStore, loadFile, setDragging, reset } from '../../stores/documentStore';
+import {
+  projectStore,
+  openNameDialog,
+  closeNameDialog,
+  setPendingFile,
+  clearPendingFile,
+  createProject,
+  openProjectList,
+} from '../../stores/projectStore';
+import { ProjectNameDialog } from '../ProjectNameDialog';
 import styles from './UploadZone.module.css';
+
+export interface UploadZoneProps {
+  /** Callback when Create New button is clicked. Opens the Create New dialog at App level. */
+  onNewProject?: () => void;
+}
 
 const hasParseErrors = () =>
   documentStore.parseState === 'invalid' && documentStore.parseErrors && documentStore.parseErrors.length > 0;
 
-export function UploadZone() {
+export function UploadZone(props: UploadZoneProps) {
   let fileInputRef: HTMLInputElement | undefined;
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
 
   const handleCreateNew = () => {
-    setIsCreateDialogOpen(true);
+    props.onNewProject?.();
   };
 
-  const handleCreate = (config: NewDocumentConfig) => {
-    createNewDocument(config);
-    setIsCreateDialogOpen(false);
-  };
-
-  const handleCloseDialog = () => {
-    setIsCreateDialogOpen(false);
+  const handleOpenProjectList = () => {
+    openProjectList();
   };
 
   const handleDragEnter = (e: DragEvent) => {
@@ -50,7 +57,7 @@ export function UploadZone() {
 
     const files = e.dataTransfer?.files;
     if (files && files.length > 0) {
-      await loadFile(files[0]);
+      await handleFileUpload(files[0]);
     }
   };
 
@@ -58,10 +65,55 @@ export function UploadZone() {
     const target = e.target as HTMLInputElement;
     const files = target.files;
     if (files && files.length > 0) {
-      await loadFile(files[0]);
+      await handleFileUpload(files[0]);
     }
     // Reset input so same file can be selected again
     target.value = '';
+  };
+
+  /**
+   * Handle file upload - loads the file and shows project name dialog if not in session-only mode.
+   */
+  const handleFileUpload = async (file: File) => {
+    await loadFile(file);
+
+    // If parse was successful and we're not in session-only mode, show name dialog
+    if (documentStore.parseState === 'valid' && !projectStore.isSessionOnly) {
+      // Store the file info and open the name dialog
+      setPendingFile({
+        content: documentStore.content!,
+        format: documentStore.detectedFormat === 'json' ? 'json' : 'xml',
+        filename: file.name,
+      });
+      openNameDialog('create');
+    }
+  };
+
+  /**
+   * Handle project name confirmation from the dialog.
+   * Only handles file upload flow - Create New is handled at App level.
+   */
+  const handleNameConfirm = async (name: string) => {
+    const pending = projectStore.pendingFile;
+
+    if (pending) {
+      // File upload flow
+      await createProject(name, pending.content, pending.format);
+
+      // Clean up
+      clearPendingFile();
+      closeNameDialog();
+    } else {
+      closeNameDialog();
+    }
+  };
+
+  /**
+   * Handle name dialog cancel - clear pending state.
+   */
+  const handleNameCancel = () => {
+    clearPendingFile();
+    closeNameDialog();
   };
 
   const handleButtonClick = () => {
@@ -173,6 +225,11 @@ export function UploadZone() {
           <button class={styles.buttonSecondary} onClick={handleCreateNew} type="button">
             Create New
           </button>
+          <Show when={!projectStore.isSessionOnly}>
+            <button class={styles.buttonSecondary} onClick={handleOpenProjectList} type="button">
+              Open Project
+            </button>
+          </Show>
         </div>
       </Show>
 
@@ -184,11 +241,17 @@ export function UploadZone() {
         onChange={handleFileSelect}
       />
 
-      <CreateNewDialog
-        isOpen={isCreateDialogOpen()}
-        onClose={handleCloseDialog}
-        onCreate={handleCreate}
-      />
+      <Show when={projectStore.nameDialogMode}>
+        {(mode) => (
+          <ProjectNameDialog
+            isOpen={projectStore.isNameDialogOpen}
+            mode={mode()}
+            initialName={projectStore.pendingFile?.filename?.replace(/\.uidesc$/i, '') ?? ''}
+            onConfirm={handleNameConfirm}
+            onClose={handleNameCancel}
+          />
+        )}
+      </Show>
     </div>
   );
 }

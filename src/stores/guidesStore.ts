@@ -24,6 +24,7 @@ import type {
   GuideRepositionDrag,
 } from '../types/guides';
 import { pushOperation } from './historyStore';
+import { scheduleStateSave } from './projectStore';
 
 // Signals for core state
 const [guides, setGuides] = createSignal<CustomGuide[]>([]);
@@ -124,6 +125,7 @@ export function clearAllGuides(): CustomGuide[] {
 
 /**
  * Add a guide and push operation to history stack.
+ * Schedules state save for project persistence.
  */
 export function addGuideWithHistory(
   orientation: GuideOrientation,
@@ -133,12 +135,14 @@ export function addGuideWithHistory(
   if (created) {
     const operation = createGuideCreateOperation(created, addGuide, deleteGuide);
     pushOperation(operation);
+    scheduleStateSave();
   }
   return created;
 }
 
 /**
  * Delete a guide and push operation to history stack.
+ * Schedules state save for project persistence.
  */
 export function deleteGuideWithHistory(id: string): boolean {
   const guide = guidesStore.getGuideById(id);
@@ -150,12 +154,14 @@ export function deleteGuideWithHistory(id: string): boolean {
   if (deleted) {
     const operation = createGuideDeleteOperation(deleted, addGuide, deleteGuide);
     pushOperation(operation);
+    scheduleStateSave();
   }
   return deleted !== null;
 }
 
 /**
  * Reposition a guide and push operation to history stack.
+ * Schedules state save for project persistence.
  */
 export function repositionGuideWithHistory(id: string, newPosition: number): boolean {
   const guide = guidesStore.getGuideById(id);
@@ -175,12 +181,14 @@ export function repositionGuideWithHistory(id: string, newPosition: number): boo
       repositionGuide
     );
     pushOperation(operation);
+    scheduleStateSave();
   }
   return success;
 }
 
 /**
  * Clear all guides and push operation to history stack.
+ * Schedules state save for project persistence.
  */
 export function clearAllGuidesWithHistory(): void {
   const current = guides();
@@ -191,6 +199,7 @@ export function clearAllGuidesWithHistory(): void {
   const cleared = clearAllGuides();
   const operation = createGuideClearAllOperation(cleared, addGuide, clearAllGuides);
   pushOperation(operation);
+  scheduleStateSave();
 }
 
 // ============================================================================

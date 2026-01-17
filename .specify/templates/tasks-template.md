@@ -10,7 +10,9 @@ description: "Task list template for feature implementation"
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Testing Guide**: Every task involving unit/component tests MUST include a sub-task to verify `specs/TESTING-GUIDE.md` is loaded in context BEFORE writing tests. This ensures SolidJS-specific patterns (microtask flushing, testInRoot, etc.) are followed.
+**Testing Guide**: Use `/testing-guide` skill before writing tests. This ensures SolidJS-specific patterns (microtask flushing, testInRoot, etc.) are followed.
+
+**SolidJS Guide**: Use `/solidjs-guide` skill before writing components or stores. This ensures proper reactivity patterns and SolidJS idioms are followed.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -86,9 +88,9 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+> **REQUIRED: Use `/testing-guide` skill before writing any test**
 
-- [ ] T010 [US1] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T010 [US1] **Load Testing Guide** - Use `/testing-guide` skill before proceeding
 - [ ] T011 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T012 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
 
@@ -114,9 +116,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+> **REQUIRED: Use `/testing-guide` skill before writing any test**
 
-- [ ] T019 [US2] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T019 [US2] **Load Testing Guide** - Use `/testing-guide` skill before proceeding
 - [ ] T020 [P] [US2] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T021 [P] [US2] Integration test for [user journey] in tests/integration/test_[name].py
 
@@ -140,9 +142,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-> **REQUIRED: Read `specs/TESTING-GUIDE.md` before writing any test**
+> **REQUIRED: Use `/testing-guide` skill before writing any test**
 
-- [ ] T026 [US3] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding
+- [ ] T026 [US3] **Load Testing Guide** - Use `/testing-guide` skill before proceeding
 - [ ] T027 [P] [US3] Contract test for [endpoint] in tests/contract/test_[name].py
 - [ ] T028 [P] [US3] Integration test for [user journey] in tests/integration/test_[name].py
 
@@ -227,7 +229,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Within Each User Story
 
-- **Verify Testing Guide first** - Read `specs/TESTING-GUIDE.md` before any test task
+- **Load Testing Guide first** - Use `/testing-guide` skill before any test task
 - Tests (if included) MUST be written and FAIL before implementation
 - Models before services
 - Services before endpoints
@@ -295,7 +297,8 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
-- **Testing Guide**: Always read `specs/TESTING-GUIDE.md` before writing tests (SolidJS-specific patterns)
+- **Testing Guide**: Use `/testing-guide` skill before writing tests (SolidJS-specific patterns)
+- **SolidJS Guide**: Use `/solidjs-guide` skill before writing components or stores (reactivity patterns)
 - Verify tests fail before implementing
 - **Commit after each phase** - each phase ends with a commit task
 - Stop at any checkpoint to validate story independently

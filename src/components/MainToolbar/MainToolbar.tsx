@@ -1,7 +1,11 @@
 import type { Component } from 'solid-js';
+import type { OrphanedBitmap } from '../../domain/project/types';
 import { AlignmentToolbar } from '../AlignmentToolbar';
+import { ExportMenu } from '../ExportMenu';
 import { GridToolbar } from '../GridToolbar';
-import { SaveButton } from '../SaveButton';
+import { ProjectMenu } from '../ProjectMenu';
+import { SaveAsButton } from '../SaveAsButton';
+import { SaveIndicator } from '../SaveIndicator/SaveIndicator';
 import { ViewModeToolbar } from '../ViewModeToolbar';
 import { ZoomToolbar } from '../ZoomToolbar';
 import { PreferencesButton } from './PreferencesButton';
@@ -10,6 +14,10 @@ import styles from './MainToolbar.module.css';
 export interface MainToolbarProps {
   /** Callback when Fit button is clicked. Caller should invoke fitToView with viewport/template sizes. */
   onFitToView?: () => void;
+  /** Callback when New Project is clicked in the Project menu. */
+  onNewProject?: () => void;
+  /** Callback when orphaned bitmaps are detected after replace uidesc. */
+  onOrphanedBitmaps?: (orphans: OrphanedBitmap[]) => void;
 }
 
 /**
@@ -21,7 +29,13 @@ export interface MainToolbarProps {
 export const MainToolbar: Component<MainToolbarProps> = (props) => {
   return (
     <div class={styles.container} role="toolbar" aria-label="Main toolbar">
-      <SaveButton />
+      <ProjectMenu
+        onNewProject={props.onNewProject ?? (() => {})}
+        onOrphanedBitmaps={props.onOrphanedBitmaps}
+      />
+      <SaveAsButton />
+      <ExportMenu />
+      <SaveIndicator />
       <ZoomToolbar onFitToView={props.onFitToView} />
       <GridToolbar />
       <ViewModeToolbar />

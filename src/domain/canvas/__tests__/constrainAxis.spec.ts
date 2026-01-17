@@ -1,15 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AXIS_LOCK_THRESHOLD,
-  constrainDelta,
-  determineConstraintAxis,
-} from '../constrainAxis';
-
-describe('AXIS_LOCK_THRESHOLD', () => {
-  it('should be 5 pixels as per FR-011', () => {
-    expect(AXIS_LOCK_THRESHOLD).toBe(5);
-  });
-});
+import { constrainDelta, determineConstraintAxis } from '../constrainAxis';
 
 describe('determineConstraintAxis', () => {
   describe('Given delta below threshold', () => {

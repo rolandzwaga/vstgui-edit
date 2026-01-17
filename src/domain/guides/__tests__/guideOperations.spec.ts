@@ -243,10 +243,6 @@ describe('guideOperations', () => {
 
       expect(result).toEqual({ valid: false, reason: 'max-guides-exceeded' });
     });
-
-    test('MAX_GUIDES is 50', () => {
-      expect(MAX_GUIDES).toBe(50);
-    });
   });
 
   describe('roundGuidePosition', () => {

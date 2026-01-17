@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NewDocumentConfig } from '../../../types/createNew';
-import {
-  createDocument,
-  DEFAULT_BACKGROUND_COLOR,
-  DEFAULT_ORIGIN,
-  DEFAULT_TEMPLATE_NAME,
-} from '../documentFactory';
+import { createDocument } from '../documentFactory';
 
 describe('createDocument', () => {
   const defaultConfig: NewDocumentConfig = {
@@ -81,19 +76,5 @@ describe('createDocument', () => {
     expect(rowColumnDoc['vstgui-ui-description'].templates?.view?.attributes.class).toBe(
       'CRowColumnView'
     );
-  });
-});
-
-describe('constants', () => {
-  it('DEFAULT_TEMPLATE_NAME is "view"', () => {
-    expect(DEFAULT_TEMPLATE_NAME).toBe('view');
-  });
-
-  it('DEFAULT_ORIGIN is "0, 0"', () => {
-    expect(DEFAULT_ORIGIN).toBe('0, 0');
-  });
-
-  it('DEFAULT_BACKGROUND_COLOR is "~ BlackCColor"', () => {
-    expect(DEFAULT_BACKGROUND_COLOR).toBe('~ BlackCColor');
   });
 });

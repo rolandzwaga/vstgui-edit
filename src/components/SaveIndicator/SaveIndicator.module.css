@@ -1,0 +1,71 @@
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  user-select: none;
+  /* Fixed width to prevent layout shifts when text changes */
+  min-width: 100px;
+}
+
+.text {
+  white-space: nowrap;
+}
+
+/* Status-specific styles */
+.saving {
+  color: var(--color-primary-600);
+}
+
+.saved {
+  color: var(--color-success-600);
+}
+
+.dirty {
+  color: var(--color-warning-600);
+}
+
+.error {
+  color: var(--color-error-600);
+}
+
+/* Spinner animation for saving state */
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark theme support */
+[data-theme='dark'] .indicator {
+  color: var(--color-text-secondary);
+}
+
+[data-theme='dark'] .saving {
+  color: var(--color-primary-400);
+}
+
+[data-theme='dark'] .saved {
+  color: var(--color-success-400);
+}
+
+[data-theme='dark'] .dirty {
+  color: var(--color-warning-500);
+}
+
+[data-theme='dark'] .error {
+  color: var(--color-error-400);
+}

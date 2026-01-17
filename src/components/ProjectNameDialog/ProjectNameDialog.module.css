@@ -1,0 +1,144 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.closeButton {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.inputError {
+  border-color: var(--color-error-600);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px rgb(220 53 69 / 0.2);
+}
+
+.error {
+  font-size: 11px;
+  color: var(--color-error-600);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.cancelButton {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.cancelButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.confirmButton {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.confirmButton:hover {
+  background-color: var(--color-primary-700);
+}
+
+.confirmButton:focus-visible,
+.cancelButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

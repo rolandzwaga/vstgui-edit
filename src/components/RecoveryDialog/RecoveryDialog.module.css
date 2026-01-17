@@ -1,0 +1,193 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 50%);
+  z-index: 1000;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-width: 400px;
+  max-width: 500px;
+  padding: var(--spacing-6);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 20%);
+}
+
+.iconContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-2);
+}
+
+.warningIcon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-warning-500, #f59e0b);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.message {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.message strong {
+  color: var(--color-text-primary);
+}
+
+.errorsSection {
+  background: var(--color-error-50, #fef2f2);
+  border: 1px solid var(--color-error-200, #fecaca);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3);
+}
+
+.errorsTitle {
+  margin: 0 0 var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-error-700, #b91c1c);
+}
+
+.errorsList {
+  margin: 0;
+  padding-left: var(--spacing-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-error-600, #dc2626);
+  list-style-type: disc;
+}
+
+.errorsList li {
+  margin-bottom: var(--spacing-1);
+}
+
+.errorsList li:last-child {
+  margin-bottom: 0;
+}
+
+.explanation {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.cancelButton:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.cancelButton:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+.deleteButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-error-600, #dc2626);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.deleteButton:hover {
+  background: var(--color-error-700, #b91c1c);
+}
+
+.deleteButton:focus-visible {
+  outline: 2px solid var(--color-error-500);
+  outline-offset: 2px;
+}
+
+.restoreButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-600);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.restoreButton:hover {
+  background: var(--color-primary-700);
+}
+
+.restoreButton:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* Dark theme */
+[data-theme='dark'] .dialog {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+[data-theme='dark'] .errorsSection {
+  background: var(--color-error-900, #450a0a);
+  border-color: var(--color-error-700, #b91c1c);
+}
+
+[data-theme='dark'] .errorsTitle {
+  color: var(--color-error-300, #fca5a5);
+}
+
+[data-theme='dark'] .errorsList {
+  color: var(--color-error-400, #f87171);
+}
+
+[data-theme='dark'] .cancelButton {
+  border-color: var(--color-border);
+}
+
+[data-theme='dark'] .cancelButton:hover {
+  background: var(--color-neutral-700);
+}

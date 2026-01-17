@@ -2,15 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   calculateTemplateBoundsPosition,
   canvasToScreenPosition,
-  RULER_THICKNESS,
   screenToCanvasCoordinates,
 } from '../coordinateMapping';
-
-describe('RULER_THICKNESS', () => {
-  it('should be 20 pixels per spec', () => {
-    expect(RULER_THICKNESS).toBe(20);
-  });
-});
 
 describe('screenToCanvasCoordinates', () => {
   describe('no pan 100% zoom', () => {

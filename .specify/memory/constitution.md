@@ -176,10 +176,9 @@ Testing is comprehensive and mandatory:
 - **Test Location**: Co-located in a directory named `__tests__` with source files (e.g., `Component.tsx` and `__tests__\Component.spec.tsx`)
 
 **Testing Guide Requirement (MANDATORY)**:
-- **BEFORE writing any test**: Verify `specs/TESTING-GUIDE.md` is loaded in context
+- **BEFORE writing any test**: Use the `/testing-guide` skill to load testing patterns
 - The testing guide contains SolidJS-specific patterns (microtask flushing, testInRoot, etc.)
 - Failure to follow guide patterns causes subtle test failures and flaky tests
-- Every task involving unit tests MUST include explicit verification step
 
 **Coverage Verification (MANDATORY)**:
 - **AFTER spec completion**: Run `npx vitest run --coverage`
@@ -340,7 +339,7 @@ import type { Component, JSX } from 'solid-js';
 ### When Writing Code:
 1. **STOP** before writing any hook-like code
 2. **ASK**: "Is this a React pattern or SolidJS pattern?"
-3. **VERIFY**: Check SolidJS documentation if uncertain
+3. **VERIFY**: Use `/solidjs-guide` skill for patterns and best practices
 4. **NEVER GUESS**: Ask user if you're not 100% sure
 
 ### Consequences of Violation:

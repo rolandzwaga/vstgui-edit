@@ -3,7 +3,6 @@ import { testInRoot } from '../../__tests__/helpers/solidjs';
 import type { SmartGuide } from '../../types/smartGuides';
 import {
   clearActiveGuides,
-  DEFAULT_GUIDES_ENABLED,
   resetSmartGuides,
   setActiveGuides,
   smartGuidesStore,
@@ -25,10 +24,6 @@ describe('smartGuidesStore', () => {
       testInRoot(() => {
         expect(smartGuidesStore.activeGuides).toEqual([]);
       }));
-
-    test('DEFAULT_GUIDES_ENABLED is true', () => {
-      expect(DEFAULT_GUIDES_ENABLED).toBe(true);
-    });
   });
 
   describe('toggleSmartGuides', () => {

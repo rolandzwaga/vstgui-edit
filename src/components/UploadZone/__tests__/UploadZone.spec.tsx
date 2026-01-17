@@ -1,12 +1,16 @@
 import { render, screen, fireEvent, waitFor, cleanup } from '@solidjs/testing-library';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockUidescFile } from '../../../__tests__/helpers/fixtures';
-import { reset, documentStore, createNewDocument } from '../../../stores/documentStore';
+import { reset, documentStore } from '../../../stores/documentStore';
+import { resetProjectStore, setIsSessionOnly } from '../../../stores/projectStore';
 import { UploadZone } from '../UploadZone';
 
 describe('UploadZone', () => {
   beforeEach(() => {
     reset();
+    resetProjectStore();
+    // Set session-only mode to prevent ProjectNameDialog from appearing
+    setIsSessionOnly(true);
   });
 
   describe('rendering and accessibility', () => {
@@ -300,72 +304,23 @@ describe('UploadZone', () => {
       expect(createButton).toBeInTheDocument();
     });
 
-    it('should open CreateNewDialog when "Create New" button is clicked', () => {
-      render(() => <UploadZone />);
+    it('should call onNewProject callback when "Create New" button is clicked', () => {
+      const onNewProject = vi.fn();
+      render(() => <UploadZone onNewProject={onNewProject} />);
 
       const createButton = screen.getByRole('button', { name: /create new/i });
       fireEvent.click(createButton);
 
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Create New Document')).toBeInTheDocument();
+      expect(onNewProject).toHaveBeenCalledTimes(1);
     });
 
-    it('should call createNewDocument when dialog onCreate is triggered', async () => {
-      vi.useFakeTimers({ toFake: ['setTimeout'] });
-
+    it('should not throw when "Create New" is clicked without onNewProject prop', () => {
       render(() => <UploadZone />);
 
-      // Open the dialog
       const createButton = screen.getByRole('button', { name: /create new/i });
-      fireEvent.click(createButton);
 
-      // Fill in values and submit
-      const widthInput = screen.getByLabelText('Width');
-      const heightInput = screen.getByLabelText('Height');
-
-      fireEvent.input(widthInput, { target: { value: '800' } });
-      fireEvent.change(widthInput, { target: { value: '800' } });
-      fireEvent.input(heightInput, { target: { value: '600' } });
-      fireEvent.change(heightInput, { target: { value: '600' } });
-
-      const dialogCreateButton = screen.getByRole('button', { name: 'Create' });
-      fireEvent.click(dialogCreateButton);
-
-      // Allow microtasks to flush
-      await Promise.resolve();
-
-      // Document should be created
-      expect(documentStore.parseState).toBe('valid');
-      expect(documentStore.document).not.toBeNull();
-
-      const template = documentStore.document?.['vstgui-ui-description']?.templates?.view;
-      expect(template?.attributes.size).toBe('800, 600');
-
-      vi.useRealTimers();
-    });
-
-    it('should close dialog after document creation', async () => {
-      vi.useFakeTimers({ toFake: ['setTimeout'] });
-
-      render(() => <UploadZone />);
-
-      // Open the dialog
-      const createButton = screen.getByRole('button', { name: /create new/i });
-      fireEvent.click(createButton);
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-      // Submit with defaults
-      const dialogCreateButton = screen.getByRole('button', { name: 'Create' });
-      fireEvent.click(dialogCreateButton);
-
-      // Allow microtasks to flush
-      await Promise.resolve();
-
-      // Dialog should be closed
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-      vi.useRealTimers();
+      // Should not throw
+      expect(() => fireEvent.click(createButton)).not.toThrow();
     });
   });
 });

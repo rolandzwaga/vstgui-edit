@@ -10,13 +10,6 @@ describe('EmptyState', () => {
       expect(screen.getByTestId('empty-state')).toBeInTheDocument();
       expect(screen.getByText('No template loaded')).toBeInTheDocument();
     });
-
-    it('should have empty-state test id', () => {
-      render(() => <EmptyState />);
-
-      const element = screen.getByTestId('empty-state');
-      expect(element).toBeInTheDocument();
-    });
   });
 
   describe('Given custom message prop', () => {

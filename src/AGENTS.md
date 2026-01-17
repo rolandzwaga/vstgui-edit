@@ -2,8 +2,9 @@
 
 ## For Test Files (*.spec.ts, *.spec.tsx, __tests__/*)
 
-**REQUIRED READING**: Before creating or modifying any test file, you MUST read (when its not already in context) and follow:
-- [specs/TESTING-GUIDE.md](../specs/TESTING-GUIDE.md)
+**REQUIRED**: Before creating or modifying any test file, you MUST use the `/testing-guide` skill to load testing patterns.
+
+**SolidJS Guide**: Use `/solidjs-guide` skill for component patterns, reactivity best practices, and SolidJS-specific idioms.
 
 Key requirements from the testing guide:
 - Use `testInRoot()` for signal/store tests (wraps in reactive root)
@@ -23,6 +24,8 @@ import { createMockView, createMockDocument } from '../helpers/fixtures';
 ```
 
 ## For Components (*.tsx outside __tests__)
+
+**SolidJS Guide**: Use `/solidjs-guide` skill for component patterns and reactivity best practices.
 
 - Every component uses CSS Modules (`ComponentName.module.css`)
 - Props interface named `[ComponentName]Props`

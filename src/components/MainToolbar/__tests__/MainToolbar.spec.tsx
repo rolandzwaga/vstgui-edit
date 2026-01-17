@@ -2,11 +2,44 @@ import { cleanup, render, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { resetGrid } from '../../../stores/gridStore';
+import { resetProjectStore, setCurrentProject } from '../../../stores/projectStore';
+import { setDocumentForTest, reset as resetDocumentStore } from '../../../stores/documentStore';
+import type { Project } from '../../../domain/project/types';
+import type { VSTGUIUIDescription } from '../../../types/uidesc';
 import { MainToolbar } from '../MainToolbar';
+
+const mockProject: Project = {
+  id: 'proj-123',
+  name: 'Test Project',
+  uidescContent: '{"vstgui-ui-description":{"version":"1"}}',
+  uidescFormat: 'json',
+  settings: {} as Project['settings'],
+  editorState: {} as Project['editorState'],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  thumbnailDataUrl: null,
+};
+
+const mockDocument: VSTGUIUIDescription = {
+  'vstgui-ui-description': {
+    version: '1',
+    templates: {
+      view: {
+        attributes: {
+          class: 'CViewContainer',
+          origin: '0, 0',
+          size: '400, 300',
+        },
+      },
+    },
+  },
+};
 
 describe('MainToolbar', () => {
   beforeEach(() => {
     resetGrid();
+    resetProjectStore();
+    resetDocumentStore();
   });
 
   afterEach(() => {
@@ -105,6 +138,29 @@ describe('MainToolbar', () => {
       const toolbars = screen.getAllByRole('toolbar');
       // Main toolbar + ZoomToolbar + GridToolbar + ViewModeToolbar + AlignmentToolbar = 5
       expect(toolbars.length).toBe(5);
+    });
+  });
+
+  describe('ExportMenu integration', () => {
+    test('renders ExportMenu component', () => {
+      render(() => <MainToolbar />);
+      const exportButton = screen.getByRole('button', { name: /export/i });
+      expect(exportButton).toBeInTheDocument();
+    });
+
+    test('ExportMenu is disabled when no project is open', () => {
+      render(() => <MainToolbar />);
+      const exportButton = screen.getByRole('button', { name: /export/i });
+      expect(exportButton).toBeDisabled();
+    });
+
+    test('ExportMenu is enabled when project is open', () => {
+      setCurrentProject(mockProject);
+      setDocumentForTest(mockDocument);
+
+      render(() => <MainToolbar />);
+      const exportButton = screen.getByRole('button', { name: /export/i });
+      expect(exportButton).not.toBeDisabled();
     });
   });
 });
