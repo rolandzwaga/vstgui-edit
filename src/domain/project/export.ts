@@ -5,8 +5,8 @@
  */
 
 import { zip } from 'fflate';
-import { serializeToJson, serializeToXml } from '../serializer';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
+import { serializeToJson, serializeToXml } from '../serializer';
 
 /**
  * Bitmap data for ZIP export
@@ -95,10 +95,7 @@ export function exportAsZIP(
  * @param format - The export format
  * @returns Blob with appropriate MIME type
  */
-export function createDownloadBlob(
-  content: string | Uint8Array,
-  format: ExportFormatType
-): Blob {
+export function createDownloadBlob(content: string | Uint8Array, format: ExportFormatType): Blob {
   const mimeTypes: Record<ExportFormatType, string> = {
     json: 'application/json',
     xml: 'application/xml',
@@ -108,7 +105,8 @@ export function createDownloadBlob(
   const mimeType = mimeTypes[format];
 
   if (content instanceof Uint8Array) {
-    return new Blob([content], { type: mimeType });
+    // Create a copy as ArrayBuffer to avoid SharedArrayBuffer issues
+    return new Blob([new Uint8Array(content)], { type: mimeType });
   }
 
   return new Blob([content], { type: mimeType });

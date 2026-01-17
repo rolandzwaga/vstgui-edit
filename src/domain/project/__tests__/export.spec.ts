@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { testInRoot } from '../../../__tests__/helpers/solidjs';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
-import { exportAsJSON, exportAsXML, exportAsZIP, createDownloadBlob } from '../export';
+import { createDownloadBlob, exportAsJSON, exportAsXML, exportAsZIP } from '../export';
 
 const createMockDocument = (): VSTGUIUIDescription => ({
   'vstgui-ui-description': {

@@ -1,2 +1,2 @@
-export { StorageWarning } from './StorageWarning';
 export type { StorageWarningProps } from './StorageWarning';
+export { StorageWarning } from './StorageWarning';

@@ -6,7 +6,7 @@
  */
 
 import { createStore } from 'solid-js/store';
-
+import { parseUidesc } from '../domain/parser';
 import type {
   EditorState,
   NameDialogMode,
@@ -20,15 +20,14 @@ import type {
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
 import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
-import { parseUidesc } from '../domain/parser';
+import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
-import { bitmapService } from '../services/indexedDB/bitmapService';
 import { restoreCanvasState } from './canvasStore';
+import { setDocumentForTest as setDocumentStoreContent } from './documentStore';
 import { restoreHierarchyState } from './hierarchyStore';
 import { restorePropertiesState } from './propertiesStore';
 import { setActiveTemplate } from './templateStore';
-import { setDocumentForTest as setDocumentStoreContent } from './documentStore';
 
 // ============================================================================
 // Initial State
@@ -683,7 +682,7 @@ export async function renameProject(id: string, newName: string): Promise<boolea
     const updatedProject: Project = {
       ...existing,
       name: sanitizedName,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     };
 
     await projectService.update(updatedProject);
@@ -715,10 +714,7 @@ export async function renameProject(id: string, newName: string): Promise<boolea
  * @param newName - The name for the duplicate project
  * @returns The duplicated project, or null if failed
  */
-export async function duplicateProject(
-  sourceId: string,
-  newName: string
-): Promise<Project | null> {
+export async function duplicateProject(sourceId: string, newName: string): Promise<Project | null> {
   if (store.isSessionOnly) {
     return null;
   }
@@ -798,17 +794,17 @@ export async function replaceUidesc(
   }
 
   // Extract bitmap references from new content
-  const newBitmapRefs = extractBitmapReferences(parseResult.document as Record<string, unknown>);
+  const newBitmapRefs = extractBitmapReferences(
+    parseResult.document as unknown as Record<string, unknown>
+  );
 
   // Get stored bitmaps for this project
-  const storedBitmaps = store.isSessionOnly
-    ? []
-    : await bitmapService.getByProject(project.id);
+  const storedBitmaps = store.isSessionOnly ? [] : await bitmapService.getByProject(project.id);
 
   // Find orphaned bitmaps (stored but not referenced in new content)
   const orphanedBitmaps: OrphanedBitmap[] = storedBitmaps
-    .filter((bitmap) => !newBitmapRefs.has(bitmap.name))
-    .map((bitmap) => ({ name: bitmap.name, size: bitmap.size }));
+    .filter(bitmap => !newBitmapRefs.has(bitmap.name))
+    .map(bitmap => ({ name: bitmap.name, size: bitmap.size }));
 
   // Update project in store
   const updatedProject: Project = {

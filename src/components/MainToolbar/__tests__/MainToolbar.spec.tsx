@@ -15,8 +15,9 @@ const mockProject: Project = {
   uidescFormat: 'json',
   settings: {} as Project['settings'],
   editorState: {} as Project['editorState'],
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  thumbnailDataUrl: null,
 };
 
 const mockDocument: VSTGUIUIDescription = {

@@ -4,6 +4,7 @@
  * Business logic and types for project storage feature.
  */
 
+export type { ExportBitmap, ExportFormatType } from './export';
 // Export
 export {
   createDownloadBlob,
@@ -13,7 +14,6 @@ export {
   getFileExtension,
   triggerDownload,
 } from './export';
-export type { ExportBitmap, ExportFormatType } from './export';
 // Serialization
 export {
   deserializeEditorState,
