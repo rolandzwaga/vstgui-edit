@@ -176,7 +176,8 @@ export default function App() {
       </Show>
 
       {/* Show upload zone when no document, canvas when document loaded */}
-      {documentStore.parseState === 'valid' ? (
+      {/* Also check pendingFile - if set, user still needs to name the project */}
+      {documentStore.parseState === 'valid' && !projectStore.pendingFile ? (
         <>
           <div style={{ display: 'flex', "min-height": '100vh' }}>
             <div style={{ display: 'flex', "flex-direction": 'column', width: '240px', "min-width": '200px', "max-width": '320px', "border-right": '1px solid var(--color-border, #e0e0e0)', "flex-shrink": 0 }}>

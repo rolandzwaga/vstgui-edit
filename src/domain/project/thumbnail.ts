@@ -106,8 +106,8 @@ function extractViewsFromNode(
   if (!attrs) return views;
 
   // Parse origin and size
-  const origin = attrs.origin?.split(',').map((s) => Number.parseInt(s.trim(), 10)) ?? [0, 0];
-  const size = attrs.size?.split(',').map((s) => Number.parseInt(s.trim(), 10)) ?? [100, 100];
+  const origin = attrs.origin?.split(',').map(s => Number.parseInt(s.trim(), 10)) ?? [0, 0];
+  const size = attrs.size?.split(',').map(s => Number.parseInt(s.trim(), 10)) ?? [100, 100];
   const className = attrs.class ?? 'CView';
 
   const x = offsetX + (origin[0] ?? 0);
@@ -155,7 +155,7 @@ export function extractFirstTemplate(document: Record<string, unknown>): Thumbna
   if (!attrs) return null;
 
   // Parse template size
-  const size = attrs.size?.split(',').map((s) => Number.parseInt(s.trim(), 10)) ?? [400, 300];
+  const size = attrs.size?.split(',').map(s => Number.parseInt(s.trim(), 10)) ?? [400, 300];
   const width = size[0] ?? 400;
   const height = size[1] ?? 300;
 
@@ -238,12 +238,7 @@ export function renderThumbnail(template: ThumbnailTemplate): string {
   // Draw template bounds
   ctx.strokeStyle = '#666666';
   ctx.lineWidth = 1;
-  ctx.strokeRect(
-    offsetX,
-    offsetY,
-    template.width * scale,
-    template.height * scale
-  );
+  ctx.strokeRect(offsetX, offsetY, template.width * scale, template.height * scale);
 
   // Draw views as colored rectangles
   for (const view of template.views) {
@@ -256,7 +251,7 @@ export function renderThumbnail(template: ThumbnailTemplate): string {
     const height = view.height * scale;
 
     // Fill with semi-transparent color
-    ctx.fillStyle = color + '40'; // 25% opacity
+    ctx.fillStyle = `${color}40`; // 25% opacity
     ctx.fillRect(x, y, width, height);
 
     // Draw border

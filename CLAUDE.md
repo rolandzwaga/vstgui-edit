@@ -203,19 +203,6 @@ npx tsc --noEmit                   # Type check
 | `startMarquee(point, additive, currentSel)` | Begin at point |
 | `updateMarquee/completeMarquee/cancelMarquee` | Gesture lifecycle |
 
-### saveFormatStore (`src/stores/saveFormatStore.ts`)
-**Purpose**: Save format selection and confirmation dialog state
-
-| Export | Description |
-|--------|-------------|
-| `saveFormatStore` | State: `selectedFormat`, `isDropdownOpen`, `isConfirmDialogOpen`, `pendingFormat`, `originalFormat` |
-| `initializeFormat(originalFormat)` | Set format from file, localStorage, or default to 'json' |
-| `openDropdown/closeDropdown` | Toggle format dropdown visibility |
-| `selectFormat(format)` | Select format, triggers confirmation if different from original |
-| `confirmFormatChange()` | Confirm pending format change, persist to localStorage |
-| `cancelFormatChange()` | Cancel pending change, close dialog |
-| `resetSaveFormatStore()` | Reset to initial state |
-
 ### rulerStore (`src/stores/rulerStore.ts`)
 **Purpose**: Cursor position state for ruler indicators
 
@@ -457,16 +444,6 @@ npx tsc --noEmit                   # Type check
 | `attributeTypes.ts` | `ATTRIBUTE_TYPE_MAP`, `getAttributeType` → point/color/font/enum/boolean/text |
 | `validation.ts` | `validatePoint/Size/Number/Boolean/Color` → `{valid, error?}` |
 | `historyOperations.ts` | `createPropertyEditOperation(data, updateFn)` |
-
-### Save (`src/domain/save/`)
-
-| Function | Description |
-|----------|-------------|
-| `getFormatPreference()` | Get saved format from localStorage, returns `'json' \| 'xml' \| null` |
-| `setFormatPreference(format)` | Save format preference to localStorage |
-| `clearFormatPreference()` | Remove format preference from localStorage |
-| `isValidSaveFormat(value)` | Type guard for SaveFormat |
-| `STORAGE_KEY` | localStorage key: `'vstgui-edit:save-format'` |
 
 ### Guides (`src/domain/guides/`)
 

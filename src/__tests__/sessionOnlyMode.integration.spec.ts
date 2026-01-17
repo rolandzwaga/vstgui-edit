@@ -5,17 +5,17 @@
  * including importing, editing, and exporting without persistence.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot } from 'solid-js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { projectService } from '../services/indexedDB/projectService';
 import {
-  projectStore,
+  closeCurrentProject,
   createProject,
-  updateProjectContent,
+  projectStore,
   resetProjectStore,
   setIsSessionOnly,
-  closeCurrentProject,
+  updateProjectContent,
 } from '../stores/projectStore';
-import { projectService } from '../services/indexedDB/projectService';
 
 describe('Session-Only Mode Integration', () => {
   let dispose: () => void;

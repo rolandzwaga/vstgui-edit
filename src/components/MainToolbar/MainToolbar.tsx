@@ -3,7 +3,6 @@ import { AlignmentToolbar } from '../AlignmentToolbar';
 import { ExportMenu } from '../ExportMenu';
 import { GridToolbar } from '../GridToolbar';
 import { SaveAsButton } from '../SaveAsButton';
-import { SaveButton } from '../SaveButton';
 import { ViewModeToolbar } from '../ViewModeToolbar';
 import { ZoomToolbar } from '../ZoomToolbar';
 import { PreferencesButton } from './PreferencesButton';
@@ -23,7 +22,6 @@ export interface MainToolbarProps {
 export const MainToolbar: Component<MainToolbarProps> = (props) => {
   return (
     <div class={styles.container} role="toolbar" aria-label="Main toolbar">
-      <SaveButton />
       <SaveAsButton />
       <ExportMenu />
       <ZoomToolbar onFitToView={props.onFitToView} />

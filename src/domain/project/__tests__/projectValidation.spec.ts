@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { validateProjectRecord, type ProjectValidationResult } from '../projectValidation';
+import { type ProjectValidationResult, validateProjectRecord } from '../projectValidation';
 import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../types';
 
 describe('projectValidation', () => {

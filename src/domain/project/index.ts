@@ -14,6 +14,16 @@ export {
   getFileExtension,
   triggerDownload,
 } from './export';
+// Legacy Storage Cleanup
+export {
+  cleanupLegacyStorage,
+  getExistingLegacyKeys,
+  hasLegacyStorage,
+  LEGACY_KEYS,
+} from './legacyStorage';
+// Project Validation
+export type { ProjectValidationResult } from './projectValidation';
+export { validateProjectRecord } from './projectValidation';
 // Serialization
 export {
   deserializeEditorState,
@@ -21,6 +31,14 @@ export {
   serializeEditorState,
   serializeProjectSettings,
 } from './serialization';
+// Thumbnail
+export type { ThumbnailResult, ThumbnailTemplate, ThumbnailView } from './thumbnail';
+export {
+  createPlaceholderThumbnail,
+  extractFirstTemplate,
+  generateThumbnail,
+  renderThumbnail,
+} from './thumbnail';
 // Types
 export type {
   AutoSaveSettings,
@@ -60,23 +78,5 @@ export {
   STORES,
   THUMBNAIL,
 } from './types';
-// Thumbnail
-export type { ThumbnailResult, ThumbnailTemplate, ThumbnailView } from './thumbnail';
-export {
-  createPlaceholderThumbnail,
-  extractFirstTemplate,
-  generateThumbnail,
-  renderThumbnail,
-} from './thumbnail';
 // Validation
 export { LIMITS, sanitizeProjectName, validateProjectName } from './validation';
-// Project Validation
-export type { ProjectValidationResult } from './projectValidation';
-export { validateProjectRecord } from './projectValidation';
-// Legacy Storage Cleanup
-export {
-  LEGACY_KEYS,
-  cleanupLegacyStorage,
-  getExistingLegacyKeys,
-  hasLegacyStorage,
-} from './legacyStorage';

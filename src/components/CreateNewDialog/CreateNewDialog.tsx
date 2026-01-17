@@ -4,6 +4,7 @@ import {
   validateDimensions,
   areDimensionsValid,
 } from '../../domain/createNew/validation';
+import { validateProjectName } from '../../domain/project/validation';
 import {
   CONTAINER_CLASSES,
   DEFAULT_CONFIG,
@@ -13,40 +14,65 @@ import {
 import styles from './CreateNewDialog.module.css';
 
 export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
+  const [projectName, setProjectName] = createSignal('');
   const [width, setWidth] = createSignal(String(DEFAULT_CONFIG.width));
   const [height, setHeight] = createSignal(String(DEFAULT_CONFIG.height));
   const [containerClass, setContainerClass] = createSignal<ContainerClass>(
     DEFAULT_CONFIG.containerClass
   );
+  const [projectNameError, setProjectNameError] = createSignal<string | null>(null);
   const [widthError, setWidthError] = createSignal<string | null>(null);
   const [heightError, setHeightError] = createSignal<string | null>(null);
 
+  let projectNameInputRef: HTMLInputElement | undefined;
   let widthInputRef: HTMLInputElement | undefined;
 
   // Reset form when dialog opens
   createEffect(() => {
     if (props.isOpen) {
+      setProjectName('');
       setWidth(String(DEFAULT_CONFIG.width));
       setHeight(String(DEFAULT_CONFIG.height));
       setContainerClass(DEFAULT_CONFIG.containerClass);
+      setProjectNameError(null);
       setWidthError(null);
       setHeightError(null);
-      // Focus width input after render
-      setTimeout(() => widthInputRef?.focus(), 0);
+      // Focus project name input if required, otherwise width input
+      setTimeout(() => {
+        if (props.requiresProjectName) {
+          projectNameInputRef?.focus();
+        } else {
+          widthInputRef?.focus();
+        }
+      }, 0);
     }
   });
 
   const handleCreate = () => {
+    let hasErrors = false;
+
+    // Validate project name if required
+    if (props.requiresProjectName) {
+      const nameResult = validateProjectName(projectName());
+      if (!nameResult.valid) {
+        setProjectNameError(nameResult.error ?? 'Invalid project name');
+        hasErrors = true;
+      }
+    }
+
+    // Validate dimensions
     const results = validateDimensions(width(), height());
 
     if (!results.width.valid) {
       setWidthError(results.width.error ?? 'Invalid width');
+      hasErrors = true;
     }
     if (!results.height.valid) {
       setHeightError(results.height.error ?? 'Invalid height');
+      hasErrors = true;
     }
 
-    if (!areDimensionsValid(results)) {
+    if (hasErrors || !areDimensionsValid(results)) {
       return;
     }
 
@@ -54,6 +80,7 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
       width: results.width.value!,
       height: results.height.value!,
       containerClass: containerClass(),
+      projectName: props.requiresProjectName ? projectName() : undefined,
     });
   };
 
@@ -68,6 +95,15 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
   const handleBackdropClick = (e: MouseEvent) => {
     if (e.target === e.currentTarget) {
       props.onClose();
+    }
+  };
+
+  const handleProjectNameBlur = () => {
+    if (props.requiresProjectName && projectName().trim()) {
+      const result = validateProjectName(projectName());
+      if (!result.valid) {
+        setProjectNameError(result.error ?? 'Invalid project name');
+      }
     }
   };
 
@@ -114,6 +150,33 @@ export const CreateNewDialog: Component<CreateNewDialogProps> = (props) => {
             </button>
           </div>
           <div class={styles.body}>
+            <Show when={props.requiresProjectName}>
+              <div class={styles.field}>
+                <label class={styles.label} for="dialog-project-name">
+                  Project Name
+                </label>
+                <input
+                  id="dialog-project-name"
+                  type="text"
+                  class={`${styles.input} ${projectNameError() ? styles.inputError : ''}`}
+                  data-testid="dialog-project-name-input"
+                  value={projectName()}
+                  onInput={(e) => {
+                    setProjectName(e.currentTarget.value);
+                    setProjectNameError(null);
+                  }}
+                  onBlur={handleProjectNameBlur}
+                  onKeyDown={handleKeyDown}
+                  ref={projectNameInputRef}
+                  placeholder="Enter project name"
+                />
+                <Show when={projectNameError()}>
+                  <span class={styles.error} data-testid="dialog-project-name-error">
+                    {projectNameError()}
+                  </span>
+                </Show>
+              </div>
+            </Show>
             <div class={styles.field}>
               <label class={styles.label} for="dialog-width">
                 Width

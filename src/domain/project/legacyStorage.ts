@@ -48,5 +48,5 @@ export function cleanupLegacyStorage(): void {
  * @returns Array of existing legacy key names
  */
 export function getExistingLegacyKeys(): string[] {
-  return LEGACY_KEYS.filter((key) => localStorage.getItem(key) !== null);
+  return LEGACY_KEYS.filter(key => localStorage.getItem(key) !== null);
 }

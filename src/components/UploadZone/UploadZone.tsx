@@ -67,8 +67,9 @@ export function UploadZone() {
       const file = new File([project.uidescContent], `${project.name}.uidesc`, {
         type: 'text/plain',
       });
-      // Use loadFile to parse and set up the document
-      // We need to bypass the name dialog since we're loading an existing project
+      // Load the file directly - this parses and sets documentStore.parseState to 'valid'
+      // We don't use handleFileUpload because that would trigger the name dialog
+      await loadFile(file);
       closeProjectList();
     }
   };
@@ -106,16 +107,20 @@ export function UploadZone() {
     setDeleteConfirmProject(null);
   };
 
-  const handleCreate = (config: NewDocumentConfig) => {
+  const handleCreate = async (config: NewDocumentConfig) => {
     setIsCreateDialogOpen(false);
 
     if (projectStore.isSessionOnly) {
       // In session-only mode, just create the document without a project
       createNewDocument(config);
-    } else {
-      // Store the config and show project name dialog
-      setPendingNewDocConfig(config);
-      openNameDialog('create');
+    } else if (config.projectName) {
+      // Create project directly with the provided name
+      const doc = createDocument(config);
+      const content = JSON.stringify(doc);
+      await createProject(config.projectName, content, 'json');
+
+      // Load the document into documentStore
+      createNewDocument(config);
     }
   };
 
@@ -364,6 +369,7 @@ export function UploadZone() {
         isOpen={isCreateDialogOpen()}
         onClose={handleCloseDialog}
         onCreate={handleCreate}
+        requiresProjectName={!projectStore.isSessionOnly}
       />
 
       <Show when={projectStore.nameDialogMode}>

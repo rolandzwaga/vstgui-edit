@@ -7,6 +7,7 @@
 
 import { createStore } from 'solid-js/store';
 import { parseUidesc } from '../domain/parser';
+import { generateThumbnail } from '../domain/project/thumbnail';
 import type {
   EditorState,
   NameDialogMode,
@@ -19,7 +20,6 @@ import type {
   UidescFormat,
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
-import { generateThumbnail } from '../domain/project/thumbnail';
 import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
 import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';

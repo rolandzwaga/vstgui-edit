@@ -4,10 +4,10 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
-  LEGACY_KEYS,
   cleanupLegacyStorage,
   getExistingLegacyKeys,
   hasLegacyStorage,
+  LEGACY_KEYS,
 } from '../legacyStorage';
 
 describe('legacyStorage', () => {

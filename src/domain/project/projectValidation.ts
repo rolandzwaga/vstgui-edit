@@ -6,7 +6,7 @@
  */
 
 import { parseUidesc } from '../parser';
-import type { Project, EditorState, ProjectSettings } from './types';
+import type { EditorState, Project, ProjectSettings } from './types';
 import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from './types';
 
 /**
@@ -122,14 +122,18 @@ function repairProject(project: Partial<Project>): Project | null {
     settings: isObject(project.settings)
       ? deepMergeSettings(DEFAULT_PROJECT_SETTINGS, project.settings as Partial<ProjectSettings>)
       : { ...DEFAULT_PROJECT_SETTINGS },
-    thumbnailDataUrl: typeof project.thumbnailDataUrl === 'string' ? project.thumbnailDataUrl : null,
+    thumbnailDataUrl:
+      typeof project.thumbnailDataUrl === 'string' ? project.thumbnailDataUrl : null,
   };
 }
 
 /**
  * Deep merges settings with defaults.
  */
-function deepMergeSettings(defaults: ProjectSettings, partial: Partial<ProjectSettings>): ProjectSettings {
+function deepMergeSettings(
+  defaults: ProjectSettings,
+  partial: Partial<ProjectSettings>
+): ProjectSettings {
   return {
     grid: isObject(partial.grid) ? { ...defaults.grid, ...partial.grid } : defaults.grid,
     snap: isObject(partial.snap) ? { ...defaults.snap, ...partial.snap } : defaults.snap,
