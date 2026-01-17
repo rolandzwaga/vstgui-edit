@@ -14,7 +14,7 @@ tools:
   - WebFetch
   - mcp__context7__resolve-library-id
   - mcp__context7__get-library-docs
-skills: claude-file, testing-guide
+skills: claude-file, testing-guide, solidjs-guide
 ---
 
 # Specification Agent
