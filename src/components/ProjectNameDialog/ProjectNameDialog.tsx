@@ -15,6 +15,12 @@ export interface ProjectNameDialogProps {
   /** Initial name for rename/duplicate modes */
   initialName?: string;
 
+  /** Custom dialog title (overrides mode-based title) */
+  title?: string;
+
+  /** Custom confirm button text (overrides mode-based text) */
+  confirmText?: string;
+
   /** Called with the confirmed name */
   onConfirm: (name: string) => void;
 
@@ -101,7 +107,7 @@ export const ProjectNameDialog: Component<ProjectNameDialogProps> = (props) => {
         >
           <div class={styles.header}>
             <span id="project-name-dialog-title" class={styles.title}>
-              {MODE_TITLES[props.mode]}
+              {props.title ?? MODE_TITLES[props.mode]}
             </span>
             <button
               type="button"
@@ -151,7 +157,7 @@ export const ProjectNameDialog: Component<ProjectNameDialogProps> = (props) => {
               data-testid="dialog-confirm-button"
               onClick={handleConfirm}
             >
-              {MODE_BUTTONS[props.mode]}
+              {props.confirmText ?? MODE_BUTTONS[props.mode]}
             </button>
           </div>
         </div>

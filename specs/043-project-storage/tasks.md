@@ -333,19 +333,19 @@
 
 ### Duplicate Functionality
 
-- [ ] T107 [US8] Add duplicate tests to `src/stores/__tests__/projectStore.spec.ts` (test duplicateProject creates new project with copied data, generates new UUID, copies all bitmaps, new project becomes current)
-- [ ] T108 [US8] Implement duplicateProject in `src/stores/projectStore.ts` (generate new UUID, copy uidescContent/settings/editorState, copy all bitmaps with new projectId, create new project, set as current)
+- [X] T107 [US8] Add duplicate tests to `src/stores/__tests__/projectStore.spec.ts` (test duplicateProject creates new project with copied data, generates new UUID, copies all bitmaps, new project becomes current)
+- [X] T108 [US8] Implement duplicateProject in `src/stores/projectStore.ts` (generate new UUID, copy uidescContent/settings/editorState, copy all bitmaps with new projectId, create new project, set as current)
 
 ### ProjectCard "Save As" Option
 
-- [ ] T109 [US8] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with duplicate tests
-- [ ] T110 [US8] Update ProjectCard tests in `src/components/ProjectList/__tests__/ProjectCard.spec.tsx` (test "Save As..." option appears, shows ProjectNameDialog, creates duplicate with new name)
-- [ ] T111 [US8] Modify ProjectCard in `src/components/ProjectList/ProjectCard.tsx` (add "Save As..." to context menu, show ProjectNameDialog, call projectStore.duplicateProject on confirm)
+- [X] T109 [US8] **Verify Testing Guide in context** - Read `specs/TESTING-GUIDE.md` before proceeding with duplicate tests
+- [X] T110 [US8] Update ProjectCard tests in `src/components/ProjectList/__tests__/ProjectCard.spec.tsx` (test "Save As..." option appears, shows ProjectNameDialog, creates duplicate with new name)
+- [X] T111 [US8] Modify ProjectCard in `src/components/ProjectList/ProjectCard.tsx` (add "Save As..." to context menu, show ProjectNameDialog, call projectStore.duplicateProject on confirm)
 
 ### Toolbar "Save As" Option
 
-- [ ] T112 [US8] Update Toolbar tests in `src/components/Toolbar/__tests__/Toolbar.spec.tsx` (test "Save As..." menu item appears when project open)
-- [ ] T113 [US8] Modify Toolbar in `src/components/Toolbar/Toolbar.tsx` (add "Save As..." menu option, shows ProjectNameDialog, calls projectStore.duplicateProject)
+- [X] T112 [US8] Update Toolbar tests in `src/components/Toolbar/__tests__/Toolbar.spec.tsx` (test "Save As..." menu item appears when project open)
+- [X] T113 [US8] Modify Toolbar in `src/components/Toolbar/Toolbar.tsx` (add "Save As..." menu option, shows ProjectNameDialog, calls projectStore.duplicateProject)
 
 - [ ] T114 [US8] **Commit**: Stage and commit User Story 8 changes
 

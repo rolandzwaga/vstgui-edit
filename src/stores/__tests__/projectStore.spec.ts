@@ -1020,4 +1020,95 @@ describe('projectStore', () => {
       expect(stored?.name).toBe('Spaces Around');
     });
   });
+
+  describe('duplicateProject', () => {
+    beforeEach(async () => {
+      await openDatabase();
+    });
+
+    test('creates a copy of the project with new ID', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const duplicate = await duplicateProject(original!.id, 'Copy of Original');
+
+      expect(duplicate).not.toBeNull();
+      expect(duplicate!.id).not.toBe(original!.id);
+      expect(duplicate!.name).toBe('Copy of Original');
+    });
+
+    test('copies uidesc content from original', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const content = '{"vstgui-ui-description": {"version": "1", "custom": "data"}}';
+      const original = await createProject('Original', content, 'json');
+      const duplicate = await duplicateProject(original!.id, 'Duplicate');
+
+      expect(duplicate!.uidescContent).toBe(content);
+    });
+
+    test('copies uidesc format from original', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('XML Project', '{"vstgui-ui-description": {"version": "1"}}', 'xml');
+      const duplicate = await duplicateProject(original!.id, 'XML Copy');
+
+      expect(duplicate!.uidescFormat).toBe('xml');
+    });
+
+    test('sets current project to duplicate', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const duplicate = await duplicateProject(original!.id, 'Duplicate');
+
+      expect(projectStore.currentProject).toEqual(duplicate);
+    });
+
+    test('stores duplicate in IndexedDB', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const duplicate = await duplicateProject(original!.id, 'Stored Duplicate');
+
+      const stored = await projectService.get(duplicate!.id);
+      expect(stored).toBeDefined();
+      expect(stored?.name).toBe('Stored Duplicate');
+    });
+
+    test('returns null for non-existent source project', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const result = await duplicateProject('non-existent-id', 'Copy');
+
+      expect(result).toBeNull();
+    });
+
+    test('returns null in session-only mode', async () => {
+      const { duplicateProject } = await import('../projectStore');
+      setIsSessionOnly(true);
+
+      const result = await duplicateProject('any-id', 'Copy');
+
+      expect(result).toBeNull();
+    });
+
+    test('uses default editor state for duplicate', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const duplicate = await duplicateProject(original!.id, 'Fresh Copy');
+
+      expect(duplicate!.editorState).toEqual(DEFAULT_EDITOR_STATE);
+    });
+
+    test('validates new name', async () => {
+      const { duplicateProject } = await import('../projectStore');
+
+      const original = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const result = await duplicateProject(original!.id, '');
+
+      expect(result).toBeNull();
+    });
+  });
 });

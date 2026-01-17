@@ -695,3 +695,48 @@ export async function renameProject(id: string, newName: string): Promise<boolea
     return false;
   }
 }
+
+// ============================================================================
+// Project Duplication
+// ============================================================================
+
+/**
+ * Duplicates a project with a new name (Save As).
+ *
+ * Creates a new project with the same uidesc content but fresh ID,
+ * timestamps, and default editor state.
+ *
+ * @param sourceId - The ID of the project to duplicate
+ * @param newName - The name for the duplicate project
+ * @returns The duplicated project, or null if failed
+ */
+export async function duplicateProject(
+  sourceId: string,
+  newName: string
+): Promise<Project | null> {
+  if (store.isSessionOnly) {
+    return null;
+  }
+
+  // Validate the new name
+  const validationResult = validateProjectName(newName);
+  if (!validationResult.valid) {
+    return null;
+  }
+
+  const sanitizedName = sanitizeProjectName(newName);
+
+  try {
+    // Get the source project
+    const source = await projectService.get(sourceId);
+    if (!source) {
+      return null;
+    }
+
+    // Create the duplicate with the source's content but new ID and timestamps
+    return createProject(sanitizedName, source.uidescContent, source.uidescFormat);
+  } catch (error) {
+    console.error('Failed to duplicate project:', error);
+    return null;
+  }
+}
