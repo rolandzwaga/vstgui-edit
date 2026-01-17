@@ -12,7 +12,7 @@ import {
 import { filterUnlockedViews } from '../../domain/lockHide/lockOperations';
 import { canvasStore } from '../../stores/canvasStore';
 import { showContextMenu } from '../../stores/contextMenuStore';
-import { isRoot, updateViewOrigin, updateViewSize } from '../../stores/documentStore';
+import { getParentId, isRoot, updateViewOrigin, updateViewSize } from '../../stores/documentStore';
 import { dragStore, resetDrag, startDrag, updateDrag } from '../../stores/dragStore';
 import { gridStore } from '../../stores/gridStore';
 import { guidesStore } from '../../stores/guidesStore';
@@ -254,6 +254,22 @@ export function useCanvasInteractions(
     return null;
   };
 
+  /**
+   * Checks if any ancestor of a view is in the selected set.
+   * Used to filter out child views when their parent is also selected,
+   * since children move automatically with their parent.
+   */
+  const hasSelectedAncestor = (viewId: string, selectedIds: Set<string>): boolean => {
+    let parentId = getParentId(viewId);
+    while (parentId) {
+      if (selectedIds.has(parentId)) {
+        return true;
+      }
+      parentId = getParentId(parentId);
+    }
+    return false;
+  };
+
   const captureOriginsForSelectedViews = (): Record<string, { x: number; y: number }> => {
     const views = renderableViews();
     const selectedIds = selectionStore.selectedIds;
@@ -262,10 +278,13 @@ export function useCanvasInteractions(
     // Filter out locked views and root container from drag operation
     const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
     const movableIds = unlockedIds.filter(id => !isRoot(id));
-    const movableIdSet = new Set(movableIds);
+
+    // Filter out views whose ancestor is also selected (they move with their parent)
+    const topLevelIds = movableIds.filter(id => !hasSelectedAncestor(id, selectedIds));
+    const topLevelIdSet = new Set(topLevelIds);
 
     for (const view of views) {
-      if (movableIdSet.has(view.id)) {
+      if (topLevelIdSet.has(view.id)) {
         origins[view.id] = { x: view.relativeX, y: view.relativeY };
       }
     }

@@ -71,6 +71,22 @@ export interface UseCanvasKeyboardResult {
 export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasKeyboardResult {
   const { renderableViews, templateBounds, cancelCallbacks, getMousePosition } = options;
 
+  /**
+   * Checks if any ancestor of a view is in the selected set.
+   * Used to filter out child views when their parent is also selected,
+   * since children move automatically with their parent.
+   */
+  const hasSelectedAncestor = (viewId: string, selectedIds: Set<string>): boolean => {
+    let parentId = getParentId(viewId);
+    while (parentId) {
+      if (selectedIds.has(parentId)) {
+        return true;
+      }
+      parentId = getParentId(parentId);
+    }
+    return false;
+  };
+
   const handleFitToView = () => {
     const bounds = templateBounds();
     if (!bounds) return;
@@ -294,8 +310,11 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       // Filter out locked views and root container from nudge operation
       const unlockedIds = filterUnlockedViews(Array.from(selectedIds), isLocked);
       const movableIds = unlockedIds.filter(id => !isRoot(id));
-      if (movableIds.length === 0) {
-        // All selected views are locked or root, do nothing
+
+      // Filter out views whose ancestor is also selected (they move with their parent)
+      const topLevelIds = movableIds.filter(id => !hasSelectedAncestor(id, selectedIds));
+      if (topLevelIds.length === 0) {
+        // All selected views are locked, root, or children of selected parents
         return;
       }
       const distance = e.shiftKey ? NUDGE_DISTANCE_FAST : NUDGE_DISTANCE;
@@ -320,10 +339,10 @@ export function useCanvasKeyboard(options: UseCanvasKeyboardOptions): UseCanvasK
       const originalOrigins: Record<string, { x: number; y: number }> = {};
       const newOrigins: Record<string, { x: number; y: number }> = {};
       const viewIds: string[] = [];
-      const movableIdSet = new Set(movableIds);
+      const topLevelIdSet = new Set(topLevelIds);
 
       for (const view of views) {
-        if (movableIdSet.has(view.id)) {
+        if (topLevelIdSet.has(view.id)) {
           viewIds.push(view.id);
           originalOrigins[view.id] = { x: view.relativeX, y: view.relativeY };
           newOrigins[view.id] = applyDelta({ x: view.relativeX, y: view.relativeY }, delta);
