@@ -5,8 +5,9 @@ import {
   exportAsZIP,
   createDownloadBlob,
   triggerDownload,
-  type ExportFormatType,
+  type ExportBitmap,
 } from '../../domain/project';
+import { bitmapService } from '../../services/indexedDB/bitmapService';
 import { projectStore } from '../../stores/projectStore';
 import { documentStore } from '../../stores/documentStore';
 import styles from './ExportMenu.module.css';
@@ -58,8 +59,18 @@ export const ExportMenu: Component = () => {
     if (!doc || !project) return;
 
     try {
-      // TODO: In future, fetch bitmaps from IndexedDB if the project has any
-      const content = await exportAsZIP(doc, project.name);
+      // Fetch stored bitmaps from IndexedDB
+      const storedBitmaps = await bitmapService.getByProject(project.id);
+
+      // Convert to ExportBitmap format
+      const exportBitmaps: ExportBitmap[] = await Promise.all(
+        storedBitmaps.map(async (bitmap) => ({
+          name: `${bitmap.name}.png`,
+          data: new Uint8Array(await bitmap.blob.arrayBuffer()),
+        }))
+      );
+
+      const content = await exportAsZIP(doc, project.name, exportBitmaps);
       const blob = createDownloadBlob(content, 'zip');
       const filename = `${project.name}.zip`;
       triggerDownload(blob, filename);

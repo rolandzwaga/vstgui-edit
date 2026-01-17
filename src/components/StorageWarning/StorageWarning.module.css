@@ -69,7 +69,7 @@
 }
 
 .dismissButton:hover {
-  background-color: var(--color-warning-dismiss-hover, rgba(0, 0, 0, 0.1));
+  background-color: var(--color-warning-dismiss-hover, rgb(0 0 0 / 0.1));
 }
 
 .dismissButton:focus-visible {
@@ -105,5 +105,5 @@
 }
 
 [data-theme="dark"] .dismissButton:hover {
-  background-color: var(--color-warning-dismiss-hover-dark, rgba(255, 255, 255, 0.1));
+  background-color: var(--color-warning-dismiss-hover-dark, rgb(255 255 255 / 0.1));
 }

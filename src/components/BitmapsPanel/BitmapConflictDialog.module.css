@@ -1,0 +1,89 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialog {
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 320px;
+  box-shadow: var(--shadow-lg);
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.message {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.message strong {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.question {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.cancelButton,
+.addNewButton,
+.replaceButton {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
+
+.cancelButton {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.cancelButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.addNewButton {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.addNewButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.replaceButton {
+  background-color: var(--color-warning-600);
+  color: white;
+}
+
+.replaceButton:hover {
+  background-color: var(--color-warning-600);
+  filter: brightness(0.9);
+}

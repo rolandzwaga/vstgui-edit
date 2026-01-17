@@ -6,6 +6,13 @@ import { setDocumentForTest, reset as resetDocumentStore } from '../../../stores
 import type { Project } from '../../../domain/project/types';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
 
+// Mock bitmapService
+vi.mock('../../../services/indexedDB/bitmapService', () => ({
+  bitmapService: {
+    getByProject: vi.fn().mockResolvedValue([]),
+  },
+}));
+
 const mockProject: Project = {
   id: 'proj-123',
   name: 'Test Project',
