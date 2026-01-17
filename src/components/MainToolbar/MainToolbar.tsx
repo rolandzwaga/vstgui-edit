@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js';
 import { AlignmentToolbar } from '../AlignmentToolbar';
+import { ExportMenu } from '../ExportMenu';
 import { GridToolbar } from '../GridToolbar';
 import { SaveButton } from '../SaveButton';
 import { ViewModeToolbar } from '../ViewModeToolbar';
@@ -22,6 +23,7 @@ export const MainToolbar: Component<MainToolbarProps> = (props) => {
   return (
     <div class={styles.container} role="toolbar" aria-label="Main toolbar">
       <SaveButton />
+      <ExportMenu />
       <ZoomToolbar onFitToView={props.onFitToView} />
       <GridToolbar />
       <ViewModeToolbar />

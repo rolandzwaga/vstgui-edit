@@ -4,6 +4,16 @@
  * Business logic and types for project storage feature.
  */
 
+// Export
+export {
+  createDownloadBlob,
+  exportAsJSON,
+  exportAsXML,
+  exportAsZIP,
+  getFileExtension,
+  triggerDownload,
+} from './export';
+export type { ExportBitmap, ExportFormatType } from './export';
 // Serialization
 export {
   deserializeEditorState,
