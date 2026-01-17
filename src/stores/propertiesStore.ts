@@ -61,3 +61,15 @@ export function isGroupExpanded(groupId: AttributeGroupId): boolean {
 export function resetProperties(): void {
   setExpandedGroups(new Set(ALL_GROUP_IDS.filter(id => id !== 'identity')));
 }
+
+/**
+ * Restore properties state from a project.
+ * Used when opening an existing project - does NOT trigger auto-save.
+ */
+export function restorePropertiesState(groupIds: string[]): void {
+  // Filter to only valid group IDs and exclude 'identity'
+  const validGroupIds = groupIds.filter(
+    (id): id is AttributeGroupId => ALL_GROUP_IDS.includes(id as AttributeGroupId) && id !== 'identity'
+  );
+  setExpandedGroups(new Set(validGroupIds));
+}

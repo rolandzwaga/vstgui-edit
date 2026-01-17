@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from 'solid-js';
+import { createSignal, For, Show, createEffect, onMount } from 'solid-js';
 import { documentStore, loadFile, setDragging, reset, createNewDocument } from '../../stores/documentStore';
 import {
   projectStore,
@@ -7,10 +7,17 @@ import {
   setPendingFile,
   clearPendingFile,
   createProject,
+  openProjectList,
+  closeProjectList,
+  listProjects,
+  openProject,
+  deleteProject,
 } from '../../stores/projectStore';
+import type { Project } from '../../domain/project/types';
 import type { NewDocumentConfig } from '../../types/createNew';
 import { CreateNewDialog } from '../CreateNewDialog';
 import { ProjectNameDialog } from '../ProjectNameDialog';
+import { ProjectList } from '../ProjectList';
 import styles from './UploadZone.module.css';
 
 const hasParseErrors = () =>
@@ -19,9 +26,53 @@ const hasParseErrors = () =>
 export function UploadZone() {
   let fileInputRef: HTMLInputElement | undefined;
   const [isCreateDialogOpen, setIsCreateDialogOpen] = createSignal(false);
+  const [projects, setProjects] = createSignal<Project[]>([]);
+
+  // Load projects when component mounts (if not in session-only mode)
+  onMount(async () => {
+    if (!projectStore.isSessionOnly) {
+      const loadedProjects = await listProjects();
+      setProjects(loadedProjects);
+    }
+  });
 
   const handleCreateNew = () => {
     setIsCreateDialogOpen(true);
+  };
+
+  const handleOpenProjectList = async () => {
+    // Refresh project list before opening
+    if (!projectStore.isSessionOnly) {
+      const loadedProjects = await listProjects();
+      setProjects(loadedProjects);
+    }
+    openProjectList();
+  };
+
+  const handleCloseProjectList = () => {
+    closeProjectList();
+  };
+
+  const handleOpenProject = async (id: string) => {
+    const project = await openProject(id);
+    if (project) {
+      // Parse the uidesc content to load into documentStore
+      const file = new File([project.uidescContent], `${project.name}.uidesc`, {
+        type: 'text/plain',
+      });
+      // Use loadFile to parse and set up the document
+      // We need to bypass the name dialog since we're loading an existing project
+      closeProjectList();
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    const success = await deleteProject(id);
+    if (success) {
+      // Refresh the project list
+      const loadedProjects = await listProjects();
+      setProjects(loadedProjects);
+    }
   };
 
   const handleCreate = (config: NewDocumentConfig) => {
@@ -226,6 +277,11 @@ export function UploadZone() {
           <button class={styles.buttonSecondary} onClick={handleCreateNew} type="button">
             Create New
           </button>
+          <Show when={!projectStore.isSessionOnly}>
+            <button class={styles.buttonSecondary} onClick={handleOpenProjectList} type="button">
+              Open Project
+            </button>
+          </Show>
         </div>
       </Show>
 
@@ -249,6 +305,14 @@ export function UploadZone() {
         initialName={projectStore.pendingFile?.filename?.replace(/\.uidesc$/i, '') ?? ''}
         onConfirm={handleNameConfirm}
         onCancel={handleNameCancel}
+      />
+
+      <ProjectList
+        isOpen={projectStore.isProjectListOpen}
+        projects={projects()}
+        onClose={handleCloseProjectList}
+        onOpen={handleOpenProject}
+        onDelete={handleDeleteProject}
       />
     </div>
   );

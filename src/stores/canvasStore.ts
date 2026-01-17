@@ -185,3 +185,12 @@ export function fitToView(viewportSize: Size, templateSize: Size): void {
   setPanOffset({ x: result.panX, y: result.panY });
   scheduleStateSave();
 }
+
+/**
+ * Restore canvas state from a project.
+ * Used when opening an existing project - does NOT trigger auto-save.
+ */
+export function restoreCanvasState(pan: Point, zoom: number): void {
+  setPanOffset({ x: pan.x, y: pan.y });
+  setZoomLevel(clampZoom(zoom));
+}

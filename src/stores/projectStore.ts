@@ -18,6 +18,10 @@ import type {
 import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS, DEBOUNCE } from '../domain/project/types';
 import { openDatabase, closeDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
+import { restoreCanvasState } from './canvasStore';
+import { restoreHierarchyState } from './hierarchyStore';
+import { restorePropertiesState } from './propertiesStore';
+import { setActiveTemplate } from './templateStore';
 
 // ============================================================================
 // Initial State
@@ -315,37 +319,6 @@ export function updateProjectContent(content: string): void {
 }
 
 /**
- * Deletes a project by ID.
- *
- * @param id - Project ID
- * @returns True if deleted successfully
- */
-export async function deleteProject(id: string): Promise<boolean> {
-  if (store.isSessionOnly) {
-    return false;
-  }
-
-  try {
-    await projectService.delete(id);
-
-    // Clear current project if it was the deleted one
-    if (store.currentProject?.id === id) {
-      setStore({
-        currentProject: null,
-        isDirty: false,
-        saveStatus: 'idle',
-        lastSavedAt: null,
-      });
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Failed to delete project:', error);
-    return false;
-  }
-}
-
-/**
  * Closes the current project.
  */
 export function closeCurrentProject(): void {
@@ -538,4 +511,87 @@ export function updateProjectEditorState(updates: Partial<EditorState>): void {
       },
     },
   });
+}
+
+/**
+ * Lists all projects from IndexedDB.
+ *
+ * @returns Promise resolving to array of projects, sorted by updatedAt desc
+ */
+export async function listProjects(): Promise<Project[]> {
+  if (store.isSessionOnly) {
+    return [];
+  }
+
+  try {
+    return await projectService.list();
+  } catch (error) {
+    console.error('Failed to list projects:', error);
+    return [];
+  }
+}
+
+/**
+ * Opens a project by ID, loading it from IndexedDB.
+ * Restores editor state to respective stores (canvas, hierarchy, properties, template).
+ *
+ * @param id - The project ID to open
+ * @returns The loaded project, or null on failure
+ */
+export async function openProject(id: string): Promise<Project | null> {
+  if (store.isSessionOnly) {
+    return null;
+  }
+
+  try {
+    const project = await projectService.get(id);
+    if (!project) {
+      return null;
+    }
+
+    // Restore editor state to respective stores
+    const { editorState } = project;
+    restoreCanvasState(editorState.panOffset, editorState.zoomLevel);
+    restoreHierarchyState(editorState.expandedHierarchyNodes);
+    restorePropertiesState(editorState.expandedPropertyGroups);
+    setActiveTemplate(editorState.selectedTemplateId);
+
+    setStore({
+      currentProject: project,
+      isDirty: false,
+      saveStatus: 'saved',
+      lastSavedAt: new Date(project.updatedAt),
+    });
+
+    return project;
+  } catch (error) {
+    console.error('Failed to open project:', error);
+    return null;
+  }
+}
+
+/**
+ * Deletes a project by ID from IndexedDB.
+ *
+ * @param id - The project ID to delete
+ * @returns True if deleted, false on failure
+ */
+export async function deleteProject(id: string): Promise<boolean> {
+  if (store.isSessionOnly) {
+    return false;
+  }
+
+  try {
+    await projectService.delete(id);
+
+    // If this was the current project, close it
+    if (store.currentProject?.id === id) {
+      closeCurrentProject();
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to delete project:', error);
+    return false;
+  }
 }

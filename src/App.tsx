@@ -1,4 +1,4 @@
-import { createEffect, onCleanup, Show } from 'solid-js';
+import { createEffect, onCleanup, onMount, Show } from 'solid-js';
 import { UploadZone } from './components/UploadZone/UploadZone';
 import { Canvas, Legend } from './components/Canvas';
 import { RulerContainer } from './components/Canvas/Rulers';
@@ -32,6 +32,8 @@ import { searchStore } from './stores/searchStore';
 import { templateStore } from './stores/templateStore';
 import { fitToView } from './stores/canvasStore';
 import { toggleViewMode } from './stores/viewModeStore';
+import { initializeProjectStore, projectStore } from './stores/projectStore';
+import { closeDatabase } from './services/indexedDB/database';
 import './styles/tokens.css';
 
 export default function App() {
@@ -43,6 +45,16 @@ export default function App() {
 
   // Detect and log shortcut conflicts (development validation)
   detectConflicts();
+
+  // Initialize IndexedDB for project storage
+  onMount(async () => {
+    await initializeProjectStore();
+  });
+
+  // Cleanup database connection on unmount
+  onCleanup(() => {
+    closeDatabase();
+  });
 
   // React to theme mode changes
   createEffect(() => {
@@ -177,6 +189,24 @@ export default function App() {
         </>
       ) : (
         <>
+        <Show when={projectStore.isSessionOnly}>
+          <div
+            style={{
+              "background-color": 'var(--color-warning-100, #fef3c7)',
+              "border": '1px solid var(--color-warning-400, #f59e0b)',
+              "border-radius": '4px',
+              padding: '0.75rem 1rem',
+              "margin-bottom": '1rem',
+              "max-width": '600px',
+              margin: '0 auto 1rem',
+              "text-align": 'center',
+              color: 'var(--color-warning-800, #92400e)',
+            }}
+            role="alert"
+          >
+            <strong>Session-only mode:</strong> IndexedDB is unavailable. Projects will not be saved.
+          </div>
+        </Show>
         <h1 style={{ "margin-bottom": '1.5rem', "text-align": 'center' }}>VSTGUI-Edit</h1>
         <div style={{ "max-width": '600px', margin: '0 auto' }}>
           <UploadZone />

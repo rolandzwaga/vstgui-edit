@@ -54,3 +54,11 @@ export function isExpanded(nodeId: string): boolean {
 export function resetHierarchy(): void {
   setExpandedIds(new Set<string>());
 }
+
+/**
+ * Restore hierarchy state from a project.
+ * Used when opening an existing project - does NOT trigger auto-save.
+ */
+export function restoreHierarchyState(nodeIds: string[]): void {
+  setExpandedIds(new Set(nodeIds));
+}
