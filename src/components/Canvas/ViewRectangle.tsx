@@ -51,9 +51,14 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
   /**
    * Builds the CSS class string based on category, selection, hover, and parent state.
+   * In styled mode with actual colors, omits the category class to prevent CSS override.
    */
   const rectClass = () => {
-    const classes = [styles.viewRect, styles[props.view.category]];
+    const classes = [styles.viewRect];
+    // Only add category class if NOT using styled rendering (CSS would override inline styles)
+    if (!useStyledRendering()) {
+      classes.push(styles[props.view.category]);
+    }
     if (isSelected(props.view.id)) {
       classes.push(styles.selected);
     } else if (isParentOfSelected()) {
@@ -148,6 +153,38 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
     return undefined;
   };
 
+  /**
+   * Gets the inline style object for styled mode rendering.
+   * Uses inline style to override CSS class styles with highest specificity.
+   */
+  const getRectStyle = (): Record<string, string> | undefined => {
+    if (!isInStyledMode()) {
+      return undefined;
+    }
+
+    const style: Record<string, string> = {};
+
+    // Handle transparent views
+    if (props.styledProps?.isTransparent) {
+      style.fill = 'none';
+      return style;
+    }
+
+    // Handle styled rendering (has background color)
+    if (useStyledRendering() && props.styledProps?.backgroundColor) {
+      style.fill = props.styledProps.backgroundColor;
+      style['fill-opacity'] = '1'; // Override .viewRect fill-opacity: 0.1
+    }
+
+    // Apply frame color/width in styled mode (both for styled and wireframe fallback)
+    if (props.styledProps?.frameColor) {
+      style.stroke = props.styledProps.frameColor;
+      style['stroke-width'] = String(props.styledProps.frameWidth ?? 1);
+    }
+
+    return Object.keys(style).length > 0 ? style : undefined;
+  };
+
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id} opacity={getGroupOpacity()}>
       <rect
@@ -157,9 +194,7 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
-        fill={getFill()}
-        stroke={getStroke()}
-        stroke-width={getStrokeWidth()}
+        style={getRectStyle()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

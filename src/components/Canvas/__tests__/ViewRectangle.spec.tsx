@@ -342,7 +342,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#FF5500FF');
+      expect(rect).toHaveStyle({ fill: '#FF5500FF' });
     });
 
     it('should render with inline stroke when styled mode and frame-color is provided', () => {
@@ -363,7 +363,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('stroke', '#000000FF');
+      expect(rect).toHaveStyle({ stroke: '#000000FF' });
     });
 
     it('should render with inline stroke-width when styled mode and frame-width is provided', () => {
@@ -385,7 +385,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('stroke-width', '3');
+      expect(rect).toHaveStyle({ 'stroke-width': '3' });
     });
 
     it('should use resolved hex color from document color reference', () => {
@@ -406,7 +406,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#3366AAFF');
+      expect(rect).toHaveStyle({ fill: '#3366AAFF' });
     });
 
     it('should use resolved hex color from predefined color reference', () => {
@@ -427,7 +427,7 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      expect(rect).toHaveAttribute('fill', '#000000FF');
+      expect(rect).toHaveStyle({ fill: '#000000FF' });
     });
 
     it('should NOT apply inline styles in wireframe mode even with styledProps', () => {
@@ -449,8 +449,8 @@ describe('ViewRectangle', () => {
       const rect = group.querySelector('rect');
 
       // In wireframe mode, CSS classes control styling, not inline styles
-      expect(rect).not.toHaveAttribute('fill', '#FF5500FF');
-      expect(rect).not.toHaveAttribute('stroke', '#000000FF');
+      expect(rect).not.toHaveStyle({ fill: '#FF5500FF' });
+      expect(rect).not.toHaveStyle({ stroke: '#000000FF' });
     });
 
     it('should work without styledProps (backward compatibility)', () => {
@@ -512,7 +512,7 @@ describe('ViewRectangle', () => {
       const rect = group.querySelector('rect');
 
       // Should NOT have inline fill when using wireframe fallback
-      expect(rect).not.toHaveAttribute('fill');
+      expect(rect?.style.fill).toBeFalsy();
       // Should have CSS class for category-colored wireframe
       const classAttr = rect?.getAttribute('class') ?? '';
       expect(classAttr).toMatch(/container/i);
@@ -536,7 +536,7 @@ describe('ViewRectangle', () => {
       const rect = group.querySelector('rect');
 
       // Wireframe fallback - no inline fill
-      expect(rect).not.toHaveAttribute('fill');
+      expect(rect?.style.fill).toBeFalsy();
       const classAttr = rect?.getAttribute('class') ?? '';
       expect(classAttr).toMatch(/control/i);
     });
@@ -559,8 +559,8 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // Transparent view should have fill: none
-      expect(rect).toHaveAttribute('fill', 'none');
+      // Transparent view should have fill: none (via inline style)
+      expect(rect).toHaveStyle({ fill: 'none' });
     });
 
     it('should apply frame-color even in wireframe fallback', () => {
@@ -582,9 +582,9 @@ describe('ViewRectangle', () => {
       const group = screen.getByTestId('view-test-view');
       const rect = group.querySelector('rect');
 
-      // Should still apply frame color from uidesc
-      expect(rect).toHaveAttribute('stroke', '#FF0000FF');
-      expect(rect).toHaveAttribute('stroke-width', '2');
+      // Should still apply frame color from uidesc (via inline style)
+      expect(rect).toHaveStyle({ stroke: '#FF0000FF' });
+      expect(rect).toHaveStyle({ 'stroke-width': '2' });
     });
 
     it('should apply group opacity when opacity is specified', () => {
