@@ -12,6 +12,7 @@ export interface ProjectListProps {
   onClose: () => void;
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
+  onRename?: (id: string, newName: string) => Promise<boolean>;
 }
 
 /**
@@ -99,6 +100,7 @@ export const ProjectList: Component<ProjectListProps> = (props) => {
                       project={project}
                       onClick={props.onOpen}
                       onDelete={props.onDelete}
+                      onRename={props.onRename}
                     />
                   )}
                 </For>

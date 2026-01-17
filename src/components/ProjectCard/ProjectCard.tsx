@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 
 import type { Project } from '../../domain/project/types';
 
@@ -9,6 +9,7 @@ export interface ProjectCardProps {
   project: Project;
   onClick: (id: string) => void;
   onDelete: (id: string) => void;
+  onRename?: (id: string, newName: string) => Promise<boolean>;
 }
 
 /**
@@ -32,10 +33,17 @@ function formatDate(dateStr: string): string {
  * - Format badge (JSON/XML)
  * - Click to open
  * - Delete button
+ * - Inline rename with Enter/Escape/blur
  */
 export const ProjectCard: Component<ProjectCardProps> = (props) => {
+  const [isEditing, setIsEditing] = createSignal(false);
+  const [editValue, setEditValue] = createSignal('');
+  let inputRef: HTMLInputElement | undefined;
+
   const handleClick = () => {
-    props.onClick(props.project.id);
+    if (!isEditing()) {
+      props.onClick(props.project.id);
+    }
   };
 
   const handleDelete = (e: MouseEvent) => {
@@ -44,10 +52,49 @@ export const ProjectCard: Component<ProjectCardProps> = (props) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (!isEditing() && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       props.onClick(props.project.id);
     }
+  };
+
+  const startEditing = (e: MouseEvent) => {
+    e.stopPropagation();
+    setEditValue(props.project.name);
+    setIsEditing(true);
+    // Focus the input after it renders
+    setTimeout(() => {
+      inputRef?.focus();
+      inputRef?.select();
+    }, 0);
+  };
+
+  const commitRename = async () => {
+    const newName = editValue().trim();
+    if (newName && newName !== props.project.name && props.onRename) {
+      await props.onRename(props.project.id, newName);
+    }
+    setIsEditing(false);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditValue('');
+  };
+
+  const handleInputKeyDown = (e: KeyboardEvent) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitRename();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditing();
+    }
+  };
+
+  const handleInputBlur = () => {
+    commitRename();
   };
 
   return (
@@ -82,9 +129,26 @@ export const ProjectCard: Component<ProjectCardProps> = (props) => {
 
       <div class={styles.content}>
         <div class={styles.header}>
-          <span class={styles.name} title={props.project.name}>
-            {props.project.name}
-          </span>
+          <Show
+            when={isEditing()}
+            fallback={
+              <span class={styles.name} title={props.project.name}>
+                {props.project.name}
+              </span>
+            }
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              class={styles.nameInput}
+              value={editValue()}
+              onInput={(e) => setEditValue(e.currentTarget.value)}
+              onKeyDown={handleInputKeyDown}
+              onBlur={handleInputBlur}
+              onClick={(e) => e.stopPropagation()}
+              aria-label="Project name"
+            />
+          </Show>
           <span class={styles.format}>
             {props.project.uidescFormat.toUpperCase()}
           </span>
@@ -94,18 +158,34 @@ export const ProjectCard: Component<ProjectCardProps> = (props) => {
           <span class={styles.date}>
             {formatDate(props.project.updatedAt)}
           </span>
-          <button
-            type="button"
-            class={styles.deleteButton}
-            onClick={handleDelete}
-            aria-label={`Delete project ${props.project.name}`}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 6h18" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
+          <div class={styles.actions}>
+            <Show when={props.onRename}>
+              <button
+                type="button"
+                class={styles.actionButton}
+                onClick={startEditing}
+                aria-label={`Rename project ${props.project.name}`}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+            </Show>
+            <button
+              type="button"
+              class={styles.actionButton}
+              classList={{ [styles.danger]: true }}
+              onClick={handleDelete}
+              aria-label={`Delete project ${props.project.name}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>

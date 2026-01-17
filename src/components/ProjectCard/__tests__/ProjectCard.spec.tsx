@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, cleanup } from '@solidjs/testing-library';
+import { render, screen, fireEvent, cleanup, waitFor } from '@solidjs/testing-library';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { Project } from '../../../domain/project/types';
@@ -24,10 +24,12 @@ function createTestProject(overrides: Partial<Project> = {}): Project {
 describe('ProjectCard', () => {
   let onClick: (id: string) => void;
   let onDelete: (id: string) => void;
+  let onRename: (id: string, name: string) => Promise<boolean>;
 
   beforeEach(() => {
     onClick = vi.fn() as (id: string) => void;
     onDelete = vi.fn() as (id: string) => void;
+    onRename = vi.fn().mockResolvedValue(true) as (id: string, name: string) => Promise<boolean>;
   });
 
   afterEach(() => {
@@ -123,11 +125,91 @@ describe('ProjectCard', () => {
 
   test('handles keyboard Space on card', () => {
     const project = createTestProject();
-    render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} />);
+    render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
 
     const card = screen.getByRole('button', { name: /Open project Test Project/i });
     fireEvent.keyDown(card, { key: ' ' });
 
     expect(onClick).toHaveBeenCalledWith(project.id);
+  });
+
+  describe('rename functionality', () => {
+    test('shows rename button', () => {
+      const project = createTestProject();
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      expect(renameButton).toBeInTheDocument();
+    });
+
+    test('clicking rename shows inline edit input', () => {
+      const project = createTestProject({ name: 'Original Name' });
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      fireEvent.click(renameButton);
+
+      const input = screen.getByRole('textbox', { name: /project name/i });
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveValue('Original Name');
+    });
+
+    test('Enter commits rename', async () => {
+      const project = createTestProject({ name: 'Original' });
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      fireEvent.click(renameButton);
+
+      const input = screen.getByRole('textbox', { name: /project name/i });
+      fireEvent.input(input, { target: { value: 'New Name' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      await waitFor(() => {
+        expect(onRename).toHaveBeenCalledWith(project.id, 'New Name');
+      });
+    });
+
+    test('Escape cancels rename', () => {
+      const project = createTestProject({ name: 'Original' });
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      fireEvent.click(renameButton);
+
+      const input = screen.getByRole('textbox', { name: /project name/i });
+      fireEvent.keyDown(input, { key: 'Escape' });
+
+      // Input should be gone, name should be visible
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      expect(screen.getByText('Original')).toBeInTheDocument();
+      expect(onRename).not.toHaveBeenCalled();
+    });
+
+    test('blur commits rename', async () => {
+      const project = createTestProject({ name: 'Original' });
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      fireEvent.click(renameButton);
+
+      const input = screen.getByRole('textbox', { name: /project name/i });
+      fireEvent.input(input, { target: { value: 'Blurred Name' } });
+      fireEvent.blur(input);
+
+      await waitFor(() => {
+        expect(onRename).toHaveBeenCalledWith(project.id, 'Blurred Name');
+      });
+    });
+
+    test('rename button click does not trigger onClick', () => {
+      const project = createTestProject();
+      render(() => <ProjectCard project={project} onClick={onClick} onDelete={onDelete} onRename={onRename} />);
+
+      const renameButton = screen.getByRole('button', { name: /rename/i });
+      fireEvent.click(renameButton);
+
+      expect(onClick).not.toHaveBeenCalled();
+    });
   });
 });

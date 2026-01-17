@@ -12,6 +12,7 @@ import {
   listProjects,
   openProject,
   deleteProject,
+  renameProject,
 } from '../../stores/projectStore';
 import { createDocument } from '../../domain/createNew/documentFactory';
 import type { Project } from '../../domain/project/types';
@@ -194,6 +195,19 @@ export function UploadZone() {
     closeNameDialog();
   };
 
+  /**
+   * Handle project rename from ProjectList.
+   */
+  const handleRenameProject = async (id: string, newName: string): Promise<boolean> => {
+    const result = await renameProject(id, newName);
+    if (result) {
+      // Refresh the project list
+      const updatedProjects = await listProjects();
+      setProjects(updatedProjects);
+    }
+    return result;
+  };
+
   const handleButtonClick = () => {
     fileInputRef?.click();
   };
@@ -343,6 +357,7 @@ export function UploadZone() {
         onClose={handleCloseProjectList}
         onOpen={handleOpenProject}
         onDelete={handleDeleteProject}
+        onRename={handleRenameProject}
       />
     </div>
   );

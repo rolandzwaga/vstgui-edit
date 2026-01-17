@@ -17,6 +17,7 @@ import type {
   UidescFormat,
 } from '../domain/project/types';
 import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
+import { sanitizeProjectName, validateProjectName } from '../domain/project/validation';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
 import { restoreCanvasState } from './canvasStore';
@@ -638,4 +639,59 @@ function createDefaultUidescContent(): string {
 export async function createEmptyProject(name: string): Promise<Project | null> {
   const uidescContent = createDefaultUidescContent();
   return createProject(name, uidescContent, 'json');
+}
+
+// ============================================================================
+// Project Rename
+// ============================================================================
+
+/**
+ * Renames a project.
+ *
+ * Updates the project name in IndexedDB and in the current project if it matches.
+ *
+ * @param id - The project ID to rename
+ * @param newName - The new name for the project
+ * @returns True if renamed successfully, false on failure
+ */
+export async function renameProject(id: string, newName: string): Promise<boolean> {
+  if (store.isSessionOnly) {
+    return false;
+  }
+
+  // Validate and sanitize the name
+  const validationResult = validateProjectName(newName);
+  if (!validationResult.valid) {
+    return false;
+  }
+
+  const sanitizedName = sanitizeProjectName(newName);
+
+  try {
+    // Get the existing project
+    const existing = await projectService.get(id);
+    if (!existing) {
+      return false;
+    }
+
+    // Update the project
+    const updatedProject: Project = {
+      ...existing,
+      name: sanitizedName,
+      updatedAt: new Date(),
+    };
+
+    await projectService.update(updatedProject);
+
+    // If this is the current project, update the store
+    if (store.currentProject?.id === id) {
+      setStore('currentProject', 'name', sanitizedName);
+      setStore('currentProject', 'updatedAt', updatedProject.updatedAt);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to rename project:', error);
+    return false;
+  }
 }

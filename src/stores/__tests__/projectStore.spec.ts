@@ -924,4 +924,100 @@ describe('projectStore', () => {
       expect(projectStore.currentProject).toEqual(result);
     });
   });
+
+  describe('renameProject', () => {
+    beforeEach(async () => {
+      await openDatabase();
+    });
+
+    test('renames project in IndexedDB', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const project = await createProject('Original Name', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const result = await renameProject(project!.id, 'New Name');
+
+      expect(result).toBe(true);
+
+      const stored = await projectService.get(project!.id);
+      expect(stored?.name).toBe('New Name');
+    });
+
+    test('updates currentProject if it is the renamed project', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      await createProject('Original Name', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const currentId = projectStore.currentProject!.id;
+
+      await renameProject(currentId, 'Updated Name');
+
+      expect(projectStore.currentProject?.name).toBe('Updated Name');
+    });
+
+    test('does not affect currentProject if different project is renamed', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const project1 = await createProject('First', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      resetProjectStore();
+      await openDatabase();
+      const project2 = await createProject('Second', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+
+      expect(projectStore.currentProject?.id).toBe(project2!.id);
+
+      await renameProject(project1!.id, 'First Renamed');
+
+      expect(projectStore.currentProject?.name).toBe('Second');
+    });
+
+    test('updates updatedAt timestamp', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const project = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const originalUpdatedAt = new Date(project!.updatedAt).getTime();
+
+      // Small delay to ensure timestamp difference
+      await new Promise(r => setTimeout(r, 10));
+
+      await renameProject(project!.id, 'Renamed');
+
+      const stored = await projectService.get(project!.id);
+      const storedUpdatedAt = new Date(stored!.updatedAt).getTime();
+      expect(storedUpdatedAt).toBeGreaterThan(originalUpdatedAt);
+    });
+
+    test('returns false for invalid project name', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const project = await createProject('Valid', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      const result = await renameProject(project!.id, '');
+
+      expect(result).toBe(false);
+    });
+
+    test('returns false for non-existent project', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const result = await renameProject('non-existent-id', 'New Name');
+
+      expect(result).toBe(false);
+    });
+
+    test('returns false in session-only mode', async () => {
+      const { renameProject } = await import('../projectStore');
+      setIsSessionOnly(true);
+
+      const result = await renameProject('any-id', 'New Name');
+
+      expect(result).toBe(false);
+    });
+
+    test('sanitizes project name', async () => {
+      const { renameProject } = await import('../projectStore');
+
+      const project = await createProject('Original', '{"vstgui-ui-description": {"version": "1"}}', 'json');
+      await renameProject(project!.id, '  Spaces Around  ');
+
+      const stored = await projectService.get(project!.id);
+      expect(stored?.name).toBe('Spaces Around');
+    });
+  });
 });
