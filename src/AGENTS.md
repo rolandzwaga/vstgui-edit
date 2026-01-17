@@ -2,8 +2,7 @@
 
 ## For Test Files (*.spec.ts, *.spec.tsx, __tests__/*)
 
-**REQUIRED READING**: Before creating or modifying any test file, you MUST read (when its not already in context) and follow:
-- [specs/TESTING-GUIDE.md](../specs/TESTING-GUIDE.md)
+**REQUIRED**: Before creating or modifying any test file, you MUST use the `/testing-guide` skill to load testing patterns.
 
 Key requirements from the testing guide:
 - Use `testInRoot()` for signal/store tests (wraps in reactive root)
