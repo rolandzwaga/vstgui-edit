@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
-import { DB_NAME, DB_VERSION, STORES, INDEXES } from '../../../domain/project/types';
+import { DB_NAME, DB_VERSION, INDEXES, STORES } from '../../../domain/project/types';
 import {
-  openDatabase,
   closeDatabase,
-  getStore,
-  promisifyRequest,
   getDatabaseInstance,
+  getStore,
+  openDatabase,
+  promisifyRequest,
 } from '../database';
 
 describe('database', () => {

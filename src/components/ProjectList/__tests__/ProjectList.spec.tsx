@@ -22,14 +22,14 @@ function createTestProject(overrides: Partial<Project> = {}): Project {
 }
 
 describe('ProjectList', () => {
-  let onClose: ReturnType<typeof vi.fn>;
-  let onOpen: ReturnType<typeof vi.fn>;
-  let onDelete: ReturnType<typeof vi.fn>;
+  let onClose: () => void;
+  let onOpen: (id: string) => void;
+  let onDelete: (id: string) => void;
 
   beforeEach(() => {
-    onClose = vi.fn();
-    onOpen = vi.fn();
-    onDelete = vi.fn();
+    onClose = vi.fn() as () => void;
+    onOpen = vi.fn() as (id: string) => void;
+    onDelete = vi.fn() as (id: string) => void;
   });
 
   afterEach(() => {

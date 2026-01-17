@@ -85,7 +85,7 @@
 }
 
 .input::placeholder {
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .inputError {

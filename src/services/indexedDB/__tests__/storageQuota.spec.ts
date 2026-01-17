@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { LIMITS } from '../../../domain/project/types';
-import { estimateStorageQuota, checkQuotaWarning, QUOTA_WARNING_THRESHOLD } from '../storageQuota';
+import { checkQuotaWarning, estimateStorageQuota, QUOTA_WARNING_THRESHOLD } from '../storageQuota';
 
 describe('storageQuota', () => {
   const originalNavigator = global.navigator;

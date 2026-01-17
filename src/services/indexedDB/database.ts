@@ -5,7 +5,7 @@
  * for IndexedDB operations.
  */
 
-import { DB_NAME, DB_VERSION, STORES, INDEXES } from '../../domain/project/types';
+import { DB_NAME, DB_VERSION, INDEXES, STORES } from '../../domain/project/types';
 
 // ============================================================================
 // Module State
@@ -36,7 +36,7 @@ export function openDatabase(): Promise<IDBDatabase> {
 
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    request.onupgradeneeded = (event) => {
+    request.onupgradeneeded = event => {
       const db = (event.target as IDBOpenDBRequest).result;
 
       // Create projects store
@@ -93,10 +93,7 @@ export function getDatabaseInstance(): IDBDatabase | null {
  * @returns The object store
  * @throws Error if database is not initialized
  */
-export function getStore(
-  storeName: string,
-  mode: IDBTransactionMode = 'readonly'
-): IDBObjectStore {
+export function getStore(storeName: string, mode: IDBTransactionMode = 'readonly'): IDBObjectStore {
   if (!dbInstance) {
     throw new Error('Database not initialized');
   }

@@ -5,54 +5,48 @@
  */
 
 export type {
-  // Core entities
-  Project,
+  AutoSaveSettings,
   Bitmap,
-  UidescFormat,
-
+  CustomGuidesSettings,
   // Editor state
   EditorState,
-  Point,
-
-  // Project settings
-  ProjectSettings,
-  GridSettings,
-  GridSizePreset,
-  GridStyle,
-  SnapSettings,
-  SmartGuidesSettings,
-  CustomGuidesSettings,
-  Guide,
-  ThemeSettings,
-  ThemeMode,
-  AutoSaveSettings,
-
-  // Store state
-  ProjectStoreState,
-  SaveStatus,
-  NameDialogMode,
-
-  // Validation
-  NameValidationResult,
-  StorageQuota,
-
   // Export
   ExportFormat,
   ExportResult,
+  GridSettings,
+  GridSizePreset,
+  GridStyle,
+  Guide,
+  NameDialogMode,
+  // Validation
+  NameValidationResult,
+  Point,
+  // Core entities
+  Project,
+  // Project settings
+  ProjectSettings,
+  // Store state
+  ProjectStoreState,
+  SaveStatus,
+  SmartGuidesSettings,
+  SnapSettings,
+  StorageQuota,
+  ThemeMode,
+  ThemeSettings,
+  UidescFormat,
 } from '../domain/project/types';
 
 export {
-  // Default values
-  DEFAULT_EDITOR_STATE,
-  DEFAULT_PROJECT_SETTINGS,
-
   // Constants
   DB_NAME,
   DB_VERSION,
-  STORES,
-  INDEXES,
   DEBOUNCE,
-  THUMBNAIL,
+  // Default values
+  DEFAULT_EDITOR_STATE,
+  DEFAULT_PROJECT_SETTINGS,
+  INDEXES,
   LIMITS,
   PROJECT_NAME_REGEX,
+  STORES,
+  THUMBNAIL,
 } from '../domain/project/types';

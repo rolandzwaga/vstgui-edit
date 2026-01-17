@@ -299,13 +299,17 @@ export function UploadZone() {
         onCreate={handleCreate}
       />
 
-      <ProjectNameDialog
-        isOpen={projectStore.isNameDialogOpen}
-        mode={projectStore.nameDialogMode}
-        initialName={projectStore.pendingFile?.filename?.replace(/\.uidesc$/i, '') ?? ''}
-        onConfirm={handleNameConfirm}
-        onCancel={handleNameCancel}
-      />
+      <Show when={projectStore.nameDialogMode}>
+        {(mode) => (
+          <ProjectNameDialog
+            isOpen={projectStore.isNameDialogOpen}
+            mode={mode()}
+            initialName={projectStore.pendingFile?.filename?.replace(/\.uidesc$/i, '') ?? ''}
+            onConfirm={handleNameConfirm}
+            onClose={handleNameCancel}
+          />
+        )}
+      </Show>
 
       <ProjectList
         isOpen={projectStore.isProjectListOpen}

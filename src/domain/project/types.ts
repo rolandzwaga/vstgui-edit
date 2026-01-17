@@ -245,7 +245,7 @@ export interface ProjectStoreState {
   nameDialogMode: NameDialogMode | null;
 
   /** Pending file for project creation */
-  pendingFile: File | null;
+  pendingFile: PendingFileInfo | null;
 }
 
 /** Save operation status */
@@ -253,6 +253,19 @@ export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 /** Name dialog modes */
 export type NameDialogMode = 'create' | 'rename' | 'duplicate';
+
+/**
+ * Pending file info for project creation.
+ * Stored after a file is parsed and before the project name dialog is completed.
+ */
+export interface PendingFileInfo {
+  /** Raw file content */
+  content: string;
+  /** Detected format */
+  format: UidescFormat;
+  /** Original filename */
+  filename: string;
+}
 
 // ============================================================================
 // Validation

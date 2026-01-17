@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-
-import { DB_NAME } from '../../../domain/project/types';
 import type { Bitmap } from '../../../domain/project/types';
-import { openDatabase, closeDatabase } from '../database';
+import { DB_NAME } from '../../../domain/project/types';
 import { bitmapService } from '../bitmapService';
+import { closeDatabase, openDatabase } from '../database';
 
 function createTestBitmap(overrides: Partial<Bitmap> = {}): Bitmap {
   return {

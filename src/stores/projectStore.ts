@@ -8,15 +8,16 @@
 import { createStore } from 'solid-js/store';
 
 import type {
+  EditorState,
+  NameDialogMode,
+  PendingFileInfo,
   Project,
   ProjectStoreState,
   SaveStatus,
-  NameDialogMode,
   UidescFormat,
-  EditorState,
 } from '../domain/project/types';
-import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS, DEBOUNCE } from '../domain/project/types';
-import { openDatabase, closeDatabase } from '../services/indexedDB/database';
+import { DEBOUNCE, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../domain/project/types';
+import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
 import { restoreCanvasState } from './canvasStore';
 import { restoreHierarchyState } from './hierarchyStore';
@@ -126,10 +127,10 @@ export function closeNameDialog(): void {
 // ============================================================================
 
 /**
- * Sets the pending file for project creation.
+ * Sets the pending file info for project creation.
  */
-export function setPendingFile(file: File): void {
-  setStore({ pendingFile: file });
+export function setPendingFile(fileInfo: PendingFileInfo): void {
+  setStore({ pendingFile: fileInfo });
 }
 
 /**
@@ -375,7 +376,7 @@ function toPlainProject(project: Project): Project {
       },
       customGuides: {
         snapEnabledByDefault: project.settings.customGuides.snapEnabledByDefault,
-        guides: project.settings.customGuides.guides.map((g) => ({
+        guides: project.settings.customGuides.guides.map(g => ({
           id: g.id,
           orientation: g.orientation,
           position: g.position,
@@ -524,7 +525,7 @@ export async function listProjects(): Promise<Project[]> {
   }
 
   try {
-    return await projectService.list();
+    return await projectService.getAll();
   } catch (error) {
     console.error('Failed to list projects:', error);
     return [];

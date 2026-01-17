@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-
-import { DB_NAME, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../../../domain/project/types';
 import type { Project } from '../../../domain/project/types';
-import { openDatabase, closeDatabase } from '../database';
+import { DB_NAME, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../../../domain/project/types';
+import { closeDatabase, openDatabase } from '../database';
 import { projectService } from '../projectService';
 
 function createTestProject(overrides: Partial<Project> = {}): Project {

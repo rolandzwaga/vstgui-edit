@@ -1,13 +1,12 @@
 import { describe, expect, test } from 'vitest';
-
-import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../types';
-import type { EditorState, ProjectSettings } from '../types';
 import {
-  serializeEditorState,
   deserializeEditorState,
-  serializeProjectSettings,
   deserializeProjectSettings,
+  serializeEditorState,
+  serializeProjectSettings,
 } from '../serialization';
+import type { EditorState, ProjectSettings } from '../types';
+import { DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../types';
 
 describe('serializeEditorState', () => {
   test('serializes default editor state', () => {

@@ -1,35 +1,34 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-
-import { DB_NAME, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../../domain/project/types';
 import type { Project, ProjectStoreState } from '../../domain/project/types';
+import { DB_NAME, DEFAULT_EDITOR_STATE, DEFAULT_PROJECT_SETTINGS } from '../../domain/project/types';
 import { closeDatabase, openDatabase } from '../../services/indexedDB/database';
 import { projectService } from '../../services/indexedDB/projectService';
-import {
-  projectStore,
-  resetProjectStore,
-  setCurrentProject,
-  setIsDirty,
-  setSaveStatus,
-  setIsSessionOnly,
-  openProjectList,
-  closeProjectList,
-  openNameDialog,
-  closeNameDialog,
-  setPendingFile,
-  clearPendingFile,
-  initializeProjectStore,
-  createProject,
-  scheduleDocumentSave,
-  scheduleStateSave,
-  cancelAutoSaveTimers,
-  updateProjectContent,
-  updateProjectEditorState,
-  openProject,
-} from '../projectStore';
 import { canvasStore, resetCanvas } from '../canvasStore';
 import { hierarchyStore, resetHierarchy } from '../hierarchyStore';
+import {
+  cancelAutoSaveTimers,
+  clearPendingFile,
+  closeNameDialog,
+  closeProjectList,
+  createProject,
+  initializeProjectStore,
+  openNameDialog,
+  openProject,
+  openProjectList,
+  projectStore,
+  resetProjectStore,
+  scheduleDocumentSave,
+  scheduleStateSave,
+  setCurrentProject,
+  setIsDirty,
+  setIsSessionOnly,
+  setPendingFile,
+  setSaveStatus,
+  updateProjectContent,
+  updateProjectEditorState,
+} from '../projectStore';
 import { propertiesStore, resetProperties } from '../propertiesStore';
-import { templateStore, resetTemplateStore } from '../templateStore';
+import { resetTemplateStore, templateStore } from '../templateStore';
 
 function createTestProject(overrides: Partial<Project> = {}): Project {
   const now = new Date().toISOString();
@@ -190,15 +189,23 @@ describe('projectStore', () => {
   });
 
   describe('pending file', () => {
-    test('setPendingFile stores file', () => {
-      const file = new File(['content'], 'test.uidesc', { type: 'application/json' });
-      setPendingFile(file);
-      expect(projectStore.pendingFile).toBe(file);
+    test('setPendingFile stores file info', () => {
+      const fileInfo = {
+        content: '{"vstgui-ui-description": {}}',
+        format: 'json' as const,
+        filename: 'test.uidesc',
+      };
+      setPendingFile(fileInfo);
+      expect(projectStore.pendingFile).toEqual(fileInfo);
     });
 
-    test('clearPendingFile removes file', () => {
-      const file = new File(['content'], 'test.uidesc');
-      setPendingFile(file);
+    test('clearPendingFile removes file info', () => {
+      const fileInfo = {
+        content: '{}',
+        format: 'json' as const,
+        filename: 'test.uidesc',
+      };
+      setPendingFile(fileInfo);
       clearPendingFile();
       expect(projectStore.pendingFile).toBeNull();
     });

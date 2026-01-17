@@ -69,7 +69,7 @@ export function serializeProjectSettings(settings: ProjectSettings): ProjectSett
     smartGuides: { ...settings.smartGuides },
     customGuides: {
       snapEnabledByDefault: settings.customGuides.snapEnabledByDefault,
-      guides: settings.customGuides.guides.map((guide) => ({ ...guide })),
+      guides: settings.customGuides.guides.map(guide => ({ ...guide })),
     },
     theme: { ...settings.theme },
     autoSave: { ...settings.autoSave },
@@ -98,7 +98,7 @@ export function deserializeProjectSettings(data: ProjectSettings): ProjectSettin
     },
     customGuides: {
       snapEnabledByDefault: data.customGuides.snapEnabledByDefault,
-      guides: data.customGuides.guides.map((guide) => ({
+      guides: data.customGuides.guides.map(guide => ({
         id: guide.id,
         orientation: guide.orientation,
         position: guide.position,

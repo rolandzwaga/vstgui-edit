@@ -4,54 +4,51 @@
  * Business logic and types for project storage feature.
  */
 
+// Serialization
+export {
+  deserializeEditorState,
+  deserializeProjectSettings,
+  serializeEditorState,
+  serializeProjectSettings,
+} from './serialization';
 // Types
 export type {
-  Project,
+  AutoSaveSettings,
   Bitmap,
-  UidescFormat,
+  CustomGuidesSettings,
   EditorState,
-  Point,
-  ProjectSettings,
+  ExportFormat,
+  ExportResult,
   GridSettings,
   GridSizePreset,
   GridStyle,
-  SnapSettings,
-  SmartGuidesSettings,
-  CustomGuidesSettings,
   Guide,
-  ThemeSettings,
-  ThemeMode,
-  AutoSaveSettings,
-  ProjectStoreState,
-  SaveStatus,
   NameDialogMode,
   NameValidationResult,
+  Point,
+  Project,
+  ProjectSettings,
+  ProjectStoreState,
+  SaveStatus,
+  SmartGuidesSettings,
+  SnapSettings,
   StorageQuota,
-  ExportFormat,
-  ExportResult,
+  ThemeMode,
+  ThemeSettings,
+  UidescFormat,
 } from './types';
-
 // Constants and defaults
 export {
-  DEFAULT_EDITOR_STATE,
-  DEFAULT_PROJECT_SETTINGS,
   DB_NAME,
   DB_VERSION,
-  STORES,
-  INDEXES,
   DEBOUNCE,
-  THUMBNAIL,
+  DEFAULT_EDITOR_STATE,
+  DEFAULT_PROJECT_SETTINGS,
+  INDEXES,
   LIMITS as PROJECT_LIMITS,
   PROJECT_NAME_REGEX,
+  STORES,
+  THUMBNAIL,
 } from './types';
-
 // Validation
-export { validateProjectName, sanitizeProjectName, LIMITS } from './validation';
-
-// Serialization
-export {
-  serializeEditorState,
-  deserializeEditorState,
-  serializeProjectSettings,
-  deserializeProjectSettings,
-} from './serialization';
+export { LIMITS, sanitizeProjectName, validateProjectName } from './validation';

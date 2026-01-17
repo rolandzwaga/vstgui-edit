@@ -4,25 +4,22 @@
  * Database and CRUD services for project storage.
  */
 
-// Database
-export {
-  openDatabase,
-  closeDatabase,
-  getStore,
-  promisifyRequest,
-  getDatabaseInstance,
-} from './database';
-
-// Project service
-export { projectService } from './projectService';
-
 // Bitmap service
 export { bitmapService } from './bitmapService';
-
+// Database
+export {
+  closeDatabase,
+  getDatabaseInstance,
+  getStore,
+  openDatabase,
+  promisifyRequest,
+} from './database';
+// Project service
+export { projectService } from './projectService';
+export type { QuotaWarningResult } from './storageQuota';
 // Storage quota
 export {
-  estimateStorageQuota,
   checkQuotaWarning,
+  estimateStorageQuota,
   QUOTA_WARNING_THRESHOLD,
 } from './storageQuota';
-export type { QuotaWarningResult } from './storageQuota';

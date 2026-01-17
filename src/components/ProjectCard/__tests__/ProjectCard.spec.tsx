@@ -22,12 +22,12 @@ function createTestProject(overrides: Partial<Project> = {}): Project {
 }
 
 describe('ProjectCard', () => {
-  let onClick: ReturnType<typeof vi.fn>;
-  let onDelete: ReturnType<typeof vi.fn>;
+  let onClick: (id: string) => void;
+  let onDelete: (id: string) => void;
 
   beforeEach(() => {
-    onClick = vi.fn();
-    onDelete = vi.fn();
+    onClick = vi.fn() as (id: string) => void;
+    onDelete = vi.fn() as (id: string) => void;
   });
 
   afterEach(() => {

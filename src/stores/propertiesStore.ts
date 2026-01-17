@@ -69,7 +69,8 @@ export function resetProperties(): void {
 export function restorePropertiesState(groupIds: string[]): void {
   // Filter to only valid group IDs and exclude 'identity'
   const validGroupIds = groupIds.filter(
-    (id): id is AttributeGroupId => ALL_GROUP_IDS.includes(id as AttributeGroupId) && id !== 'identity'
+    (id): id is AttributeGroupId =>
+      ALL_GROUP_IDS.includes(id as AttributeGroupId) && id !== 'identity'
   );
   setExpandedGroups(new Set(validGroupIds));
 }

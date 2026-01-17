@@ -15,7 +15,7 @@
 
 .card:hover {
   border-color: var(--color-primary-400);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .card:focus-visible {
@@ -148,5 +148,5 @@
 
 [data-theme='dark'] .deleteButton:hover {
   color: var(--color-error-400);
-  background: rgba(220, 38, 38, 0.15);
+  background: rgb(220 38 38 / 15%);
 }

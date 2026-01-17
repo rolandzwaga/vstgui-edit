@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { validateProjectName, sanitizeProjectName, LIMITS } from '../validation';
+import { LIMITS, sanitizeProjectName, validateProjectName } from '../validation';
 
 describe('validateProjectName', () => {
   test('accepts valid alphanumeric name', () => {

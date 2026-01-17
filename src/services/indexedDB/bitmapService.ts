@@ -5,7 +5,7 @@
  */
 
 import type { Bitmap } from '../../domain/project/types';
-import { STORES, INDEXES } from '../../domain/project/types';
+import { INDEXES, STORES } from '../../domain/project/types';
 import { getStore, promisifyRequest } from './database';
 
 // ============================================================================
