@@ -7,12 +7,12 @@ import {
   createEditBitmapNameOperation,
   createEditBitmapPropertyOperation,
   createBitmapTypeChangeOperation,
-  BITMAP_TYPE_PROPERTIES,
   getPropertiesToClearForTypeChange,
 } from '../../domain/bitmaps/historyOperations';
 import { validateBitmapName } from '../../domain/bitmaps/validation';
 import { truncateBitmapName, formatBitmapForDisplay } from '../../domain/bitmaps/formatting';
 import { normalizeBitmap } from '../../domain/bitmaps/thumbnail';
+import { bitmapService } from '../../services/indexedDB/bitmapService';
 import { BitmapThumbnail } from './BitmapThumbnail';
 import { NinepartEditor } from '../editors/NinepartEditor';
 import { MultiframeEditor } from '../editors/MultiframeEditor';
@@ -197,7 +197,7 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
   };
 
   // Handle bitmap type change
-  const handleTypeChange = (newType: BitmapType) => {
+  const handleTypeChange = async (newType: BitmapType) => {
     const currentType = bitmapType();
     if (currentType === newType) return;
 
@@ -240,6 +240,35 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
       setFrameSizeOriginal('');
       setFramesPerRowInput('');
       setFramesPerRowOriginal('');
+    }
+
+    // Auto-calculate multiframe values when switching to multiframe type
+    if (newType === 'multiframe' && props.projectId) {
+      try {
+        const storedBitmaps = await bitmapService.getByProject(props.projectId);
+        const storedBitmap = storedBitmaps.find((b) => b.name === props.name);
+        if (storedBitmap && storedBitmap.width > 0) {
+          // Assume square frames based on bitmap width
+          const frameWidth = storedBitmap.width;
+          const frameHeight = frameWidth;
+          const numFrames = Math.floor(storedBitmap.height / frameHeight);
+
+          if (numFrames > 0) {
+            const frameSizeValue = `${frameWidth}, ${frameHeight}`;
+            const numFramesValue = String(numFrames);
+
+            // Update local state
+            setFrameSizeInput(frameSizeValue);
+            setNumFramesInput(numFramesValue);
+
+            // Apply to document
+            updateBitmapProperty(props.name, 'multiframe-size', frameSizeValue);
+            updateBitmapProperty(props.name, 'multiframe-num-frames', numFramesValue);
+          }
+        }
+      } catch {
+        // IndexedDB lookup failed, leave fields empty for manual entry
+      }
     }
   };
 

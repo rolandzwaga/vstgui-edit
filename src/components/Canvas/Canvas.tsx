@@ -7,6 +7,7 @@ import {
   useCanvasKeyboard,
   useCanvasInteractions,
   useGuideDrag,
+  useKnobPreview,
 } from '../../hooks/canvas';
 import { mouseToCanvas } from '../../domain/canvas/mouseToCanvas';
 import {
@@ -60,8 +61,46 @@ export const Canvas: Component = () => {
   const { handlePanMouseDown } = useCanvasPan();
   const { handleWheel } = useCanvasZoom();
 
-  const { wrapperRef, handleSvgMouseDown, handleResizeStart, handleContextMenu, cancelCallbacks } =
+  const { wrapperRef, handleSvgMouseDown: originalSvgMouseDown, handleResizeStart, handleContextMenu, cancelCallbacks } =
     useCanvasInteractions({ renderableViews, visibleViews });
+
+  // Initialize knob preview handling
+  const { shouldHaveKnobPreview, startPreviewAsync } = useKnobPreview({
+    findView: (viewId) => renderableViews().find((v) => v.id === viewId),
+  });
+
+  /**
+   * Helper to get view ID from event target.
+   */
+  const getViewIdFromTarget = (target: EventTarget | null): string | null => {
+    let element = target as Element | null;
+    while (element && element !== document.documentElement) {
+      const viewId = element.getAttribute?.('data-view-id');
+      if (viewId) return viewId;
+      element = element.parentElement;
+    }
+    return null;
+  };
+
+  /**
+   * Wrapped mouse down handler that checks for knob preview first.
+   */
+  const handleSvgMouseDown = (e: MouseEvent) => {
+    // Only intercept left clicks
+    if (e.button === 0) {
+      const viewId = getViewIdFromTarget(e.target);
+      // Check synchronously if this view should have knob preview
+      if (viewId && shouldHaveKnobPreview(viewId)) {
+        // Start async bitmap loading in background
+        startPreviewAsync(e, viewId);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+    }
+    // Fall through to normal selection/drag handling
+    originalSvgMouseDown(e);
+  };
 
   const { handleKeyDown } = useCanvasKeyboard({
     renderableViews,

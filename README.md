@@ -13,6 +13,14 @@ A visual editor for VSTGUI `.uidesc` files. These files define the UI layout for
 - Save/export to JSON or XML
 - Create new uidesc files from scratch
 
+### Projects
+- Persistent project storage using IndexedDB
+- Upload and store bitmaps referenced in your uidesc files
+- Standard, 9-Part, and Multi-Frame bitmap type support
+- Auto-detection of multi-frame dimensions for filmstrip bitmaps
+- Project thumbnails and management (rename, duplicate, delete)
+- Automatic save with dirty state tracking
+
 ### Canvas
 - Zoomable, pannable workspace (mouse wheel, middle-drag, Space+drag)
 - Configurable grid overlay with snap-to-grid
@@ -21,6 +29,7 @@ A visual editor for VSTGUI `.uidesc` files. These files define the UI layout for
 - Rulers with cursor position indicator
 - Template bounds visualization
 - Styled view mode (P): preview colors and frames from uidesc properties
+- Interactive CAnimKnob filmstrip preview: click and drag to scrub through animation frames
 
 ### View Editing
 - Click and marquee selection (Shift for multi-select)
