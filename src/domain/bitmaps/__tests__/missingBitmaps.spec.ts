@@ -17,12 +17,14 @@ import {
 } from '../missingBitmaps';
 
 // Helper to create minimal stored bitmap for testing
+// Note: We use a mock blob object instead of real Blob to avoid vitest worker crashes
+// with fake-indexeddb. The findMissingBitmaps functions only use the 'name' property.
 function createStoredBitmap(name: string): Bitmap {
   return {
     id: `bitmap-${name}`,
     projectId: 'project-1',
     name,
-    blob: new Blob(['test'], { type: 'image/png' }),
+    blob: {} as Blob, // Mock blob - real Blob causes vitest worker crashes
     mimeType: 'image/png',
     width: 100,
     height: 100,
@@ -161,8 +163,12 @@ describe('missingBitmaps', () => {
   });
 
   describe('matchUploadedFiles', () => {
+    // Note: We use mock File objects to avoid vitest worker crashes with Blob/File
+    // The matchUploadedFiles function only uses file.name for matching
+    const createMockFile = (name: string): File => ({ name } as File);
+
     test('returns empty map when no files match', () => {
-      const files = [new File([''], 'slider.png')];
+      const files = [createMockFile('slider.png')];
       const missingBitmaps: MissingBitmapInfo[] = [{ name: 'knob', path: 'resources/knob.png' }];
 
       const matches = matchUploadedFiles(files, missingBitmaps);
@@ -170,8 +176,8 @@ describe('missingBitmaps', () => {
     });
 
     test('matches multiple files to bitmap names', () => {
-      const knobFile = new File(['knob'], 'knob.png');
-      const buttonFile = new File(['button'], 'button.png');
+      const knobFile = createMockFile('knob.png');
+      const buttonFile = createMockFile('button.png');
       const files = [knobFile, buttonFile];
       const missingBitmaps: MissingBitmapInfo[] = [
         { name: 'myKnob', path: 'resources/knob.png' },
@@ -184,8 +190,8 @@ describe('missingBitmaps', () => {
     });
 
     test('prevents duplicate matches for same path filename', () => {
-      const file1 = new File(['1'], 'knob.png');
-      const file2 = new File(['2'], 'knob.png');
+      const file1 = createMockFile('knob.png');
+      const file2 = createMockFile('knob.png');
       const files = [file1, file2];
       const missingBitmaps: MissingBitmapInfo[] = [{ name: 'knob', path: 'resources/knob.png' }];
 

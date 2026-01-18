@@ -6,19 +6,14 @@
 
 import type { BitmapDefinition, VSTGUIUIDescription } from '../../types/uidesc';
 import type { Bitmap } from '../project/types';
+import {
+  detectDuplicateKeysInJsonBitmaps,
+  type DuplicateBitmapInfo,
+} from './duplicateDetection';
 import { getFilenameFromPath } from './pathUtils';
 
-/**
- * Information about a duplicate bitmap name.
- */
-export interface DuplicateBitmapInfo {
-  /** The duplicate bitmap name */
-  name: string;
-  /** Number of times this name appears */
-  count: number;
-  /** The paths associated with each occurrence (if available) */
-  paths: string[];
-}
+// Re-export for backwards compatibility
+export type { DuplicateBitmapInfo } from './duplicateDetection';
 
 /**
  * Information about a missing bitmap.
@@ -255,79 +250,16 @@ export function detectDuplicateBitmapsInXml(content: string): DuplicateBitmapInf
 
 /**
  * Detects duplicate bitmap names in JSON content.
- * Scans for duplicate keys in the bitmaps section.
+ * Uses proper JSON tokenization to find duplicate keys in the bitmaps section.
  *
- * Note: This is a heuristic approach since JSON parsers discard duplicate keys.
- * We scan the raw content for the bitmaps object and count key occurrences.
+ * Note: JSON.parse() silently discards duplicate keys, keeping only the last value.
+ * This function tokenizes the raw JSON to detect duplicates before they're lost.
  *
  * @param content - Raw JSON content
  * @returns Array of duplicate bitmap info (only names that appear more than once)
  */
 export function detectDuplicateBitmapsInJson(content: string): DuplicateBitmapInfo[] {
-  const duplicates: DuplicateBitmapInfo[] = [];
-  const nameCountMap = new Map<string, { count: number; paths: string[] }>();
-
-  // Find the bitmaps section in the JSON
-  // This is a simplified approach that works for typical uidesc structure
-  const bitmapsMatch = content.match(/"bitmaps"\s*:\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/);
-  if (!bitmapsMatch) {
-    return duplicates;
-  }
-
-  const bitmapsContent = bitmapsMatch[1];
-
-  // Match all bitmap keys (quoted strings followed by colon)
-  // Handle both simple string values and object values
-  const keyPattern = /"([^"]+)"\s*:/g;
-  let match: RegExpExecArray | null = keyPattern.exec(bitmapsContent);
-
-  while (match !== null) {
-    const name = match[1];
-
-    // Skip common object properties that aren't bitmap names
-    if (name === 'path' || name === 'nineparttiledoffsets') {
-      continue;
-    }
-
-    // Try to extract path value after this key
-    const afterKey = bitmapsContent.slice(match.index + match[0].length);
-    let path = '';
-
-    // Check if value is a simple string (path)
-    const simplePathMatch = afterKey.match(/^\s*"([^"]+)"/);
-    if (simplePathMatch) {
-      path = simplePathMatch[1];
-    } else {
-      // Check if value is an object with path property
-      const objPathMatch = afterKey.match(/^\s*\{\s*"path"\s*:\s*"([^"]+)"/);
-      if (objPathMatch) {
-        path = objPathMatch[1];
-      }
-    }
-
-    const existing = nameCountMap.get(name);
-    if (existing) {
-      existing.count++;
-      if (path) existing.paths.push(path);
-    } else {
-      nameCountMap.set(name, { count: 1, paths: path ? [path] : [] });
-    }
-
-    match = keyPattern.exec(bitmapsContent);
-  }
-
-  // Return only duplicates (count > 1)
-  for (const [name, info] of nameCountMap) {
-    if (info.count > 1) {
-      duplicates.push({
-        name,
-        count: info.count,
-        paths: info.paths,
-      });
-    }
-  }
-
-  return duplicates;
+  return detectDuplicateKeysInJsonBitmaps(content);
 }
 
 /**
