@@ -93,11 +93,17 @@ export const KnobDesignerModal: Component = () => {
 
   return (
     <Show when={knobDesignerStore.isOpen}>
-      <div class={styles.overlay} onClick={() => closeKnobDesigner()}>
+      <div
+        class={styles.overlay}
+        onClick={() => closeKnobDesigner()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="knob-designer-title"
+      >
         <div class={styles.modal} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div class={styles.header}>
-            <h2 class={styles.title}>
+            <h2 id="knob-designer-title" class={styles.title}>
               Design Knob: {knobDesignerStore.targetBitmapName}
             </h2>
             <div class={styles.headerActions}>
@@ -128,9 +134,13 @@ export const KnobDesignerModal: Component = () => {
             {/* Control Section */}
             <div class={styles.controlSection}>
               {/* Tab Bar */}
-              <div class={styles.tabBar}>
+              <div class={styles.tabBar} role="tablist" aria-label="Knob design settings">
                 <button
                   type="button"
+                  id="tab-layers"
+                  role="tab"
+                  aria-selected={activeTab() === 'layers'}
+                  aria-controls="panel-layers"
                   class={`${styles.tab} ${activeTab() === 'layers' ? styles.tabActive : ''}`}
                   onClick={() => setActiveTab('layers')}
                 >
@@ -138,6 +148,10 @@ export const KnobDesignerModal: Component = () => {
                 </button>
                 <button
                   type="button"
+                  id="tab-indicator"
+                  role="tab"
+                  aria-selected={activeTab() === 'indicator'}
+                  aria-controls="panel-indicator"
                   class={`${styles.tab} ${activeTab() === 'indicator' ? styles.tabActive : ''}`}
                   onClick={() => setActiveTab('indicator')}
                 >
@@ -145,6 +159,10 @@ export const KnobDesignerModal: Component = () => {
                 </button>
                 <button
                   type="button"
+                  id="tab-lighting"
+                  role="tab"
+                  aria-selected={activeTab() === 'lighting'}
+                  aria-controls="panel-lighting"
                   class={`${styles.tab} ${activeTab() === 'lighting' ? styles.tabActive : ''}`}
                   onClick={() => setActiveTab('lighting')}
                 >
@@ -152,6 +170,10 @@ export const KnobDesignerModal: Component = () => {
                 </button>
                 <button
                   type="button"
+                  id="tab-output"
+                  role="tab"
+                  aria-selected={activeTab() === 'output'}
+                  aria-controls="panel-output"
                   class={`${styles.tab} ${activeTab() === 'output' ? styles.tabActive : ''}`}
                   onClick={() => setActiveTab('output')}
                 >
@@ -162,7 +184,7 @@ export const KnobDesignerModal: Component = () => {
               {/* Tab Content */}
               <div class={styles.tabContent}>
                 <Show when={activeTab() === 'layers'}>
-                  <div class={styles.layersTab}>
+                  <div id="panel-layers" role="tabpanel" aria-labelledby="tab-layers" class={styles.layersTab}>
                     <LayerPanel
                       selectedLayerId={selectedLayerId()}
                       onSelectLayer={setSelectedLayerId}
@@ -174,15 +196,21 @@ export const KnobDesignerModal: Component = () => {
                 </Show>
 
                 <Show when={activeTab() === 'indicator'}>
-                  <IndicatorPanel />
+                  <div id="panel-indicator" role="tabpanel" aria-labelledby="tab-indicator">
+                    <IndicatorPanel />
+                  </div>
                 </Show>
 
                 <Show when={activeTab() === 'lighting'}>
-                  <LightingPanel />
+                  <div id="panel-lighting" role="tabpanel" aria-labelledby="tab-lighting">
+                    <LightingPanel />
+                  </div>
                 </Show>
 
                 <Show when={activeTab() === 'output'}>
-                  <OutputPanel />
+                  <div id="panel-output" role="tabpanel" aria-labelledby="tab-output">
+                    <OutputPanel />
+                  </div>
                 </Show>
               </div>
             </div>
