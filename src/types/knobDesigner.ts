@@ -20,6 +20,16 @@ export type MaterialType = 'solid' | 'metallic' | 'matte' | 'brushed';
 export type BrushDirection = 'radial' | 'linear';
 
 /**
+ * Camera view angle options for the 3D preview.
+ */
+export type CameraView = 'top' | 'side';
+
+/**
+ * Filmstrip layout options for output.
+ */
+export type FilmstripLayout = 'grid' | 'vertical' | 'horizontal';
+
+/**
  * Skirt style options for layer edges.
  */
 export type SkirtStyle = 'cylindrical' | 'tapered' | 'angled';
@@ -187,6 +197,9 @@ export interface OutputConfig {
 
   /** End angle in degrees (default 315, 5 o'clock position) */
   endAngle: number;
+
+  /** Filmstrip layout (default 'vertical') */
+  layout: FilmstripLayout;
 }
 
 // ============================================================================
@@ -215,6 +228,9 @@ export interface KnobDesign {
 
   /** Filmstrip output configuration */
   output: OutputConfig;
+
+  /** Camera view angle for preview (default: 'top') */
+  cameraView: CameraView;
 }
 
 // ============================================================================

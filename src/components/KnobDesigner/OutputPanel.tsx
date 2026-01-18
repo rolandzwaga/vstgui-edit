@@ -136,6 +136,55 @@ export const OutputPanel: Component = () => {
         </div>
       </div>
 
+      {/* Filmstrip Layout */}
+      <div class={styles.section}>
+        <h4 class={styles.sectionTitle}>Filmstrip Layout</h4>
+        <div class={styles.layoutButtons}>
+          <button
+            type="button"
+            class={`${styles.layoutButton} ${output().layout === 'vertical' ? styles.layoutButtonActive : ''}`}
+            onClick={() => updateOutput({ layout: 'vertical' })}
+            title="Single column, all frames stacked vertically"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="8" y="2" width="8" height="4" rx="1" />
+              <rect x="8" y="8" width="8" height="4" rx="1" />
+              <rect x="8" y="14" width="8" height="4" rx="1" />
+              <rect x="8" y="20" width="8" height="2" rx="1" />
+            </svg>
+            Vertical
+          </button>
+          <button
+            type="button"
+            class={`${styles.layoutButton} ${output().layout === 'horizontal' ? styles.layoutButtonActive : ''}`}
+            onClick={() => updateOutput({ layout: 'horizontal' })}
+            title="Single row, all frames side by side"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="8" width="4" height="8" rx="1" />
+              <rect x="8" y="8" width="4" height="8" rx="1" />
+              <rect x="14" y="8" width="4" height="8" rx="1" />
+              <rect x="20" y="8" width="2" height="8" rx="1" />
+            </svg>
+            Horizontal
+          </button>
+          <button
+            type="button"
+            class={`${styles.layoutButton} ${output().layout === 'grid' ? styles.layoutButtonActive : ''}`}
+            onClick={() => updateOutput({ layout: 'grid' })}
+            title="Grid layout with optimal distribution"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            Grid
+          </button>
+        </div>
+      </div>
+
       {/* Rotation Range */}
       <div class={styles.section}>
         <h4 class={styles.sectionTitle}>Rotation Range</h4>

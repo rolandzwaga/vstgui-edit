@@ -396,8 +396,8 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
 /** IndexedDB database name */
 export const DB_NAME = 'vstgui-edit-projects';
 
-/** IndexedDB database version */
-export const DB_VERSION = 2;
+/** IndexedDB database version - increment when schema changes */
+export const DB_VERSION = 3;
 
 /** Object store names */
 export const STORES = {

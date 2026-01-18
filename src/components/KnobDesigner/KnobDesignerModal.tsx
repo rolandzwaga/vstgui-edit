@@ -14,6 +14,7 @@ import {
   cancelGeneration,
   undo,
   redo,
+  setCameraView,
 } from '../../stores/knobDesignerStore';
 import { KnobPreview } from './KnobPreview';
 import { LayerPanel } from './LayerPanel';
@@ -129,6 +130,33 @@ export const KnobDesignerModal: Component = () => {
                 design={knobDesignerStore.design}
                 onError={(msg) => console.error('WebGL Error:', msg)}
               />
+              {/* Camera View Toggle */}
+              <div class={styles.viewToggle} role="group" aria-label="Camera view">
+                <button
+                  type="button"
+                  class={`${styles.viewToggleButton} ${knobDesignerStore.design.cameraView === 'top' ? styles.viewToggleActive : ''}`}
+                  onClick={() => setCameraView('top')}
+                  title="Top view (looking down at knob)"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2" fill="none" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  Top
+                </button>
+                <button
+                  type="button"
+                  class={`${styles.viewToggleButton} ${knobDesignerStore.design.cameraView === 'side' ? styles.viewToggleActive : ''}`}
+                  onClick={() => setCameraView('side')}
+                  title="Side view (looking at knob from front)"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <rect x="4" y="8" width="16" height="8" rx="2" stroke="currentColor" stroke-width="2" fill="none" />
+                    <line x1="12" y1="8" x2="12" y2="4" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                  Side
+                </button>
+              </div>
             </div>
 
             {/* Control Section */}

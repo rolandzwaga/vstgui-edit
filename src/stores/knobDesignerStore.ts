@@ -12,6 +12,7 @@ import { bitmapService } from '../services/indexedDB/bitmapService';
 import { presetService } from '../services/indexedDB/presetService';
 import { knobRendererService } from '../services/knobRenderer';
 import type {
+  CameraView,
   GenerationProgress,
   IndicatorMaterial,
   IndicatorSize,
@@ -26,7 +27,7 @@ import type {
   LightingConfig,
   OutputConfig,
 } from '../types/knobDesigner';
-import { updateBitmapProperty } from './documentStore';
+import { getBaseBitmapPath, updateBitmapProperty } from './documentStore';
 
 // ============================================================================
 // Constants
@@ -574,6 +575,39 @@ export function setIndicatorPosition(position: number): void {
 }
 
 // ============================================================================
+// Camera View Operations
+// ============================================================================
+
+/**
+ * Sets the camera view angle.
+ *
+ * @param view - Camera view ('top' or 'side')
+ */
+export function setCameraView(view: CameraView): void {
+  const currentDesign = design();
+  if (currentDesign.cameraView === view) return;
+
+  const oldView = currentDesign.cameraView;
+
+  setDesign({
+    ...currentDesign,
+    cameraView: view,
+  });
+
+  pushHistory({
+    type: 'camera-view',
+    description: `Switch to ${view} view`,
+    undo: () => {
+      setDesign(prev => ({ ...prev, cameraView: oldView }));
+    },
+    redo: () => {
+      setDesign(prev => ({ ...prev, cameraView: view }));
+    },
+    timestamp: Date.now(),
+  });
+}
+
+// ============================================================================
 // Lighting Operations
 // ============================================================================
 
@@ -861,10 +895,30 @@ export async function generateFilmstrip(): Promise<void> {
     const response = await fetch(dataUrl);
     const blob = await response.blob();
 
-    // Calculate filmstrip dimensions
-    const { frameCount, frameWidth, frameHeight } = currentDesign.output;
-    const framesPerRow = Math.ceil(Math.sqrt(frameCount));
-    const rows = Math.ceil(frameCount / framesPerRow);
+    // Calculate filmstrip dimensions based on layout
+    const { frameCount, frameWidth, frameHeight, layout } = currentDesign.output;
+    let framesPerRow: number;
+    let rows: number;
+
+    switch (layout ?? 'vertical') {
+      case 'vertical':
+        framesPerRow = 1;
+        rows = frameCount;
+        break;
+      case 'horizontal':
+        framesPerRow = frameCount;
+        rows = 1;
+        break;
+      default: {
+        // Grid layout
+        const sqrt = Math.sqrt(frameCount);
+        const candidates = [8, 16, 32, 64];
+        framesPerRow = candidates.find(c => c >= sqrt) ?? 64;
+        rows = Math.ceil(frameCount / framesPerRow);
+        break;
+      }
+    }
+
     const totalWidth = frameWidth * framesPerRow;
     const totalHeight = frameHeight * rows;
 
@@ -885,6 +939,15 @@ export async function generateFilmstrip(): Promise<void> {
     const frameSizeValue = `${frameWidth}, ${frameHeight}`;
     updateBitmapProperty(bitmapName, 'multiframe-size', frameSizeValue);
     updateBitmapProperty(bitmapName, 'multiframe-num-frames', String(frameCount));
+
+    // For grid layouts, also set frames-per-row (note: VSTGUI has typo "mulitframe")
+    if ((layout ?? 'vertical') === 'grid') {
+      updateBitmapProperty(bitmapName, 'mulitframe-frames-per-row', String(framesPerRow));
+    }
+
+    // Set the bitmap path using existing bitmaps' base path
+    const basePath = getBaseBitmapPath();
+    updateBitmapProperty(bitmapName, 'path', `${basePath}/${bitmapName}.png`);
 
     // Close modal after successful generation
     closeKnobDesigner();

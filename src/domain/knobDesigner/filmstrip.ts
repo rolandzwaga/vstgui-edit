@@ -11,20 +11,20 @@ import type { OutputConfig } from '../../types/knobDesigner';
 // ============================================================================
 
 /**
- * Calculates optimal frames per row for filmstrip layout.
+ * Calculates optimal frames per row for grid filmstrip layout.
  * Prefers power of 2 values for better memory alignment.
  *
  * @param frameCount - Total number of frames
  * @returns Optimal frames per row
  */
-export function calculateFramesPerRow(frameCount: number): number {
+export function calculateFramesPerRowForGrid(frameCount: number): number {
   const sqrt = Math.sqrt(frameCount);
   const candidates = [8, 16, 32, 64];
   return candidates.find(c => c >= sqrt) ?? 64;
 }
 
 /**
- * Calculates total filmstrip dimensions.
+ * Calculates total filmstrip dimensions based on layout type.
  *
  * @param output - Output configuration
  * @returns Object with total width, height, and layout info
@@ -35,8 +35,27 @@ export function calculateFilmstripDimensions(output: OutputConfig): {
   framesPerRow: number;
   rows: number;
 } {
-  const framesPerRow = calculateFramesPerRow(output.frameCount);
-  const rows = Math.ceil(output.frameCount / framesPerRow);
+  const layout = output.layout ?? 'vertical';
+  let framesPerRow: number;
+  let rows: number;
+
+  switch (layout) {
+    case 'vertical':
+      // Single column, all frames stacked vertically
+      framesPerRow = 1;
+      rows = output.frameCount;
+      break;
+    case 'horizontal':
+      // Single row, all frames side by side
+      framesPerRow = output.frameCount;
+      rows = 1;
+      break;
+    default:
+      // Grid layout (default) with optimal distribution
+      framesPerRow = calculateFramesPerRowForGrid(output.frameCount);
+      rows = Math.ceil(output.frameCount / framesPerRow);
+      break;
+  }
 
   return {
     totalWidth: output.frameWidth * framesPerRow,
@@ -207,6 +226,7 @@ export function validateFilmstripSize(output: OutputConfig): {
 /**
  * Estimates the final PNG file size based on filmstrip dimensions.
  * This is a rough estimate - actual size depends on image content.
+ * Uses UPNG.js compression which achieves better ratios than canvas.toDataURL.
  *
  * @param output - Output configuration
  * @returns Estimated file size in bytes
@@ -214,12 +234,13 @@ export function validateFilmstripSize(output: OutputConfig): {
 export function estimateFilmstripSize(output: OutputConfig): number {
   const { totalWidth, totalHeight } = calculateFilmstripDimensions(output);
 
-  // PNG compression is highly variable, but for rendered 3D content
-  // expect roughly 2-4 bytes per pixel after compression
-  // Use 3 bytes per pixel as a middle estimate
-  const bytesPerPixel = 3;
+  // With UPNG.js compression at level 0 (best compression),
+  // rendered 3D knob images with gradients and smooth surfaces
+  // typically compress to around 0.5-1.2 bytes per pixel.
+  // Use 0.8 bytes per pixel as a conservative middle estimate.
+  const bytesPerPixel = 0.8;
 
-  return totalWidth * totalHeight * bytesPerPixel;
+  return Math.round(totalWidth * totalHeight * bytesPerPixel);
 }
 
 /**

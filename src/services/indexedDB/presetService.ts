@@ -165,9 +165,13 @@ export const presetService = {
    * Called on database initialization.
    */
   async seedBuiltInPresets(): Promise<void> {
-    const existing = await this.getBuiltIn();
+    // Check if any presets exist (don't rely on index which may not exist yet)
+    const store = getStore(STORES.PRESETS, 'readonly');
+    const existing = await promisifyRequest(store.getAll());
+
     // If any built-in presets exist, skip seeding
-    if (existing.length > 0) {
+    const hasBuiltIn = existing.some((p: KnobPreset) => p.isBuiltIn);
+    if (hasBuiltIn) {
       return;
     }
 
@@ -179,8 +183,8 @@ export const presetService = {
         createdAt: now,
         updatedAt: now,
       };
-      const store = getStore(STORES.PRESETS, 'readwrite');
-      await promisifyRequest(store.put(preset));
+      const writeStore = getStore(STORES.PRESETS, 'readwrite');
+      await promisifyRequest(writeStore.put(preset));
     }
   },
 };

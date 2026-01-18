@@ -2279,7 +2279,6 @@ export interface UploadBitmapOptions {
 /**
  * Derives the base path (directory) for new bitmaps from existing bitmaps in the document.
  * Returns the directory from the first bitmap that has a path, or 'bitmaps' as fallback.
- * This is a local copy to avoid cross-module import issues.
  */
 function deriveBasePathFromDocument(doc: VSTGUIUIDescription | null): string {
   if (!doc) return 'bitmaps';
@@ -2304,6 +2303,16 @@ function deriveBasePathFromDocument(doc: VSTGUIUIDescription | null): string {
 
   // Fallback to 'bitmaps' if no bitmap has a directory
   return 'bitmaps';
+}
+
+/**
+ * Gets the base path (directory) for bitmaps in the current document.
+ * Returns the directory from the first existing bitmap, or 'bitmaps' as fallback.
+ *
+ * @returns Base path for bitmap files (e.g., 'bitmaps' or 'images/knobs')
+ */
+export function getBaseBitmapPath(): string {
+  return deriveBasePathFromDocument(store.document);
 }
 
 /**

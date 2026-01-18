@@ -20,9 +20,10 @@ let dbInstance: IDBDatabase | null = null;
 /**
  * Opens the IndexedDB database, creating it if necessary.
  *
- * On version upgrade, creates object stores and indexes:
- * - projects: keyPath 'id'
- * - bitmaps: keyPath 'id', index on 'projectId'
+ * Database schema versions:
+ * - v1: projects, bitmaps stores
+ * - v2: (intermediate - may or may not have presets)
+ * - v3: projects, bitmaps, presets stores (guaranteed)
  *
  * @returns Promise resolving to the database instance
  */
@@ -38,23 +39,27 @@ export function openDatabase(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = event => {
       const db = (event.target as IDBOpenDBRequest).result;
+      const oldVersion = event.oldVersion;
 
-      // Create projects store
-      if (!db.objectStoreNames.contains(STORES.PROJECTS)) {
+      // Migration from v0 (fresh install) or v1
+      if (oldVersion < 1) {
+        // Create projects store
         db.createObjectStore(STORES.PROJECTS, { keyPath: 'id' });
-      }
-
-      // Create bitmaps store with projectId index
-      if (!db.objectStoreNames.contains(STORES.BITMAPS)) {
+        // Create bitmaps store with projectId index
         const bitmapStore = db.createObjectStore(STORES.BITMAPS, { keyPath: 'id' });
         bitmapStore.createIndex(INDEXES.BITMAPS_BY_PROJECT, 'projectId', { unique: false });
       }
 
-      // Create presets store with name and isBuiltIn indexes (added in v2)
-      if (!db.objectStoreNames.contains(STORES.PRESETS)) {
-        const presetStore = db.createObjectStore(STORES.PRESETS, { keyPath: 'id' });
-        presetStore.createIndex(INDEXES.PRESETS_BY_NAME, 'name', { unique: true });
-        presetStore.createIndex(INDEXES.PRESETS_BY_BUILTIN, 'isBuiltIn', { unique: false });
+      // Migration to v3: ensure presets store exists
+      // This handles both:
+      // - Users upgrading from v1 (never had presets)
+      // - Users upgrading from v2 (may or may not have presets)
+      if (oldVersion < 3) {
+        if (!db.objectStoreNames.contains(STORES.PRESETS)) {
+          const presetStore = db.createObjectStore(STORES.PRESETS, { keyPath: 'id' });
+          presetStore.createIndex(INDEXES.PRESETS_BY_NAME, 'name', { unique: true });
+          presetStore.createIndex(INDEXES.PRESETS_BY_BUILTIN, 'isBuiltIn', { unique: false });
+        }
       }
     };
 

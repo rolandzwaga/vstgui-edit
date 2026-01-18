@@ -63,7 +63,9 @@ export const DEFAULT_KNOB_DESIGN: KnobDesign = {
     sweepAngle: 270,
     startAngle: 225,
     endAngle: 315,
+    layout: 'vertical',
   },
+  cameraView: 'top',
 };
 
 // ============================================================================
@@ -127,7 +129,9 @@ const CLASSIC_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
       sweepAngle: 270,
       startAngle: 225,
       endAngle: 315,
+      layout: 'vertical',
     },
+    cameraView: 'top',
   },
 };
 
@@ -188,7 +192,9 @@ const MODERN_FLAT_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
       sweepAngle: 270,
       startAngle: 225,
       endAngle: 315,
+      layout: 'vertical',
     },
+    cameraView: 'top',
   },
 };
 
@@ -267,7 +273,9 @@ const VINTAGE_AMP_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
       sweepAngle: 270,
       startAngle: 225,
       endAngle: 315,
+      layout: 'vertical',
     },
+    cameraView: 'top',
   },
 };
 
@@ -346,7 +354,9 @@ const TECH_INDUSTRIAL_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'>
       sweepAngle: 270,
       startAngle: 225,
       endAngle: 315,
+      layout: 'vertical',
     },
+    cameraView: 'top',
   },
 };
 
@@ -407,7 +417,9 @@ const MINIMALIST_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
       sweepAngle: 270,
       startAngle: 225,
       endAngle: 315,
+      layout: 'vertical',
     },
+    cameraView: 'top',
   },
 };
 
@@ -456,6 +468,7 @@ export function createDefaultDesign(): KnobDesign {
       : null,
     lighting: { ...DEFAULT_KNOB_DESIGN.lighting },
     output: { ...DEFAULT_KNOB_DESIGN.output },
+    cameraView: DEFAULT_KNOB_DESIGN.cameraView,
   };
 }
 
@@ -484,6 +497,10 @@ export function copyDesign(design: KnobDesign, newId?: string): KnobDesign {
         }
       : null,
     lighting: { ...design.lighting },
-    output: { ...design.output },
+    output: {
+      ...design.output,
+      layout: design.output.layout ?? 'vertical',
+    },
+    cameraView: design.cameraView ?? 'top',
   };
 }

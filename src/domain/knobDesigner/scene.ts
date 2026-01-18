@@ -13,6 +13,7 @@ import {
   Spherical,
   Vector3,
 } from 'three';
+import type { CameraView } from '../../types/knobDesigner';
 
 // ============================================================================
 // Constants
@@ -54,12 +55,14 @@ export function createScene(): Scene {
  * @param width - Viewport width in pixels
  * @param height - Viewport height in pixels
  * @param frustumSize - Size of the view frustum (defaults to 100)
+ * @param view - Camera view angle ('top' or 'side', defaults to 'top')
  * @returns Configured orthographic camera
  */
 export function createCamera(
   width: number,
   height: number,
-  frustumSize: number = 100
+  frustumSize: number = 100,
+  view: CameraView = 'top'
 ): OrthographicCamera {
   const aspect = width / height;
   const halfHeight = frustumSize / 2;
@@ -74,11 +77,30 @@ export function createCamera(
     1000 // far
   );
 
-  // Position camera looking down Z-axis at scene center
-  camera.position.set(0, 0, 100);
-  camera.lookAt(0, 0, 0);
+  // Position camera based on view angle
+  setCameraView(camera, view);
 
   return camera;
+}
+
+/**
+ * Sets the camera position and orientation based on view angle.
+ *
+ * @param camera - Camera to update
+ * @param view - Camera view angle ('top' or 'side')
+ */
+export function setCameraView(camera: OrthographicCamera, view: CameraView): void {
+  if (view === 'top') {
+    // Top view: camera above looking down at the knob
+    camera.position.set(0, 100, 0);
+    camera.up.set(0, 0, 1); // Positive Z-axis points "up" in screen space
+    camera.lookAt(0, 0, 0);
+  } else {
+    // Side view: camera in front looking at the knob from the side
+    camera.position.set(0, 0, 100);
+    camera.up.set(0, 1, 0); // Y-axis points up
+    camera.lookAt(0, 0, 0);
+  }
 }
 
 /**

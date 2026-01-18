@@ -212,3 +212,38 @@
   color: var(--color-warning-600);
   font-size: var(--font-size-sm);
 }
+
+/* Layout Buttons */
+.layoutButtons {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.layoutButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  flex: 1;
+  padding: var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.layoutButton:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+}
+
+.layoutButton.layoutButtonActive {
+  background-color: var(--color-primary-50);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}

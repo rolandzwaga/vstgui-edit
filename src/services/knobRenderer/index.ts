@@ -7,6 +7,7 @@
 
 import {
   type AmbientLight,
+  Box3,
   type DirectionalLight,
   Group,
   LinearFilter,
@@ -14,9 +15,11 @@ import {
   type OrthographicCamera,
   RGBAFormat,
   type Scene,
+  Vector3,
   WebGLRenderer,
   WebGLRenderTarget,
 } from 'three';
+import UPNG from 'upng-js';
 import {
   calculateLayerYOffset,
   calculateSegments,
@@ -33,10 +36,11 @@ import {
   createCamera,
   createMainLight,
   createScene,
+  setCameraView as setCameraViewPosition,
   updateCameraAspect,
   updateLightPosition,
 } from '../../domain/knobDesigner/scene';
-import type { GenerationProgress, KnobDesign } from '../../types/knobDesigner';
+import type { CameraView, GenerationProgress, KnobDesign } from '../../types/knobDesigner';
 
 // ============================================================================
 // Service State
@@ -221,6 +225,22 @@ export function updateScene(design: KnobDesign): void {
 
   // Update lighting
   updateLightPosition(mainLight, design.lighting.azimuth, design.lighting.elevation);
+
+  // Update camera view
+  if (camera) {
+    setCameraViewPosition(camera, design.cameraView);
+  }
+}
+
+/**
+ * Updates the camera view angle.
+ *
+ * @param view - Camera view ('top' or 'side')
+ */
+export function setCameraView(view: CameraView): void {
+  if (!camera) return;
+  setCameraViewPosition(camera, view);
+  renderPreview();
 }
 
 /**
@@ -305,15 +325,59 @@ export function resize(width: number, height: number): void {
 // ============================================================================
 
 /**
- * Calculates optimal frames per row for filmstrip layout.
+ * Calculates optimal frames per row for grid filmstrip layout.
  *
  * @param frameCount - Total number of frames
  * @returns Optimal frames per row (power of 2 preferred)
  */
-function calculateFramesPerRow(frameCount: number): number {
+function calculateFramesPerRowForGrid(frameCount: number): number {
   const sqrt = Math.sqrt(frameCount);
   const candidates = [8, 16, 32, 64];
   return candidates.find(c => c >= sqrt) ?? 64;
+}
+
+/**
+ * Calculates filmstrip dimensions based on layout type.
+ *
+ * @param frameCount - Total number of frames
+ * @param frameWidth - Width of each frame
+ * @param frameHeight - Height of each frame
+ * @param layout - Filmstrip layout type
+ * @returns Object with framesPerRow, rows, totalWidth, totalHeight
+ */
+function calculateFilmstripDimensions(
+  frameCount: number,
+  frameWidth: number,
+  frameHeight: number,
+  layout: 'grid' | 'vertical' | 'horizontal'
+): { framesPerRow: number; rows: number; totalWidth: number; totalHeight: number } {
+  let framesPerRow: number;
+  let rows: number;
+
+  switch (layout) {
+    case 'vertical':
+      // Single column, all frames stacked vertically
+      framesPerRow = 1;
+      rows = frameCount;
+      break;
+    case 'horizontal':
+      // Single row, all frames side by side
+      framesPerRow = frameCount;
+      rows = 1;
+      break;
+    default:
+      // Grid layout (default) with optimal distribution
+      framesPerRow = calculateFramesPerRowForGrid(frameCount);
+      rows = Math.ceil(frameCount / framesPerRow);
+      break;
+  }
+
+  return {
+    framesPerRow,
+    rows,
+    totalWidth: frameWidth * framesPerRow,
+    totalHeight: frameHeight * rows,
+  };
 }
 
 /**
@@ -340,11 +404,13 @@ export async function generateFilmstrip(
   // Update scene with design
   updateScene(design);
 
-  const { frameCount, frameWidth, frameHeight, startAngle, sweepAngle } = design.output;
-  const framesPerRow = calculateFramesPerRow(frameCount);
-  const rows = Math.ceil(frameCount / framesPerRow);
-  const totalWidth = frameWidth * framesPerRow;
-  const totalHeight = frameHeight * rows;
+  const { frameCount, frameWidth, frameHeight, startAngle, sweepAngle, layout } = design.output;
+  const { framesPerRow, rows: _rows, totalWidth, totalHeight } = calculateFilmstripDimensions(
+    frameCount,
+    frameWidth,
+    frameHeight,
+    layout ?? 'vertical'
+  );
 
   // Create render target
   const target = new WebGLRenderTarget(totalWidth, totalHeight, {
@@ -361,28 +427,66 @@ export async function generateFilmstrip(
     percent: 0,
   });
 
+  // Store original state for restoration after rendering
+  const originalWidth = renderer.domElement.width;
+  const originalHeight = renderer.domElement.height;
+  const originalPixelRatio = renderer.getPixelRatio();
+
+  // CRITICAL: Set pixel ratio to 1 for render target operations
+  // Device pixel ratio can cause viewport coordinate issues on high-DPI displays
+  renderer.setPixelRatio(1);
+
+  // Calculate the frustum size from the actual knob geometry bounds
+  // This ensures the knob always fits regardless of layers, indicator, or skirt style
+  knobGroup.updateMatrixWorld(true);
+  const boundingBox = new Box3().setFromObject(knobGroup);
+  const size = new Vector3();
+  boundingBox.getSize(size);
+
+  // For top-down view, we care about X and Z dimensions
+  // For side view, we'd care about X and Y
+  const xzSize = Math.max(size.x, size.z);
+  // Add minimal 1% margin to prevent edge clipping
+  const frustumSize = xzSize * 1.01;
+
+  console.log('[Filmstrip] Generating', frameCount, 'frames at', frameWidth, 'x', frameHeight, '- frustum:', frustumSize.toFixed(1));
+
+  // Create a FRESH camera for filmstrip rendering with the calculated frustum
+  const filmstripCamera = createCamera(frameWidth, frameHeight, frustumSize, design.cameraView);
+
   try {
+    // Set render target once before the loop
+    renderer.setRenderTarget(target);
+
+    // Clear the entire render target to transparent first
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+
     // Render each frame
     for (let i = 0; i < frameCount && !generationCancelled; i++) {
       const col = i % framesPerRow;
       const row = Math.floor(i / framesPerRow);
 
-      // WebGL Y-axis is inverted
+      // Position frame in render target - frame 0 at top, last frame at bottom
+      // In WebGL, Y=0 is at bottom, so we need to invert
       const x = col * frameWidth;
-      const y = (rows - 1 - row) * frameHeight;
+      const y = row * frameHeight; // Changed: frame 0 at y=0 (bottom of render target)
 
-      // Set viewport and scissor
+      // Set viewport for this frame
       renderer.setViewport(x, y, frameWidth, frameHeight);
       renderer.setScissor(x, y, frameWidth, frameHeight);
       renderer.setScissorTest(true);
+
+      // CRITICAL: Clear this frame's viewport before rendering
+      // Without this, previous frame content bleeds through
+      renderer.clear(true, true, true);
 
       // Calculate rotation angle for this frame
       const angle = startAngle + (i / (frameCount - 1)) * sweepAngle;
       setPreviewRotation(angle);
 
-      // Render to target
-      renderer.setRenderTarget(target);
-      renderer.render(scene, camera);
+      // Render frame using the fresh filmstrip camera
+      renderer.render(scene, filmstripCamera);
 
       // Report progress
       onProgress({
@@ -449,8 +553,33 @@ export async function generateFilmstrip(
     ctx.scale(1, -1);
     ctx.drawImage(tempCanvas, 0, -totalHeight);
 
+    // Get flipped image data for compression
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    const flippedImageData = ctx.getImageData(0, 0, totalWidth, totalHeight);
+
     // Cleanup render target
     target.dispose();
+
+    // Report compression stage
+    onProgress({
+      stage: 'compositing',
+      currentFrame: frameCount,
+      totalFrames: frameCount,
+      percent: 97,
+    });
+
+    // Compress with UPNG (0 = best compression)
+    const pngBuffer = UPNG.encode(
+      [flippedImageData.data.buffer],
+      totalWidth,
+      totalHeight,
+      0 // 0 colors = lossless, 0 compression level = best compression
+    );
+
+    // Convert to data URL
+    const base64 = btoa(
+      new Uint8Array(pngBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
 
     // Report complete
     onProgress({
@@ -461,13 +590,18 @@ export async function generateFilmstrip(
     });
 
     // Return as data URL
-    return canvas.toDataURL('image/png');
+    return `data:image/png;base64,${base64}`;
   } finally {
     // Reset render state
     if (renderer) {
+      renderer.setPixelRatio(originalPixelRatio);
       renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
       renderer.setScissorTest(false);
       renderer.setRenderTarget(null);
+    }
+    // Restore camera frustum to match original preview canvas dimensions
+    if (camera) {
+      updateCameraAspect(camera, originalWidth, originalHeight);
     }
   }
 }
@@ -488,6 +622,7 @@ export const knobRendererService = {
   dispose,
   isWebGLAvailable,
   updateScene,
+  setCameraView,
   setPreviewRotation,
   renderPreview,
   startPreviewAnimation,

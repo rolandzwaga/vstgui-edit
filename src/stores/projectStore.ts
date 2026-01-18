@@ -29,6 +29,7 @@ import { sanitizeProjectName, validateProjectName } from '../domain/project/vali
 import { serializeToJson, serializeToXml } from '../domain/serializer';
 import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
+import { presetService } from '../services/indexedDB/presetService';
 import { projectService } from '../services/indexedDB/projectService';
 import type { VSTGUIUIDescription } from '../types/uidesc';
 import { restoreCanvasState } from './canvasStore';
@@ -186,6 +187,14 @@ export async function initializeProjectStore(): Promise<void> {
   try {
     await openDatabase();
     setStore({ isSessionOnly: false });
+
+    // Seed built-in knob presets if not already present
+    // This is non-fatal - the app works without presets
+    try {
+      await presetService.seedBuiltInPresets();
+    } catch (presetError) {
+      console.warn('Failed to seed built-in presets:', presetError);
+    }
   } catch {
     setStore({ isSessionOnly: true });
   }
