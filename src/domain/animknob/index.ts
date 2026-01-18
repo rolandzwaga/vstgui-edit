@@ -5,14 +5,6 @@
  */
 
 export {
-  calculateFrameIndex,
-  calculateFrameOffset,
-  calculateNumFrames,
-  calculatePreviewValue,
-  clampValue,
-} from './frameCalculation';
-
-export {
   buildAnimKnobBitmapInfo,
   extractFrameHeight,
   extractNumFrames,
@@ -21,3 +13,10 @@ export {
   parseDefaultValue,
   parseInverseMode,
 } from './bitmapInfo';
+export {
+  calculateFrameIndex,
+  calculateFrameOffset,
+  calculateNumFrames,
+  calculatePreviewValue,
+  clampValue,
+} from './frameCalculation';

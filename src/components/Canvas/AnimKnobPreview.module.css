@@ -6,8 +6,10 @@
 
 .filmstripFrame {
   overflow: hidden;
+
   /* Interaction is handled by the canvas, not this element */
   pointer-events: none;
+
   /* Ensure the div fills the foreignObject */
   display: block;
 }

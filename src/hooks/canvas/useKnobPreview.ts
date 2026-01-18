@@ -229,7 +229,7 @@ export function useKnobPreview(options: UseKnobPreviewOptions): UseKnobPreviewRe
     } catch {
       return;
     }
-    const storedBitmap = storedBitmaps.find((b) => b.name === bitmapName) ?? null;
+    const storedBitmap = storedBitmaps.find(b => b.name === bitmapName) ?? null;
 
     // If bitmap not in IndexedDB, can't preview
     if (!storedBitmap) {

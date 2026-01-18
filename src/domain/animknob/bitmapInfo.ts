@@ -4,10 +4,10 @@
  * Functions to extract filmstrip metadata from view attributes and bitmap definitions.
  */
 
-import type { Bitmap } from '../project/types';
 import type { AnimKnobBitmapInfo } from '../../types/animknob';
 import type { BitmapDefinition, ViewAttributes } from '../../types/uidesc';
 import { isMultiframeBitmap } from '../../types/uidesc';
+import type { Bitmap } from '../project/types';
 import { calculateNumFrames } from './frameCalculation';
 
 /**
@@ -17,10 +17,7 @@ import { calculateNumFrames } from './frameCalculation';
  * @param attributes - View attributes
  * @returns True if view is CAnimKnob with bitmap attribute
  */
-export function isAnimKnobWithBitmap(
-  className: string,
-  attributes: ViewAttributes
-): boolean {
+export function isAnimKnobWithBitmap(className: string, attributes: ViewAttributes): boolean {
   return className === 'CAnimKnob' && typeof attributes.bitmap === 'string';
 }
 
@@ -70,10 +67,10 @@ export function extractFrameHeight(
   viewHeight: number
 ): number {
   // Use multiframe-size from bitmap definition
-  if (isMultiframeBitmap(bitmapDef)) {
+  if (bitmapDef && isMultiframeBitmap(bitmapDef)) {
     const multiframeSize = bitmapDef['multiframe-size'];
     // Format: "width, height"
-    const parts = multiframeSize.split(',').map((s) => s.trim());
+    const parts = multiframeSize.split(',').map(s => s.trim());
     if (parts.length >= 2) {
       const height = parseFloat(parts[1]);
       if (!Number.isNaN(height) && height > 0) {
@@ -103,7 +100,7 @@ export function extractNumFrames(
   frameHeight: number
 ): number {
   // Use multiframe-num-frames from bitmap definition
-  if (isMultiframeBitmap(bitmapDef)) {
+  if (bitmapDef && isMultiframeBitmap(bitmapDef)) {
     const numFramesStr = bitmapDef['multiframe-num-frames'];
     const parsed = parseInt(numFramesStr, 10);
     if (!Number.isNaN(parsed) && parsed > 0) {

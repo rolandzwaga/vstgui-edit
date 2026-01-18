@@ -6,8 +6,8 @@
  */
 
 import { createSignal } from 'solid-js';
-import type { AnimKnobBitmapInfo } from '../types/animknob';
 import { clampValue } from '../domain/animknob/frameCalculation';
+import type { AnimKnobBitmapInfo } from '../types/animknob';
 import { KNOB_DRAG_SWEEP_DISTANCE } from '../types/animknob';
 
 // ============================================================================
