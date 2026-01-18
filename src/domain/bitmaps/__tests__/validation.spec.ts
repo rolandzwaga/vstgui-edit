@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'vitest';
-import { validateBitmapName } from '../validation';
+import {
+  validateBitmapName,
+  validateFrameCount,
+  validateFramesPerRow,
+  validateMultiframeSize,
+} from '../validation';
 
 describe('validateBitmapName', () => {
   const existingNames = ['Background', 'Knob', 'Slider'];
@@ -60,6 +65,143 @@ describe('validateBitmapName', () => {
     test('trims name for empty check but not for uniqueness', () => {
       const result = validateBitmapName('  valid  ', existingNames);
       expect(result.valid).toBe(true);
+    });
+  });
+});
+
+describe('validateMultiframeSize', () => {
+  describe('valid sizes', () => {
+    test('accepts "width, height" format', () => {
+      const result = validateMultiframeSize('50, 50');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts without spaces', () => {
+      const result = validateMultiframeSize('100,75');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts decimal values', () => {
+      const result = validateMultiframeSize('50.5, 25.5');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts large values', () => {
+      const result = validateMultiframeSize('1024, 768');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('optional empty value', () => {
+    test('accepts empty string (optional field)', () => {
+      const result = validateMultiframeSize('');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts whitespace-only (optional field)', () => {
+      const result = validateMultiframeSize('   ');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('invalid sizes', () => {
+    test('rejects single value', () => {
+      const result = validateMultiframeSize('50');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('width, height');
+    });
+
+    test('rejects non-numeric values', () => {
+      const result = validateMultiframeSize('abc, def');
+      expect(result.valid).toBe(false);
+    });
+
+    test('rejects negative values', () => {
+      const result = validateMultiframeSize('-50, 50');
+      expect(result.valid).toBe(false);
+    });
+  });
+});
+
+describe('validateFrameCount', () => {
+  describe('valid counts', () => {
+    test('accepts positive integer', () => {
+      const result = validateFrameCount('128');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts 1', () => {
+      const result = validateFrameCount('1');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts large numbers', () => {
+      const result = validateFrameCount('1000');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('optional empty value', () => {
+    test('accepts empty string (optional field)', () => {
+      const result = validateFrameCount('');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('invalid counts', () => {
+    test('rejects zero', () => {
+      const result = validateFrameCount('0');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('positive');
+    });
+
+    test('rejects negative', () => {
+      const result = validateFrameCount('-5');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('positive');
+    });
+
+    test('rejects non-numeric', () => {
+      const result = validateFrameCount('abc');
+      expect(result.valid).toBe(false);
+    });
+  });
+});
+
+describe('validateFramesPerRow', () => {
+  describe('valid values', () => {
+    test('accepts positive integer', () => {
+      const result = validateFramesPerRow('16');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts empty string (optional)', () => {
+      const result = validateFramesPerRow('');
+      expect(result.valid).toBe(true);
+    });
+
+    test('accepts 1', () => {
+      const result = validateFramesPerRow('1');
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe('invalid values', () => {
+    test('rejects zero', () => {
+      const result = validateFramesPerRow('0');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('positive');
+    });
+
+    test('rejects negative', () => {
+      const result = validateFramesPerRow('-1');
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('positive');
+    });
+
+    test('rejects non-numeric', () => {
+      const result = validateFramesPerRow('abc');
+      expect(result.valid).toBe(false);
     });
   });
 });

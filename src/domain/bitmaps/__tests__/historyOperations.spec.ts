@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { BitmapDefinition } from '../../../types/uidesc';
 import {
+  BITMAP_TYPE_PROPERTIES,
   createAddBitmapOperation,
+  createBitmapTypeChangeOperation,
   createDeleteBitmapOperation,
   createEditBitmapNameOperation,
   createEditBitmapPropertyOperation,
+  getPropertiesToClearForTypeChange,
   initBitmapHistoryOperations,
 } from '../historyOperations';
 
@@ -139,5 +142,155 @@ describe('bitmap history operations', () => {
       op.undo();
       expect(mockAddBitmap).toHaveBeenCalledWith('myBitmap', 'path/to/bitmap.png');
     });
+  });
+
+  describe('createBitmapTypeChangeOperation', () => {
+    test('creates operation with correct type and description', () => {
+      const op = createBitmapTypeChangeOperation({
+        bitmapName: 'myBitmap',
+        fromType: 'standard',
+        toType: 'ninepart',
+        clearedProperties: {},
+      });
+      expect(op.type).toBe('change-bitmap-type');
+      expect(op.description).toBe('Change bitmap "myBitmap" from standard to ninepart');
+    });
+
+    test('undo restores cleared properties', () => {
+      const op = createBitmapTypeChangeOperation({
+        bitmapName: 'myBitmap',
+        fromType: 'ninepart',
+        toType: 'standard',
+        clearedProperties: { 'nineparttiled-offsets': '10, 10, 10, 10' },
+      });
+      op.undo();
+
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'nineparttiled-offsets',
+        '10, 10, 10, 10'
+      );
+    });
+
+    test('undo clears new type properties first', () => {
+      const op = createBitmapTypeChangeOperation({
+        bitmapName: 'myBitmap',
+        fromType: 'standard',
+        toType: 'ninepart',
+        clearedProperties: {},
+      });
+      op.undo();
+
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'nineparttiled-offsets',
+        ''
+      );
+    });
+
+    test('redo clears the old type properties again', () => {
+      const op = createBitmapTypeChangeOperation({
+        bitmapName: 'myBitmap',
+        fromType: 'multiframe',
+        toType: 'standard',
+        clearedProperties: {
+          'multiframe-num-frames': '128',
+          'multiframe-size': '50, 50',
+        },
+      });
+      op.redo();
+
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'multiframe-num-frames',
+        ''
+      );
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith('myBitmap', 'multiframe-size', '');
+    });
+
+    test('handles switching from ninepart to multiframe', () => {
+      const op = createBitmapTypeChangeOperation({
+        bitmapName: 'myBitmap',
+        fromType: 'ninepart',
+        toType: 'multiframe',
+        clearedProperties: { 'nineparttiled-offsets': '5, 5, 5, 5' },
+      });
+
+      // On undo, should clear multiframe props and restore ninepart
+      op.undo();
+
+      // Should clear multiframe properties
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'multiframe-num-frames',
+        ''
+      );
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith('myBitmap', 'multiframe-size', '');
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'mulitframe-frames-per-row',
+        ''
+      );
+
+      // Should restore ninepart properties
+      expect(mockUpdateBitmapProperty).toHaveBeenCalledWith(
+        'myBitmap',
+        'nineparttiled-offsets',
+        '5, 5, 5, 5'
+      );
+    });
+  });
+});
+
+describe('BITMAP_TYPE_PROPERTIES', () => {
+  test('standard has no special properties', () => {
+    expect(BITMAP_TYPE_PROPERTIES.standard).toEqual([]);
+  });
+
+  test('ninepart has nineparttiled-offsets', () => {
+    expect(BITMAP_TYPE_PROPERTIES.ninepart).toEqual(['nineparttiled-offsets']);
+  });
+
+  test('multiframe has three properties', () => {
+    expect(BITMAP_TYPE_PROPERTIES.multiframe).toEqual([
+      'multiframe-num-frames',
+      'multiframe-size',
+      'mulitframe-frames-per-row',
+    ]);
+  });
+});
+
+describe('getPropertiesToClearForTypeChange', () => {
+  test('returns empty array for same type', () => {
+    expect(getPropertiesToClearForTypeChange('standard', 'standard')).toEqual([]);
+    expect(getPropertiesToClearForTypeChange('ninepart', 'ninepart')).toEqual([]);
+    expect(getPropertiesToClearForTypeChange('multiframe', 'multiframe')).toEqual([]);
+  });
+
+  test('returns ninepart properties when switching from ninepart', () => {
+    expect(getPropertiesToClearForTypeChange('ninepart', 'standard')).toEqual([
+      'nineparttiled-offsets',
+    ]);
+    expect(getPropertiesToClearForTypeChange('ninepart', 'multiframe')).toEqual([
+      'nineparttiled-offsets',
+    ]);
+  });
+
+  test('returns multiframe properties when switching from multiframe', () => {
+    expect(getPropertiesToClearForTypeChange('multiframe', 'standard')).toEqual([
+      'multiframe-num-frames',
+      'multiframe-size',
+      'mulitframe-frames-per-row',
+    ]);
+    expect(getPropertiesToClearForTypeChange('multiframe', 'ninepart')).toEqual([
+      'multiframe-num-frames',
+      'multiframe-size',
+      'mulitframe-frames-per-row',
+    ]);
+  });
+
+  test('returns empty array when switching from standard', () => {
+    expect(getPropertiesToClearForTypeChange('standard', 'ninepart')).toEqual([]);
+    expect(getPropertiesToClearForTypeChange('standard', 'multiframe')).toEqual([]);
   });
 });

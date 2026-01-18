@@ -1,17 +1,29 @@
 import { type Component, createSignal, Show } from 'solid-js';
-import type { BitmapDefinition } from '../../types/uidesc';
+import type { BitmapDefinition, BitmapType } from '../../types/uidesc';
+import { getBitmapType } from '../../types/uidesc';
 import { getBitmaps, updateBitmapName, updateBitmapProperty } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import {
   createEditBitmapNameOperation,
   createEditBitmapPropertyOperation,
+  createBitmapTypeChangeOperation,
+  BITMAP_TYPE_PROPERTIES,
+  getPropertiesToClearForTypeChange,
 } from '../../domain/bitmaps/historyOperations';
 import { validateBitmapName } from '../../domain/bitmaps/validation';
 import { truncateBitmapName, formatBitmapForDisplay } from '../../domain/bitmaps/formatting';
 import { normalizeBitmap } from '../../domain/bitmaps/thumbnail';
 import { BitmapThumbnail } from './BitmapThumbnail';
 import { NinepartEditor } from '../editors/NinepartEditor';
+import { MultiframeEditor } from '../editors/MultiframeEditor';
 import styles from './BitmapItem.module.css';
+
+/** Options for the bitmap type selector */
+const BITMAP_TYPE_OPTIONS: { value: BitmapType; label: string }[] = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'ninepart', label: '9-Part' },
+  { value: 'multiframe', label: 'Multi-Frame' },
+];
 
 export interface BitmapItemProps {
   name: string;
@@ -39,6 +51,17 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
   const [ninepartInput, setNinepartInput] = createSignal('');
   const [ninepartOriginal, setNinepartOriginal] = createSignal('');
   const [isUploading, setIsUploading] = createSignal(false);
+
+  // Bitmap type state
+  const [bitmapType, setBitmapType] = createSignal<BitmapType>('standard');
+
+  // Multiframe state
+  const [numFramesInput, setNumFramesInput] = createSignal('');
+  const [numFramesOriginal, setNumFramesOriginal] = createSignal('');
+  const [frameSizeInput, setFrameSizeInput] = createSignal('');
+  const [frameSizeOriginal, setFrameSizeOriginal] = createSignal('');
+  const [framesPerRowInput, setFramesPerRowInput] = createSignal('');
+  const [framesPerRowOriginal, setFramesPerRowOriginal] = createSignal('');
 
   const displayName = () => truncateBitmapName(props.name);
   const pathDisplay = () => formatBitmapForDisplay(props.bitmap);
@@ -106,9 +129,26 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
       const normalized = normalizeBitmap(props.bitmap);
       setPathInput(normalized.path);
       setScaleFactorInput(normalized['scale-factor'] ?? '');
+
+      // Detect and set bitmap type
+      const detectedType = getBitmapType(props.bitmap);
+      setBitmapType(detectedType);
+
+      // Set ninepart values
       const ninepartValue = normalized['nineparttiled-offsets'] ?? '';
       setNinepartInput(ninepartValue);
       setNinepartOriginal(ninepartValue);
+
+      // Set multiframe values
+      const numFrames = normalized['multiframe-num-frames'] ?? '';
+      const frameSize = normalized['multiframe-size'] ?? '';
+      const framesPerRow = normalized['mulitframe-frames-per-row'] ?? '';
+      setNumFramesInput(numFrames);
+      setNumFramesOriginal(numFrames);
+      setFrameSizeInput(frameSize);
+      setFrameSizeOriginal(frameSize);
+      setFramesPerRowInput(framesPerRow);
+      setFramesPerRowOriginal(framesPerRow);
     }
   };
 
@@ -152,6 +192,109 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
     setNinepartInput(oldValue);
     // Revert to original value
     updateBitmapProperty(props.name, 'nineparttiled-offsets', oldValue);
+  };
+
+  // Handle bitmap type change
+  const handleTypeChange = (newType: BitmapType) => {
+    const currentType = bitmapType();
+    if (currentType === newType) return;
+
+    const normalized = normalizeBitmap(props.bitmap);
+    const propertiesToClear = getPropertiesToClearForTypeChange(currentType, newType);
+    const clearedProperties: Record<string, string> = {};
+
+    // Capture and clear old type's properties
+    for (const prop of propertiesToClear) {
+      const value = normalized[prop as keyof typeof normalized];
+      if (value && typeof value === 'string' && value.trim()) {
+        clearedProperties[prop] = value;
+        updateBitmapProperty(props.name, prop, '');
+      }
+    }
+
+    // Create history operation if anything was cleared
+    if (Object.keys(clearedProperties).length > 0) {
+      pushOperation(
+        createBitmapTypeChangeOperation({
+          bitmapName: props.name,
+          fromType: currentType,
+          toType: newType,
+          clearedProperties,
+        })
+      );
+    }
+
+    // Update local state
+    setBitmapType(newType);
+
+    // Clear local inputs for the old type
+    if (currentType === 'ninepart') {
+      setNinepartInput('');
+      setNinepartOriginal('');
+    } else if (currentType === 'multiframe') {
+      setNumFramesInput('');
+      setNumFramesOriginal('');
+      setFrameSizeInput('');
+      setFrameSizeOriginal('');
+      setFramesPerRowInput('');
+      setFramesPerRowOriginal('');
+    }
+  };
+
+  // Multiframe handlers
+  const handleNumFramesChange = (value: string) => {
+    setNumFramesInput(value);
+    updateBitmapProperty(props.name, 'multiframe-num-frames', value);
+  };
+
+  const handleFrameSizeChange = (value: string) => {
+    setFrameSizeInput(value);
+    updateBitmapProperty(props.name, 'multiframe-size', value);
+  };
+
+  const handleFramesPerRowChange = (value: string) => {
+    setFramesPerRowInput(value);
+    updateBitmapProperty(props.name, 'mulitframe-frames-per-row', value);
+  };
+
+  const handleMultiframeCommit = () => {
+    // Check each multiframe property for changes and push history operations
+    const numFramesNew = numFramesInput().trim();
+    const numFramesOld = numFramesOriginal();
+    if (numFramesNew !== numFramesOld) {
+      pushOperation(
+        createEditBitmapPropertyOperation(
+          props.name,
+          'multiframe-num-frames',
+          numFramesOld,
+          numFramesNew
+        )
+      );
+      setNumFramesOriginal(numFramesNew);
+    }
+
+    const frameSizeNew = frameSizeInput().trim();
+    const frameSizeOld = frameSizeOriginal();
+    if (frameSizeNew !== frameSizeOld) {
+      pushOperation(
+        createEditBitmapPropertyOperation(props.name, 'multiframe-size', frameSizeOld, frameSizeNew)
+      );
+      setFrameSizeOriginal(frameSizeNew);
+    }
+
+    const framesPerRowNew = framesPerRowInput().trim();
+    const framesPerRowOld = framesPerRowOriginal();
+    if (framesPerRowNew !== framesPerRowOld) {
+      pushOperation(
+        createEditBitmapPropertyOperation(
+          props.name,
+          'mulitframe-frames-per-row',
+          framesPerRowOld,
+          framesPerRowNew
+        )
+      );
+      setFramesPerRowOriginal(framesPerRowNew);
+    }
   };
 
   const handleUploadClick = (e: MouseEvent) => {
@@ -319,18 +462,49 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
             />
           </div>
           <div class={styles.propertyRow}>
-            <label class={styles.propertyLabel}>9-part</label>
-            <div class={styles.ninepartEditorContainer} onClick={(e) => e.stopPropagation()}>
-              <NinepartEditor
-                value={ninepartInput()}
-                onChange={handleNinepartChange}
-                onCommit={handleNinepartCommit}
-                onCancel={handleNinepartCancel}
+            <label class={styles.propertyLabel}>Type</label>
+            <select
+              class={styles.typeSelect}
+              value={bitmapType()}
+              onChange={(e) => handleTypeChange(e.currentTarget.value as BitmapType)}
+              disabled={props.isReadOnly}
+              onClick={(e) => e.stopPropagation()}
+              data-testid="bitmap-type-selector"
+            >
+              {BITMAP_TYPE_OPTIONS.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <Show when={bitmapType() === 'ninepart'}>
+            <div class={styles.propertyRow}>
+              <label class={styles.propertyLabel}>9-part</label>
+              <div class={styles.ninepartEditorContainer} onClick={(e) => e.stopPropagation()}>
+                <NinepartEditor
+                  value={ninepartInput()}
+                  onChange={handleNinepartChange}
+                  onCommit={handleNinepartCommit}
+                  onCancel={handleNinepartCancel}
+                  disabled={props.isReadOnly}
+                  attributeName={`bitmap-${props.name}-ninepart`}
+                />
+              </div>
+            </div>
+          </Show>
+          <Show when={bitmapType() === 'multiframe'}>
+            <div class={styles.multiframeEditorContainer} onClick={(e) => e.stopPropagation()}>
+              <MultiframeEditor
+                numFrames={numFramesInput()}
+                frameSize={frameSizeInput()}
+                framesPerRow={framesPerRowInput()}
+                onNumFramesChange={handleNumFramesChange}
+                onFrameSizeChange={handleFrameSizeChange}
+                onFramesPerRowChange={handleFramesPerRowChange}
+                onCommit={handleMultiframeCommit}
                 disabled={props.isReadOnly}
-                attributeName={`bitmap-${props.name}-ninepart`}
               />
             </div>
-          </div>
+          </Show>
         </div>
       </Show>
     </div>

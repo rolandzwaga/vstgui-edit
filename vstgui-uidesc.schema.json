@@ -159,6 +159,19 @@
           "description": "Nine-part tiling offsets: 'top, left, bottom, right'",
           "pattern": "^\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+$"
         },
+        "multiframe-num-frames": {
+          "$ref": "#/$defs/numericValue",
+          "description": "Total number of frames in the multiframe bitmap"
+        },
+        "multiframe-size": {
+          "type": "string",
+          "description": "Size of each frame: 'width, height'",
+          "pattern": "^\\d+(\\.\\d+)?\\s*,\\s*\\d+(\\.\\d+)?$"
+        },
+        "mulitframe-frames-per-row": {
+          "$ref": "#/$defs/numericValue",
+          "description": "Number of frames per row for grid layouts (note: typo matches VSTGUI)"
+        },
         "data": {
           "$ref": "#/$defs/bitmapData"
         }

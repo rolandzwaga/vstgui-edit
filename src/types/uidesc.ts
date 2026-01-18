@@ -44,12 +44,87 @@ export interface BitmapData {
   data: string;
 }
 
-/** Bitmap definition */
-export interface BitmapDefinition {
+/** Base bitmap definition with common properties */
+export interface BaseBitmapDefinition {
   path: string;
   'scale-factor'?: string;
-  'nineparttiled-offsets'?: string;
   data?: BitmapData;
+}
+
+/** Standard bitmap - no special tiling or animation properties */
+export interface StandardBitmapDefinition extends BaseBitmapDefinition {
+  'nineparttiled-offsets'?: never;
+  'multiframe-num-frames'?: never;
+  'multiframe-size'?: never;
+  'mulitframe-frames-per-row'?: never;
+}
+
+/** Nine-part tiled bitmap for resizable UI elements */
+export interface NinePartBitmapDefinition extends BaseBitmapDefinition {
+  /** Nine-part tiling offsets: "top, left, bottom, right" */
+  'nineparttiled-offsets': string;
+  'multiframe-num-frames'?: never;
+  'multiframe-size'?: never;
+  'mulitframe-frames-per-row'?: never;
+}
+
+/** Multi-frame bitmap for animations and sprite sheets */
+export interface MultiframeBitmapDefinition extends BaseBitmapDefinition {
+  'nineparttiled-offsets'?: never;
+  /** Total number of frames in the bitmap */
+  'multiframe-num-frames': string;
+  /** Size of each frame: "width, height" */
+  'multiframe-size': string;
+  /**
+   * Number of frames per row (for grid layouts).
+   * Note: typo 'mulitframe' matches VSTGUI's actual attribute name.
+   */
+  'mulitframe-frames-per-row'?: string;
+}
+
+/** Discriminated union of all bitmap definition types */
+export type BitmapDefinition =
+  | StandardBitmapDefinition
+  | NinePartBitmapDefinition
+  | MultiframeBitmapDefinition;
+
+/** Type guard: checks if bitmap is a nine-part tiled bitmap */
+export function isNinePartBitmap(
+  bitmap: BitmapDefinition | string
+): bitmap is NinePartBitmapDefinition {
+  return (
+    typeof bitmap === 'object' &&
+    'nineparttiled-offsets' in bitmap &&
+    typeof bitmap['nineparttiled-offsets'] === 'string'
+  );
+}
+
+/** Type guard: checks if bitmap is a multi-frame bitmap */
+export function isMultiframeBitmap(
+  bitmap: BitmapDefinition | string
+): bitmap is MultiframeBitmapDefinition {
+  return (
+    typeof bitmap === 'object' && 'multiframe-num-frames' in bitmap && 'multiframe-size' in bitmap
+  );
+}
+
+/** Type guard: checks if bitmap is a standard bitmap (no special properties) */
+export function isStandardBitmap(
+  bitmap: BitmapDefinition | string
+): bitmap is StandardBitmapDefinition {
+  if (typeof bitmap === 'string') return false;
+  return !isNinePartBitmap(bitmap) && !isMultiframeBitmap(bitmap);
+}
+
+/** Bitmap type identifier */
+export type BitmapType = 'standard' | 'ninepart' | 'multiframe';
+
+/** Detects the bitmap type from a bitmap definition */
+export function getBitmapType(bitmap: BitmapDefinition | string): BitmapType {
+  if (typeof bitmap === 'string') return 'standard';
+  if (isNinePartBitmap(bitmap)) return 'ninepart';
+  if (isMultiframeBitmap(bitmap)) return 'multiframe';
+  return 'standard';
 }
 
 /** Bitmaps definitions map */
