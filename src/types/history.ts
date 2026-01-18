@@ -33,6 +33,7 @@ export interface HistoryOperation {
     | 'edit-bitmap-name'
     | 'edit-bitmap-property'
     | 'delete-bitmap'
+    | 'change-bitmap-type'
     | 'add-gradient'
     | 'edit-gradient-name'
     | 'edit-gradient-stops'

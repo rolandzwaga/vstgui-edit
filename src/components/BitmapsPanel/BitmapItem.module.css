@@ -260,3 +260,30 @@
   flex: 1;
   min-width: 0;
 }
+
+.typeSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  font-size: 12px;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+.typeSelect:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgb(0 102 204 / 0.2);
+}
+
+.typeSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.multiframeEditorContainer {
+  width: 100%;
+}

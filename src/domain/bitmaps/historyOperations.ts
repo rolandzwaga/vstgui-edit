@@ -1,8 +1,15 @@
 import { bitmapService } from '../../services/indexedDB/bitmapService';
 import type { HistoryOperation } from '../../types/history';
-import type { BitmapDefinition } from '../../types/uidesc';
+import type { BitmapDefinition, BitmapType } from '../../types/uidesc';
 import type { Bitmap } from '../project/types';
 import { invalidateThumbnailCache } from './thumbnail';
+
+/** Properties exclusive to each bitmap type (cleared when switching away) */
+export const BITMAP_TYPE_PROPERTIES: Record<BitmapType, string[]> = {
+  standard: [],
+  ninepart: ['nineparttiled-offsets'],
+  multiframe: ['multiframe-num-frames', 'multiframe-size', 'mulitframe-frames-per-row'],
+};
 
 export interface RemovedBitmapReference {
   viewId: string;
@@ -264,4 +271,69 @@ export function createUpdateBitmapUploadOperation(data: UpdateBitmapUploadData):
       invalidateThumbnailCache(projectId, finalName);
     },
   };
+}
+
+/**
+ * Data needed to undo/redo a bitmap type change operation.
+ */
+export interface BitmapTypeChangeData {
+  /** The bitmap name */
+  bitmapName: string;
+  /** The type being switched from */
+  fromType: BitmapType;
+  /** The type being switched to */
+  toType: BitmapType;
+  /** Properties that were cleared, with their original values */
+  clearedProperties: Record<string, string>;
+}
+
+/**
+ * Creates a history operation for changing a bitmap's type.
+ *
+ * When switching between types (standard, ninepart, multiframe), the exclusive
+ * properties of the old type are cleared. This operation captures those values
+ * so they can be restored on undo.
+ *
+ * @param data - The type change data
+ * @returns A history operation that can be undone/redone
+ */
+export function createBitmapTypeChangeOperation(data: BitmapTypeChangeData): HistoryOperation {
+  const { bitmapName, fromType, toType, clearedProperties } = data;
+
+  return {
+    type: 'change-bitmap-type',
+    description: `Change bitmap "${bitmapName}" from ${fromType} to ${toType}`,
+    timestamp: Date.now(),
+    undo: () => {
+      // First clear the new type's properties (if any were set)
+      for (const prop of BITMAP_TYPE_PROPERTIES[toType]) {
+        storeUpdateBitmapProperty(bitmapName, prop, '');
+      }
+      // Restore all properties that were cleared
+      for (const [prop, value] of Object.entries(clearedProperties)) {
+        storeUpdateBitmapProperty(bitmapName, prop, value);
+      }
+    },
+    redo: () => {
+      // Clear the old type's properties again
+      for (const prop of Object.keys(clearedProperties)) {
+        storeUpdateBitmapProperty(bitmapName, prop, '');
+      }
+    },
+  };
+}
+
+/**
+ * Gets the properties that should be cleared when switching from one bitmap type to another.
+ *
+ * @param fromType - The current bitmap type
+ * @param toType - The target bitmap type
+ * @returns Array of property names to clear
+ */
+export function getPropertiesToClearForTypeChange(
+  fromType: BitmapType,
+  toType: BitmapType
+): string[] {
+  if (fromType === toType) return [];
+  return BITMAP_TYPE_PROPERTIES[fromType];
 }
