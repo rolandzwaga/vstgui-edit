@@ -59,6 +59,16 @@ export {
   updateCameraAspect,
   updateLightPosition,
 } from './scene';
+// Shaders
+export {
+  BRUSHED_METAL_FRAGMENT_SHADER,
+  BRUSHED_METAL_VERTEX_SHADER,
+  getBrushedMetalShaderChunks,
+  LINEAR_BRUSH_GLSL,
+  NOISE_2D_GLSL,
+  RADIAL_BRUSH_GLSL,
+  validateShaderCode,
+} from './shaders';
 // Validation
 export {
   clampValue,
