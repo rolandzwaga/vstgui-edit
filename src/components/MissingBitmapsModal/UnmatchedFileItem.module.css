@@ -1,0 +1,139 @@
+/**
+ * UnmatchedFileItem styles
+ */
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--color-warning-50);
+  border: 1px solid var(--color-warning-500);
+  border-radius: var(--radius-md);
+}
+
+.fileInfo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.filename {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.editButton {
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editButton:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.editButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nameInput {
+  width: 150px;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.nameInput:focus {
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+.nameInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.addButton {
+  padding: var(--spacing-1) var(--spacing-3);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-on-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.addButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.addButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ignoreButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ignoreButton:hover:not(:disabled) {
+  background-color: var(--color-error-light);
+  border-color: var(--color-error-500);
+  color: var(--color-error);
+}
+
+.ignoreButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ignoreIcon {
+  width: 14px;
+  height: 14px;
+}

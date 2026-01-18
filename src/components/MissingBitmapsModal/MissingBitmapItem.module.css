@@ -1,0 +1,97 @@
+/**
+ * MissingBitmapItem Styles
+ */
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  transition: background-color 0.15s ease;
+}
+
+.uploaded {
+  background-color: var(--color-surface-secondary);
+  opacity: 0.7;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.warningIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-warning-500);
+  flex-shrink: 0;
+}
+
+.checkIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-success-600);
+  flex-shrink: 0;
+}
+
+.name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.path {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 20px;
+}
+
+.action {
+  flex-shrink: 0;
+  margin-left: var(--spacing-3);
+}
+
+.browseButton {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.browseButton:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.uploadedLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-success-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.hiddenInput {
+  display: none;
+}

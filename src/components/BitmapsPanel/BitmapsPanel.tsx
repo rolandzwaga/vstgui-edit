@@ -14,6 +14,12 @@ import {
 import { pushOperation } from '../../stores/historyStore';
 import { projectStore } from '../../stores/projectStore';
 import {
+  missingBitmapsStore,
+  hasMissingBitmaps,
+  isBitmapMissing,
+  openMissingBitmapsModal,
+} from '../../stores/missingBitmapsStore';
+import {
   createAddBitmapOperation,
   createDeleteBitmapOperation,
   initBitmapHistoryOperations,
@@ -163,8 +169,14 @@ export const BitmapsPanel: Component = () => {
   const handleUpload = async (bitmapName: string, file: File) => {
     setUploadError(null);
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     // Upload to the existing bitmap (update its path and blob)
-    const result: UploadBitmapResult = await uploadBitmap(file, { targetBitmapName: bitmapName });
+    const result: UploadBitmapResult = await uploadBitmap(file, currentProjectId, { targetBitmapName: bitmapName });
 
     if (result.success) {
       // Upload successful - nothing more to do
@@ -179,8 +191,14 @@ export const BitmapsPanel: Component = () => {
     const conflict = uploadConflict();
     if (!conflict) return;
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     setUploadConflict(null);
-    const result = await uploadBitmap(conflict.file, { conflictResolution: 'replace' });
+    const result = await uploadBitmap(conflict.file, currentProjectId, { conflictResolution: 'replace' });
 
     if (!result.success && result.error) {
       setUploadError(result.error);
@@ -191,8 +209,14 @@ export const BitmapsPanel: Component = () => {
     const conflict = uploadConflict();
     if (!conflict) return;
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     setUploadConflict(null);
-    const result = await uploadBitmap(conflict.file, { conflictResolution: 'rename' });
+    const result = await uploadBitmap(conflict.file, currentProjectId, { conflictResolution: 'rename' });
 
     if (!result.success && result.error) {
       setUploadError(result.error);
@@ -207,12 +231,30 @@ export const BitmapsPanel: Component = () => {
     setUploadError(null);
   };
 
+  const handleOpenMissingModal = () => {
+    openMissingBitmapsModal();
+  };
+
   return (
     <div class={styles.panel} data-testid="bitmaps-panel">
       <CollapsibleSection
         title="Bitmaps"
         defaultExpanded={false}
-        headerActions={<AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />}
+        headerActions={
+          <div class={styles.headerActions}>
+            <Show when={hasMissingBitmaps()}>
+              <button
+                type="button"
+                class={styles.uploadMissingButton}
+                onClick={handleOpenMissingModal}
+                data-testid="upload-missing-button"
+              >
+                Upload Missing
+              </button>
+            </Show>
+            <AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />
+          </div>
+        }
       >
         <Show when={hasBitmaps()} fallback={<EmptyState />}>
           <div ref={listRef} role="list" aria-label="Bitmap definitions" class={styles.list}>
@@ -226,6 +268,7 @@ export const BitmapsPanel: Component = () => {
                   usageCount={getUsageCount(item.name)}
                   onUsageClick={handleUsageClick}
                   onUpload={handleUpload}
+                  isMissing={isBitmapMissing(item.name)}
                 />
               )}
             </For>

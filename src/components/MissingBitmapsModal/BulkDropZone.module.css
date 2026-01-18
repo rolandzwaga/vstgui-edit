@@ -1,0 +1,64 @@
+/**
+ * BulkDropZone Styles
+ */
+
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropZone:hover:not(.disabled) {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.dragging {
+  border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-text-muted);
+}
+
+.dragging .icon {
+  color: var(--color-primary);
+}
+
+.text {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.subtext {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.hiddenInput {
+  display: none;
+}

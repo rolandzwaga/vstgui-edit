@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run --reporter=dot",
+    "test": "vitest run --reporter=verbose",
     "test:watch": "vitest",
     "lint": "biome lint .",
     "lint:css": "stylelint \"**/*.module.css\"",

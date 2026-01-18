@@ -6,6 +6,11 @@
  */
 
 import { createStore } from 'solid-js/store';
+import {
+  detectDuplicateBitmaps,
+  extractBitmapInfoFromDocument,
+  findMissingBitmapInfos,
+} from '../domain/bitmaps/missingBitmaps';
 import { parseUidesc } from '../domain/parser';
 import { generateThumbnail } from '../domain/project/thumbnail';
 import type {
@@ -25,6 +30,7 @@ import { serializeToJson, serializeToXml } from '../domain/serializer';
 import { bitmapService } from '../services/indexedDB/bitmapService';
 import { openDatabase } from '../services/indexedDB/database';
 import { projectService } from '../services/indexedDB/projectService';
+import type { VSTGUIUIDescription } from '../types/uidesc';
 import { restoreCanvasState } from './canvasStore';
 import {
   documentStore,
@@ -32,6 +38,11 @@ import {
   setDocumentForTest as setDocumentStoreContent,
 } from './documentStore';
 import { restoreHierarchyState } from './hierarchyStore';
+import {
+  openMissingBitmapsModal,
+  setDuplicateBitmaps,
+  setMissingBitmaps,
+} from './missingBitmapsStore';
 import { restorePropertiesState } from './propertiesStore';
 import { setActiveTemplate } from './templateStore';
 
@@ -181,6 +192,43 @@ export async function initializeProjectStore(): Promise<void> {
 }
 
 // ============================================================================
+// Missing Bitmap Detection
+// ============================================================================
+
+/**
+ * Detects missing bitmaps after loading or creating a project.
+ * If missing bitmaps are found, updates the missingBitmapsStore and opens the modal.
+ *
+ * @param projectId - The project ID
+ * @param uidescContent - The uidesc content string
+ */
+async function detectMissingBitmaps(projectId: string, uidescContent: string): Promise<void> {
+  // Parse the uidesc to extract bitmap info
+  const parseResult = parseUidesc(uidescContent);
+  if (!parseResult.success) {
+    return;
+  }
+
+  const doc = parseResult.document as VSTGUIUIDescription;
+  const bitmapInfos = extractBitmapInfoFromDocument(doc);
+
+  if (bitmapInfos.length === 0) {
+    return;
+  }
+
+  // Get stored bitmaps from IndexedDB
+  const storedBitmaps = store.isSessionOnly ? [] : await bitmapService.getByProject(projectId);
+
+  // Find which bitmaps are missing
+  const missingInfos = findMissingBitmapInfos(bitmapInfos, storedBitmaps);
+
+  if (missingInfos.length > 0) {
+    setMissingBitmaps(missingInfos);
+    openMissingBitmapsModal();
+  }
+}
+
+// ============================================================================
 // Project CRUD
 // ============================================================================
 
@@ -216,6 +264,12 @@ export async function createProject(
   uidescContent: string,
   uidescFormat: UidescFormat
 ): Promise<Project | null> {
+  // Detect duplicate bitmap names in raw content before parsing
+  const duplicates = detectDuplicateBitmaps(uidescContent);
+  if (duplicates.length > 0) {
+    setDuplicateBitmaps(duplicates);
+  }
+
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
 
@@ -250,6 +304,9 @@ export async function createProject(
     saveStatus: 'idle',
     lastSavedAt: null,
   });
+
+  // Detect missing bitmaps after project creation
+  await detectMissingBitmaps(project.id, uidescContent);
 
   return project;
 }
@@ -832,6 +889,12 @@ export async function replaceUidesc(
     return { success: false, error: 'No project is open' };
   }
 
+  // Detect duplicate bitmap names in raw content before parsing
+  const duplicates = detectDuplicateBitmaps(newContent);
+  if (duplicates.length > 0) {
+    setDuplicateBitmaps(duplicates);
+  }
+
   // Parse and validate the new content
   const parseResult = parseUidesc(newContent);
   if (!parseResult.success) {
@@ -876,6 +939,17 @@ export async function replaceUidesc(
   // Update the document store with parsed content
   // setDocumentForTest also sets parseState to 'valid'
   setDocumentStoreContent(parseResult.document);
+
+  // Detect missing bitmaps in the new uidesc content
+  // This also opens the modal if there are missing bitmaps
+  const doc = parseResult.document as VSTGUIUIDescription;
+  const bitmapInfos = extractBitmapInfoFromDocument(doc);
+  const missingInfos = findMissingBitmapInfos(bitmapInfos, storedBitmaps);
+
+  if (missingInfos.length > 0) {
+    setMissingBitmaps(missingInfos);
+    openMissingBitmapsModal();
+  }
 
   return { success: true, orphanedBitmaps };
 }

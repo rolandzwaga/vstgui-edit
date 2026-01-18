@@ -7,9 +7,10 @@ import {
   triggerDownload,
   type ExportBitmap,
 } from '../../domain/project';
+import { getBitmapPath } from '../../domain/bitmaps/missingBitmaps';
 import { bitmapService } from '../../services/indexedDB/bitmapService';
 import { projectStore } from '../../stores/projectStore';
-import { documentStore } from '../../stores/documentStore';
+import { documentStore, getBitmaps } from '../../stores/documentStore';
 import styles from './ExportMenu.module.css';
 
 export const ExportMenu: Component = () => {
@@ -62,12 +63,22 @@ export const ExportMenu: Component = () => {
       // Fetch stored bitmaps from IndexedDB
       const storedBitmaps = await bitmapService.getByProject(project.id);
 
-      // Convert to ExportBitmap format
+      // Get bitmap definitions from uidesc to get original paths
+      const bitmapDefs = getBitmaps() ?? {};
+
+      // Convert to ExportBitmap format, preserving original paths
       const exportBitmaps: ExportBitmap[] = await Promise.all(
-        storedBitmaps.map(async (bitmap) => ({
-          name: `${bitmap.name}.png`,
-          data: new Uint8Array(await bitmap.blob.arrayBuffer()),
-        }))
+        storedBitmaps.map(async (bitmap) => {
+          // Look up the original path from the uidesc document
+          const bitmapDef = bitmapDefs[bitmap.name];
+          const originalPath = bitmapDef ? getBitmapPath(bitmapDef) : '';
+
+          return {
+            name: bitmap.name,
+            path: originalPath,
+            data: new Uint8Array(await bitmap.blob.arrayBuffer()),
+          };
+        })
       );
 
       const content = await exportAsZIP(doc, project.name, exportBitmaps);
