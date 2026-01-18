@@ -9,6 +9,7 @@ import {
   findMissingBitmapInfos,
   matchUploadedFile,
   matchUploadedFiles,
+  deriveBasePath,
   detectDuplicateBitmapsInXml,
   detectDuplicateBitmapsInJson,
   detectDuplicateBitmaps,
@@ -191,6 +192,62 @@ describe('missingBitmaps', () => {
       const matches = matchUploadedFiles(files, missingBitmaps);
       expect(matches.size).toBe(1);
       expect(matches.get('knob')).toBe(file1);
+    });
+  });
+
+  describe('deriveBasePath', () => {
+    test('returns "bitmaps" for null document', () => {
+      expect(deriveBasePath(null)).toBe('bitmaps');
+    });
+
+    test('returns "bitmaps" for document without bitmaps section', () => {
+      const doc: VSTGUIUIDescription = {
+        'vstgui-ui-description': { version: '1', templates: {} },
+      };
+      expect(deriveBasePath(doc)).toBe('bitmaps');
+    });
+
+    test('returns "bitmaps" for empty bitmaps section', () => {
+      const doc = createDocument({});
+      expect(deriveBasePath(doc)).toBe('bitmaps');
+    });
+
+    test('returns directory from first bitmap with a path', () => {
+      const doc = createDocument({
+        knob: 'resources/knob.png',
+        button: 'images/button.png',
+      });
+      expect(deriveBasePath(doc)).toBe('resources');
+    });
+
+    test('returns directory from object-style bitmap definition', () => {
+      const doc = createDocument({
+        knob: { path: 'assets/controls/knob.png' },
+      });
+      expect(deriveBasePath(doc)).toBe('assets/controls');
+    });
+
+    test('returns "bitmaps" when all bitmaps have no directory', () => {
+      const doc = createDocument({
+        knob: 'knob.png',
+        button: 'button.png',
+      });
+      expect(deriveBasePath(doc)).toBe('bitmaps');
+    });
+
+    test('skips bitmaps without directory and finds first with directory', () => {
+      const doc = createDocument({
+        knob: 'knob.png',
+        button: 'images/button.png',
+      });
+      expect(deriveBasePath(doc)).toBe('images');
+    });
+
+    test('handles Windows-style paths', () => {
+      const doc = createDocument({
+        knob: 'resources\\controls\\knob.png',
+      });
+      expect(deriveBasePath(doc)).toBe('resources/controls');
     });
   });
 

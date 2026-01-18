@@ -21,6 +21,7 @@ import {
 } from '../../stores/missingBitmapsStore';
 import { matchUploadedFiles } from '../../domain/bitmaps/missingBitmaps';
 import { uploadBitmap } from '../../stores/documentStore';
+import { projectStore } from '../../stores/projectStore';
 import { BulkDropZone } from './BulkDropZone';
 import { MissingBitmapItem } from './MissingBitmapItem';
 import { UnmatchedFileItem } from './UnmatchedFileItem';
@@ -51,6 +52,11 @@ export const MissingBitmapsModal: Component<MissingBitmapsModalProps> = (props) 
   };
 
   const handleBulkUpload = async (files: File[]) => {
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      return;
+    }
+
     const remainingBitmaps = getRemainingMissingBitmaps();
     const matches = matchUploadedFiles(files, remainingBitmaps);
 
@@ -76,7 +82,7 @@ export const MissingBitmapsModal: Component<MissingBitmapsModalProps> = (props) 
 
     for (const [bitmapName, file] of matches) {
       try {
-        const result = await uploadBitmap(file, { targetBitmapName: bitmapName });
+        const result = await uploadBitmap(file, currentProjectId, { targetBitmapName: bitmapName });
         if (result.success) {
           uploadedNames.push(bitmapName);
         }
@@ -91,8 +97,13 @@ export const MissingBitmapsModal: Component<MissingBitmapsModalProps> = (props) 
   };
 
   const handleSingleUpload = async (bitmapName: string, file: File) => {
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      return;
+    }
+
     try {
-      const result = await uploadBitmap(file, { targetBitmapName: bitmapName });
+      const result = await uploadBitmap(file, currentProjectId, { targetBitmapName: bitmapName });
       if (result.success) {
         markBitmapUploaded(bitmapName);
       }
@@ -108,10 +119,15 @@ export const MissingBitmapsModal: Component<MissingBitmapsModalProps> = (props) 
   };
 
   const handleAddUnmatchedFile = async (file: File, bitmapName: string) => {
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      return;
+    }
+
     setAddingFile(file.name);
     try {
       // Upload as new bitmap (no targetBitmapName means create new)
-      const result = await uploadBitmap(file);
+      const result = await uploadBitmap(file, currentProjectId);
       if (result.success) {
         // Remove from unmatched list
         setUnmatchedFiles((prev) => prev.filter((f) => f.name !== file.name));

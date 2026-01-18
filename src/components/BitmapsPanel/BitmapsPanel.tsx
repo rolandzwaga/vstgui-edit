@@ -169,8 +169,14 @@ export const BitmapsPanel: Component = () => {
   const handleUpload = async (bitmapName: string, file: File) => {
     setUploadError(null);
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     // Upload to the existing bitmap (update its path and blob)
-    const result: UploadBitmapResult = await uploadBitmap(file, { targetBitmapName: bitmapName });
+    const result: UploadBitmapResult = await uploadBitmap(file, currentProjectId, { targetBitmapName: bitmapName });
 
     if (result.success) {
       // Upload successful - nothing more to do
@@ -185,8 +191,14 @@ export const BitmapsPanel: Component = () => {
     const conflict = uploadConflict();
     if (!conflict) return;
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     setUploadConflict(null);
-    const result = await uploadBitmap(conflict.file, { conflictResolution: 'replace' });
+    const result = await uploadBitmap(conflict.file, currentProjectId, { conflictResolution: 'replace' });
 
     if (!result.success && result.error) {
       setUploadError(result.error);
@@ -197,8 +209,14 @@ export const BitmapsPanel: Component = () => {
     const conflict = uploadConflict();
     if (!conflict) return;
 
+    const currentProjectId = projectStore.currentProject?.id;
+    if (!currentProjectId) {
+      setUploadError('No project open. Save the project first.');
+      return;
+    }
+
     setUploadConflict(null);
-    const result = await uploadBitmap(conflict.file, { conflictResolution: 'rename' });
+    const result = await uploadBitmap(conflict.file, currentProjectId, { conflictResolution: 'rename' });
 
     if (!result.success && result.error) {
       setUploadError(result.error);

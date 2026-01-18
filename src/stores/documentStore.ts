@@ -34,7 +34,6 @@ import { resetGuidesStore } from './guidesStore';
 import { pushOperation } from './historyStore';
 import { resetLockHideStore } from './lockHideStore';
 import { applyDefaultStatesOnDocumentLoad } from './preferencesStore';
-import { projectStore } from './projectStore';
 import { resetTemplateStore, setActiveTemplate, templateStore } from './templateStore';
 
 function parseSizeRaw(size: string | undefined): Size {
@@ -2278,6 +2277,36 @@ export interface UploadBitmapOptions {
 }
 
 /**
+ * Derives the base path (directory) for new bitmaps from existing bitmaps in the document.
+ * Returns the directory from the first bitmap that has a path, or 'bitmaps' as fallback.
+ * This is a local copy to avoid cross-module import issues.
+ */
+function deriveBasePathFromDocument(doc: VSTGUIUIDescription | null): string {
+  if (!doc) return 'bitmaps';
+
+  const uidesc = doc['vstgui-ui-description'];
+  if (!uidesc) return 'bitmaps';
+
+  const bitmaps = uidesc.bitmaps;
+  if (!bitmaps) return 'bitmaps';
+
+  // Look through all bitmaps to find one with a directory in its path
+  for (const bitmap of Object.values(bitmaps)) {
+    const path = typeof bitmap === 'string' ? bitmap : bitmap?.path || '';
+    if (path) {
+      const normalized = path.replace(/\\/g, '/');
+      const lastSlash = normalized.lastIndexOf('/');
+      if (lastSlash !== -1) {
+        return normalized.substring(0, lastSlash);
+      }
+    }
+  }
+
+  // Fallback to 'bitmaps' if no bitmap has a directory
+  return 'bitmaps';
+}
+
+/**
  * Uploads a bitmap file to the document and IndexedDB.
  *
  * The bitmap is stored in two places:
@@ -2290,11 +2319,13 @@ export interface UploadBitmapOptions {
  * or 'rename' to complete the upload.
  *
  * @param file - The image file to upload
+ * @param projectId - The project ID for IndexedDB storage
  * @param options - Upload options (targetBitmapName or conflictResolution)
  * @returns Promise resolving to the upload result
  */
 export async function uploadBitmap(
   file: File,
+  projectId: string,
   options?: UploadBitmapOptions | 'replace' | 'rename'
 ): Promise<UploadBitmapResult> {
   // Normalize options parameter (support legacy string form)
@@ -2304,12 +2335,6 @@ export async function uploadBitmap(
   const doc = store.document;
   if (!doc) {
     return { success: false, error: 'No document loaded' };
-  }
-
-  // Check for project (needed for IndexedDB storage)
-  const currentProject = projectStore.currentProject;
-  if (!currentProject) {
-    return { success: false, error: 'No project open. Save the project first.' };
   }
 
   // Validate the file
@@ -2343,7 +2368,7 @@ export async function uploadBitmap(
     }
 
     // Remove existing blob from IndexedDB if it exists
-    const existingBlobs = await bitmapService.getByProject(currentProject.id);
+    const existingBlobs = await bitmapService.getByProject(projectId);
     const existingBlob = existingBlobs.find(b => b.name === targetName);
     if (existingBlob) {
       await bitmapService.delete(existingBlob.id);
@@ -2368,14 +2393,14 @@ export async function uploadBitmap(
       }
     }
 
-    // Update the bitmap's path in the document (use bitmaps/ prefix for VSTGUI convention)
-    const newPath = `bitmaps/${imageData.filename}`;
-    updateBitmapProperty(finalName, 'path', newPath);
+    // Preserve the original path from the uidesc document
+    // This ensures exports use the correct directory structure
+    const newPath = originalPath;
 
     // Create the IndexedDB bitmap record
     const indexedDBBitmap: Bitmap = {
       id: crypto.randomUUID(),
-      projectId: currentProject.id,
+      projectId: projectId,
       name: finalName,
       blob: imageData.blob,
       mimeType: imageData.mimeType,
@@ -2402,7 +2427,7 @@ export async function uploadBitmap(
     }
 
     // Invalidate thumbnail cache so it refreshes
-    invalidateThumbnailCache(currentProject.id, finalName);
+    invalidateThumbnailCache(projectId, finalName);
 
     // Create a single compound history operation for the entire upload
     pushOperation(
@@ -2412,7 +2437,7 @@ export async function uploadBitmap(
         originalPath,
         newPath,
         indexedDBBitmap,
-        projectId: currentProject.id,
+        projectId: projectId,
       })
     );
 
@@ -2445,7 +2470,7 @@ export async function uploadBitmap(
       const existingBitmap = existingBitmaps[baseName];
       if (existingBitmap) {
         // Remove existing blob from IndexedDB if it exists
-        const existingBlobs = await bitmapService.getByProject(currentProject.id);
+        const existingBlobs = await bitmapService.getByProject(projectId);
         const existingBlob = existingBlobs.find(b => b.name === baseName);
         if (existingBlob) {
           await bitmapService.delete(existingBlob.id);
@@ -2461,15 +2486,17 @@ export async function uploadBitmap(
     finalName = baseName;
   }
 
-  // Create the bitmap definition for uidesc (just the filename as path)
+  // Create the bitmap definition for uidesc
+  // Derive base path from existing bitmaps to maintain consistent directory structure
+  const basePath = deriveBasePathFromDocument(doc);
   const bitmapDefinition: BitmapDefinition = {
-    path: imageData.filename,
+    path: `${basePath}/${imageData.filename}`,
   };
 
   // Create the IndexedDB bitmap record
   const indexedDBBitmap: Bitmap = {
     id: crypto.randomUUID(),
-    projectId: currentProject.id,
+    projectId: projectId,
     name: finalName,
     blob: imageData.blob,
     mimeType: imageData.mimeType,

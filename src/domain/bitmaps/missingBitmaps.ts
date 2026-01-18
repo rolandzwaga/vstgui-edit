@@ -159,6 +159,48 @@ export function matchUploadedFiles(
 }
 
 /**
+ * Gets the directory portion of a path.
+ * Returns empty string if path has no directory.
+ */
+function getDirectoryFromPath(path: string): string {
+  const normalized = path.replace(/\\/g, '/');
+  const lastSlash = normalized.lastIndexOf('/');
+  if (lastSlash === -1) return '';
+  return normalized.substring(0, lastSlash);
+}
+
+/**
+ * Derives the base path (directory) for new bitmaps from existing bitmaps in the document.
+ * Returns the directory from the first bitmap that has a path, or 'bitmaps' as fallback.
+ *
+ * @param doc - The parsed uidesc document
+ * @returns The base path to use for new bitmaps (e.g., 'resources', 'images/buttons')
+ */
+export function deriveBasePath(doc: VSTGUIUIDescription | null): string {
+  if (!doc) return 'bitmaps';
+
+  const uidesc = doc['vstgui-ui-description'];
+  if (!uidesc) return 'bitmaps';
+
+  const bitmaps = uidesc.bitmaps;
+  if (!bitmaps) return 'bitmaps';
+
+  // Look through all bitmaps to find one with a directory in its path
+  for (const bitmap of Object.values(bitmaps)) {
+    const path = getBitmapPath(bitmap);
+    if (path) {
+      const dir = getDirectoryFromPath(path);
+      if (dir) {
+        return dir;
+      }
+    }
+  }
+
+  // Fallback to 'bitmaps' if no bitmap has a directory
+  return 'bitmaps';
+}
+
+/**
  * Detects duplicate bitmap names in XML content.
  * Scans for all <bitmap name="..."> elements and counts occurrences.
  *
