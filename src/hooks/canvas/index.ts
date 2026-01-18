@@ -22,3 +22,8 @@ export {
   type UseGuideDragResult,
   useGuideDrag,
 } from './useGuideDrag';
+export {
+  type UseKnobPreviewOptions,
+  type UseKnobPreviewResult,
+  useKnobPreview,
+} from './useKnobPreview';

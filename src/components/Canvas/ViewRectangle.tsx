@@ -4,6 +4,9 @@ import type { StyledViewProps } from '../../types/viewMode';
 import { isSelected, selectionStore, setHovered } from '../../stores/selectionStore';
 import { viewModeStore } from '../../stores/viewModeStore';
 import { isAncestorOfSelected } from '../../domain/canvas/ancestors';
+import { isAnimKnobWithBitmap } from '../../domain/animknob';
+import { getView } from '../../stores/documentStore';
+import { AnimKnobPreview } from './AnimKnobPreview';
 import styles from './Canvas.module.css';
 
 /** Padding from left edge for title */
@@ -103,6 +106,21 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
   };
 
   /**
+   * Checks if this view is a CAnimKnob that should render a filmstrip.
+   * Only renders filmstrip in styled mode with a bitmap attribute.
+   */
+  const shouldRenderFilmstrip = () => {
+    if (!isInStyledMode()) {
+      return false;
+    }
+    const viewNode = getView(props.view.id);
+    if (!viewNode) {
+      return false;
+    }
+    return isAnimKnobWithBitmap(props.view.className, viewNode.attributes);
+  };
+
+  /**
    * Determines if styled rendering should be used for fill.
    * True when in styled mode AND styledProps are provided AND not using wireframe fallback.
    */
@@ -158,6 +176,17 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
 
   return (
     <g data-testid={`view-${props.view.id}`} data-view-id={props.view.id} opacity={getGroupOpacity()}>
+      {/* Render filmstrip for CAnimKnob views in styled mode */}
+      <Show when={shouldRenderFilmstrip()}>
+        <AnimKnobPreview
+          viewId={props.view.id}
+          x={props.view.absoluteX}
+          y={props.view.absoluteY}
+          width={props.view.width}
+          height={props.view.height}
+        />
+      </Show>
+      {/* Background rect - transparent fill when filmstrip is shown */}
       <rect
         data-testid={`view-rect-${props.view.id}`}
         class={rectClass()}
@@ -165,7 +194,7 @@ export const ViewRectangle: Component<ViewRectangleProps> = (props) => {
         y={props.view.absoluteY}
         width={props.view.width}
         height={props.view.height}
-        style={getInlineStyle()}
+        style={shouldRenderFilmstrip() ? 'fill: transparent' : getInlineStyle()}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />
