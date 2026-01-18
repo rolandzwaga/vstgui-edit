@@ -6,37 +6,37 @@
  */
 
 import {
-  WebGLRenderer,
-  Scene,
-  OrthographicCamera,
-  DirectionalLight,
-  AmbientLight,
+  type AmbientLight,
+  type DirectionalLight,
   Group,
-  Mesh,
-  WebGLRenderTarget,
   LinearFilter,
+  Mesh,
+  type OrthographicCamera,
   RGBAFormat,
+  type Scene,
+  WebGLRenderer,
+  WebGLRenderTarget,
 } from 'three';
-import type { KnobDesign, GenerationProgress } from '../../types/knobDesigner';
 import {
-  createScene,
-  createCamera,
-  createMainLight,
-  createAmbientLight,
-  updateLightPosition,
-  updateCameraAspect,
-} from '../../domain/knobDesigner/scene';
-import {
-  createLayerGeometry,
-  createIndicatorGeometry,
-  calculateSegments,
   calculateLayerYOffset,
+  calculateSegments,
+  createIndicatorGeometry,
+  createLayerGeometry,
 } from '../../domain/knobDesigner/geometry';
 import {
-  createMaterial,
   createIndicatorMaterial,
+  createMaterial,
   disposeAll as disposeMaterials,
 } from '../../domain/knobDesigner/materials';
+import {
+  createAmbientLight,
+  createCamera,
+  createMainLight,
+  createScene,
+  updateCameraAspect,
+  updateLightPosition,
+} from '../../domain/knobDesigner/scene';
+import type { GenerationProgress, KnobDesign } from '../../types/knobDesigner';
 
 // ============================================================================
 // Service State
@@ -50,7 +50,7 @@ let ambientLight: AmbientLight | null = null;
 let knobGroup: Group | null = null;
 
 let animationFrameId: number | null = null;
-let previewAngle = 0;
+const _previewAngle = 0;
 let currentDesign: KnobDesign | null = null;
 
 // Generation cancellation
@@ -203,7 +203,7 @@ export function updateScene(design: KnobDesign): void {
   });
 
   // Create indicator if enabled
-  if (design.indicator && design.indicator.enabled) {
+  if (design.indicator?.enabled) {
     const topLayer = design.layers[design.layers.length - 1];
     const layerRadius = (topLayer.geometry.diameter / 100) * (overallDiameter / 2);
 

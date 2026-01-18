@@ -6,11 +6,10 @@
  */
 
 import {
-  Scene,
-  OrthographicCamera,
-  DirectionalLight,
   AmbientLight,
-  Color,
+  DirectionalLight,
+  OrthographicCamera,
+  Scene,
   Spherical,
   Vector3,
 } from 'three';
@@ -20,7 +19,7 @@ import {
 // ============================================================================
 
 /** Default background color (transparent) */
-const TRANSPARENT_BACKGROUND = 0x000000;
+const _TRANSPARENT_BACKGROUND = 0x000000;
 
 /** Default light intensity */
 const MAIN_LIGHT_INTENSITY = 1.0;

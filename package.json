@@ -27,7 +27,7 @@
     "fflate": "0.8.2",
     "solid-fontawesome": "0.2.1",
     "solid-js": "1.9.10",
-    "three": "^0.182.0"
+    "three": "0.182.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
@@ -35,7 +35,7 @@
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/user-event": "14.6.1",
     "@types/node": "25.0.9",
-    "@types/three": "^0.182.0",
+    "@types/three": "0.182.0",
     "@vitest/coverage-v8": "4.0.17",
     "fake-indexeddb": "6.2.5",
     "jsdom": "27.4.0",

@@ -5,14 +5,9 @@
  * Supports solid, metallic, matte, and brushed metal materials.
  */
 
-import {
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  Color,
-  DoubleSide,
-} from 'three';
 import type { Material } from 'three';
-import type { LayerMaterial, IndicatorMaterial, MaterialType } from '../../types/knobDesigner';
+import { Color, DoubleSide, MeshBasicMaterial, MeshStandardMaterial } from 'three';
+import type { IndicatorMaterial, LayerMaterial } from '../../types/knobDesigner';
 
 // ============================================================================
 // Material Cache
@@ -27,7 +22,10 @@ const materialCache = new Map<string, Material>();
 /**
  * Generates a cache key from material properties.
  */
-function getMaterialCacheKey(material: LayerMaterial | IndicatorMaterial, isIndicator: boolean): string {
+function getMaterialCacheKey(
+  material: LayerMaterial | IndicatorMaterial,
+  isIndicator: boolean
+): string {
   if (isIndicator) {
     const ind = material as IndicatorMaterial;
     return `ind_${ind.color}_${ind.metallic}`;

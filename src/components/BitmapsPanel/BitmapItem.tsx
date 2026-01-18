@@ -3,6 +3,7 @@ import type { BitmapDefinition, BitmapType } from '../../types/uidesc';
 import { getBitmapType } from '../../types/uidesc';
 import { getBitmaps, updateBitmapName, updateBitmapProperty } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
+import { openKnobDesigner } from '../../stores/knobDesignerStore';
 import {
   createEditBitmapNameOperation,
   createEditBitmapPropertyOperation,
@@ -333,6 +334,13 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
     fileInputRef?.click();
   };
 
+  const handleDesignKnobClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (props.projectId) {
+      openKnobDesigner(props.name, props.projectId);
+    }
+  };
+
   const handleFileSelect = (e: Event) => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -451,7 +459,7 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
 
       <Show when={isExpanded()}>
         <div class={styles.properties} data-testid="bitmap-properties">
-          <div class={styles.uploadRow}>
+          <div class={styles.buttonRow}>
             <input
               type="file"
               accept="image/png,image/jpeg,image/gif,image/bmp"
@@ -477,6 +485,21 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
                 />
               </svg>
               <span>Upload Image</span>
+            </button>
+            <button
+              type="button"
+              class={styles.designKnobButton}
+              onClick={handleDesignKnobClick}
+              disabled={props.isReadOnly || !props.projectId}
+              data-testid="design-knob-button"
+              aria-label="Design 3D knob filmstrip"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="7" cy="7" r="2" fill="currentColor" />
+                <path d="M7 2.5V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+              <span>Design Knob</span>
             </button>
           </div>
           <div class={styles.propertyRow}>

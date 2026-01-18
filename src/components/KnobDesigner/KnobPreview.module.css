@@ -21,6 +21,7 @@
   width: 100%;
   height: 100%;
   display: block;
+
   /* Checkerboard background to show transparency */
   background-image:
     linear-gradient(45deg, var(--color-checkerboard) 25%, transparent 25%),

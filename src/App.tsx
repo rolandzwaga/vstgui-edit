@@ -6,6 +6,7 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { CreateNewDialog } from './components/CreateNewDialog';
 import { DuplicateBitmapsWarningDialog } from './components/DuplicateBitmapsWarningDialog';
 import { FindPanel } from './components/FindPanel';
+import { KnobDesignerModal } from './components/KnobDesigner';
 import { MissingBitmapsModal } from './components/MissingBitmapsModal';
 import { OrphanWarningDialog } from './components/OrphanWarningDialog';
 import { ProjectList } from './components/ProjectList';
@@ -419,6 +420,9 @@ export default function App() {
         duplicateBitmaps={missingBitmapsStore.duplicateBitmaps}
         onConfirm={closeDuplicateWarning}
       />
+
+      {/* 3D Knob Designer modal */}
+      <KnobDesignerModal />
     </main>
   );
 }

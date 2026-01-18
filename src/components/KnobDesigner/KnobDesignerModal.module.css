@@ -7,10 +7,7 @@
 /* Overlay */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: var(--color-overlay);
   display: flex;
   align-items: center;
@@ -274,7 +271,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .content {
     flex-direction: column;
   }

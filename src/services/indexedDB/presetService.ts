@@ -5,9 +5,9 @@
  * Follows the pattern established by bitmapService.
  */
 
-import type { KnobPreset } from '../../types/knobDesigner';
-import { INDEXES, STORES } from '../../domain/project/types';
 import { BUILTIN_PRESETS } from '../../domain/knobDesigner/defaults';
+import { INDEXES, STORES } from '../../domain/project/types';
+import type { KnobPreset } from '../../types/knobDesigner';
 import { getStore, promisifyRequest } from './database';
 
 // ============================================================================

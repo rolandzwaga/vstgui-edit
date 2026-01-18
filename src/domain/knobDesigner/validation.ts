@@ -6,12 +6,12 @@
  */
 
 import type {
+  IndicatorType,
+  KnobIndicator,
   LayerGeometry,
   LayerMaterial,
-  KnobIndicator,
   LightingConfig,
   OutputConfig,
-  IndicatorType,
 } from '../../types/knobDesigner';
 
 // ============================================================================
@@ -527,12 +527,18 @@ export function validatePresetName(name: string): ValidationResult {
     return { valid: false, error: 'Name cannot be empty' };
   }
   if (trimmed.length > PRESET_CONSTRAINTS.NAME.MAX_LENGTH) {
-    return { valid: false, error: `Name must be at most ${PRESET_CONSTRAINTS.NAME.MAX_LENGTH} characters` };
+    return {
+      valid: false,
+      error: `Name must be at most ${PRESET_CONSTRAINTS.NAME.MAX_LENGTH} characters`,
+    };
   }
 
   // Check characters
   if (!PRESET_NAME_REGEX.test(trimmed)) {
-    return { valid: false, error: 'Name can only contain letters, numbers, spaces, hyphens, and underscores' };
+    return {
+      valid: false,
+      error: 'Name can only contain letters, numbers, spaces, hyphens, and underscores',
+    };
   }
 
   return { valid: true };

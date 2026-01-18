@@ -236,6 +236,12 @@
   white-space: nowrap;
 }
 
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .uploadRow {
   display: flex;
   margin-bottom: 4px;
@@ -258,7 +264,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  width: 100%;
+  flex: 1;
   height: 28px;
   padding: 0 12px;
   border: 1px dashed var(--color-border);
@@ -282,6 +288,39 @@
 }
 
 .uploadButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.designKnobButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.designKnobButton:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.designKnobButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.designKnobButton:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 1px;
 }

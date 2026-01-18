@@ -6,24 +6,24 @@
  */
 
 import { createSignal } from 'solid-js';
-import type {
-  KnobDesign,
-  KnobLayer,
-  KnobIndicator,
-  LightingConfig,
-  OutputConfig,
-  GenerationProgress,
-  LayerGeometry,
-  LayerMaterial,
-  IndicatorType,
-  IndicatorMaterial,
-  IndicatorSize,
-  KnobDesignerHistoryOperation,
-  KnobPreset,
-} from '../types/knobDesigner';
-import { createDefaultDesign, copyDesign } from '../domain/knobDesigner/defaults';
+import { copyDesign, createDefaultDesign } from '../domain/knobDesigner/defaults';
 import { LAYER_CONSTRAINTS, PRESET_CONSTRAINTS } from '../domain/knobDesigner/validation';
 import { presetService } from '../services/indexedDB/presetService';
+import type {
+  GenerationProgress,
+  IndicatorMaterial,
+  IndicatorSize,
+  IndicatorType,
+  KnobDesign,
+  KnobDesignerHistoryOperation,
+  KnobIndicator,
+  KnobLayer,
+  KnobPreset,
+  LayerGeometry,
+  LayerMaterial,
+  LightingConfig,
+  OutputConfig,
+} from '../types/knobDesigner';
 
 // ============================================================================
 // Constants
@@ -484,7 +484,10 @@ export function updateIndicatorMaterial(material: Partial<IndicatorMaterial>): v
   const currentDesign = design();
   if (!currentDesign.indicator) return;
 
-  const oldIndicator = { ...currentDesign.indicator, material: { ...currentDesign.indicator.material } };
+  const oldIndicator = {
+    ...currentDesign.indicator,
+    material: { ...currentDesign.indicator.material },
+  };
   const newMaterial = { ...currentDesign.indicator.material, ...material };
   const newIndicator = { ...currentDesign.indicator, material: newMaterial };
 
@@ -658,7 +661,9 @@ export async function loadPreset(presetId: string): Promise<void> {
     clearHistory();
     setErrorMessage(null);
   } catch (error) {
-    setErrorMessage(`Failed to load preset: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    setErrorMessage(
+      `Failed to load preset: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -777,7 +782,7 @@ export async function getAllPresets(): Promise<
   try {
     const presets = await presetService.getAll();
     return presets.map(p => ({ id: p.id, name: p.name, isBuiltIn: p.isBuiltIn }));
-  } catch (error) {
+  } catch (_error) {
     setErrorMessage('Failed to load presets');
     return [];
   }
@@ -883,7 +888,9 @@ export async function generateFilmstrip(): Promise<void> {
     // Close modal after successful generation
     closeKnobDesigner();
   } catch (error) {
-    setErrorMessage(`Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    setErrorMessage(
+      `Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
     setGenerationProgress(null);
   }
 }

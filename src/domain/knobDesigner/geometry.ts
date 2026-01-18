@@ -6,19 +6,14 @@
  */
 
 import {
+  BoxGeometry,
+  type BufferGeometry,
   LatheGeometry,
   SphereGeometry,
-  BoxGeometry,
   TorusGeometry,
-  BufferGeometry,
   Vector2,
 } from 'three';
-import type {
-  KnobLayer,
-  LayerGeometry,
-  KnobIndicator,
-  SkirtStyle,
-} from '../../types/knobDesigner';
+import type { KnobIndicator, KnobLayer, LayerGeometry, SkirtStyle } from '../../types/knobDesigner';
 
 // ============================================================================
 // Constants
@@ -127,11 +122,7 @@ export function createLayerProfile(
  * @param skirtStyle - Skirt style
  * @returns Array of Vector2 points for the bottom portion
  */
-function handleSkirtStyle(
-  radius: number,
-  height: number,
-  skirtStyle: SkirtStyle
-): Vector2[] {
+function handleSkirtStyle(radius: number, height: number, skirtStyle: SkirtStyle): Vector2[] {
   const points: Vector2[] = [];
   const skirtHeight = height * 0.3; // Skirt is bottom 30%
 
@@ -147,8 +138,6 @@ function handleSkirtStyle(
       points.push(new Vector2(radius, 0));
       points.push(new Vector2(radius - skirtHeight * 0.5, skirtHeight));
       break;
-
-    case 'cylindrical':
     default:
       // Straight vertical edge
       points.push(new Vector2(radius, 0));
@@ -288,11 +277,7 @@ export function createNotchGeometry(depth: number, width: number): BoxGeometry {
  * @param radius - Arc radius from center
  * @returns TorusGeometry for the groove
  */
-export function createGrooveGeometry(
-  depth: number,
-  width: number,
-  radius: number
-): TorusGeometry {
+export function createGrooveGeometry(_depth: number, width: number, radius: number): TorusGeometry {
   // TorusGeometry: (radius, tube, radialSegments, tubularSegments, arc)
   return new TorusGeometry(radius, width / 2, 8, 4, Math.PI / 6);
 }
