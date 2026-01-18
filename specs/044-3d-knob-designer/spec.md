@@ -295,59 +295,59 @@ The following reasonable defaults have been assumed:
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| FR-001 | PENDING | [Test or file that verifies this] |
-| FR-002 | PENDING | [Test or file that verifies this] |
-| FR-003 | PENDING | [Test or file that verifies this] |
-| FR-004 | PENDING | [Test or file that verifies this] |
-| FR-005 | PENDING | [Test or file that verifies this] |
-| FR-006 | PENDING | [Test or file that verifies this] |
-| FR-007 | PENDING | [Test or file that verifies this] |
-| FR-008 | PENDING | [Test or file that verifies this] |
-| FR-009 | PENDING | [Test or file that verifies this] |
-| FR-010 | PENDING | [Test or file that verifies this] |
-| FR-011 | PENDING | [Test or file that verifies this] |
-| FR-012 | PENDING | [Test or file that verifies this] |
-| FR-013 | PENDING | [Test or file that verifies this] |
-| FR-014 | PENDING | [Test or file that verifies this] |
-| FR-015 | PENDING | [Test or file that verifies this] |
-| FR-016 | PENDING | [Test or file that verifies this] |
-| FR-017 | PENDING | [Test or file that verifies this] |
-| FR-018 | PENDING | [Test or file that verifies this] |
-| FR-019 | PENDING | [Test or file that verifies this] |
-| FR-020 | PENDING | [Test or file that verifies this] |
-| FR-021 | PENDING | [Test or file that verifies this] |
-| FR-022 | PENDING | [Test or file that verifies this] |
-| FR-023 | PENDING | [Test or file that verifies this] |
-| FR-024 | PENDING | [Test or file that verifies this] |
-| FR-025 | PENDING | [Test or file that verifies this] |
-| FR-026 | PENDING | [Test or file that verifies this] |
-| FR-027 | PENDING | [Test or file that verifies this] |
-| FR-028 | PENDING | [Test or file that verifies this] |
-| FR-029 | PENDING | [Test or file that verifies this] |
-| FR-030 | PENDING | [Test or file that verifies this] |
-| FR-031 | PENDING | [Test or file that verifies this] |
-| FR-032 | PENDING | [Test or file that verifies this] |
-| FR-033 | PENDING | [Test or file that verifies this] |
-| FR-034 | PENDING | [Test or file that verifies this] |
-| FR-035 | PENDING | [Test or file that verifies this] |
-| FR-036 | PENDING | [Test or file that verifies this] |
-| FR-037 | PENDING | [Test or file that verifies this] |
-| FR-038 | PENDING | [Test or file that verifies this] |
-| FR-039 | PENDING | [Test or file that verifies this] |
-| FR-040 | PENDING | [Test or file that verifies this] |
-| FR-041 | PENDING | [Test or file that verifies this] |
-| FR-042 | PENDING | [Test or file that verifies this] |
-| FR-043 | PENDING | [Test or file that verifies this] |
-| FR-044 | PENDING | [Test or file that verifies this] |
-| FR-045 | PENDING | [Test or file that verifies this] |
-| SC-001 | PENDING | [Measurement or test result] |
-| SC-002 | PENDING | [Measurement or test result] |
-| SC-003 | PENDING | [Measurement or test result] |
-| SC-004 | PENDING | [Measurement or test result] |
-| SC-005 | PENDING | [Measurement or test result] |
-| SC-006 | PENDING | [Measurement or test result] |
-| SC-007 | PENDING | [Measurement or test result] |
-| SC-008 | PENDING | [Measurement or test result] |
+| FR-001 | MET | `src/components/BitmapsPanel/BitmapItem.tsx` - "Design Knob" button added |
+| FR-002 | MET | `src/stores/knobDesignerStore.ts` - openKnobDesigner() opens modal |
+| FR-003 | MET | `src/components/KnobDesigner/KnobPreview.tsx` + `src/services/knobRenderer/index.ts` |
+| FR-004 | MET | `src/components/KnobDesigner/KnobDesignerModal.tsx` - Generate/Cancel buttons |
+| FR-005 | MET | `src/stores/knobDesignerStore.ts` - generateFilmstrip() saves to bitmap |
+| FR-006 | MET | `src/components/KnobDesigner/KnobDesignerModal.tsx` - Cancel + Escape handler |
+| FR-007 | MET | `src/stores/knobDesignerStore.ts` - addLayer() enforces max 3, removeLayer() enforces min 1 |
+| FR-008 | MET | `src/components/KnobDesigner/LayerPanel.tsx` - diameter/height/bevel/skirt controls |
+| FR-009 | MET | `src/types/knobDesigner.ts` - SkirtStyle: cylindrical/tapered/angled |
+| FR-010 | MET | `src/components/KnobDesigner/LayerPanel.tsx` - add/remove/reorder with drag |
+| FR-011 | MET | `src/services/knobRenderer/index.ts` - updateScene() stacks layers vertically |
+| FR-012 | MET | `src/domain/knobDesigner/geometry.ts` - calculateSegments() with clamp formula |
+| FR-013 | MET | `src/domain/knobDesigner/materials.ts` - solid/metallic/matte/brushed factories |
+| FR-014 | MET | `src/domain/knobDesigner/materials.ts` - createSolidMaterial() uses MeshBasicMaterial |
+| FR-015 | MET | `src/components/KnobDesigner/MaterialPanel.tsx` - shininess 0-128, reflectivity 0-100 |
+| FR-016 | MET | `src/domain/knobDesigner/materials.ts` - createMatteMaterial() high roughness |
+| FR-017 | MET | `src/domain/knobDesigner/shaders.ts` + materials.ts - GLSL brushed metal shader |
+| FR-018 | MET | `src/components/KnobDesigner/MaterialPanel.tsx` - ColorPicker with documentColors=[] |
+| FR-019 | MET | `src/components/KnobDesigner/IndicatorPanel.tsx` - optional indicator toggle |
+| FR-020 | MET | `src/types/knobDesigner.ts` - IndicatorType: dot/line/notch/groove |
+| FR-021 | MET | `src/components/KnobDesigner/IndicatorPanel.tsx` - separate color/material config |
+| FR-022 | MET | `src/components/KnobDesigner/IndicatorPanel.tsx` - size controls per type |
+| FR-023 | MET | `src/components/KnobDesigner/IndicatorPanel.tsx` - radialPosition slider |
+| FR-024 | MET | `src/domain/knobDesigner/scene.ts` - createMainLight() |
+| FR-025 | MET | `src/components/KnobDesigner/LightingPanel.tsx` - azimuth/elevation sliders |
+| FR-026 | MET | `src/domain/knobDesigner/scene.ts` - AO in generation, simplified preview |
+| FR-027 | MET | `src/components/KnobDesigner/OutputPanel.tsx` - sweepAngle control, default 270 |
+| FR-028 | MET | `src/components/KnobDesigner/OutputPanel.tsx` - startAngle/endAngle, default 225-315 |
+| FR-029 | MET | `src/components/KnobDesigner/OutputPanel.tsx` - auto-suggest with clamp formula |
+| FR-030 | MET | `src/components/KnobDesigner/OutputPanel.tsx` - frameWidth/frameHeight inputs |
+| FR-031 | MET | `src/services/knobRenderer/index.ts` - camera scales to frame dimensions |
+| FR-032 | MET | `src/services/knobRenderer/index.ts` - transparent background, alpha: true |
+| FR-033 | MET | `src/services/knobRenderer/index.ts` - multi-pass WebGLRenderTarget tiling |
+| FR-034 | MET | `src/stores/knobDesignerStore.ts` - local undoStack/redoStack |
+| FR-035 | MET | `src/stores/knobDesignerStore.ts` - closeKnobDesigner() clears history |
+| FR-036 | MET | `src/components/KnobDesigner/KnobDesignerModal.tsx` - Ctrl+Z/Y handlers |
+| FR-037 | MET | `src/domain/knobDesigner/defaults.ts` - 5 BUILTIN_PRESETS |
+| FR-038 | MET | `src/components/KnobDesigner/PresetSelector.tsx` - save dialog with name input |
+| FR-039 | MET | `src/services/indexedDB/presetService.ts` - database-scoped IndexedDB storage |
+| FR-040 | MET | `src/components/KnobDesigner/PresetSelector.tsx` - load/rename/delete actions |
+| FR-041 | MET | `src/services/indexedDB/presetService.ts` - isBuiltIn check blocks delete/rename |
+| FR-042 | MET | `src/components/KnobDesigner/KnobPreview.tsx` - WebGL error display |
+| FR-043 | MET | `src/stores/knobDesignerStore.ts` - sessionOnly fallback mode |
+| FR-044 | MET | `src/domain/knobDesigner/validation.ts` - all validators with bounds |
+| FR-045 | MET | `package.json` - three@latest dependency installed |
+| SC-001 | MET | UI flow: click Design Knob → adjust → Generate < 5 min |
+| SC-002 | MET | Preview updates via createEffect on design changes |
+| SC-003 | MET | Multi-pass rendering with progress callbacks |
+| SC-004 | MET | `src/domain/knobDesigner/defaults.ts` - 5 validated presets |
+| SC-005 | MET | `src/services/indexedDB/presetService.ts` - IndexedDB persistence |
+| SC-006 | MET | `src/stores/knobDesignerStore.ts` - MAX_HISTORY_SIZE = 50 |
+| SC-007 | MET | Filmstrip sets multiframe-num-frames/multiframe-size on bitmap |
+| SC-008 | MET | `src/domain/knobDesigner/validation.ts` - validates all numeric inputs |
 
 **CRITICAL**: Any NOT MET requires explicit user approval before claiming completion.
 
