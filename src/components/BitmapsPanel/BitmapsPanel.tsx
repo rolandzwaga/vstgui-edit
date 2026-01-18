@@ -14,6 +14,12 @@ import {
 import { pushOperation } from '../../stores/historyStore';
 import { projectStore } from '../../stores/projectStore';
 import {
+  missingBitmapsStore,
+  hasMissingBitmaps,
+  isBitmapMissing,
+  openMissingBitmapsModal,
+} from '../../stores/missingBitmapsStore';
+import {
   createAddBitmapOperation,
   createDeleteBitmapOperation,
   initBitmapHistoryOperations,
@@ -207,12 +213,30 @@ export const BitmapsPanel: Component = () => {
     setUploadError(null);
   };
 
+  const handleOpenMissingModal = () => {
+    openMissingBitmapsModal();
+  };
+
   return (
     <div class={styles.panel} data-testid="bitmaps-panel">
       <CollapsibleSection
         title="Bitmaps"
         defaultExpanded={false}
-        headerActions={<AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />}
+        headerActions={
+          <div class={styles.headerActions}>
+            <Show when={hasMissingBitmaps()}>
+              <button
+                type="button"
+                class={styles.uploadMissingButton}
+                onClick={handleOpenMissingModal}
+                data-testid="upload-missing-button"
+              >
+                Upload Missing
+              </button>
+            </Show>
+            <AddBitmapButton onClick={handleAddBitmap} disabled={!hasDocument()} />
+          </div>
+        }
       >
         <Show when={hasBitmaps()} fallback={<EmptyState />}>
           <div ref={listRef} role="list" aria-label="Bitmap definitions" class={styles.list}>
@@ -226,6 +250,7 @@ export const BitmapsPanel: Component = () => {
                   usageCount={getUsageCount(item.name)}
                   onUsageClick={handleUsageClick}
                   onUpload={handleUpload}
+                  isMissing={isBitmapMissing(item.name)}
                 />
               )}
             </For>

@@ -12,6 +12,8 @@ const SEARCH_DEBOUNCE_MS = 150;
 export interface ProjectListProps {
   isOpen: boolean;
   projects: Project[];
+  /** ID of the currently open project (will be filtered from the list) */
+  currentProjectId?: string;
   onClose: () => void;
   onOpen: (id: string) => void;
   onDelete: (id: string) => void;
@@ -50,6 +52,11 @@ export const ProjectList: Component<ProjectListProps> = (props) => {
   const filteredProjects = createMemo(() => {
     const query = debouncedQuery().toLowerCase().trim();
     let projects = [...props.projects];
+
+    // Filter out the currently open project (prevents deleting it while open)
+    if (props.currentProjectId) {
+      projects = projects.filter((p) => p.id !== props.currentProjectId);
+    }
 
     // Filter by search query (case-insensitive)
     if (query) {

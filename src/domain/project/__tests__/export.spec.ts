@@ -122,7 +122,7 @@ describe('export', () => {
     test('includes bitmaps in archive when provided', async () => {
       const doc = createMockDocument();
       const bitmaps = [
-        { name: 'knob.png', data: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) },
+        { name: 'knob', path: 'resources/knob.png', data: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) },
       ];
       const result = await exportAsZIP(doc, 'TestProject', bitmaps);
 
@@ -130,14 +130,25 @@ describe('export', () => {
       expect(result.length).toBeGreaterThan(0);
     });
 
-    test('creates bitmaps subfolder for bitmap files', async () => {
+    test('preserves original path for bitmap files', async () => {
       const doc = createMockDocument();
       const bitmaps = [
-        { name: 'button.png', data: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) },
+        { name: 'button', path: 'images/buttons/button.png', data: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) },
       ];
       const result = await exportAsZIP(doc, 'TestProject', bitmaps);
 
-      // The archive should include bitmaps/button.png
+      // The archive should include images/buttons/button.png (original path)
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    test('falls back to bitmaps folder when no path provided', async () => {
+      const doc = createMockDocument();
+      const bitmaps = [
+        { name: 'button', path: '', data: new Uint8Array([0x89, 0x50, 0x4e, 0x47]) },
+      ];
+      const result = await exportAsZIP(doc, 'TestProject', bitmaps);
+
+      // The archive should include bitmaps/button
       expect(result.length).toBeGreaterThan(0);
     });
   });

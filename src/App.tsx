@@ -4,7 +4,9 @@ import { Canvas, Legend } from './components/Canvas';
 import { RulerContainer } from './components/Canvas/Rulers';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { CreateNewDialog } from './components/CreateNewDialog';
+import { DuplicateBitmapsWarningDialog } from './components/DuplicateBitmapsWarningDialog';
 import { FindPanel } from './components/FindPanel';
+import { MissingBitmapsModal } from './components/MissingBitmapsModal';
 import { OrphanWarningDialog } from './components/OrphanWarningDialog';
 import { ProjectList } from './components/ProjectList';
 import { TemplatesPanel } from './components/TemplatesPanel';
@@ -52,6 +54,10 @@ import {
   createProject,
   scheduleDocumentSave,
 } from './stores/projectStore';
+import {
+  closeDuplicateWarning,
+  missingBitmapsStore,
+} from './stores/missingBitmapsStore';
 import { closeDatabase } from './services/indexedDB/database';
 import './styles/tokens.css';
 
@@ -369,6 +375,7 @@ export default function App() {
       <ProjectList
         isOpen={projectStore.isProjectListOpen}
         projects={projects()}
+        currentProjectId={projectStore.currentProject?.id}
         onClose={handleCloseProjectList}
         onOpen={handleOpenProject}
         onDelete={handleDeleteProject}
@@ -401,6 +408,16 @@ export default function App() {
         orphanedBitmaps={orphanedBitmaps()}
         onConfirm={handleOrphanWarningDismiss}
         onCancel={handleOrphanWarningDismiss}
+      />
+
+      {/* Missing bitmaps modal - shown when imported uidesc references bitmaps not in IndexedDB */}
+      <MissingBitmapsModal isOpen={missingBitmapsStore.isModalOpen} />
+
+      {/* Duplicate bitmaps warning - shown when imported uidesc has duplicate bitmap names */}
+      <DuplicateBitmapsWarningDialog
+        isOpen={missingBitmapsStore.isDuplicateWarningOpen}
+        duplicateBitmaps={missingBitmapsStore.duplicateBitmaps}
+        onConfirm={closeDuplicateWarning}
       />
     </main>
   );

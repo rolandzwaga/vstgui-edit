@@ -7,13 +7,16 @@
 import { zip } from 'fflate';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
 import { serializeToJson, serializeToXml } from '../serializer';
+import { normalizeSeparators } from '../bitmaps/pathUtils';
 
 /**
  * Bitmap data for ZIP export
  */
 export interface ExportBitmap {
-  /** Bitmap filename (e.g., "knob.png") */
+  /** Bitmap name (key in uidesc bitmaps section) */
   name: string;
+  /** Original path from uidesc (e.g., "resources/knob.png") */
+  path: string;
   /** Binary bitmap data */
   data: Uint8Array;
 }
@@ -48,11 +51,11 @@ export function exportAsXML(document: VSTGUIUIDescription): string {
  *
  * Creates an archive containing:
  * - {projectName}.uidesc (JSON format)
- * - bitmaps/ subfolder with all bitmap files (if provided)
+ * - Bitmap files at their original paths from the uidesc document
  *
  * @param document - The uidesc document to export
  * @param projectName - The project name (used for uidesc filename)
- * @param bitmaps - Optional array of bitmap files to include
+ * @param bitmaps - Optional array of bitmap files to include (with original paths)
  * @returns Promise resolving to ZIP archive as Uint8Array
  */
 export function exportAsZIP(
@@ -69,11 +72,15 @@ export function exportAsZIP(
     const uidescFilename = `${sanitizeFilename(projectName)}.uidesc`;
     files[uidescFilename] = new TextEncoder().encode(uidescContent);
 
-    // Add bitmap files if provided
+    // Add bitmap files if provided, preserving their original paths
     if (bitmaps && bitmaps.length > 0) {
       for (const bitmap of bitmaps) {
-        const bitmapPath = `bitmaps/${sanitizeFilename(bitmap.name)}`;
-        files[bitmapPath] = bitmap.data;
+        // Use the original path from uidesc, normalized to forward slashes
+        // Fall back to bitmaps/{name} if no path is provided
+        const originalPath = bitmap.path
+          ? normalizeSeparators(bitmap.path)
+          : `bitmaps/${bitmap.name}`;
+        files[originalPath] = bitmap.data;
       }
     }
 

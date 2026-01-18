@@ -36,6 +36,8 @@ export interface BitmapItemProps {
   onUsageClick?: (name: string) => void;
   /** Called when user selects a file to upload for this bitmap */
   onUpload?: (name: string, file: File) => void;
+  /** Whether this bitmap is missing from IndexedDB storage */
+  isMissing?: boolean;
 }
 
 export const BitmapItem: Component<BitmapItemProps> = (props) => {
@@ -317,7 +319,7 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
 
   return (
     <div
-      class={`${styles.item} ${props.isReadOnly ? styles.readonly : ''} ${isExpanded() ? styles.expanded : ''}`}
+      class={`${styles.item} ${props.isReadOnly ? styles.readonly : ''} ${isExpanded() ? styles.expanded : ''} ${props.isMissing ? styles.missing : ''}`}
       data-testid="bitmap-item"
       title={needsTooltip() ? props.name : undefined}
       onMouseEnter={() => setIsHovered(true)}
@@ -333,13 +335,20 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
           <Show
             when={editingName()}
             fallback={
-              <span
-                class={styles.name}
-                data-testid="bitmap-name"
-                onDblClick={handleNameDblClick}
-              >
-                {displayName()}
-              </span>
+              <div class={styles.nameRow}>
+                <span
+                  class={styles.name}
+                  data-testid="bitmap-name"
+                  onDblClick={handleNameDblClick}
+                >
+                  {displayName()}
+                </span>
+                <Show when={props.isMissing}>
+                  <span class={styles.missingBadge} data-testid="missing-badge">
+                    Missing
+                  </span>
+                </Show>
+              </div>
             }
           >
             <div class={styles.editContainer} onClick={(e) => e.stopPropagation()}>
