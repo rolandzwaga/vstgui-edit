@@ -1,29 +1,29 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { testInRoot } from '../../__tests__/helpers/solidjs';
+import type { DuplicateBitmapInfo, MissingBitmapInfo } from '../../domain/bitmaps/missingBitmaps';
 import {
-  missingBitmapsStore,
-  openMissingBitmapsModal,
-  closeMissingBitmapsModal,
-  setMissingBitmaps,
-  markBitmapUploaded,
-  markBitmapsUploaded,
+  clearDuplicateBitmaps,
   clearUploadedBitmaps,
+  closeDuplicateWarning,
+  closeMissingBitmapsModal,
+  getMissingBitmapPath,
+  getMissingCount,
+  getRemainingMissingBitmaps,
+  getRemainingMissingNames,
+  getTotalMissingCount,
+  hasDuplicateBitmaps,
+  hasMissingBitmaps,
+  isBitmapMissing,
+  markBitmapsUploaded,
+  markBitmapUploaded,
+  missingBitmapsStore,
+  openDuplicateWarning,
+  openMissingBitmapsModal,
   removeMissingBitmap,
   resetMissingBitmapsStore,
-  hasMissingBitmaps,
-  getMissingCount,
-  getTotalMissingCount,
-  isBitmapMissing,
-  getMissingBitmapPath,
-  getRemainingMissingNames,
-  getRemainingMissingBitmaps,
-  openDuplicateWarning,
-  closeDuplicateWarning,
   setDuplicateBitmaps,
-  clearDuplicateBitmaps,
-  hasDuplicateBitmaps,
+  setMissingBitmaps,
 } from '../missingBitmapsStore';
-import type { MissingBitmapInfo, DuplicateBitmapInfo } from '../../domain/bitmaps/missingBitmaps';
 
 describe('missingBitmapsStore', () => {
   beforeEach(() => {

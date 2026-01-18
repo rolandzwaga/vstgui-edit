@@ -6,8 +6,8 @@
 
 import { zip } from 'fflate';
 import type { VSTGUIUIDescription } from '../../types/uidesc';
-import { serializeToJson, serializeToXml } from '../serializer';
 import { normalizeSeparators } from '../bitmaps/pathUtils';
+import { serializeToJson, serializeToXml } from '../serializer';
 
 /**
  * Bitmap data for ZIP export

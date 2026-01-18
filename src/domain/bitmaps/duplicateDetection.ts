@@ -128,7 +128,7 @@ function tokenize(json: string): Token[] {
             // Unicode escape
             const hex = json.substring(i + 2, i + 6);
             const codePoint = parseInt(hex, 16);
-            if (!isNaN(codePoint)) {
+            if (!Number.isNaN(codePoint)) {
               value += String.fromCharCode(codePoint);
               i += 6;
             } else {
@@ -217,7 +217,6 @@ export function detectDuplicateKeysInJsonBitmaps(content: string): DuplicateBitm
   let depth = 0;
   let inBitmapsObject = false;
   let bitmapsObjectDepth = -1;
-  let expectingKey = false;
   let lastKey = '';
   let expectingValue = false;
   let inNestedObject = false;
@@ -282,9 +281,6 @@ export function detectDuplicateKeysInJsonBitmaps(content: string): DuplicateBitm
 
     if (token.type === 'comma') {
       expectingValue = false;
-      if (inBitmapsObject && depth === bitmapsObjectDepth + 1 && !inNestedObject) {
-        expectingKey = true;
-      }
       i++;
       continue;
     }
@@ -293,10 +289,13 @@ export function detectDuplicateKeysInJsonBitmaps(content: string): DuplicateBitm
       // Check if this is the "bitmaps" key
       if (!inBitmapsObject && token.value === 'bitmaps') {
         // Look ahead for colon and lbrace
-        if (i + 2 < tokens.length && tokens[i + 1].type === 'colon' && tokens[i + 2].type === 'lbrace') {
+        if (
+          i + 2 < tokens.length &&
+          tokens[i + 1].type === 'colon' &&
+          tokens[i + 2].type === 'lbrace'
+        ) {
           inBitmapsObject = true;
           bitmapsObjectDepth = depth + 1; // The depth after we enter the bitmaps object
-          expectingKey = true;
           i += 3; // Skip "bitmaps", colon, and lbrace
           depth++; // We entered the bitmaps object
           continue;
@@ -318,7 +317,6 @@ export function detectDuplicateKeysInJsonBitmaps(content: string): DuplicateBitm
             bitmapKeys.set(key, { count: 1, paths: [] });
           }
 
-          expectingKey = false;
           i++;
           continue;
         }

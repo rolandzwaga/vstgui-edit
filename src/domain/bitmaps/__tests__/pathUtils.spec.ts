@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import {
-  isAbsolutePath,
-  normalizeSeparators,
+  ensureRelativePath,
   getDirectoryFromPath,
   getFilenameFromPath,
+  isAbsolutePath,
+  normalizeSeparators,
   normalizeToRelativePath,
-  ensureRelativePath,
 } from '../pathUtils';
 
 describe('pathUtils', () => {

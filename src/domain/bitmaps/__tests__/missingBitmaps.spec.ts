@@ -2,18 +2,18 @@ import { describe, expect, test } from 'vitest';
 import type { VSTGUIUIDescription } from '../../../types/uidesc';
 import type { Bitmap } from '../../project/types';
 import {
-  getBitmapPath,
-  extractBitmapNamesFromDocument,
+  deriveBasePath,
+  detectDuplicateBitmaps,
+  detectDuplicateBitmapsInJson,
+  detectDuplicateBitmapsInXml,
   extractBitmapInfoFromDocument,
-  findMissingBitmaps,
+  extractBitmapNamesFromDocument,
   findMissingBitmapInfos,
+  findMissingBitmaps,
+  getBitmapPath,
+  type MissingBitmapInfo,
   matchUploadedFile,
   matchUploadedFiles,
-  deriveBasePath,
-  detectDuplicateBitmapsInXml,
-  detectDuplicateBitmapsInJson,
-  detectDuplicateBitmaps,
-  type MissingBitmapInfo,
 } from '../missingBitmaps';
 
 // Helper to create minimal stored bitmap for testing

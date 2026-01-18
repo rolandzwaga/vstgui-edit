@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
-  detectDuplicateKeysInJsonBitmaps,
   type DuplicateBitmapInfo,
+  detectDuplicateKeysInJsonBitmaps,
 } from '../duplicateDetection';
 
 describe('duplicateDetection', () => {

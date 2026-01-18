@@ -6,10 +6,7 @@
 
 import type { BitmapDefinition, VSTGUIUIDescription } from '../../types/uidesc';
 import type { Bitmap } from '../project/types';
-import {
-  detectDuplicateKeysInJsonBitmaps,
-  type DuplicateBitmapInfo,
-} from './duplicateDetection';
+import { type DuplicateBitmapInfo, detectDuplicateKeysInJsonBitmaps } from './duplicateDetection';
 import { getFilenameFromPath } from './pathUtils';
 
 // Re-export for backwards compatibility
