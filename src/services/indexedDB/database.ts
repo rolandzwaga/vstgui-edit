@@ -49,6 +49,13 @@ export function openDatabase(): Promise<IDBDatabase> {
         const bitmapStore = db.createObjectStore(STORES.BITMAPS, { keyPath: 'id' });
         bitmapStore.createIndex(INDEXES.BITMAPS_BY_PROJECT, 'projectId', { unique: false });
       }
+
+      // Create presets store with name and isBuiltIn indexes (added in v2)
+      if (!db.objectStoreNames.contains(STORES.PRESETS)) {
+        const presetStore = db.createObjectStore(STORES.PRESETS, { keyPath: 'id' });
+        presetStore.createIndex(INDEXES.PRESETS_BY_NAME, 'name', { unique: true });
+        presetStore.createIndex(INDEXES.PRESETS_BY_BUILTIN, 'isBuiltIn', { unique: false });
+      }
     };
 
     request.onsuccess = () => {
