@@ -8,7 +8,9 @@
 import { createSignal } from 'solid-js';
 import { copyDesign, createDefaultDesign } from '../domain/knobDesigner/defaults';
 import { LAYER_CONSTRAINTS, PRESET_CONSTRAINTS } from '../domain/knobDesigner/validation';
+import { bitmapService } from '../services/indexedDB/bitmapService';
 import { presetService } from '../services/indexedDB/presetService';
+import { knobRendererService } from '../services/knobRenderer';
 import type {
   GenerationProgress,
   IndicatorMaterial,
@@ -24,6 +26,7 @@ import type {
   LightingConfig,
   OutputConfig,
 } from '../types/knobDesigner';
+import { updateBitmapProperty } from './documentStore';
 
 // ============================================================================
 // Constants
@@ -821,12 +824,12 @@ export function redo(): void {
 }
 
 // ============================================================================
-// Generation Operations (Stubs - will integrate renderer in Phase 5)
+// Generation Operations
 // ============================================================================
 
 /**
  * Generates the filmstrip and assigns to target bitmap.
- * Updates generation progress during render.
+ * Uses the Three.js renderer service to render frames and saves to IndexedDB.
  *
  * @returns Promise resolving when generation complete
  * @throws If generation fails
@@ -843,51 +846,53 @@ export async function generateFilmstrip(): Promise<void> {
 
   generationCancelled = false;
 
-  setGenerationProgress({
-    stage: 'preparing',
-    currentFrame: 0,
-    totalFrames: currentDesign.output.frameCount,
-    percent: 0,
-  });
-
-  // Stub - actual rendering will be implemented in Phase 5
-  // For now, simulate progress
   try {
-    for (let i = 0; i < currentDesign.output.frameCount && !generationCancelled; i++) {
-      setGenerationProgress({
-        stage: 'rendering',
-        currentFrame: i,
-        totalFrames: currentDesign.output.frameCount,
-        percent: Math.round((i / currentDesign.output.frameCount) * 100),
-      });
-      // Yield to UI
-      await new Promise(resolve => setTimeout(resolve, 10));
-    }
+    // Generate filmstrip using the renderer service
+    const dataUrl = await knobRendererService.generateFilmstrip(currentDesign, progress =>
+      setGenerationProgress(progress)
+    );
 
     if (generationCancelled) {
       setGenerationProgress(null);
       return;
     }
 
-    setGenerationProgress({
-      stage: 'compositing',
-      currentFrame: currentDesign.output.frameCount,
-      totalFrames: currentDesign.output.frameCount,
-      percent: 100,
+    // Convert data URL to blob
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
+
+    // Calculate filmstrip dimensions
+    const { frameCount, frameWidth, frameHeight } = currentDesign.output;
+    const framesPerRow = Math.ceil(Math.sqrt(frameCount));
+    const rows = Math.ceil(frameCount / framesPerRow);
+    const totalWidth = frameWidth * framesPerRow;
+    const totalHeight = frameHeight * rows;
+
+    // Save to IndexedDB using the add method
+    await bitmapService.add({
+      id: `${projectId}:${bitmapName}`,
+      projectId,
+      name: bitmapName,
+      blob,
+      width: totalWidth,
+      height: totalHeight,
+      mimeType: 'image/png',
+      size: blob.size,
+      addedAt: new Date().toISOString(),
     });
 
-    // Stub: In Phase 5, actual filmstrip PNG will be generated and saved to bitmapService
-
-    setGenerationProgress({
-      stage: 'complete',
-      currentFrame: currentDesign.output.frameCount,
-      totalFrames: currentDesign.output.frameCount,
-      percent: 100,
-    });
+    // Update document store with multiframe properties
+    const frameSizeValue = `${frameWidth}, ${frameHeight}`;
+    updateBitmapProperty(bitmapName, 'multiframe-size', frameSizeValue);
+    updateBitmapProperty(bitmapName, 'multiframe-num-frames', String(frameCount));
 
     // Close modal after successful generation
     closeKnobDesigner();
   } catch (error) {
+    if (generationCancelled) {
+      setGenerationProgress(null);
+      return;
+    }
     setErrorMessage(
       `Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
