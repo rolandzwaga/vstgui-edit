@@ -100,18 +100,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T039 [P] [US2] Create slider defaults in `F:\projects\vstgui-edit\src\domain\sliderDesigner\defaults.ts` (DEFAULT_SLIDER_DESIGN factory with sensible track/handle/fill values)
-- [ ] T040 [P] [US2] Create slider validation in `F:\projects\vstgui-edit\src\domain\sliderDesigner\validation.ts` (slider-specific constraints: track length 10-100%, width 5-50%, handle dimensions, corner radius ranges)
-- [ ] T041 [US2] Create slider plugin definition in `F:\projects\vstgui-edit\src\domain\sliderDesigner\plugin.ts` (ControlTypePlugin implementation for slider, registers TrackPanel/HandlePanel/ValueFillPanel, category: 'linear')
-- [ ] T042 [P] [US2] Create TrackPanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.tsx` (orientation, length, width, depth, corner radius controls - can be basic inputs initially)
-- [ ] T043 [P] [US2] Create TrackPanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.module.css`
-- [ ] T044 [P] [US2] Create HandlePanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.tsx` (shape selector, width, height, grip lines controls)
-- [ ] T045 [P] [US2] Create HandlePanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.module.css`
-- [ ] T046 [P] [US2] Create ValueFillPanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.tsx` (mode selector, color picker, glow intensity)
-- [ ] T047 [P] [US2] Create ValueFillPanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.module.css`
-- [ ] T048 [P] [US2] Create SliderDesigner index in `F:\projects\vstgui-edit\src\components\SliderDesigner\index.ts` (re-exports)
-- [ ] T049 [US2] Register slider plugin in application startup (call registerControlType(sliderPlugin) after knob registration)
-- [ ] T050 [US2] Verify tab switching performance in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure switchControlType completes <200ms per SC-003)
+- [X] T039 [P] [US2] Create slider defaults in `F:\projects\vstgui-edit\src\domain\sliderDesigner\defaults.ts` (DEFAULT_SLIDER_DESIGN factory with sensible track/handle/fill values)
+- [X] T040 [P] [US2] Create slider validation in `F:\projects\vstgui-edit\src\domain\sliderDesigner\validation.ts` (slider-specific constraints: track length 10-100%, width 5-50%, handle dimensions, corner radius ranges)
+- [X] T041 [US2] Create slider plugin definition in `F:\projects\vstgui-edit\src\domain\sliderDesigner\plugin.ts` (ControlTypePlugin implementation for slider, registers TrackPanel/HandlePanel/ValueFillPanel, category: 'linear')
+- [X] T042 [P] [US2] Create TrackPanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.tsx` (orientation, length, width, depth, corner radius controls - can be basic inputs initially)
+- [X] T043 [P] [US2] Create TrackPanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.module.css`
+- [X] T044 [P] [US2] Create HandlePanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.tsx` (shape selector, width, height, grip lines controls)
+- [X] T045 [P] [US2] Create HandlePanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.module.css`
+- [X] T046 [P] [US2] Create ValueFillPanel stub in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.tsx` (mode selector, color picker, glow intensity)
+- [X] T047 [P] [US2] Create ValueFillPanel styles in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.module.css`
+- [X] T048 [P] [US2] Create SliderDesigner index in `F:\projects\vstgui-edit\src\components\SliderDesigner\index.ts` (re-exports)
+- [X] T049 [US2] Register slider plugin in application startup (call registerControlType(sliderPlugin) after knob registration)
+- [X] T050 [US2] Verify tab switching performance in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure switchControlType completes <200ms per SC-003)
 - [ ] T051 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat: add slider plugin and enable control type switching"
 
 **Checkpoint**: Users can switch between Knob and Slider tabs, state preserves across switches
@@ -126,16 +126,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T052 [P] [US1] Create slider geometry utilities in `F:\projects\vstgui-edit\src\domain\sliderDesigner\geometry.ts` (functions to create RoundedBoxGeometry for track and handle, handle position calculation for linear interpolation, grip line geometry)
-- [ ] T053 [P] [US1] Create slider domain index in `F:\projects\vstgui-edit\src\domain\sliderDesigner\index.ts` (re-exports)
-- [ ] T054 [US1] Implement slider renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\sliderRenderer.ts` (ControlRenderer implementation: initialize scene with track/handle/fill meshes, updateScene on design changes, setPosition for handle movement, generateFilmstrip with linear frame generation, raycaster setup for component selection)
-- [ ] T054b [US1] Implement generation progress UI in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (display stage labels, frame counter with progress bar, percentage display, cancel button wired to store.cancelGeneration(); satisfies FR-018)
-- [ ] T055 [US1] Complete TrackPanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.tsx` (wire all controls to store, add validation feedback, material integration via MaterialPanel target prop)
-- [ ] T056 [US1] Complete HandlePanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.tsx` (wire all controls to store, handle shape previews, material integration)
-- [ ] T057 [US1] Complete ValueFillPanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.tsx` (fill mode selector with visual indicators, color picker integration, glow intensity slider)
-- [ ] T058 [US1] Update MaterialPanel for slider components in `F:\projects\vstgui-edit\src\components\ControlDesigner\MaterialPanel.tsx` (extend target selector to support 'track' | 'handle' | 'fill', synchronize with 3D preview click selection)
-- [ ] T059 [US1] Update ControlPreview for slider raycasting in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (implement onCanvasClick with raycaster, map intersected objects to slider component IDs via userData.componentId)
-- [ ] T060 [US1] Add "Design Slider" context menu option in bitmap context menu component (add menu item that opens ControlDesignerModal with controlType: 'slider')
+- [X] T052 [P] [US1] Create slider geometry utilities in `F:\projects\vstgui-edit\src\domain\sliderDesigner\geometry.ts` (functions to create RoundedBoxGeometry for track and handle, handle position calculation for linear interpolation, grip line geometry)
+- [X] T053 [P] [US1] Create slider domain index in `F:\projects\vstgui-edit\src\domain\sliderDesigner\index.ts` (re-exports)
+- [X] T054 [US1] Implement slider renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\sliderRenderer.ts` (ControlRenderer implementation: initialize scene with track/handle/fill meshes, updateScene on design changes, setPosition for handle movement, generateFilmstrip with linear frame generation, raycaster setup for component selection)
+- [X] T054b [US1] Implement generation progress UI in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (display stage labels, frame counter with progress bar, percentage display, cancel button wired to store.cancelGeneration(); satisfies FR-018)
+- [X] T055 [US1] Complete TrackPanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\TrackPanel.tsx` (wire all controls to store, add validation feedback, material integration via MaterialPanel target prop)
+- [X] T056 [US1] Complete HandlePanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\HandlePanel.tsx` (wire all controls to store, handle shape previews, material integration)
+- [X] T057 [US1] Complete ValueFillPanel implementation in `F:\projects\vstgui-edit\src\components\SliderDesigner\ValueFillPanel.tsx` (fill mode selector with visual indicators, color picker integration, glow intensity slider)
+- [X] T058 [US1] Update MaterialPanel for slider components in `F:\projects\vstgui-edit\src\components\ControlDesigner\MaterialPanel.tsx` (extend target selector to support 'track' | 'handle' | 'fill', synchronize with 3D preview click selection)
+- [X] T059 [US1] Update ControlPreview for slider raycasting in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (implement onCanvasClick with raycaster, map intersected objects to slider component IDs via userData.componentId)
+- [X] T060 [US1] Add "Design Slider" context menu option in bitmap context menu component (add menu item that opens ControlDesignerModal with controlType: 'slider')
 - [ ] T061 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat: implement slider 3D rendering and filmstrip generation"
 
 **Checkpoint**: Users can design and generate slider filmstrips with full 3D preview and material controls
@@ -150,10 +150,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T062 [US4] Enhance MaterialPanel target selector in `F:\projects\vstgui-edit\src\components\ControlDesigner\MaterialPanel.tsx` (add visual component thumbnails/icons next to dropdown options for slider mode, ensure onChange syncs with preview selection)
-- [ ] T063 [US4] Add component highlight on hover in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (raycaster on mousemove, outline shader or emissive boost on hovered component)
-- [ ] T064 [US4] Update slider renderer component selection in `F:\projects\vstgui-edit\src\services\controlRenderer\sliderRenderer.ts` (implement setSelectedComponent to highlight/outline selected component, store userData.componentId on each mesh)
-- [ ] T065 [US4] Add material type presets for slider in `F:\projects\vstgui-edit\src\domain\controlDesigner\materials.ts` (metallic, brushed, plastic, wood presets specific to slider components)
+- [X] T062 [US4] Enhance MaterialPanel target selector in `F:\projects\vstgui-edit\src\components\ControlDesigner\MaterialPanel.tsx` (add visual component thumbnails/icons next to dropdown options for slider mode, ensure onChange syncs with preview selection)
+- [X] T063 [US4] Add component highlight on hover in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (raycaster on mousemove, outline shader or emissive boost on hovered component)
+- [X] T064 [US4] Update slider renderer component selection in `F:\projects\vstgui-edit\src\services\controlRenderer\sliderRenderer.ts` (implement setSelectedComponent to highlight/outline selected component, store userData.componentId on each mesh)
+- [X] T065 [US4] Add material type presets for slider in `F:\projects\vstgui-edit\src\domain\controlDesigner\materials.ts` (metallic, brushed, plastic, wood presets specific to slider components)
 - [ ] T066 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat: enable material application to slider components via click and dropdown"
 
 **Checkpoint**: Users can apply independent materials to slider components using both click selection and dropdown
@@ -168,10 +168,10 @@
 
 ### Implementation for User Story 5
 
-- [ ] T067 [US5] Update preset service query in `F:\projects\vstgui-edit\src\services\indexedDB\presetService.ts` (ensure getByControlType correctly filters, add error handling for missing controlType field)
-- [ ] T068 [US5] Update PresetSelector filtering in `F:\projects\vstgui-edit\src\components\ControlDesigner\PresetSelector.tsx` (ensure preset list only shows presets matching activeControlType, add empty state message "No slider presets yet")
-- [ ] T069 [US5] Add slider preset save validation in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure saved presets include controlType: 'slider', validate design before save)
-- [ ] T070 [US5] Test preset migration for existing knob presets (verify knobs with missing controlType get 'knob' added on first access after DB_VERSION 4 upgrade)
+- [X] T067 [US5] Update preset service query in `F:\projects\vstgui-edit\src\services\indexedDB\presetService.ts` (ensure getByControlType correctly filters, add error handling for missing controlType field)
+- [X] T068 [US5] Update PresetSelector filtering in `F:\projects\vstgui-edit\src\components\ControlDesigner\PresetSelector.tsx` (ensure preset list only shows presets matching activeControlType, add empty state message "No slider presets yet")
+- [X] T069 [US5] Add slider preset save validation in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure saved presets include controlType: 'slider', validate design before save)
+- [X] T070 [US5] Test preset migration for existing knob presets (verify knobs with missing controlType get 'knob' added on first access after DB_VERSION 4 upgrade)
 - [ ] T071 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat: enable slider preset save and load with type filtering"
 
 **Checkpoint**: Users can save/load slider presets independently from knob presets
@@ -186,9 +186,9 @@
 
 ### Implementation for User Story 6
 
-- [ ] T072 [US6] Update OutputPanel for linear controls in `F:\projects\vstgui-edit\src\components\ControlDesigner\OutputPanel.tsx` (conditionally hide rotation settings when category === 'linear', show position-based frame description, update filmstrip dimension calculation for horizontal/vertical layout)
-- [ ] T073 [US6] Add output validation for sliders in `F:\projects\vstgui-edit\src\domain\sliderDesigner\validation.ts` (ensure frame count produces valid texture dimensions, warn if dimensions approach 8192x8192 limit)
-- [ ] T074 [US6] Update filmstrip utilities for linear layout in `F:\projects\vstgui-edit\src\domain\controlDesigner\filmstrip.ts` (calculateFilmstripDimensions handles horizontal/vertical for linear controls, estimates file size accurately)
+- [X] T072 [US6] Update OutputPanel for linear controls in `F:\projects\vstgui-edit\src\components\ControlDesigner\OutputPanel.tsx` (conditionally hide rotation settings when category === 'linear', show position-based frame description, update filmstrip dimension calculation for horizontal/vertical layout)
+- [X] T073 [US6] Add output validation for sliders in `F:\projects\vstgui-edit\src\domain\sliderDesigner\validation.ts` (ensure frame count produces valid texture dimensions, warn if dimensions approach 8192x8192 limit)
+- [X] T074 [US6] Update filmstrip utilities for linear layout in `F:\projects\vstgui-edit\src\domain\controlDesigner\filmstrip.ts` (calculateFilmstripDimensions handles horizontal/vertical for linear controls, estimates file size accurately)
 - [ ] T075 [US6] **Commit**: Stage and commit User Story 6 changes with message "feat: adapt output panel for slider filmstrip configuration"
 
 **Checkpoint**: Users can configure slider output settings with accurate preview information
@@ -199,13 +199,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T076 [P] Add error boundaries around ControlDesignerModal in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (catch rendering errors, show fallback UI: "Control Designer encountered an error. [Reload] [Close]". On Reload: re-initialize renderer. On Close: call closeDesigner(). Log error details to console for debugging.)
-- [ ] T077 [P] Add loading states to filmstrip generation in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (progress percentage, stage descriptions, cancel button functionality)
-- [ ] T078 [P] Add keyboard shortcuts to ControlDesignerModal (Escape to close, Ctrl+S to save preset, Ctrl+G to generate)
-- [ ] T079 [P] Add accessibility attributes to all panels (ARIA labels, keyboard navigation for tabs, focus management)
-- [ ] T080 [P] Add narrow dimension warning to OutputPanel (non-blocking warning if track width <15px or height <15px per edge case in spec)
-- [ ] T081 [P] Optimize renderer memory usage in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (ensure proper disposal of geometries and materials, texture cleanup)
-- [ ] T082 [P] Add generation cancellation cleanup in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (discard partial renders, reset state to design mode on cancel per edge case in spec)
+- [X] T076 [P] Add error boundaries around ControlDesignerModal in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (catch rendering errors, show fallback UI: "Control Designer encountered an error. [Reload] [Close]". On Reload: re-initialize renderer. On Close: call closeDesigner(). Log error details to console for debugging.)
+- [X] T077 [P] Add loading states to filmstrip generation in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (progress percentage, stage descriptions, cancel button functionality)
+- [X] T078 [P] Add keyboard shortcuts to ControlDesignerModal (Escape to close, Ctrl+S to save preset, Ctrl+G to generate)
+- [X] T079 [P] Add accessibility attributes to all panels (ARIA labels, keyboard navigation for tabs, focus management)
+- [X] T080 [P] Add narrow dimension warning to OutputPanel (non-blocking warning if track width <15px or height <15px per edge case in spec)
+- [X] T081 [P] Optimize renderer memory usage in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (ensure proper disposal of geometries and materials, texture cleanup)
+- [X] T082 [P] Add generation cancellation cleanup in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (discard partial renders, reset state to design mode on cancel per edge case in spec)
 - [ ] T083 [P] Update CLAUDE.md with Control Designer architecture section (document plugin system, registry pattern, control categories, renderer interface)
 - [ ] T084 Performance optimization: measure and optimize tab switching time (target <200ms per SC-003)
 - [ ] T085 Performance optimization: measure and optimize slider filmstrip generation (target same performance as knob per SC-006)
@@ -223,10 +223,10 @@
 
 **⚠️ CRITICAL**: ALL three quality gate commands MUST pass with ZERO errors and ZERO warnings before proceeding.
 
-- [ ] TQG-1 **CSS Linting**: Run `npm run lint:css` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
-- [ ] TQG-2 **Code Quality**: Run `npm run check` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
-- [ ] TQG-3 **Type Safety**: Run `npm run typecheck` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
-- [ ] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
+- [X] TQG-1 **CSS Linting**: Run `npm run lint:css` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
+- [X] TQG-2 **Code Quality**: Run `npm run check` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
+- [X] TQG-3 **Type Safety**: Run `npm run typecheck` from `F:\projects\vstgui-edit\` - Fix ALL errors and warnings
+- [X] TQG-4 **Verify Clean**: Re-run all three commands to confirm zero issues remain
 
 **If Quality Gates Fail**:
 1. STOP - do not proceed to Git Verification

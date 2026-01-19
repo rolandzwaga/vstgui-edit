@@ -1,17 +1,14 @@
 /**
- * HandlePanel Component (Stub)
+ * HandlePanel Component
  *
  * Controls for slider handle configuration including
  * shape, width, height, and grip lines.
- *
- * This is an initial stub implementation for Phase 4.
- * Full implementation will be completed in Phase 5.
  */
 
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 import type { Component } from 'solid-js';
 import type { BaseControlDesign } from '../../types/controlDesigner';
-import type { SliderDesign, HandleShape } from '../../types/controlDesigner/slider';
+import type { HandleShape, SliderDesign } from '../../types/controlDesigner/slider';
 import { HANDLE_CONSTRAINTS } from '../../domain/sliderDesigner/validation';
 import styles from './HandlePanel.module.css';
 
@@ -149,13 +146,6 @@ export const HandlePanel: Component<HandlePanelProps> = (props) => {
           <span class={styles.value}>{handle().gripLines}</span>
         </div>
       </div>
-
-      {/* Stub Notice */}
-      <Show when={true}>
-        <div class={styles.stubNotice}>
-          Material controls coming in Phase 5
-        </div>
-      </Show>
     </div>
   );
 };

@@ -8,6 +8,7 @@
 
 import { BUILTIN_PRESETS } from '../../domain/knobDesigner/defaults';
 import { INDEXES, STORES } from '../../domain/project/types';
+import { BUILTIN_SLIDER_PRESETS } from '../../domain/sliderDesigner/defaults';
 import type { ControlTypeId } from '../../types/controlDesigner';
 import { getStore, promisifyRequest } from './database';
 
@@ -227,23 +228,42 @@ export const presetService = {
     const store = getStore(STORES.PRESETS, 'readonly');
     const existing = await promisifyRequest(store.getAll());
 
-    // If any built-in presets exist, skip seeding
-    const hasBuiltIn = existing.some((p: Preset) => p.isBuiltIn);
-    if (hasBuiltIn) {
-      return;
-    }
+    // Check which control types have built-in presets
+    const hasKnobBuiltIn = existing.some((p: Preset) => p.isBuiltIn && p.controlType === 'knob');
+    const hasSliderBuiltIn = existing.some(
+      (p: Preset) => p.isBuiltIn && p.controlType === 'slider'
+    );
 
     const now = new Date().toISOString();
-    for (const template of BUILTIN_PRESETS) {
-      const preset: Preset = {
-        ...template,
-        id: crypto.randomUUID(),
-        controlType: 'knob', // All built-in presets are knob presets
-        createdAt: now,
-        updatedAt: now,
-      };
-      const writeStore = getStore(STORES.PRESETS, 'readwrite');
-      await promisifyRequest(writeStore.put(preset));
+
+    // Seed knob presets if not present
+    if (!hasKnobBuiltIn) {
+      for (const template of BUILTIN_PRESETS) {
+        const preset: Preset = {
+          ...template,
+          id: crypto.randomUUID(),
+          controlType: 'knob',
+          createdAt: now,
+          updatedAt: now,
+        };
+        const writeStore = getStore(STORES.PRESETS, 'readwrite');
+        await promisifyRequest(writeStore.put(preset));
+      }
+    }
+
+    // Seed slider presets if not present
+    if (!hasSliderBuiltIn) {
+      for (const template of BUILTIN_SLIDER_PRESETS) {
+        const preset: Preset = {
+          ...template,
+          id: crypto.randomUUID(),
+          controlType: 'slider',
+          createdAt: now,
+          updatedAt: now,
+        };
+        const writeStore = getStore(STORES.PRESETS, 'readwrite');
+        await promisifyRequest(writeStore.put(preset));
+      }
     }
   },
 };

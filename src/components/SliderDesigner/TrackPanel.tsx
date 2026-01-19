@@ -1,14 +1,10 @@
 /**
- * TrackPanel Component (Stub)
+ * TrackPanel Component
  *
  * Controls for slider track configuration including
  * orientation, length, width, depth, and corner radius.
- *
- * This is an initial stub implementation for Phase 4.
- * Full implementation will be completed in Phase 5.
  */
 
-import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import type { BaseControlDesign } from '../../types/controlDesigner';
 import type { SliderDesign, SliderOrientation } from '../../types/controlDesigner/slider';
@@ -168,13 +164,6 @@ export const TrackPanel: Component<TrackPanelProps> = (props) => {
           <span class={styles.value}>{track().cornerRadius}</span>
         </div>
       </div>
-
-      {/* Stub Notice */}
-      <Show when={true}>
-        <div class={styles.stubNotice}>
-          Material controls coming in Phase 5
-        </div>
-      </Show>
     </div>
   );
 };

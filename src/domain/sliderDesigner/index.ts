@@ -16,8 +16,32 @@ export {
   DEFAULT_SLIDER_OUTPUT,
   DEFAULT_TRACK_MATERIAL,
 } from './defaults';
+
+// Geometry
+export {
+  calculateGripLinePositions,
+  calculateHandleDimensions,
+  calculateHandlePosition,
+  calculateSegments,
+  calculateSliderGeometry,
+  calculateTrackDimensions,
+  calculateValueFillPosition,
+  createCircleHandleGeometry,
+  createFaderCapHandleGeometry,
+  createGripLinesGeometry,
+  createHandleGeometry,
+  createRectangleHandleGeometry,
+  createRoundedHandleGeometry,
+  createSegmentedFillGeometries,
+  createTrackGeometry,
+  createTrackGrooveGeometry,
+  createValueFillGeometry,
+  percentToWorldUnits,
+} from './geometry';
+
 // Plugin
 export { registerSliderPanels, sliderPlugin } from './plugin';
+
 // Validation
 export {
   HANDLE_CONSTRAINTS,

@@ -1,6 +1,7 @@
 import { type Component, createSignal, onMount, Show } from 'solid-js';
 import type { BitmapDefinition, BitmapType } from '../../types/uidesc';
 import { getBitmapType } from '../../types/uidesc';
+import { openControlDesigner } from '../../stores/controlDesignerStore';
 import { getBitmaps, updateBitmapName, updateBitmapProperty } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
 import { openKnobDesigner } from '../../stores/knobDesignerStore';
@@ -384,6 +385,13 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
     }
   };
 
+  const handleDesignSliderClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (props.projectId) {
+      openControlDesigner(props.name, props.projectId, 'slider');
+    }
+  };
+
   const handleFileSelect = (e: Event) => {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -549,6 +557,20 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
                 <path d="M7 2.5V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               </svg>
               <span>Design Knob</span>
+            </button>
+            <button
+              type="button"
+              class={styles.designKnobButton}
+              onClick={handleDesignSliderClick}
+              disabled={props.isReadOnly || !props.projectId}
+              data-testid="design-slider-button"
+              aria-label="Design 3D slider filmstrip"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <rect x="6" y="2" width="2" height="10" rx="1" stroke="currentColor" stroke-width="1.5" />
+                <rect x="4" y="6" width="6" height="3" rx="1" fill="currentColor" />
+              </svg>
+              <span>Design Slider</span>
             </button>
           </div>
           <div class={styles.propertyRow}>

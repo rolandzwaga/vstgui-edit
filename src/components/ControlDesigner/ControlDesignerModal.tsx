@@ -9,22 +9,24 @@
 import { createEffect, createSignal, onCleanup, Show, For } from 'solid-js';
 import type { Component } from 'solid-js';
 import {
-  controlDesignerStore,
-  closeControlDesigner,
-  switchControlType,
-  generateFilmstrip,
   cancelGeneration,
-  undo,
+  closeControlDesigner,
+  controlDesignerStore,
+  deletePreset,
+  generateFilmstrip,
+  loadPreset,
   redo,
+  savePreset,
+  switchControlType,
+  undo,
+  updateDesign,
   updateLighting,
   updateOutput,
-  loadPreset,
-  savePreset,
-  deletePreset,
 } from '../../stores/controlDesignerStore';
-import type { CameraView } from '../../types/controlDesigner';
+import type { BaseControlDesign, CameraView } from '../../types/controlDesigner';
 import { ControlTypeTabs } from './ControlTypeTabs';
 import { ControlPreview } from './ControlPreview';
+import { ControlDesignerErrorBoundary } from './ErrorBoundary';
 import { LightingPanel } from './LightingPanel';
 import { PresetSelector } from '../KnobDesigner/PresetSelector';
 import { OutputPanel } from '../KnobDesigner/OutputPanel';
@@ -89,9 +91,12 @@ export const ControlDesignerModal: Component = () => {
 
   // Camera view control
   const handleCameraViewChange = (view: CameraView) => {
-    // TODO: Dispatch camera view change to active design
-    // For now, this is a placeholder
-    console.log('Camera view change:', view);
+    updateDesign({ cameraView: view });
+  };
+
+  // Panel update handler
+  const handlePanelUpdate = (updates: Partial<BaseControlDesign>) => {
+    updateDesign(updates);
   };
 
   return (
@@ -141,12 +146,17 @@ export const ControlDesignerModal: Component = () => {
           <div class={styles.content}>
             {/* Preview Section */}
             <div class={styles.previewSection}>
-              <ControlPreview
-                design={controlDesignerStore.activeDesign}
-                plugin={controlDesignerStore.activePlugin}
-                previewPosition={previewPosition()}
-                onError={(msg) => console.error('WebGL Error:', msg)}
-              />
+              <ControlDesignerErrorBoundary
+                message="3D Preview Error"
+                onError={(err) => console.error('Preview Error:', err)}
+              >
+                <ControlPreview
+                  design={controlDesignerStore.activeDesign}
+                  plugin={controlDesignerStore.activePlugin}
+                  previewPosition={previewPosition()}
+                  onError={(msg) => console.error('WebGL Error:', msg)}
+                />
+              </ControlDesignerErrorBoundary>
 
               {/* Camera View Toggle */}
               <div class={styles.viewToggle} role="group" aria-label="Camera view">
@@ -261,10 +271,7 @@ export const ControlDesignerModal: Component = () => {
                           <div class={styles.panelSection}>
                             <Panel
                               design={controlDesignerStore.activeDesign!}
-                              onUpdate={(updates) => {
-                                // TODO: Dispatch to appropriate update function
-                                console.log('Panel update:', updates);
-                              }}
+                              onUpdate={handlePanelUpdate}
                             />
                           </div>
                         );
