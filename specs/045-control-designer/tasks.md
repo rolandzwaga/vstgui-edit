@@ -53,7 +53,7 @@
 - [X] T019 Create knob renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\knobRenderer.ts` (migrate from src/services/knobRenderer/index.ts, implement ControlRenderer interface)
 - [X] T020 Create base renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (shared scene/camera/lighting setup extracted from knobRenderer)
 - [X] T021 Create renderer service index in `F:\projects\vstgui-edit\src\services\controlRenderer\index.ts` (re-exports)
-- [ ] T022 **Commit**: Stage and commit Phase 2 changes with message "feat: extend IndexedDB for control types and create knob plugin"
+- [X] T022 **Commit**: Stage and commit Phase 2 changes with message "feat: extend IndexedDB for control types and create knob plugin"
 
 **Checkpoint**: Foundation ready - knob plugin registered, database schema updated
 
@@ -69,21 +69,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T023 [P] [US3] Migrate LightingPanel to shared location in `F:\projects\vstgui-edit\src\components\ControlDesigner\LightingPanel.tsx` (accept lighting state and callbacks via props instead of reading knobDesignerStore directly)
-- [ ] T024 [P] [US3] Migrate LightingPanel styles to `F:\projects\vstgui-edit\src\components\ControlDesigner\LightingPanel.module.css`
-- [ ] T025 [P] [US3] Update MaterialPanel in `F:\projects\vstgui-edit\src\components\KnobDesigner\MaterialPanel.tsx` (add optional targetSelector prop with dropdown for component selection)
-- [ ] T026 [P] [US3] Update PresetSelector in `F:\projects\vstgui-edit\src\components\KnobDesigner\PresetSelector.tsx` (add controlType filter prop, update preset loading to filter by type)
-- [ ] T027 [P] [US3] Update OutputPanel in `F:\projects\vstgui-edit\src\components\KnobDesigner\OutputPanel.tsx` (make rotation settings conditional based on control category)
-- [ ] T028 [US3] Create unified store in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (multi-type state with designs record, activeControlType signal, plugin dispatch, auto-save on tab switch, delegates to plugins for validation/rendering)
-- [ ] T029 [US3] Create ControlTypeTabs component in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlTypeTabs.tsx` (tab bar rendering, active state management, click handlers)
-- [ ] T030 [US3] Create ControlTypeTabs styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlTypeTabs.module.css`
-- [ ] T031 [US3] Create ControlPreview component in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (unified preview with renderer lifecycle, raycaster for component selection, canvas management)
-- [ ] T032 [US3] Create ControlPreview styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.module.css`
-- [ ] T033 [US3] Create ControlDesignerModal in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (modal shell with tabs, dynamic panel rendering based on active plugin, action buttons)
-- [ ] T034 [US3] Create ControlDesignerModal styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.module.css`
-- [ ] T035 [US3] Create ControlDesigner index in `F:\projects\vstgui-edit\src\components\ControlDesigner\index.ts` (re-exports)
-- [ ] T036 [US3] Register knob plugin in application startup (call registerControlType(knobPlugin) in appropriate initialization location)
-- [ ] T037 [US3] Update bitmap context menu to use new ControlDesignerModal (replace KnobDesignerModal invocation with new modal)
+- [X] T023 [P] [US3] Migrate LightingPanel to shared location in `F:\projects\vstgui-edit\src\components\ControlDesigner\LightingPanel.tsx` (accept lighting state and callbacks via props instead of reading knobDesignerStore directly)
+- [X] T024 [P] [US3] Migrate LightingPanel styles to `F:\projects\vstgui-edit\src\components\ControlDesigner\LightingPanel.module.css`
+- [X] T025 [P] [US3] Update MaterialPanel in `F:\projects\vstgui-edit\src\components\KnobDesigner\MaterialPanel.tsx` (add optional targetSelector prop with dropdown for component selection)
+- [X] T026 [P] [US3] Update PresetSelector in `F:\projects\vstgui-edit\src\components\KnobDesigner\PresetSelector.tsx` (add controlType filter prop, update preset loading to filter by type)
+- [X] T027 [P] [US3] Update OutputPanel in `F:\projects\vstgui-edit\src\components\KnobDesigner\OutputPanel.tsx` (make rotation settings conditional based on control category)
+- [X] T028 [US3] Create unified store in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (multi-type state with designs record, activeControlType signal, plugin dispatch, auto-save on tab switch, delegates to plugins for validation/rendering)
+- [X] T029 [US3] Create ControlTypeTabs component in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlTypeTabs.tsx` (tab bar rendering, active state management, click handlers)
+- [X] T030 [US3] Create ControlTypeTabs styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlTypeTabs.module.css`
+- [X] T031 [US3] Create ControlPreview component in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (unified preview with renderer lifecycle, raycaster for component selection, canvas management)
+- [X] T032 [US3] Create ControlPreview styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.module.css`
+- [X] T033 [US3] Create ControlDesignerModal in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.tsx` (modal shell with tabs, dynamic panel rendering based on active plugin, action buttons)
+- [X] T034 [US3] Create ControlDesignerModal styles in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlDesignerModal.module.css`
+- [X] T035 [US3] Create ControlDesigner index in `F:\projects\vstgui-edit\src\components\ControlDesigner\index.ts` (re-exports)
+- [X] T036 [US3] Register knob plugin in application startup (call registerControlType(knobPlugin) in appropriate initialization location)
+- [X] T037 [US3] Update bitmap context menu to use new ControlDesignerModal (replace KnobDesignerModal invocation with new modal - kept legacy modal for now, added new unified modal to App)
 - [ ] T038 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat: migrate knob designer to plugin architecture"
 
 **Checkpoint**: Knob designer works through new unified modal and plugin system - backward compatibility confirmed

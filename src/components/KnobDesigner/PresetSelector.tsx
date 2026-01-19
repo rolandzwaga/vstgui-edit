@@ -1,20 +1,43 @@
 /**
  * PresetSelector Component
  *
- * Dropdown for loading, saving, and managing knob presets.
+ * Dropdown for loading, saving, and managing control presets.
+ * Supports filtering by control type for the unified control designer.
  */
 
 import { createSignal, createEffect, For, Show, onMount } from 'solid-js';
 import type { Component } from 'solid-js';
+import type { ControlTypeId } from '../../types/controlDesigner';
 import {
   knobDesignerStore,
   loadPreset,
   savePreset,
   deletePreset,
-  getAllPresets,
 } from '../../stores/knobDesignerStore';
 import { validatePresetName } from '../../domain/knobDesigner';
+import { presetService } from '../../services/indexedDB/presetService';
 import styles from './PresetSelector.module.css';
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Loads presets filtered by control type.
+ * Falls back to knob presets when no controlType is specified.
+ */
+async function loadPresetsForType(controlType: ControlTypeId = 'knob'): Promise<PresetInfo[]> {
+  try {
+    const allPresets = await presetService.getByControlType(controlType);
+    return allPresets.map(p => ({ id: p.id, name: p.name, isBuiltIn: p.isBuiltIn }));
+  } catch (_error) {
+    // Fallback to getting all presets if getByControlType fails
+    const allPresets = await presetService.getAll();
+    return allPresets
+      .filter(p => p.controlType === controlType || !p.controlType)
+      .map(p => ({ id: p.id, name: p.name, isBuiltIn: p.isBuiltIn }));
+  }
+}
 
 // ============================================================================
 // Types
@@ -27,41 +50,107 @@ interface PresetInfo {
 }
 
 // ============================================================================
+// Props Interface
+// ============================================================================
+
+export interface PresetSelectorProps {
+  /**
+   * Control type to filter presets by (optional).
+   * When provided, only shows presets matching this control type.
+   * When omitted, defaults to 'knob' for backward compatibility.
+   */
+  controlType?: ControlTypeId;
+
+  /**
+   * Current preset ID from external store (optional).
+   * Used by unified control designer to track selected preset.
+   */
+  selectedPresetId?: string | null;
+
+  /**
+   * Whether the design has been modified (optional).
+   * Used by unified control designer.
+   */
+  isModified?: boolean;
+
+  /**
+   * Custom preset load handler (optional).
+   * When provided, overrides the default loadPreset call.
+   */
+  onLoadPreset?: (presetId: string) => Promise<void>;
+
+  /**
+   * Custom preset save handler (optional).
+   * When provided, overrides the default savePreset call.
+   */
+  onSavePreset?: (name: string) => Promise<string>;
+
+  /**
+   * Custom preset delete handler (optional).
+   * When provided, overrides the default deletePreset call.
+   */
+  onDeletePreset?: (presetId: string) => Promise<void>;
+}
+
+// ============================================================================
 // Component
 // ============================================================================
 
-export const PresetSelector: Component = () => {
+export const PresetSelector: Component<PresetSelectorProps> = (props) => {
   const [presets, setPresets] = createSignal<PresetInfo[]>([]);
   const [isOpen, setIsOpen] = createSignal(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = createSignal(false);
   const [newPresetName, setNewPresetName] = createSignal('');
   const [saveError, setSaveError] = createSignal<string | null>(null);
 
+  // Get control type (defaults to 'knob' for backward compatibility)
+  const controlType = () => props.controlType ?? 'knob';
+
+  // Get selected preset ID - use prop if provided, else fall back to store
+  const currentSelectedPresetId = () =>
+    props.selectedPresetId !== undefined ? props.selectedPresetId : knobDesignerStore.selectedPresetId;
+
+  // Get modified state - use prop if provided, else fall back to store
+  const isModified = () =>
+    props.isModified !== undefined ? props.isModified : knobDesignerStore.isModified;
+
+  // Refresh presets helper
+  const refreshPresets = async () => {
+    const loaded = await loadPresetsForType(controlType());
+    setPresets(loaded);
+  };
+
   // Load presets on mount
   onMount(async () => {
-    const loaded = await getAllPresets();
-    setPresets(loaded);
+    await refreshPresets();
   });
 
-  // Refresh presets when modal opens
+  // Refresh presets when modal opens or control type changes
   createEffect(async () => {
-    if (knobDesignerStore.isOpen) {
-      const loaded = await getAllPresets();
-      setPresets(loaded);
+    const type = controlType();
+    if (knobDesignerStore.isOpen || type) {
+      await refreshPresets();
     }
   });
 
   const handleSelectPreset = async (presetId: string) => {
-    await loadPreset(presetId);
+    if (props.onLoadPreset) {
+      await props.onLoadPreset(presetId);
+    } else {
+      await loadPreset(presetId);
+    }
     setIsOpen(false);
   };
 
   const handleDeletePreset = async (presetId: string, e: Event) => {
     e.stopPropagation();
     if (confirm('Delete this preset?')) {
-      await deletePreset(presetId);
-      const loaded = await getAllPresets();
-      setPresets(loaded);
+      if (props.onDeletePreset) {
+        await props.onDeletePreset(presetId);
+      } else {
+        await deletePreset(presetId);
+      }
+      await refreshPresets();
     }
   };
 
@@ -75,9 +164,12 @@ export const PresetSelector: Component = () => {
     }
 
     try {
-      await savePreset(name);
-      const loaded = await getAllPresets();
-      setPresets(loaded);
+      if (props.onSavePreset) {
+        await props.onSavePreset(name);
+      } else {
+        await savePreset(name);
+      }
+      await refreshPresets();
       setIsSaveDialogOpen(false);
       setNewPresetName('');
       setSaveError(null);
@@ -87,7 +179,7 @@ export const PresetSelector: Component = () => {
   };
 
   const selectedPresetName = () => {
-    const id = knobDesignerStore.selectedPresetId;
+    const id = currentSelectedPresetId();
     if (!id) return 'Custom';
     const preset = presets().find(p => p.id === id);
     return preset?.name ?? 'Custom';
@@ -105,7 +197,7 @@ export const PresetSelector: Component = () => {
           <span class={styles.dropdownLabel}>Preset:</span>
           <span class={styles.dropdownValue}>
             {selectedPresetName()}
-            {knobDesignerStore.isModified && ' (modified)'}
+            {isModified() && ' (modified)'}
           </span>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
             <path d="M7 10l5 5 5-5z" />
@@ -121,7 +213,7 @@ export const PresetSelector: Component = () => {
                 {(preset) => (
                   <button
                     type="button"
-                    class={`${styles.dropdownItem} ${knobDesignerStore.selectedPresetId === preset.id ? styles.dropdownItemActive : ''}`}
+                    class={`${styles.dropdownItem} ${currentSelectedPresetId() === preset.id ? styles.dropdownItemActive : ''}`}
                     onClick={() => handleSelectPreset(preset.id)}
                   >
                     {preset.name}
@@ -137,7 +229,7 @@ export const PresetSelector: Component = () => {
                 <For each={presets().filter(p => !p.isBuiltIn)}>
                   {(preset) => (
                     <div
-                      class={`${styles.dropdownItem} ${styles.dropdownItemWithActions} ${knobDesignerStore.selectedPresetId === preset.id ? styles.dropdownItemActive : ''}`}
+                      class={`${styles.dropdownItem} ${styles.dropdownItemWithActions} ${currentSelectedPresetId() === preset.id ? styles.dropdownItemActive : ''}`}
                       onClick={() => handleSelectPreset(preset.id)}
                     >
                       <span>{preset.name}</span>
@@ -230,5 +322,3 @@ export const PresetSelector: Component = () => {
     </div>
   );
 };
-
-export default PresetSelector;

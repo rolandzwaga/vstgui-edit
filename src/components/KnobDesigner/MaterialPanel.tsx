@@ -3,22 +3,64 @@
  *
  * Controls for layer material properties including type, color,
  * shininess, reflectivity, and brushed metal settings.
+ *
+ * Supports both knob layers and slider components via optional target selector.
  */
 
 import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
-import type { KnobLayer, MaterialType, BrushDirection } from '../../types/knobDesigner';
+import type { KnobLayer, MaterialType, BrushDirection, LayerMaterial } from '../../types/knobDesigner';
 import { updateLayerMaterial } from '../../stores/knobDesignerStore';
 import { MATERIAL_CONSTRAINTS } from '../../domain/knobDesigner';
 import styles from './MaterialPanel.module.css';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Target option for the component selector dropdown.
+ */
+export interface MaterialTargetOption {
+  /** Unique identifier for the target */
+  id: string;
+  /** Display label for the target */
+  label: string;
+}
 
 // ============================================================================
 // Props Interface
 // ============================================================================
 
 export interface MaterialPanelProps {
-  /** The layer to edit */
+  /** The layer to edit (for knob workflow) */
   layer: KnobLayer;
+
+  /**
+   * Available targets for component selection (optional).
+   * When provided, shows a dropdown to select which component to edit.
+   * Used for slider components (track, handle, fill).
+   */
+  availableTargets?: MaterialTargetOption[];
+
+  /**
+   * Currently selected target ID (optional).
+   * Must be provided when availableTargets is set.
+   */
+  selectedTarget?: string;
+
+  /**
+   * Callback when target selection changes (optional).
+   * Called when user selects a different component from dropdown.
+   */
+  onTargetChange?: (targetId: string) => void;
+
+  /**
+   * Custom material update handler (optional).
+   * When provided, overrides the default updateLayerMaterial call.
+   * Used by the unified control designer to update materials through its store.
+   */
+  onMaterialUpdate?: (material: Partial<LayerMaterial>) => void;
 }
 
 // ============================================================================
@@ -27,6 +69,15 @@ export interface MaterialPanelProps {
 
 export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
   const material = () => props.layer.material;
+
+  // Helper to update material - uses custom handler if provided, else default store action
+  const handleMaterialUpdate = (updates: Partial<LayerMaterial>) => {
+    if (props.onMaterialUpdate) {
+      props.onMaterialUpdate(updates);
+    } else {
+      updateLayerMaterial(props.layer.id, updates);
+    }
+  };
 
   // Convert hex color to input format (#RRGGBB without alpha)
   const colorForInput = () => {
@@ -38,12 +89,30 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
   const handleColorChange = (color: string) => {
     // Keep existing alpha
     const existingAlpha = material().color.slice(7) || 'FF';
-    updateLayerMaterial(props.layer.id, { color: `${color}${existingAlpha}` });
+    handleMaterialUpdate({ color: `${color}${existingAlpha}` });
   };
 
   return (
     <div class={styles.container}>
       <h4 class={styles.sectionTitle}>Material</h4>
+
+      {/* Target Selector - only shown when availableTargets is provided */}
+      <Show when={props.availableTargets && props.availableTargets.length > 0}>
+        <div class={styles.field}>
+          <label class={styles.label}>Component</label>
+          <select
+            class={styles.select}
+            value={props.selectedTarget ?? ''}
+            onChange={(e) => {
+              props.onTargetChange?.(e.currentTarget.value);
+            }}
+          >
+            {props.availableTargets?.map((target) => (
+              <option value={target.id}>{target.label}</option>
+            ))}
+          </select>
+        </div>
+      </Show>
 
       {/* Material Type */}
       <div class={styles.field}>
@@ -52,7 +121,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
           class={styles.select}
           value={material().type}
           onChange={(e) => {
-            updateLayerMaterial(props.layer.id, {
+            handleMaterialUpdate({
               type: e.currentTarget.value as MaterialType,
             });
           }}
@@ -82,7 +151,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
             onInput={(e) => {
               const value = e.currentTarget.value;
               if (/^#[0-9A-Fa-f]{8}$/.test(value)) {
-                updateLayerMaterial(props.layer.id, { color: value });
+                handleMaterialUpdate({ color: value });
               }
             }}
           />
@@ -102,7 +171,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
               value={material().shininess}
               class={styles.slider}
               onInput={(e) => {
-                updateLayerMaterial(props.layer.id, {
+                handleMaterialUpdate({
                   shininess: parseInt(e.currentTarget.value, 10),
                 });
               }}
@@ -122,7 +191,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
               value={material().reflectivity}
               class={styles.slider}
               onInput={(e) => {
-                updateLayerMaterial(props.layer.id, {
+                handleMaterialUpdate({
                   reflectivity: parseInt(e.currentTarget.value, 10),
                 });
               }}
@@ -142,7 +211,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
               type="button"
               class={`${styles.toggleButton} ${material().brushDirection === 'radial' ? styles.toggleActive : ''}`}
               onClick={() => {
-                updateLayerMaterial(props.layer.id, { brushDirection: 'radial' });
+                handleMaterialUpdate({ brushDirection: 'radial' });
               }}
             >
               Radial
@@ -151,7 +220,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
               type="button"
               class={`${styles.toggleButton} ${material().brushDirection === 'linear' ? styles.toggleActive : ''}`}
               onClick={() => {
-                updateLayerMaterial(props.layer.id, { brushDirection: 'linear' });
+                handleMaterialUpdate({ brushDirection: 'linear' });
               }}
             >
               Linear
@@ -170,7 +239,7 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
               value={material().brushIntensity}
               class={styles.slider}
               onInput={(e) => {
-                updateLayerMaterial(props.layer.id, {
+                handleMaterialUpdate({
                   brushIntensity: parseInt(e.currentTarget.value, 10),
                 });
               }}
@@ -182,5 +251,3 @@ export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
     </div>
   );
 };
-
-export default MaterialPanel;

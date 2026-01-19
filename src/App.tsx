@@ -7,6 +7,7 @@ import { CreateNewDialog } from './components/CreateNewDialog';
 import { DuplicateBitmapsWarningDialog } from './components/DuplicateBitmapsWarningDialog';
 import { FindPanel } from './components/FindPanel';
 import { KnobDesignerModal } from './components/KnobDesigner';
+import { ControlDesignerModal } from './components/ControlDesigner';
 import { MissingBitmapsModal } from './components/MissingBitmapsModal';
 import { OrphanWarningDialog } from './components/OrphanWarningDialog';
 import { ProjectList } from './components/ProjectList';
@@ -60,7 +61,17 @@ import {
   missingBitmapsStore,
 } from './stores/missingBitmapsStore';
 import { closeDatabase } from './services/indexedDB/database';
+import { registerControlType } from './domain/controlDesigner/registry';
+import { knobPlugin } from './domain/knobDesigner/plugin';
 import './styles/tokens.css';
+
+// ============================================================================
+// Plugin Registration
+// ============================================================================
+
+// Register control type plugins at module load time.
+// This ensures plugins are available before any UI renders.
+registerControlType(knobPlugin);
 
 // Storage quota check interval (5 minutes)
 const QUOTA_CHECK_INTERVAL = 5 * 60 * 1000;
@@ -421,8 +432,11 @@ export default function App() {
         onConfirm={closeDuplicateWarning}
       />
 
-      {/* 3D Knob Designer modal */}
+      {/* 3D Knob Designer modal (legacy - still used for existing knob workflow) */}
       <KnobDesignerModal />
+
+      {/* Unified Control Designer modal (new plugin-based architecture) */}
+      <ControlDesignerModal />
     </main>
   );
 }

@@ -2,10 +2,16 @@
  * OutputPanel Component
  *
  * Controls for filmstrip output configuration including
- * frame count, dimensions, and rotation range.
+ * frame count, dimensions, and rotation/position range.
+ *
+ * Supports both rotational controls (knobs) and linear controls (sliders).
+ * Rotation settings are hidden for linear controls.
  */
 
+import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
+import type { ControlCategory, BaseOutputConfig, RotationalOutputConfig } from '../../types/controlDesigner';
+import type { OutputConfig } from '../../types/knobDesigner';
 import { knobDesignerStore, updateOutput } from '../../stores/knobDesignerStore';
 import {
   OUTPUT_CONSTRAINTS,
@@ -17,18 +23,87 @@ import {
 import styles from './OutputPanel.module.css';
 
 // ============================================================================
+// Props Interface
+// ============================================================================
+
+export interface OutputPanelProps {
+  /**
+   * Control category (optional).
+   * Determines whether rotation settings are shown.
+   * Defaults to 'rotational' for backward compatibility.
+   */
+  category?: ControlCategory;
+
+  /**
+   * Output configuration from external store (optional).
+   * When provided, uses this instead of knobDesignerStore.
+   */
+  output?: BaseOutputConfig | RotationalOutputConfig;
+
+  /**
+   * Custom output update handler (optional).
+   * When provided, overrides the default updateOutput call.
+   */
+  onOutputUpdate?: (updates: Partial<BaseOutputConfig | RotationalOutputConfig>) => void;
+}
+
+// ============================================================================
+// Type Guards
+// ============================================================================
+
+/**
+ * Type guard to check if output config is rotational (has rotation settings).
+ */
+function isRotationalOutput(output: BaseOutputConfig | RotationalOutputConfig): output is RotationalOutputConfig {
+  return 'sweepAngle' in output;
+}
+
+// ============================================================================
 // Component
 // ============================================================================
 
-export const OutputPanel: Component = () => {
-  const output = () => knobDesignerStore.design.output;
+export const OutputPanel: Component<OutputPanelProps> = (props) => {
+  // Get category - default to 'rotational' for backward compatibility
+  const category = () => props.category ?? 'rotational';
 
-  // Calculate filmstrip info
+  // Whether this is a rotational control type
+  const isRotational = () => category() === 'rotational';
+
+  // Get output config - use prop if provided, else fall back to store
+  const output = () => props.output ?? knobDesignerStore.design.output;
+
+  // Get rotational output (with type safety) - returns undefined for linear controls
+  const rotationalOutput = () => {
+    const out = output();
+    return isRotationalOutput(out) ? out : undefined;
+  };
+
+  // Helper to update output
+  const handleOutputUpdate = (updates: Partial<BaseOutputConfig | RotationalOutputConfig>) => {
+    if (props.onOutputUpdate) {
+      props.onOutputUpdate(updates);
+    } else {
+      updateOutput(updates as Partial<OutputConfig>);
+    }
+  };
+
+  // Calculate filmstrip info - use a compatible config format
   const filmstripInfo = () => {
     const config = output();
-    const dimensions = calculateFilmstripDimensions(config);
-    const estimatedSize = estimateFilmstripSize(config);
-    const validation = validateFilmstripSize(config);
+    // Build a compatible OutputConfig for the knob domain functions
+    const outputConfig: OutputConfig = {
+      frameCount: config.frameCount,
+      frameWidth: config.frameWidth,
+      frameHeight: config.frameHeight,
+      layout: config.layout,
+      sweepAngle: isRotationalOutput(config) ? config.sweepAngle : 270,
+      startAngle: isRotationalOutput(config) ? config.startAngle : 225,
+      endAngle: isRotationalOutput(config) ? config.endAngle : 315,
+      rotationOffset: isRotationalOutput(config) ? config.rotationOffset : 0,
+    };
+    const dimensions = calculateFilmstripDimensions(outputConfig);
+    const estimatedSize = estimateFilmstripSize(outputConfig);
+    const validation = validateFilmstripSize(outputConfig);
     return { dimensions, estimatedSize, validation };
   };
 
@@ -50,7 +125,7 @@ export const OutputPanel: Component = () => {
               value={output().frameCount}
               class={styles.slider}
               onInput={(e) => {
-                updateOutput({ frameCount: parseInt(e.currentTarget.value, 10) });
+                handleOutputUpdate({ frameCount: parseInt(e.currentTarget.value, 10) });
               }}
             />
             <input
@@ -62,7 +137,7 @@ export const OutputPanel: Component = () => {
               onChange={(e) => {
                 const value = parseInt(e.currentTarget.value, 10);
                 if (value >= OUTPUT_CONSTRAINTS.FRAME_COUNT.MIN && value <= OUTPUT_CONSTRAINTS.FRAME_COUNT.MAX) {
-                  updateOutput({ frameCount: value });
+                  handleOutputUpdate({ frameCount: value });
                 }
               }}
             />
@@ -88,7 +163,7 @@ export const OutputPanel: Component = () => {
                 onChange={(e) => {
                   const value = parseInt(e.currentTarget.value, 10);
                   if (value >= OUTPUT_CONSTRAINTS.FRAME_SIZE.MIN && value <= OUTPUT_CONSTRAINTS.FRAME_SIZE.MAX) {
-                    updateOutput({ frameWidth: value });
+                    handleOutputUpdate({ frameWidth: value });
                   }
                 }}
               />
@@ -110,7 +185,7 @@ export const OutputPanel: Component = () => {
                 onChange={(e) => {
                   const value = parseInt(e.currentTarget.value, 10);
                   if (value >= OUTPUT_CONSTRAINTS.FRAME_SIZE.MIN && value <= OUTPUT_CONSTRAINTS.FRAME_SIZE.MAX) {
-                    updateOutput({ frameHeight: value });
+                    handleOutputUpdate({ frameHeight: value });
                   }
                 }}
               />
@@ -121,16 +196,16 @@ export const OutputPanel: Component = () => {
 
         {/* Quick Size Presets */}
         <div class={styles.presetRow}>
-          <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ frameWidth: 50, frameHeight: 50 })}>
+          <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ frameWidth: 50, frameHeight: 50 })}>
             50x50
           </button>
-          <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ frameWidth: 100, frameHeight: 100 })}>
+          <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ frameWidth: 100, frameHeight: 100 })}>
             100x100
           </button>
-          <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ frameWidth: 150, frameHeight: 150 })}>
+          <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ frameWidth: 150, frameHeight: 150 })}>
             150x150
           </button>
-          <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ frameWidth: 200, frameHeight: 200 })}>
+          <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ frameWidth: 200, frameHeight: 200 })}>
             200x200
           </button>
         </div>
@@ -143,7 +218,7 @@ export const OutputPanel: Component = () => {
           <button
             type="button"
             class={`${styles.layoutButton} ${output().layout === 'vertical' ? styles.layoutButtonActive : ''}`}
-            onClick={() => updateOutput({ layout: 'vertical' })}
+            onClick={() => handleOutputUpdate({ layout: 'vertical' })}
             title="Single column, all frames stacked vertically"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -157,7 +232,7 @@ export const OutputPanel: Component = () => {
           <button
             type="button"
             class={`${styles.layoutButton} ${output().layout === 'horizontal' ? styles.layoutButtonActive : ''}`}
-            onClick={() => updateOutput({ layout: 'horizontal' })}
+            onClick={() => handleOutputUpdate({ layout: 'horizontal' })}
             title="Single row, all frames side by side"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -171,7 +246,7 @@ export const OutputPanel: Component = () => {
           <button
             type="button"
             class={`${styles.layoutButton} ${output().layout === 'grid' ? styles.layoutButtonActive : ''}`}
-            onClick={() => updateOutput({ layout: 'grid' })}
+            onClick={() => handleOutputUpdate({ layout: 'grid' })}
             title="Grid layout with optimal distribution"
           >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -185,96 +260,113 @@ export const OutputPanel: Component = () => {
         </div>
       </div>
 
-      {/* Rotation Range */}
-      <div class={styles.section}>
-        <h4 class={styles.sectionTitle}>Rotation Range</h4>
+      {/* Rotation Range - Only shown for rotational controls */}
+      <Show when={isRotational() && rotationalOutput()}>
+        {(rotOutput) => (
+          <div class={styles.section}>
+            <h4 class={styles.sectionTitle}>Rotation Range</h4>
 
-        <div class={styles.field}>
-          <label class={styles.label}>Sweep Angle</label>
-          <div class={styles.inputGroup}>
-            <input
-              type="range"
-              min={OUTPUT_CONSTRAINTS.SWEEP_ANGLE.MIN}
-              max={OUTPUT_CONSTRAINTS.SWEEP_ANGLE.MAX}
-              value={output().sweepAngle}
-              class={styles.slider}
-              onInput={(e) => {
-                updateOutput({ sweepAngle: parseInt(e.currentTarget.value, 10) });
-              }}
-            />
-            <span class={styles.value}>{output().sweepAngle}deg</span>
-          </div>
-          <span class={styles.hint}>Total rotation range (typical: 270deg for audio knobs)</span>
-        </div>
+            <div class={styles.field}>
+              <label class={styles.label}>Sweep Angle</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={OUTPUT_CONSTRAINTS.SWEEP_ANGLE.MIN}
+                  max={OUTPUT_CONSTRAINTS.SWEEP_ANGLE.MAX}
+                  value={rotOutput().sweepAngle}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    handleOutputUpdate({ sweepAngle: parseInt(e.currentTarget.value, 10) });
+                  }}
+                />
+                <span class={styles.value}>{rotOutput().sweepAngle}deg</span>
+              </div>
+              <span class={styles.hint}>Total rotation range (typical: 270deg for audio knobs)</span>
+            </div>
 
-        <div class={styles.field}>
-          <label class={styles.label}>Start Angle</label>
-          <div class={styles.inputGroup}>
-            <input
-              type="range"
-              min={OUTPUT_CONSTRAINTS.ANGLE.MIN}
-              max={OUTPUT_CONSTRAINTS.ANGLE.MAX}
-              value={output().startAngle}
-              class={styles.slider}
-              onInput={(e) => {
-                updateOutput({ startAngle: parseInt(e.currentTarget.value, 10) });
-              }}
-            />
-            <span class={styles.value}>{output().startAngle}deg</span>
-          </div>
-          <span class={styles.hint}>Minimum position (typical: 225deg = 7 o'clock)</span>
-        </div>
+            <div class={styles.field}>
+              <label class={styles.label}>Start Angle</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={OUTPUT_CONSTRAINTS.ANGLE.MIN}
+                  max={OUTPUT_CONSTRAINTS.ANGLE.MAX}
+                  value={rotOutput().startAngle}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    handleOutputUpdate({ startAngle: parseInt(e.currentTarget.value, 10) });
+                  }}
+                />
+                <span class={styles.value}>{rotOutput().startAngle}deg</span>
+              </div>
+              <span class={styles.hint}>Minimum position (typical: 225deg = 7 o'clock)</span>
+            </div>
 
-        <div class={styles.field}>
-          <label class={styles.label}>End Angle</label>
-          <div class={styles.inputGroup}>
-            <input
-              type="range"
-              min={OUTPUT_CONSTRAINTS.ANGLE.MIN}
-              max={OUTPUT_CONSTRAINTS.ANGLE.MAX}
-              value={output().endAngle}
-              class={styles.slider}
-              onInput={(e) => {
-                updateOutput({ endAngle: parseInt(e.currentTarget.value, 10) });
-              }}
-            />
-            <span class={styles.value}>{output().endAngle}deg</span>
-          </div>
-          <span class={styles.hint}>Maximum position (typical: 315deg = 5 o'clock)</span>
-        </div>
+            <div class={styles.field}>
+              <label class={styles.label}>End Angle</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={OUTPUT_CONSTRAINTS.ANGLE.MIN}
+                  max={OUTPUT_CONSTRAINTS.ANGLE.MAX}
+                  value={rotOutput().endAngle}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    handleOutputUpdate({ endAngle: parseInt(e.currentTarget.value, 10) });
+                  }}
+                />
+                <span class={styles.value}>{rotOutput().endAngle}deg</span>
+              </div>
+              <span class={styles.hint}>Maximum position (typical: 315deg = 5 o'clock)</span>
+            </div>
 
-        <div class={styles.field}>
-          <label class={styles.label}>Rotation Offset</label>
-          <div class={styles.inputGroup}>
-            <input
-              type="range"
-              min={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MIN}
-              max={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MAX}
-              value={output().rotationOffset ?? 0}
-              class={styles.slider}
-              onInput={(e) => {
-                updateOutput({ rotationOffset: parseInt(e.currentTarget.value, 10) });
-              }}
-            />
-            <span class={styles.value}>{output().rotationOffset ?? 0}deg</span>
+            <div class={styles.field}>
+              <label class={styles.label}>Rotation Offset</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MIN}
+                  max={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MAX}
+                  value={rotOutput().rotationOffset ?? 0}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    handleOutputUpdate({ rotationOffset: parseInt(e.currentTarget.value, 10) });
+                  }}
+                />
+                <span class={styles.value}>{rotOutput().rotationOffset ?? 0}deg</span>
+              </div>
+              <div class={styles.presetRow}>
+                <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ rotationOffset: 0 })}>
+                  0deg
+                </button>
+                <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ rotationOffset: 90 })}>
+                  90deg
+                </button>
+                <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ rotationOffset: 180 })}>
+                  180deg
+                </button>
+                <button type="button" class={styles.sizePreset} onClick={() => handleOutputUpdate({ rotationOffset: 270 })}>
+                  270deg
+                </button>
+              </div>
+              <span class={styles.hint}>Rotates the knob like a clock face (0 = default orientation)</span>
+            </div>
           </div>
-          <div class={styles.presetRow}>
-            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 0 })}>
-              0°
-            </button>
-            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 90 })}>
-              90°
-            </button>
-            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 180 })}>
-              180°
-            </button>
-            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 270 })}>
-              270°
-            </button>
+        )}
+      </Show>
+
+      {/* Position Info - Only shown for linear controls */}
+      <Show when={!isRotational()}>
+        <div class={styles.section}>
+          <h4 class={styles.sectionTitle}>Position Range</h4>
+          <div class={styles.field}>
+            <span class={styles.hint}>
+              Linear controls automatically generate frames from 0% to 100% position.
+              Frame count determines the number of intermediate positions.
+            </span>
           </div>
-          <span class={styles.hint}>Rotates the knob like a clock face (0 = default orientation)</span>
         </div>
-      </div>
+      </Show>
 
       {/* Output Summary */}
       <div class={styles.section}>
@@ -301,17 +393,15 @@ export const OutputPanel: Component = () => {
         </div>
 
         {/* Validation Warning */}
-        {!filmstripInfo().validation.valid && (
+        <Show when={!filmstripInfo().validation.valid}>
           <div class={styles.warningBox}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
             </svg>
             <span>{filmstripInfo().validation.error}</span>
           </div>
-        )}
+        </Show>
       </div>
     </div>
   );
 };
-
-export default OutputPanel;
