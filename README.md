@@ -21,6 +21,17 @@ A visual editor for VSTGUI `.uidesc` files. These files define the UI layout for
 - Project thumbnails and management (rename, duplicate, delete)
 - Automatic save with dirty state tracking
 
+### 3D Knob Designer
+- Create filmstrip animations for CAnimKnob controls without external tools
+- Real-time 3D preview with WebGL rendering
+- Up to 3 concentric layers with configurable diameter, height, and bevel
+- Material types: solid, metallic, matte, and brushed metal (radial/linear grain)
+- Position indicators: dot, line, notch, or groove
+- Adjustable lighting (azimuth, elevation, ambient occlusion)
+- Filmstrip output: configurable frame count, size, rotation sweep, and layout
+- PNG export with optimized compression
+- Built-in presets for quick starting points
+
 ### Canvas
 - Zoomable, pannable workspace (mouse wheel, middle-drag, Space+drag)
 - Configurable grid overlay with snap-to-grid
@@ -70,7 +81,7 @@ A visual editor for VSTGUI `.uidesc` files. These files define the UI layout for
 
 ## Tech Stack
 
-SolidJS, TypeScript, Vite, Vitest, Biome
+SolidJS, TypeScript, Vite, Three.js, Vitest, Biome
 
 ## Development
 
