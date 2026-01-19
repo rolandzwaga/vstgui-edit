@@ -1,5 +1,5 @@
 import { type Component, createResource, createSignal, onCleanup, Show } from 'solid-js';
-import type { BitmapDefinition } from '../../types/uidesc';
+import { isMultiframeBitmap, type BitmapDefinition } from '../../types/uidesc';
 import { getThumbnailUrlAsync, revokeThumbnailUrl } from '../../domain/bitmaps/thumbnail';
 import styles from './BitmapThumbnail.module.css';
 
@@ -95,7 +95,7 @@ export const BitmapThumbnail: Component<BitmapThumbnailProps> = (props) => {
         >
           <img
             src={url()!}
-            class={`${styles.image} ${imageState() === 'loading' ? styles.loading : ''}`}
+            class={`${styles.image} ${imageState() === 'loading' ? styles.loading : ''} ${isMultiframeBitmap(props.bitmap) ? styles.multiframe : ''}`}
             onLoad={handleLoad}
             onError={handleError}
             alt=""

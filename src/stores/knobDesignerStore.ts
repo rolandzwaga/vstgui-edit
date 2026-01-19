@@ -6,6 +6,7 @@
  */
 
 import { createSignal } from 'solid-js';
+import { invalidateThumbnailCache } from '../domain/bitmaps/thumbnail';
 import { copyDesign, createDefaultDesign } from '../domain/knobDesigner/defaults';
 import { LAYER_CONSTRAINTS, PRESET_CONSTRAINTS } from '../domain/knobDesigner/validation';
 import { bitmapService } from '../services/indexedDB/bitmapService';
@@ -934,6 +935,9 @@ export async function generateFilmstrip(): Promise<void> {
       size: blob.size,
       addedAt: new Date().toISOString(),
     });
+
+    // Invalidate thumbnail cache so UI refreshes with new image
+    invalidateThumbnailCache(projectId, bitmapName);
 
     // Update document store with multiframe properties
     const frameSizeValue = `${frameWidth}, ${frameHeight}`;

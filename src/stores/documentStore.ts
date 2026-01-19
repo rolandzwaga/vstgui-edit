@@ -2201,7 +2201,13 @@ export function updateBitmapProperty(
       const bitmapRecord = draftVstgui.bitmaps[name];
       if (typeof bitmapRecord === 'string') return;
 
-      (bitmapRecord as unknown as Record<string, string>)[prop] = value;
+      // If value is empty, DELETE the property instead of setting to empty string
+      // This prevents invalid empty attributes from being saved (e.g., multiframe-size="")
+      if (value === '' || value === undefined) {
+        delete (bitmapRecord as unknown as Record<string, string>)[prop];
+      } else {
+        (bitmapRecord as unknown as Record<string, string>)[prop] = value;
+      }
     })
   );
 

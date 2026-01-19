@@ -7,7 +7,6 @@
 
 import {
   type AmbientLight,
-  Box3,
   type DirectionalLight,
   Group,
   LinearFilter,
@@ -15,7 +14,6 @@ import {
   type OrthographicCamera,
   RGBAFormat,
   type Scene,
-  Vector3,
   WebGLRenderer,
   WebGLRenderTarget,
 } from 'three';
@@ -59,6 +57,67 @@ let currentDesign: KnobDesign | null = null;
 
 // Generation cancellation
 let generationCancelled = false;
+
+// ============================================================================
+// Frustum Calculation
+// ============================================================================
+
+// World units used for knob geometry (must match updateScene)
+const OVERALL_DIAMETER = 40;
+
+/**
+ * Calculates the optimal frustum size for filmstrip rendering.
+ * Ensures the entire knob (body + indicator) fits without clipping.
+ *
+ * @param design - Current knob design
+ * @returns Frustum size in world units (diameter of visible area)
+ */
+function calculateFrustumSize(design: KnobDesign): number {
+  // 1. Calculate maximum knob body radius (considering skirt styles)
+  let maxBodyRadius = 0;
+  for (const layer of design.layers) {
+    const layerRadius = (layer.geometry.diameter / 100) * (OVERALL_DIAMETER / 2);
+    // Apply skirt multiplier
+    const skirtMultiplier = layer.geometry.skirtStyle === 'tapered' ? 1.1 : 1.0;
+    const effectiveRadius = layerRadius * skirtMultiplier;
+    maxBodyRadius = Math.max(maxBodyRadius, effectiveRadius);
+  }
+
+  // 2. Calculate indicator maximum extent (if enabled)
+  let indicatorMaxExtent = 0;
+  if (design.indicator?.enabled) {
+    // Get top layer radius for indicator positioning
+    const topLayer = design.layers[design.layers.length - 1];
+    const topLayerRadius = (topLayer.geometry.diameter / 100) * (OVERALL_DIAMETER / 2);
+
+    // Indicator radial position from center
+    const indicatorCenterRadius = (design.indicator.radialPosition / 100) * topLayerRadius;
+
+    // Add indicator size based on type
+    let indicatorExtension = 0;
+    switch (design.indicator.type) {
+      case 'dot':
+        indicatorExtension = design.indicator.size.radius;
+        break;
+      case 'line':
+        indicatorExtension = design.indicator.size.length / 2;
+        break;
+      case 'notch':
+      case 'groove':
+        // These are cut into the knob, don't extend past body
+        indicatorExtension = 0;
+        break;
+    }
+
+    indicatorMaxExtent = indicatorCenterRadius + indicatorExtension;
+  }
+
+  // 3. Use the larger of body or indicator extent
+  const maxRadius = Math.max(maxBodyRadius, indicatorMaxExtent);
+
+  // Return diameter (frustum size is the full width/height of visible area)
+  return maxRadius * 2;
+}
 
 // ============================================================================
 // WebGL Availability Check
@@ -189,7 +248,7 @@ export function updateScene(design: KnobDesign): void {
   knobGroup.clear();
 
   // Calculate parameters
-  const overallDiameter = 40; // World units
+  const overallDiameter = OVERALL_DIAMETER; // World units
   const overallHeight = 25; // World units
   const segments = calculateSegments(design.output.frameWidth);
 
@@ -436,18 +495,8 @@ export async function generateFilmstrip(
   // Device pixel ratio can cause viewport coordinate issues on high-DPI displays
   renderer.setPixelRatio(1);
 
-  // Calculate the frustum size from the actual knob geometry bounds
-  // This ensures the knob always fits regardless of layers, indicator, or skirt style
-  knobGroup.updateMatrixWorld(true);
-  const boundingBox = new Box3().setFromObject(knobGroup);
-  const size = new Vector3();
-  boundingBox.getSize(size);
-
-  // For top-down view, we care about X and Z dimensions
-  // For side view, we'd care about X and Y
-  const xzSize = Math.max(size.x, size.z);
-  // Add minimal 1% margin to prevent edge clipping
-  const frustumSize = xzSize * 1.01;
+  // Calculate frustum size based on actual design to ensure nothing clips
+  const frustumSize = calculateFrustumSize(design);
 
   console.log('[Filmstrip] Generating', frameCount, 'frames at', frameWidth, 'x', frameHeight, '- frustum:', frustumSize.toFixed(1));
 

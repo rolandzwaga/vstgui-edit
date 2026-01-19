@@ -1,4 +1,4 @@
-import { type Component, createSignal, Show } from 'solid-js';
+import { type Component, createSignal, onMount, Show } from 'solid-js';
 import type { BitmapDefinition, BitmapType } from '../../types/uidesc';
 import { getBitmapType } from '../../types/uidesc';
 import { getBitmaps, updateBitmapName, updateBitmapProperty } from '../../stores/documentStore';
@@ -39,10 +39,17 @@ export interface BitmapItemProps {
   onUpload?: (name: string, file: File) => void;
   /** Whether this bitmap is missing from IndexedDB storage */
   isMissing?: boolean;
+  /** When true, item starts expanded with name in edit mode */
+  initialEditMode?: boolean;
+  /** Called after initialEditMode has been consumed/applied */
+  onInitialEditConsumed?: () => void;
 }
 
 export const BitmapItem: Component<BitmapItemProps> = (props) => {
   let fileInputRef: HTMLInputElement | undefined;
+  let nameInputRef: HTMLInputElement | undefined;
+  // Flag to prevent double-focus when in initial edit mode
+  let skipAutoFocus = false;
 
   const [editingName, setEditingName] = createSignal(false);
   const [nameInput, setNameInput] = createSignal('');
@@ -54,6 +61,39 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
   const [ninepartInput, setNinepartInput] = createSignal('');
   const [ninepartOriginal, setNinepartOriginal] = createSignal('');
   const [isUploading, setIsUploading] = createSignal(false);
+
+  // Handle initial edit mode when item is newly created
+  onMount(() => {
+    if (props.initialEditMode && !props.isReadOnly) {
+      // Set flag to prevent ref callback from also focusing
+      skipAutoFocus = true;
+
+      // Expand the item
+      setIsExpanded(true);
+      const normalized = normalizeBitmap(props.bitmap);
+      setPathInput(normalized.path);
+      setScaleFactorInput(normalized['scale-factor'] ?? '');
+      const detectedType = getBitmapType(props.bitmap);
+      setBitmapType(detectedType);
+
+      // Enter name edit mode
+      setNameInput(props.name);
+      setNameError(null);
+      setEditingName(true);
+
+      // Focus and select text after DOM updates
+      requestAnimationFrame(() => {
+        if (nameInputRef) {
+          nameInputRef.focus();
+          nameInputRef.select();
+        }
+        skipAutoFocus = false;
+      });
+
+      // Notify parent that initial edit mode has been consumed
+      props.onInitialEditConsumed?.();
+    }
+  });
 
   // Bitmap type state
   const [bitmapType, setBitmapType] = createSignal<BitmapType>('standard');
@@ -206,13 +246,16 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
     const propertiesToClear = getPropertiesToClearForTypeChange(currentType, newType);
     const clearedProperties: Record<string, string> = {};
 
-    // Capture and clear old type's properties
+    // Capture and clear old type's properties (including empty ones to ensure deletion)
     for (const prop of propertiesToClear) {
       const value = normalized[prop as keyof typeof normalized];
+      // Always clear the property - updateBitmapProperty will delete it
+      // Only save to clearedProperties if it had a non-empty value (for undo)
       if (value && typeof value === 'string' && value.trim()) {
         clearedProperties[prop] = value;
-        updateBitmapProperty(props.name, prop, '');
       }
+      // Always call updateBitmapProperty with empty string to delete the property
+      updateBitmapProperty(props.name, prop, '');
     }
 
     // Create history operation if anything was cleared
@@ -401,7 +444,13 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
                 onKeyDown={handleNameKeyDown}
                 onBlur={saveName}
                 aria-invalid={!!nameError()}
-                ref={(el) => setTimeout(() => el.focus(), 0)}
+                ref={(el) => {
+                  nameInputRef = el;
+                  // Auto-focus when entering edit mode via double-click (not initial edit mode)
+                  if (!skipAutoFocus) {
+                    setTimeout(() => el.focus(), 0);
+                  }
+                }}
               />
               <Show when={nameError()}>
                 <span class={styles.error} data-testid="bitmap-name-error">
