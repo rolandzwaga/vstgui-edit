@@ -5,11 +5,7 @@
  * Extends the base control designer types with slider-specific configuration.
  */
 
-import type {
-  BaseControlDesign,
-  LayerMaterial,
-  LinearOutputConfig,
-} from './base';
+import type { BaseControlDesign, LayerMaterial, LinearOutputConfig } from './base';
 
 // ============================================================================
 // Slider Component Types

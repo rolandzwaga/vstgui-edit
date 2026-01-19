@@ -327,5 +327,3 @@ export const KnobDesignerModal: Component = () => {
     </Show>
   );
 };
-
-export default KnobDesignerModal;

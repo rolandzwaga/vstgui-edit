@@ -39,6 +39,12 @@ Auto-generated from speckit templates. Last updated: 2026-01-11
 > ❌ Running `npm test` 3x to get "pass count", then "fail list", then "duration"
 > ✅ Run ONCE, parse the single output for all needed information
 > **VIOLATION = WASTED USER TIME AND TOKENS. UNACCEPTABLE.**
+>
+
+### 5. Windows Path Workaround
+
+For Edit/Glob/Grep/Read tools: Use Windows backslash paths (`C:\path\file.txt`). Expand `~` to full path (e.g., `C:\Users\name`). Does NOT apply to Bash.
+
 
 ---
 
@@ -803,6 +809,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 001-control-designer: Added [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 - 044-3d-knob-designer: Added IndexedDB (extend existing infrastructure with `presets` store, bump DB_VERSION to 2)
 - 043-project-storage: Added SolidJS 1.9.x, fflate (ZIP), native IndexedDB API
 - 042-styled-view-mode: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1

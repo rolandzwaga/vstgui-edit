@@ -84,7 +84,7 @@
 - [X] T035 [US3] Create ControlDesigner index in `F:\projects\vstgui-edit\src\components\ControlDesigner\index.ts` (re-exports)
 - [X] T036 [US3] Register knob plugin in application startup (call registerControlType(knobPlugin) in appropriate initialization location)
 - [X] T037 [US3] Update bitmap context menu to use new ControlDesignerModal (replace KnobDesignerModal invocation with new modal - kept legacy modal for now, added new unified modal to App)
-- [ ] T038 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat: migrate knob designer to plugin architecture"
+- [X] T038 [US3] **Commit**: Stage and commit User Story 3 changes with message "feat: migrate knob designer to plugin architecture"
 
 **Checkpoint**: Knob designer works through new unified modal and plugin system - backward compatibility confirmed
 

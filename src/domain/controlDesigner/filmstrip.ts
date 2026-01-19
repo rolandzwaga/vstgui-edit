@@ -146,10 +146,7 @@ export function calculateFrameAngle(
  * @param frameCount - Total number of frames
  * @returns Normalized position (0-1)
  */
-export function calculateFramePosition(
-  frameIndex: number,
-  frameCount: number
-): number {
+export function calculateFramePosition(frameIndex: number, frameCount: number): number {
   // Avoid division by zero for single frame
   if (frameCount <= 1) return 0;
 
@@ -165,20 +162,19 @@ export function calculateFramePosition(
  */
 export function getFrameValueCalculator(
   category: ControlCategory
-): (frameIndex: number, frameCount: number, options?: { startAngle?: number; sweepAngle?: number }) => number {
+): (
+  frameIndex: number,
+  frameCount: number,
+  options?: { startAngle?: number; sweepAngle?: number }
+) => number {
   switch (category) {
     case 'rotational':
       return (index, count, options) =>
-        calculateFrameAngle(
-          index,
-          count,
-          options?.startAngle ?? 225,
-          options?.sweepAngle ?? 270
-        );
+        calculateFrameAngle(index, count, options?.startAngle ?? 225, options?.sweepAngle ?? 270);
     case 'linear':
       return (index, count) => calculateFramePosition(index, count);
     case 'binary':
-      return (index) => (index === 0 ? 0 : 1);
+      return index => (index === 0 ? 0 : 1);
     case 'multiState':
       return (index, count) => (count <= 1 ? 0 : index / (count - 1));
     case 'grid2D':

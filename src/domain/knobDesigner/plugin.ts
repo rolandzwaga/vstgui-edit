@@ -15,18 +15,18 @@ import type {
   ValidationResult,
 } from '../../types/controlDesigner';
 import type { KnobDesign } from '../../types/knobDesigner';
-import { createDefaultDesign, copyDesign, DEFAULT_KNOB_DESIGN } from './defaults';
+import { copyDesign, createDefaultDesign, DEFAULT_KNOB_DESIGN } from './defaults';
 import {
+  INDICATOR_CONSTRAINTS,
+  LAYER_CONSTRAINTS,
+  LIGHTING_CONSTRAINTS,
+  MATERIAL_CONSTRAINTS,
+  OUTPUT_CONSTRAINTS,
+  validateIndicator,
   validateLayerGeometry,
   validateLayerMaterial,
-  validateIndicator,
   validateLighting,
   validateOutput,
-  LAYER_CONSTRAINTS,
-  MATERIAL_CONSTRAINTS,
-  INDICATOR_CONSTRAINTS,
-  LIGHTING_CONSTRAINTS,
-  OUTPUT_CONSTRAINTS,
 } from './validation';
 
 // ============================================================================

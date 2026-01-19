@@ -146,5 +146,3 @@ export const LightingPanel: Component = () => {
     </div>
   );
 };
-
-export default LightingPanel;

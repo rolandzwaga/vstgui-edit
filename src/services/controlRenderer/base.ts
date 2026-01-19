@@ -22,7 +22,7 @@ import {
   WebGLRenderTarget,
 } from 'three';
 import UPNG from 'upng-js';
-
+import { disposeAllMaterials } from '../../domain/controlDesigner/materials';
 import {
   createAmbientLight,
   createCamera,
@@ -33,13 +33,7 @@ import {
   updateCameraAspect,
   updateLightPosition,
 } from '../../domain/controlDesigner/scene';
-import { disposeAllMaterials } from '../../domain/controlDesigner/materials';
-import type {
-  BaseControlDesign,
-  CameraView,
-  GenerationProgress,
-  LightingConfig,
-} from '../../types/controlDesigner';
+import type { CameraView, GenerationProgress, LightingConfig } from '../../types/controlDesigner';
 
 // ============================================================================
 // Base Renderer State Interface
@@ -181,10 +175,7 @@ export async function initializeRenderer(
  * @param state - Renderer state to dispose
  * @param disposeEnvironment - Optional function to dispose environment resources
  */
-export function disposeRenderer(
-  state: BaseRendererState,
-  disposeEnvironment?: () => void
-): void {
+export function disposeRenderer(state: BaseRendererState, disposeEnvironment?: () => void): void {
   // Stop animation
   if (state.animationFrameId !== null) {
     cancelAnimationFrame(state.animationFrameId);
@@ -323,8 +314,15 @@ export async function generateFilmstrip(
 
   state.generationCancelled = false;
 
-  const { frameCount, frameWidth, frameHeight, framesPerRow, totalWidth, totalHeight, frustumSize } =
-    config;
+  const {
+    frameCount,
+    frameWidth,
+    frameHeight,
+    framesPerRow,
+    totalWidth,
+    totalHeight,
+    frustumSize,
+  } = config;
 
   // Report preparing stage
   onProgress({
@@ -357,7 +355,7 @@ export async function generateFilmstrip(
   const finalPixels = new Uint8Array(totalWidth * totalHeight * 4);
   const framePixels = new Uint8Array(frameWidth * frameHeight * 4);
 
-  const rows = Math.ceil(frameCount / framesPerRow);
+  const _rows = Math.ceil(frameCount / framesPerRow);
 
   try {
     // Reset WebGL state
@@ -380,7 +378,14 @@ export async function generateFilmstrip(
       state.renderer.render(state.scene, filmstripCamera);
 
       // Read pixels
-      state.renderer.readRenderTargetPixels(frameTarget, 0, 0, frameWidth, frameHeight, framePixels);
+      state.renderer.readRenderTargetPixels(
+        frameTarget,
+        0,
+        0,
+        frameWidth,
+        frameHeight,
+        framePixels
+      );
 
       // Copy to final buffer with Y-flip
       for (let srcY = 0; srcY < frameHeight; srcY++) {

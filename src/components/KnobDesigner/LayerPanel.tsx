@@ -243,5 +243,3 @@ export const LayerPanel: Component<LayerPanelProps> = (props) => {
     </div>
   );
 };
-
-export default LayerPanel;

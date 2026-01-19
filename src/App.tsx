@@ -63,6 +63,8 @@ import {
 import { closeDatabase } from './services/indexedDB/database';
 import { registerControlType } from './domain/controlDesigner/registry';
 import { knobPlugin } from './domain/knobDesigner/plugin';
+import { sliderPlugin, registerSliderPanels } from './domain/sliderDesigner';
+import { TrackPanel, HandlePanel, ValueFillPanel } from './components/SliderDesigner';
 import './styles/tokens.css';
 
 // ============================================================================
@@ -72,6 +74,14 @@ import './styles/tokens.css';
 // Register control type plugins at module load time.
 // This ensures plugins are available before any UI renders.
 registerControlType(knobPlugin);
+registerControlType(sliderPlugin);
+
+// Register slider panels with the plugin (avoids circular dependency)
+registerSliderPanels({
+  TrackPanel,
+  HandlePanel,
+  ValueFillPanel,
+});
 
 // Storage quota check interval (5 minutes)
 const QUOTA_CHECK_INTERVAL = 5 * 60 * 1000;

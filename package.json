@@ -17,7 +17,8 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "generate:types": "json2ts vstgui-uidesc.schema.json src/types/uidesc.d.ts"
+    "generate:types": "json2ts vstgui-uidesc.schema.json src/types/uidesc.d.ts",
+    "knip": "knip"
   },
   "dependencies": {
     "@floating-ui/dom": "1.7.4",

@@ -194,9 +194,7 @@ export function createAmbientLight(intensity = AMBIENT_LIGHT_INTENSITY): Ambient
  * @param intensity - Light intensity (0-1)
  * @returns Configured hemisphere light
  */
-export function createHemisphereLight(
-  intensity = HEMISPHERE_LIGHT_INTENSITY
-): HemisphereLight {
+export function createHemisphereLight(intensity = HEMISPHERE_LIGHT_INTENSITY): HemisphereLight {
   // Sky color (warm white from above) and ground color (cool blue from below)
   const skyColor = 0xffffff;
   const groundColor = 0x444466;

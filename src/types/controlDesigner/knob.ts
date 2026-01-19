@@ -5,11 +5,7 @@
  * Extends the base control designer types with knob-specific configuration.
  */
 
-import type {
-  BaseControlDesign,
-  LayerMaterial,
-  RotationalOutputConfig,
-} from './base';
+import type { BaseControlDesign, LayerMaterial, RotationalOutputConfig } from './base';
 
 // ============================================================================
 // Geometry Types

@@ -5,9 +5,9 @@
  */
 
 export { ControlDesignerModal } from './ControlDesignerModal';
-export { ControlTypeTabs, KnobIcon, SliderIcon } from './ControlTypeTabs';
-export type { ControlTypeTabsProps } from './ControlTypeTabs';
-export { ControlPreview } from './ControlPreview';
 export type { ControlPreviewProps } from './ControlPreview';
-export { LightingPanel } from './LightingPanel';
+export { ControlPreview } from './ControlPreview';
+export type { ControlTypeTabsProps } from './ControlTypeTabs';
+export { ControlTypeTabs, KnobIcon, SliderIcon } from './ControlTypeTabs';
 export type { LightingPanelProps } from './LightingPanel';
+export { LightingPanel } from './LightingPanel';

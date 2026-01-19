@@ -4,6 +4,7 @@
  * Re-exports control renderer implementations and utilities.
  */
 
+export type { BaseRendererState, FilmstripConfig } from './base';
 // Base renderer utilities
 export {
   cancelGeneration,
@@ -17,7 +18,6 @@ export {
   updateCameraView,
   updateLighting,
 } from './base';
-export type { BaseRendererState, FilmstripConfig } from './base';
 
 // Knob renderer
 export {

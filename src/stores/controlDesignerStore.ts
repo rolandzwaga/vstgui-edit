@@ -6,23 +6,22 @@
  * auto-save on tab switch, and modal-local undo/redo history.
  */
 
-import { createSignal, createMemo } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
+import { invalidateThumbnailCache } from '../domain/bitmaps/thumbnail';
+import { getAllControlTypes, getControlType } from '../domain/controlDesigner/registry';
+import { bitmapService } from '../services/indexedDB/bitmapService';
+import { presetService } from '../services/indexedDB/presetService';
 import type {
   BaseControlDesign,
+  BaseOutputConfig,
+  ControlDesignerHistoryOperation,
   ControlTypeId,
-  ControlTypePlugin,
   GenerationProgress,
   LightingConfig,
-  BaseOutputConfig,
-  RotationalOutputConfig,
   MaterialTarget,
-  ControlDesignerHistoryOperation,
+  RotationalOutputConfig,
 } from '../types/controlDesigner';
 import type { LayerMaterial } from '../types/knobDesigner';
-import { getControlType, getAllControlTypes } from '../domain/controlDesigner/registry';
-import { presetService } from '../services/indexedDB/presetService';
-import { invalidateThumbnailCache } from '../domain/bitmaps/thumbnail';
-import { bitmapService } from '../services/indexedDB/bitmapService';
 import { getBaseBitmapPath, updateBitmapProperty } from './documentStore';
 
 // ============================================================================
@@ -57,16 +56,23 @@ const [generationProgress, setGenerationProgress] = createSignal<GenerationProgr
 const [errorMessage, setErrorMessage] = createSignal<string | null>(null);
 
 // History stacks (per control type, keyed by type)
-const [historyStacks, setHistoryStacks] = createSignal<Record<ControlTypeId, {
-  undo: ControlDesignerHistoryOperation[];
-  redo: ControlDesignerHistoryOperation[];
-}>>({
+const [historyStacks, setHistoryStacks] = createSignal<
+  Record<
+    ControlTypeId,
+    {
+      undo: ControlDesignerHistoryOperation[];
+      redo: ControlDesignerHistoryOperation[];
+    }
+  >
+>({
   knob: { undo: [], redo: [] },
   slider: { undo: [], redo: [] },
 });
 
 // Material target selection (for slider component selection)
-const [selectedMaterialTarget, setSelectedMaterialTarget] = createSignal<MaterialTarget | null>(null);
+const [selectedMaterialTarget, setSelectedMaterialTarget] = createSignal<MaterialTarget | null>(
+  null
+);
 
 // Generation cancellation flag
 let generationCancelled = false;
@@ -175,7 +181,7 @@ export const controlDesignerStore = {
  */
 function pushHistory(op: ControlDesignerHistoryOperation): void {
   const type = activeControlType();
-  setHistoryStacks((stacks) => {
+  setHistoryStacks(stacks => {
     const current = stacks[type];
     const newUndo = [...current.undo, op];
     if (newUndo.length > MODAL_HISTORY_LIMIT) {
@@ -194,7 +200,7 @@ function pushHistory(op: ControlDesignerHistoryOperation): void {
  */
 function clearActiveHistory(): void {
   const type = activeControlType();
-  setHistoryStacks((stacks) => ({
+  setHistoryStacks(stacks => ({
     ...stacks,
     [type]: { undo: [], redo: [] },
   }));
@@ -317,7 +323,7 @@ export function updateDesign(updates: Partial<BaseControlDesign>): void {
   const oldDesign = { ...currentDesign };
   const newDesign = { ...currentDesign, ...updates };
 
-  setDesigns((d) => ({
+  setDesigns(d => ({
     ...d,
     [type]: newDesign,
   }));
@@ -326,10 +332,10 @@ export function updateDesign(updates: Partial<BaseControlDesign>): void {
     type: 'design-update',
     description: 'Update design',
     undo: () => {
-      setDesigns((d) => ({ ...d, [type]: oldDesign }));
+      setDesigns(d => ({ ...d, [type]: oldDesign }));
     },
     redo: () => {
-      setDesigns((d) => ({ ...d, [type]: newDesign }));
+      setDesigns(d => ({ ...d, [type]: newDesign }));
     },
     timestamp: Date.now(),
   });
@@ -349,7 +355,7 @@ export function updateLighting(lighting: Partial<LightingConfig>): void {
   const newLighting = { ...currentDesign.lighting, ...lighting };
   const newDesign = { ...currentDesign, lighting: newLighting };
 
-  setDesigns((d) => ({
+  setDesigns(d => ({
     ...d,
     [type]: newDesign,
   }));
@@ -358,13 +364,13 @@ export function updateLighting(lighting: Partial<LightingConfig>): void {
     type: 'lighting-update',
     description: 'Update lighting',
     undo: () => {
-      setDesigns((d) => ({
+      setDesigns(d => ({
         ...d,
         [type]: { ...d[type]!, lighting: oldLighting },
       }));
     },
     redo: () => {
-      setDesigns((d) => ({
+      setDesigns(d => ({
         ...d,
         [type]: { ...d[type]!, lighting: newLighting },
       }));
@@ -387,7 +393,7 @@ export function updateOutput(output: Partial<BaseOutputConfig | RotationalOutput
   const newOutput = { ...currentDesign.output, ...output };
   const newDesign = { ...currentDesign, output: newOutput };
 
-  setDesigns((d) => ({
+  setDesigns(d => ({
     ...d,
     [type]: newDesign as BaseControlDesign,
   }));
@@ -396,13 +402,13 @@ export function updateOutput(output: Partial<BaseOutputConfig | RotationalOutput
     type: 'output-update',
     description: 'Update output settings',
     undo: () => {
-      setDesigns((d) => ({
+      setDesigns(d => ({
         ...d,
         [type]: { ...d[type]!, output: oldOutput },
       }));
     },
     redo: () => {
-      setDesigns((d) => ({
+      setDesigns(d => ({
         ...d,
         [type]: { ...d[type]!, output: newOutput },
       }));
@@ -511,7 +517,7 @@ export async function loadPreset(presetId: string): Promise<void> {
     const design = JSON.parse(JSON.stringify(preset.design)) as BaseControlDesign;
     design.id = crypto.randomUUID();
 
-    setDesigns((d) => ({
+    setDesigns(d => ({
       ...d,
       [type]: design,
     }));
@@ -632,7 +638,7 @@ export async function generateFilmstrip(): Promise<void> {
     await renderer.initialize(canvas);
 
     // Generate filmstrip
-    const dataUrl = await renderer.generateFilmstrip(design, (progress) => {
+    const dataUrl = await renderer.generateFilmstrip(design, progress => {
       if (!generationCancelled) {
         setGenerationProgress(progress);
       }
@@ -665,7 +671,7 @@ export async function generateFilmstrip(): Promise<void> {
       default: {
         const sqrt = Math.sqrt(frameCount);
         const candidates = [8, 16, 32, 64];
-        framesPerRow = candidates.find((c) => c >= sqrt) ?? 64;
+        framesPerRow = candidates.find(c => c >= sqrt) ?? 64;
         rows = Math.ceil(frameCount / framesPerRow);
         break;
       }

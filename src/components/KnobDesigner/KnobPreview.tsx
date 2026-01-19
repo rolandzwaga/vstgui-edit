@@ -123,5 +123,3 @@ export const KnobPreview: Component<KnobPreviewProps> = (props) => {
     </div>
   );
 };
-
-export default KnobPreview;
