@@ -9,8 +9,7 @@
 
 import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
-import type { KnobLayer, MaterialType, BrushDirection, LayerMaterial } from '../../types/knobDesigner';
-import { updateLayerMaterial } from '../../stores/knobDesignerStore';
+import type { KnobLayer, MaterialType, LayerMaterial } from '../../types/knobDesigner';
 import { MATERIAL_CONSTRAINTS } from '../../domain/knobDesigner';
 import styles from './MaterialPanel.module.css';
 
@@ -70,13 +69,9 @@ export interface MaterialPanelProps {
 export const MaterialPanel: Component<MaterialPanelProps> = (props) => {
   const material = () => props.layer.material;
 
-  // Helper to update material - uses custom handler if provided, else default store action
+  // Helper to update material - uses provided handler
   const handleMaterialUpdate = (updates: Partial<LayerMaterial>) => {
-    if (props.onMaterialUpdate) {
-      props.onMaterialUpdate(updates);
-    } else {
-      updateLayerMaterial(props.layer.id, updates);
-    }
+    props.onMaterialUpdate?.(updates);
   };
 
   // Convert hex color to input format (#RRGGBB without alpha)

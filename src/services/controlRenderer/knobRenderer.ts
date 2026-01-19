@@ -49,6 +49,11 @@ export function createKnobRenderer(): ControlRenderer<KnobDesignWithType> {
     },
 
     updateScene(design: KnobDesignWithType): void {
+      // Defensive check: ensure we're receiving a knob design
+      if (design.controlType !== 'knob') {
+        console.warn('[KnobRenderer] Received non-knob design, ignoring', design.controlType);
+        return;
+      }
       currentDesign = design;
       updateSceneBase(design);
     },

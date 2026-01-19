@@ -12,6 +12,7 @@ import type {
   ControlTypePlugin,
   GenerationProgress,
   PanelDefinition,
+  PanelProps,
   ValidationResult,
 } from '../../types/controlDesigner';
 import type { KnobDesign } from '../../types/knobDesigner';
@@ -131,6 +132,11 @@ function createKnobRenderer(): ControlRenderer<KnobDesignWithType> {
     },
 
     updateScene(design: KnobDesignWithType): void {
+      // Defensive check: ensure we're receiving a knob design
+      if (design.controlType !== 'knob') {
+        console.warn('[KnobRenderer] Received non-knob design, ignoring', design.controlType);
+        return;
+      }
       if (rendererModule) {
         rendererModule.updateScene(design);
       }
@@ -178,25 +184,25 @@ function createKnobRenderer(): ControlRenderer<KnobDesignWithType> {
 }
 
 // ============================================================================
-// Geometry Panel Definitions
+// Lazy Panel Imports (to avoid circular dependencies)
 // ============================================================================
 
+// Panels will be lazily loaded to avoid circular dependencies
+// The actual panel components are registered but not imported here
+let LayerPanel: Component<PanelProps> | null = null;
+let IndicatorPanel: Component<PanelProps> | null = null;
+
 /**
- * Panel definitions for knob-specific geometry editing.
- * These panels are displayed in the control designer modal.
+ * Sets the panel components for the knob plugin.
+ * Called during component registration to avoid circular dependencies.
  */
-const knobGeometryPanels: PanelDefinition[] = [
-  {
-    id: 'layers',
-    label: 'Layers',
-    component: (() => null) as Component, // Placeholder - actual component injected at runtime
-  },
-  {
-    id: 'indicator',
-    label: 'Indicator',
-    component: (() => null) as Component, // Placeholder - actual component injected at runtime
-  },
-];
+export function registerKnobPanels(panels: {
+  LayerPanel: Component<PanelProps> | null;
+  IndicatorPanel: Component<PanelProps> | null;
+}): void {
+  LayerPanel = panels.LayerPanel;
+  IndicatorPanel = panels.IndicatorPanel;
+}
 
 // ============================================================================
 // Knob Plugin Definition
@@ -228,7 +234,28 @@ export const knobPlugin: ControlTypePlugin<KnobDesignWithType> = {
     return createKnobRenderer();
   },
 
-  geometryPanels: knobGeometryPanels,
+  get geometryPanels(): PanelDefinition[] {
+    // Return panel registrations - panels may be null if not yet registered
+    const panels: PanelDefinition[] = [];
+
+    if (LayerPanel) {
+      panels.push({
+        id: 'layers',
+        label: 'Layers',
+        component: LayerPanel,
+      });
+    }
+
+    if (IndicatorPanel) {
+      panels.push({
+        id: 'indicator',
+        label: 'Indicator',
+        component: IndicatorPanel,
+      });
+    }
+
+    return panels;
+  },
 
   validateDesign(design: KnobDesignWithType): ValidationResult {
     return validateKnobDesign(design);

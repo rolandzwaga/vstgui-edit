@@ -65,9 +65,19 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
   const [isInitialized, setIsInitialized] = createSignal(false);
   const [isLoading, setIsLoading] = createSignal(true);
 
+  // Guard against concurrent initializations
+  let isInitializing = false;
+
   // Initialize renderer on mount and when plugin changes
   const initializeRenderer = async () => {
-    if (!canvasRef || !props.plugin || !props.design) return;
+    // Prevent concurrent initializations
+    if (isInitializing) {
+      return;
+    }
+
+    if (!canvasRef || !props.plugin || !props.design) {
+      return;
+    }
 
     // Check WebGL availability first
     if (!isWebGLAvailable()) {
@@ -86,6 +96,7 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
       setIsInitialized(false);
     }
 
+    isInitializing = true;
     setIsLoading(true);
     setWebglError(null);
 
@@ -95,26 +106,52 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
       await currentRenderer.initialize(canvasRef);
       setIsInitialized(true);
 
-      // Initial scene update
-      if (props.design) {
+      // Initial scene update - verify design type matches plugin
+      if (props.design && props.plugin && props.design.controlType === props.plugin.id) {
         currentRenderer.updateScene(props.design);
         currentRenderer.renderPreview();
       }
 
       setIsLoading(false);
+
+      // Force a resize after canvas becomes visible
+      // Use container dimensions since canvas inherits from parent
+      // Double rAF ensures DOM has fully updated after state change
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (containerRef && currentRenderer) {
+            const rect = containerRef.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              currentRenderer.resize?.(rect.width, rect.height);
+              currentRenderer.renderPreview();
+            } else {
+              // Fallback: try again after a short delay
+              setTimeout(() => {
+                if (containerRef && currentRenderer) {
+                  const retryRect = containerRef.getBoundingClientRect();
+                  if (retryRect.width > 0 && retryRect.height > 0) {
+                    currentRenderer.resize?.(retryRect.width, retryRect.height);
+                    currentRenderer.renderPreview();
+                  }
+                }
+              }, 100);
+            }
+          }
+        });
+      });
     } catch (error) {
       const errorMsg =
         error instanceof Error ? error.message : 'Failed to initialize 3D renderer';
       setWebglError(errorMsg);
       props.onError?.(errorMsg);
       setIsLoading(false);
+    } finally {
+      isInitializing = false;
     }
   };
 
-  // Initialize on mount
-  onMount(() => {
-    initializeRenderer();
-  });
+  // Note: initializeRenderer is called by the createEffect below,
+  // which properly tracks dependencies and handles tab switching
 
   // Setup resize observer
   onMount(() => {
@@ -146,10 +183,23 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
     }
   });
 
-  // Reinitialize when plugin changes
+  // Track plugin ID to detect tab switches (plugin changes)
+  let lastPluginId: string | undefined;
+
+  // Reinitialize when plugin changes (tab switch) or when both prerequisites become available
   createEffect(() => {
-    const _plugin = props.plugin;
-    if (canvasRef && _plugin) {
+    const plugin = props.plugin;
+    const design = props.design;
+    const pluginId = plugin?.id;
+
+    // Reinitialize if:
+    // 1. Plugin changed (tab switch)
+    // 2. Both prerequisites available and not yet initialized
+    const pluginChanged = pluginId !== lastPluginId;
+    const needsInit = canvasRef && plugin && design && (!isInitialized() || pluginChanged);
+
+    if (needsInit) {
+      lastPluginId = pluginId;
       initializeRenderer();
     }
   });
@@ -157,7 +207,10 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
   // Update scene when design changes
   createEffect(() => {
     const design = props.design;
-    if (isInitialized() && currentRenderer && design) {
+    const plugin = props.plugin;
+    // Only update if renderer is initialized AND design type matches the plugin
+    // This prevents race conditions when quickly switching between control types
+    if (isInitialized() && currentRenderer && design && plugin && design.controlType === plugin.id) {
       currentRenderer.updateScene(design);
       currentRenderer.renderPreview();
     }
@@ -166,7 +219,11 @@ export const ControlPreview: Component<ControlPreviewProps> = (props) => {
   // Update preview position for linear controls
   createEffect(() => {
     const position = props.previewPosition;
-    if (isInitialized() && currentRenderer && position !== undefined) {
+    const design = props.design;
+    const plugin = props.plugin;
+    // Only update if design type matches the plugin
+    if (isInitialized() && currentRenderer && position !== undefined &&
+        design && plugin && design.controlType === plugin.id) {
       currentRenderer.setPosition(position);
       currentRenderer.renderPreview();
     }

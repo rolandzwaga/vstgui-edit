@@ -3,28 +3,119 @@
  *
  * Controls for the knob indicator (position marker).
  * Includes type selection, material, size, and position.
+ * Uses props-based approach for the unified Control Designer.
  */
 
 import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
-import type { IndicatorType } from '../../types/knobDesigner';
-import {
-  knobDesignerStore,
-  toggleIndicator,
-  setIndicatorType,
-  updateIndicatorMaterial,
-  updateIndicatorSize,
-  setIndicatorPosition,
-} from '../../stores/knobDesignerStore';
+import type { BaseControlDesign } from '../../types/controlDesigner';
+import type {
+  IndicatorMaterial,
+  IndicatorSize,
+  IndicatorType,
+  KnobDesign,
+  KnobIndicator,
+} from '../../types/knobDesigner';
 import { INDICATOR_CONSTRAINTS } from '../../domain/knobDesigner';
 import styles from './IndicatorPanel.module.css';
+
+// ============================================================================
+// Props Interface
+// ============================================================================
+
+export interface IndicatorPanelProps {
+  /** Current knob design */
+  design: BaseControlDesign;
+
+  /** Callback to update design */
+  onUpdate: (updates: Partial<KnobDesign>) => void;
+}
+
+// ============================================================================
+// Default Indicator
+// ============================================================================
+
+const DEFAULT_INDICATOR: KnobIndicator = {
+  enabled: true,
+  type: 'dot',
+  material: {
+    color: '#FFFFFFFF',
+    metallic: false,
+  },
+  size: {
+    radius: 3,
+    length: 15,
+    width: 2,
+    height: 2,
+    depth: 2,
+  },
+  radialPosition: 75,
+};
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export const IndicatorPanel: Component = () => {
-  const indicator = () => knobDesignerStore.design.indicator;
+export const IndicatorPanel: Component<IndicatorPanelProps> = (props) => {
+  // Type-safe accessor for knob design
+  const knobDesign = () => props.design as KnobDesign;
+  const indicator = () => knobDesign().indicator;
+
+  // Toggle indicator enabled/disabled
+  const toggleIndicator = () => {
+    if (indicator()?.enabled) {
+      // Disable by setting enabled to false (keep config)
+      props.onUpdate({
+        indicator: { ...indicator()!, enabled: false },
+      });
+    } else if (indicator()) {
+      // Re-enable existing indicator
+      props.onUpdate({
+        indicator: { ...indicator()!, enabled: true },
+      });
+    } else {
+      // Create new indicator
+      props.onUpdate({ indicator: { ...DEFAULT_INDICATOR } });
+    }
+  };
+
+  // Set indicator type
+  const setIndicatorType = (type: IndicatorType) => {
+    if (!indicator()) return;
+    props.onUpdate({
+      indicator: { ...indicator()!, type },
+    });
+  };
+
+  // Update indicator material
+  const updateIndicatorMaterial = (updates: Partial<IndicatorMaterial>) => {
+    if (!indicator()) return;
+    props.onUpdate({
+      indicator: {
+        ...indicator()!,
+        material: { ...indicator()!.material, ...updates },
+      },
+    });
+  };
+
+  // Update indicator size
+  const updateIndicatorSize = (updates: Partial<IndicatorSize>) => {
+    if (!indicator()) return;
+    props.onUpdate({
+      indicator: {
+        ...indicator()!,
+        size: { ...indicator()!.size, ...updates },
+      },
+    });
+  };
+
+  // Set indicator radial position
+  const setIndicatorPosition = (radialPosition: number) => {
+    if (!indicator()) return;
+    props.onUpdate({
+      indicator: { ...indicator()!, radialPosition },
+    });
+  };
 
   // Convert hex color to input format (#RRGGBB without alpha)
   const colorForInput = () => {
@@ -46,7 +137,7 @@ export const IndicatorPanel: Component = () => {
           <input
             type="checkbox"
             checked={indicator()?.enabled ?? false}
-            onChange={() => toggleIndicator()}
+            onChange={toggleIndicator}
             class={styles.checkbox}
           />
           <span>Enable Indicator</span>

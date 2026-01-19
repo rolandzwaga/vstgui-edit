@@ -180,6 +180,12 @@ export class SliderRenderer implements ControlRenderer<SliderDesign> {
   updateScene(design: BaseControlDesign): void {
     if (!this.scene || !this.sliderGroup || !this.mainLight || !this.camera) return;
 
+    // Defensive check: ensure we're receiving a slider design
+    if (design.controlType !== 'slider') {
+      console.warn('[SliderRenderer] Received non-slider design, ignoring', design.controlType);
+      return;
+    }
+
     const sliderDesign = design as SliderDesign;
     this.currentDesign = sliderDesign;
 

@@ -91,18 +91,22 @@ const activeDesign = createMemo(() => {
 
 /**
  * Get the active plugin.
+ * NOTE: This is a function, not a memo, because the registry is not reactive.
+ * Calling getControlType directly ensures we always get the current state.
  */
-const activePlugin = createMemo(() => {
+function getActivePlugin() {
   const type = activeControlType();
   return getControlType(type);
-});
+}
 
 /**
  * Get all registered plugins.
+ * NOTE: This is a function, not a memo, because the registry is not reactive.
+ * Calling getAllControlTypes directly ensures we always get the current state.
  */
-const registeredPlugins = createMemo(() => {
+function getRegisteredPlugins() {
   return getAllControlTypes();
-});
+}
 
 /**
  * Get history state for active control type.
@@ -130,10 +134,10 @@ export const controlDesignerStore = {
     return activeDesign();
   },
   get activePlugin() {
-    return activePlugin();
+    return getActivePlugin();
   },
   get registeredPlugins() {
-    return registeredPlugins();
+    return getRegisteredPlugins();
   },
   get targetBitmapName() {
     return targetBitmapName();

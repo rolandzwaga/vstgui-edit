@@ -4,7 +4,6 @@ import { getBitmapType } from '../../types/uidesc';
 import { openControlDesigner } from '../../stores/controlDesignerStore';
 import { getBitmaps, updateBitmapName, updateBitmapProperty } from '../../stores/documentStore';
 import { pushOperation } from '../../stores/historyStore';
-import { openKnobDesigner } from '../../stores/knobDesignerStore';
 import {
   createEditBitmapNameOperation,
   createEditBitmapPropertyOperation,
@@ -381,7 +380,7 @@ export const BitmapItem: Component<BitmapItemProps> = (props) => {
   const handleDesignKnobClick = (e: MouseEvent) => {
     e.stopPropagation();
     if (props.projectId) {
-      openKnobDesigner(props.name, props.projectId);
+      openControlDesigner(props.name, props.projectId, 'knob');
     }
   };
 

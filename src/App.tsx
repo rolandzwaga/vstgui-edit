@@ -6,7 +6,6 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { CreateNewDialog } from './components/CreateNewDialog';
 import { DuplicateBitmapsWarningDialog } from './components/DuplicateBitmapsWarningDialog';
 import { FindPanel } from './components/FindPanel';
-import { KnobDesignerModal } from './components/KnobDesigner';
 import { ControlDesignerModal } from './components/ControlDesigner';
 import { MissingBitmapsModal } from './components/MissingBitmapsModal';
 import { OrphanWarningDialog } from './components/OrphanWarningDialog';
@@ -62,8 +61,9 @@ import {
 } from './stores/missingBitmapsStore';
 import { closeDatabase } from './services/indexedDB/database';
 import { registerControlType } from './domain/controlDesigner/registry';
-import { knobPlugin } from './domain/knobDesigner/plugin';
+import { knobPlugin, registerKnobPanels } from './domain/knobDesigner';
 import { sliderPlugin, registerSliderPanels } from './domain/sliderDesigner';
+import { LayerPanel, IndicatorPanel } from './components/KnobDesigner';
 import { TrackPanel, HandlePanel, ValueFillPanel } from './components/SliderDesigner';
 import './styles/tokens.css';
 
@@ -73,8 +73,16 @@ import './styles/tokens.css';
 
 // Register control type plugins at module load time.
 // This ensures plugins are available before any UI renders.
+console.log('[App] About to register plugins...');
 registerControlType(knobPlugin);
 registerControlType(sliderPlugin);
+console.log('[App] Plugins registered');
+
+// Register knob panels with the plugin (avoids circular dependency)
+registerKnobPanels({
+  LayerPanel,
+  IndicatorPanel,
+});
 
 // Register slider panels with the plugin (avoids circular dependency)
 registerSliderPanels({
@@ -442,10 +450,7 @@ export default function App() {
         onConfirm={closeDuplicateWarning}
       />
 
-      {/* 3D Knob Designer modal (legacy - still used for existing knob workflow) */}
-      <KnobDesignerModal />
-
-      {/* Unified Control Designer modal (new plugin-based architecture) */}
+      {/* Unified Control Designer modal (plugin-based knob/slider) */}
       <ControlDesignerModal />
     </main>
   );

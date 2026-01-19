@@ -58,6 +58,8 @@ export {
   createSolidMaterial,
   disposeAll as disposeMaterials,
 } from './materials';
+// Plugin
+export { knobPlugin, registerKnobPanels } from './plugin';
 // Scene setup
 export {
   cartesianToSpherical,

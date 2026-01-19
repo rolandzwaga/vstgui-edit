@@ -1,14 +1,15 @@
 /**
  * KnobDesigner Components
  *
- * Barrel export for 3D Knob Designer UI components.
+ * Panel components for the knob control type.
+ * These are used by the unified ControlDesigner modal.
  */
 
+// Knob-specific geometry panels (used by knob plugin)
 export { IndicatorPanel } from './IndicatorPanel';
-export { KnobDesignerModal } from './KnobDesignerModal';
-export { KnobPreview } from './KnobPreview';
 export { LayerPanel } from './LayerPanel';
-export { LightingPanel } from './LightingPanel';
 export { MaterialPanel } from './MaterialPanel';
+
+// Shared panels (used by ControlDesignerModal)
 export { OutputPanel } from './OutputPanel';
 export { PresetSelector } from './PresetSelector';

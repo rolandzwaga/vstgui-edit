@@ -118,6 +118,7 @@ export const ControlDesignerModal: Component = () => {
                 controlType={controlDesignerStore.activeControlType}
                 selectedPresetId={controlDesignerStore.selectedPresetId}
                 isModified={controlDesignerStore.isModified}
+                isOpen={controlDesignerStore.isOpen}
                 onLoadPreset={loadPreset}
                 onSavePreset={savePreset}
                 onDeletePreset={deletePreset}
@@ -304,7 +305,7 @@ export const ControlDesignerModal: Component = () => {
                   <div id="panel-output" role="tabpanel" aria-labelledby="tab-output">
                     <Show when={controlDesignerStore.activeDesign}>
                       <OutputPanel
-                        category={controlDesignerStore.activePlugin?.category}
+                        category={controlDesignerStore.activePlugin?.category ?? 'rotational'}
                         output={controlDesignerStore.activeDesign!.output}
                         onOutputUpdate={updateOutput}
                       />

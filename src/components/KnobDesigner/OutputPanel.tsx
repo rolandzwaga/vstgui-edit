@@ -12,7 +12,6 @@ import { Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import type { ControlCategory, BaseOutputConfig, RotationalOutputConfig } from '../../types/controlDesigner';
 import type { OutputConfig } from '../../types/knobDesigner';
-import { knobDesignerStore, updateOutput } from '../../stores/knobDesignerStore';
 import {
   OUTPUT_CONSTRAINTS,
   calculateFilmstripDimensions,
@@ -28,23 +27,20 @@ import styles from './OutputPanel.module.css';
 
 export interface OutputPanelProps {
   /**
-   * Control category (optional).
+   * Control category.
    * Determines whether rotation settings are shown.
-   * Defaults to 'rotational' for backward compatibility.
    */
-  category?: ControlCategory;
+  category: ControlCategory;
 
   /**
-   * Output configuration from external store (optional).
-   * When provided, uses this instead of knobDesignerStore.
+   * Output configuration from the control designer store.
    */
-  output?: BaseOutputConfig | RotationalOutputConfig;
+  output: BaseOutputConfig | RotationalOutputConfig;
 
   /**
-   * Custom output update handler (optional).
-   * When provided, overrides the default updateOutput call.
+   * Handler for output updates.
    */
-  onOutputUpdate?: (updates: Partial<BaseOutputConfig | RotationalOutputConfig>) => void;
+  onOutputUpdate: (updates: Partial<BaseOutputConfig | RotationalOutputConfig>) => void;
 }
 
 // ============================================================================
@@ -63,14 +59,11 @@ function isRotationalOutput(output: BaseOutputConfig | RotationalOutputConfig): 
 // ============================================================================
 
 export const OutputPanel: Component<OutputPanelProps> = (props) => {
-  // Get category - default to 'rotational' for backward compatibility
-  const category = () => props.category ?? 'rotational';
-
   // Whether this is a rotational control type
-  const isRotational = () => category() === 'rotational';
+  const isRotational = () => props.category === 'rotational';
 
-  // Get output config - use prop if provided, else fall back to store
-  const output = () => props.output ?? knobDesignerStore.design.output;
+  // Get output config from props
+  const output = () => props.output;
 
   // Get rotational output (with type safety) - returns undefined for linear controls
   const rotationalOutput = () => {
@@ -80,11 +73,7 @@ export const OutputPanel: Component<OutputPanelProps> = (props) => {
 
   // Helper to update output
   const handleOutputUpdate = (updates: Partial<BaseOutputConfig | RotationalOutputConfig>) => {
-    if (props.onOutputUpdate) {
-      props.onOutputUpdate(updates);
-    } else {
-      updateOutput(updates as Partial<OutputConfig>);
-    }
+    props.onOutputUpdate(updates);
   };
 
   // Calculate filmstrip info - use a compatible config format

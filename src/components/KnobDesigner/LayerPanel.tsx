@@ -1,19 +1,15 @@
 /**
  * LayerPanel Component
  *
- * Displays the layer list and add/remove controls.
+ * Displays the layer list and geometry controls.
  * Allows selecting, reordering, and managing knob layers.
+ * Uses props-based approach for the unified Control Designer.
  */
 
-import { For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import type { Component } from 'solid-js';
-import {
-  knobDesignerStore,
-  addLayer,
-  removeLayer,
-  reorderLayer,
-  updateLayerGeometry,
-} from '../../stores/knobDesignerStore';
+import type { BaseControlDesign } from '../../types/controlDesigner';
+import type { KnobDesign, KnobLayer, LayerGeometry } from '../../types/knobDesigner';
 import { LAYER_CONSTRAINTS } from '../../domain/knobDesigner';
 import styles from './LayerPanel.module.css';
 
@@ -22,11 +18,11 @@ import styles from './LayerPanel.module.css';
 // ============================================================================
 
 export interface LayerPanelProps {
-  /** Currently selected layer ID */
-  selectedLayerId: string | null;
+  /** Current knob design */
+  design: BaseControlDesign;
 
-  /** Callback when a layer is selected */
-  onSelectLayer: (layerId: string | null) => void;
+  /** Callback to update design */
+  onUpdate: (updates: Partial<KnobDesign>) => void;
 }
 
 // ============================================================================
@@ -34,9 +30,88 @@ export interface LayerPanelProps {
 // ============================================================================
 
 export const LayerPanel: Component<LayerPanelProps> = (props) => {
-  const layers = () => knobDesignerStore.design.layers;
+  // Local state for selected layer
+  const [selectedLayerId, setSelectedLayerId] = createSignal<string | null>(null);
+
+  // Type-safe accessor for knob design
+  const knobDesign = () => props.design as KnobDesign;
+  const layers = () => knobDesign().layers;
   const canAddLayer = () => layers().length < LAYER_CONSTRAINTS.MAX_LAYERS;
   const canRemoveLayer = () => layers().length > LAYER_CONSTRAINTS.MIN_LAYERS;
+
+  // Auto-select first layer if none selected
+  const effectiveSelectedId = () => {
+    const id = selectedLayerId();
+    if (id && layers().find((l) => l.id === id)) {
+      return id;
+    }
+    return layers()[0]?.id ?? null;
+  };
+
+  const addLayer = () => {
+    const currentLayers = layers();
+    if (currentLayers.length >= LAYER_CONSTRAINTS.MAX_LAYERS) return;
+
+    const newLayer: KnobLayer = {
+      id: crypto.randomUUID(),
+      name: `Layer ${currentLayers.length + 1}`,
+      geometry: {
+        diameter: Math.max(10, 80 - currentLayers.length * 20),
+        height: 30,
+        bevelRadius: 2,
+        skirtStyle: 'cylindrical',
+      },
+      material: {
+        type: 'metallic',
+        color: '#808080FF',
+        shininess: 64,
+        reflectivity: 50,
+        brushDirection: 'radial',
+        brushIntensity: 0,
+      },
+    };
+
+    props.onUpdate({
+      layers: [...currentLayers, newLayer],
+    });
+    setSelectedLayerId(newLayer.id);
+  };
+
+  const removeLayer = (layerId: string) => {
+    const currentLayers = layers();
+    if (currentLayers.length <= LAYER_CONSTRAINTS.MIN_LAYERS) return;
+
+    const newLayers = currentLayers.filter((l) => l.id !== layerId);
+    props.onUpdate({ layers: newLayers });
+
+    // Select another layer if the removed one was selected
+    if (selectedLayerId() === layerId) {
+      setSelectedLayerId(newLayers[0]?.id ?? null);
+    }
+  };
+
+  const reorderLayer = (layerId: string, newIndex: number) => {
+    const currentLayers = [...layers()];
+    const currentIndex = currentLayers.findIndex((l) => l.id === layerId);
+    if (currentIndex === -1) return;
+
+    const [layer] = currentLayers.splice(currentIndex, 1);
+    currentLayers.splice(newIndex, 0, layer);
+    props.onUpdate({ layers: currentLayers });
+  };
+
+  const updateLayerGeometry = (layerId: string, updates: Partial<LayerGeometry>) => {
+    const newLayers = layers().map((layer) => {
+      if (layer.id === layerId) {
+        return {
+          ...layer,
+          geometry: { ...layer.geometry, ...updates },
+        };
+      }
+      return layer;
+    });
+    props.onUpdate({ layers: newLayers });
+  };
 
   const handleMoveUp = (layerId: string, currentIndex: number) => {
     if (currentIndex < layers().length - 1) {
@@ -58,7 +133,7 @@ export const LayerPanel: Component<LayerPanelProps> = (props) => {
         <button
           type="button"
           class={styles.addButton}
-          onClick={() => addLayer()}
+          onClick={addLayer}
           disabled={!canAddLayer()}
           title={canAddLayer() ? 'Add layer' : `Maximum ${LAYER_CONSTRAINTS.MAX_LAYERS} layers`}
         >
@@ -74,12 +149,12 @@ export const LayerPanel: Component<LayerPanelProps> = (props) => {
         <For each={[...layers()].reverse()}>
           {(layer, index) => {
             const actualIndex = () => layers().length - 1 - index();
-            const isSelected = () => layer.id === props.selectedLayerId;
+            const isSelected = () => layer.id === effectiveSelectedId();
 
             return (
               <div
                 class={`${styles.layerItem} ${isSelected() ? styles.layerItemSelected : ''}`}
-                onClick={() => props.onSelectLayer(layer.id)}
+                onClick={() => setSelectedLayerId(layer.id)}
               >
                 {/* Layer Info */}
                 <div class={styles.layerInfo}>
@@ -130,10 +205,6 @@ export const LayerPanel: Component<LayerPanelProps> = (props) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       removeLayer(layer.id);
-                      if (props.selectedLayerId === layer.id && layers().length > 1) {
-                        const remaining = layers().filter(l => l.id !== layer.id);
-                        props.onSelectLayer(remaining[0]?.id ?? null);
-                      }
                     }}
                     disabled={!canRemoveLayer()}
                     title={canRemoveLayer() ? 'Remove layer' : 'At least one layer required'}
@@ -150,9 +221,9 @@ export const LayerPanel: Component<LayerPanelProps> = (props) => {
       </div>
 
       {/* Selected Layer Geometry */}
-      <Show when={props.selectedLayerId}>
+      <Show when={effectiveSelectedId()}>
         {(layerId) => {
-          const layer = () => layers().find(l => l.id === layerId());
+          const layer = () => layers().find((l) => l.id === layerId());
           return (
             <Show when={layer()}>
               <div class={styles.geometrySection}>
