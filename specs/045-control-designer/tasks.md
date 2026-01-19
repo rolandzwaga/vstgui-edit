@@ -112,7 +112,7 @@
 - [X] T048 [P] [US2] Create SliderDesigner index in `F:\projects\vstgui-edit\src\components\SliderDesigner\index.ts` (re-exports)
 - [X] T049 [US2] Register slider plugin in application startup (call registerControlType(sliderPlugin) after knob registration)
 - [X] T050 [US2] Verify tab switching performance in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure switchControlType completes <200ms per SC-003)
-- [ ] T051 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat: add slider plugin and enable control type switching"
+- [X] T051 [US2] **Commit**: Stage and commit User Story 2 changes with message "feat: add slider plugin and enable control type switching"
 
 **Checkpoint**: Users can switch between Knob and Slider tabs, state preserves across switches
 
@@ -136,7 +136,7 @@
 - [X] T058 [US1] Update MaterialPanel for slider components in `F:\projects\vstgui-edit\src\components\ControlDesigner\MaterialPanel.tsx` (extend target selector to support 'track' | 'handle' | 'fill', synchronize with 3D preview click selection)
 - [X] T059 [US1] Update ControlPreview for slider raycasting in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (implement onCanvasClick with raycaster, map intersected objects to slider component IDs via userData.componentId)
 - [X] T060 [US1] Add "Design Slider" context menu option in bitmap context menu component (add menu item that opens ControlDesignerModal with controlType: 'slider')
-- [ ] T061 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat: implement slider 3D rendering and filmstrip generation"
+- [X] T061 [US1] **Commit**: Stage and commit User Story 1 changes with message "feat: implement slider 3D rendering and filmstrip generation"
 
 **Checkpoint**: Users can design and generate slider filmstrips with full 3D preview and material controls
 
@@ -154,7 +154,7 @@
 - [X] T063 [US4] Add component highlight on hover in `F:\projects\vstgui-edit\src\components\ControlDesigner\ControlPreview.tsx` (raycaster on mousemove, outline shader or emissive boost on hovered component)
 - [X] T064 [US4] Update slider renderer component selection in `F:\projects\vstgui-edit\src\services\controlRenderer\sliderRenderer.ts` (implement setSelectedComponent to highlight/outline selected component, store userData.componentId on each mesh)
 - [X] T065 [US4] Add material type presets for slider in `F:\projects\vstgui-edit\src\domain\controlDesigner\materials.ts` (metallic, brushed, plastic, wood presets specific to slider components)
-- [ ] T066 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat: enable material application to slider components via click and dropdown"
+- [X] T066 [US4] **Commit**: Stage and commit User Story 4 changes with message "feat: enable material application to slider components via click and dropdown"
 
 **Checkpoint**: Users can apply independent materials to slider components using both click selection and dropdown
 
@@ -172,7 +172,7 @@
 - [X] T068 [US5] Update PresetSelector filtering in `F:\projects\vstgui-edit\src\components\ControlDesigner\PresetSelector.tsx` (ensure preset list only shows presets matching activeControlType, add empty state message "No slider presets yet")
 - [X] T069 [US5] Add slider preset save validation in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (ensure saved presets include controlType: 'slider', validate design before save)
 - [X] T070 [US5] Test preset migration for existing knob presets (verify knobs with missing controlType get 'knob' added on first access after DB_VERSION 4 upgrade)
-- [ ] T071 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat: enable slider preset save and load with type filtering"
+- [X] T071 [US5] **Commit**: Stage and commit User Story 5 changes with message "feat: enable slider preset save and load with type filtering"
 
 **Checkpoint**: Users can save/load slider presets independently from knob presets
 
@@ -189,7 +189,7 @@
 - [X] T072 [US6] Update OutputPanel for linear controls in `F:\projects\vstgui-edit\src\components\ControlDesigner\OutputPanel.tsx` (conditionally hide rotation settings when category === 'linear', show position-based frame description, update filmstrip dimension calculation for horizontal/vertical layout)
 - [X] T073 [US6] Add output validation for sliders in `F:\projects\vstgui-edit\src\domain\sliderDesigner\validation.ts` (ensure frame count produces valid texture dimensions, warn if dimensions approach 8192x8192 limit)
 - [X] T074 [US6] Update filmstrip utilities for linear layout in `F:\projects\vstgui-edit\src\domain\controlDesigner\filmstrip.ts` (calculateFilmstripDimensions handles horizontal/vertical for linear controls, estimates file size accurately)
-- [ ] T075 [US6] **Commit**: Stage and commit User Story 6 changes with message "feat: adapt output panel for slider filmstrip configuration"
+- [X] T075 [US6] **Commit**: Stage and commit User Story 6 changes with message "feat: adapt output panel for slider filmstrip configuration"
 
 **Checkpoint**: Users can configure slider output settings with accurate preview information
 
@@ -242,9 +242,9 @@
 
 **Purpose**: Ensure all work is committed before marking feature complete
 
-- [ ] TFINAL-1 **Verify Git Status**: Run `git status` from `F:\projects\vstgui-edit\` to check for uncommitted changes
-- [ ] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with message "chore: finalize control designer implementation"
-- [ ] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
+- [X] TFINAL-1 **Verify Git Status**: Run `git status` from `F:\projects\vstgui-edit\` to check for uncommitted changes
+- [X] TFINAL-2 **Commit Remaining**: If any unstaged/uncommitted changes exist, stage and commit them with message "chore: finalize control designer implementation"
+- [X] TFINAL-3 **Confirm Clean**: Verify working tree is clean (nothing to commit)
 
 **⚠️ CRITICAL**: Do NOT mark the feature as complete until this phase confirms all work is committed.
 
