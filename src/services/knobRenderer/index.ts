@@ -464,12 +464,12 @@ export async function generateFilmstrip(
   updateScene(design);
 
   const { frameCount, frameWidth, frameHeight, startAngle, sweepAngle, layout } = design.output;
-  const { framesPerRow, rows: _rows, totalWidth, totalHeight } = calculateFilmstripDimensions(
-    frameCount,
-    frameWidth,
-    frameHeight,
-    layout ?? 'vertical'
-  );
+  const {
+    framesPerRow,
+    rows: _rows,
+    totalWidth,
+    totalHeight,
+  } = calculateFilmstripDimensions(frameCount, frameWidth, frameHeight, layout ?? 'vertical');
 
   // Create render target
   const target = new WebGLRenderTarget(totalWidth, totalHeight, {
@@ -498,7 +498,16 @@ export async function generateFilmstrip(
   // Calculate frustum size based on actual design to ensure nothing clips
   const frustumSize = calculateFrustumSize(design);
 
-  console.log('[Filmstrip] Generating', frameCount, 'frames at', frameWidth, 'x', frameHeight, '- frustum:', frustumSize.toFixed(1));
+  console.log(
+    '[Filmstrip] Generating',
+    frameCount,
+    'frames at',
+    frameWidth,
+    'x',
+    frameHeight,
+    '- frustum:',
+    frustumSize.toFixed(1)
+  );
 
   // Create a FRESH camera for filmstrip rendering with the calculated frustum
   const filmstripCamera = createCamera(frameWidth, frameHeight, frustumSize, design.cameraView);
