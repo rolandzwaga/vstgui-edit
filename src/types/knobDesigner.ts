@@ -200,6 +200,9 @@ export interface OutputConfig {
 
   /** Filmstrip layout (default 'vertical') */
   layout: FilmstripLayout;
+
+  /** Geometry rotation offset in degrees (0-360, default 0) - rotates the knob like a clock face */
+  rotationOffset: number;
 }
 
 // ============================================================================

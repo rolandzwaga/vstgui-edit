@@ -170,6 +170,12 @@ export const OUTPUT_CONSTRAINTS = {
     MIN: 0,
     MAX: 360,
   },
+
+  /** Rotation offset constraints (degrees) */
+  ROTATION_OFFSET: {
+    MIN: 0,
+    MAX: 360,
+  },
 } as const;
 
 /**
@@ -505,6 +511,17 @@ export function validateOutput(output: OutputConfig): ValidationResult {
     'End angle'
   );
   if (!endResult.valid) return endResult;
+
+  // Validate rotation offset (optional for backward compatibility)
+  if (output.rotationOffset !== undefined) {
+    const rotationOffsetResult = validateNumericRange(
+      output.rotationOffset,
+      OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MIN,
+      OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MAX,
+      'Rotation offset'
+    );
+    if (!rotationOffsetResult.valid) return rotationOffsetResult;
+  }
 
   return { valid: true };
 }

@@ -54,6 +54,7 @@ let knobGroup: Group | null = null;
 let animationFrameId: number | null = null;
 const _previewAngle = 0;
 let currentDesign: KnobDesign | null = null;
+let currentRotationOffset = 0; // User-configurable rotation offset in radians
 
 // Generation cancellation
 let generationCancelled = false;
@@ -247,9 +248,12 @@ export function updateScene(design: KnobDesign): void {
   });
   knobGroup.clear();
 
-  // Apply 180° rotation around Y-axis to compensate for camera flip
-  // This keeps the visual appearance correct while making lighting directions intuitive
-  knobGroup.rotation.y = Math.PI;
+  // Store the user's rotation offset (convert from degrees to radians)
+  currentRotationOffset = ((design.output.rotationOffset ?? 0) * Math.PI) / 180;
+
+  // Apply base 180° rotation + user rotation offset
+  // Base rotation compensates for camera flip, offset rotates the knob like a clock face
+  knobGroup.rotation.y = Math.PI + currentRotationOffset;
 
   // Calculate parameters
   const overallDiameter = OVERALL_DIAMETER; // World units
@@ -308,14 +312,15 @@ export function setCameraView(view: CameraView): void {
 
 /**
  * Sets the preview rotation angle.
- * Includes the base 180° offset to compensate for camera flip.
+ * Includes the base 180° offset to compensate for camera flip,
+ * plus the user's rotation offset.
  *
  * @param angle - Rotation angle in degrees
  */
 export function setPreviewRotation(angle: number): void {
   if (!knobGroup) return;
-  // Add Math.PI base offset to compensate for camera orientation
-  knobGroup.rotation.y = Math.PI + (angle * Math.PI) / 180;
+  // Base offset + user rotation offset + preview angle
+  knobGroup.rotation.y = Math.PI + currentRotationOffset + (angle * Math.PI) / 180;
 }
 
 /**

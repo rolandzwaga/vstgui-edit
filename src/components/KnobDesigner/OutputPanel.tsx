@@ -242,6 +242,38 @@ export const OutputPanel: Component = () => {
           </div>
           <span class={styles.hint}>Maximum position (typical: 315deg = 5 o'clock)</span>
         </div>
+
+        <div class={styles.field}>
+          <label class={styles.label}>Rotation Offset</label>
+          <div class={styles.inputGroup}>
+            <input
+              type="range"
+              min={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MIN}
+              max={OUTPUT_CONSTRAINTS.ROTATION_OFFSET.MAX}
+              value={output().rotationOffset ?? 0}
+              class={styles.slider}
+              onInput={(e) => {
+                updateOutput({ rotationOffset: parseInt(e.currentTarget.value, 10) });
+              }}
+            />
+            <span class={styles.value}>{output().rotationOffset ?? 0}deg</span>
+          </div>
+          <div class={styles.presetRow}>
+            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 0 })}>
+              0°
+            </button>
+            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 90 })}>
+              90°
+            </button>
+            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 180 })}>
+              180°
+            </button>
+            <button type="button" class={styles.sizePreset} onClick={() => updateOutput({ rotationOffset: 270 })}>
+              270°
+            </button>
+          </div>
+          <span class={styles.hint}>Rotates the knob like a clock face (0 = default orientation)</span>
+        </div>
       </div>
 
       {/* Output Summary */}
