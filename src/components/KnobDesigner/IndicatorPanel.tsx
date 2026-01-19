@@ -173,6 +173,23 @@ export const IndicatorPanel: Component = () => {
                 <span class={styles.value}>{indicator()?.size.radius ?? 3}px</span>
               </div>
             </div>
+            <div class={styles.field}>
+              <label class={styles.label}>Height</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={INDICATOR_CONSTRAINTS.HEIGHT.MIN}
+                  max={INDICATOR_CONSTRAINTS.HEIGHT.MAX}
+                  step="0.5"
+                  value={indicator()?.size.height ?? 2}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    updateIndicatorSize({ height: parseFloat(e.currentTarget.value) });
+                  }}
+                />
+                <span class={styles.value}>{indicator()?.size.height ?? 2}px</span>
+              </div>
+            </div>
           </Show>
 
           <Show when={indicator()?.type === 'line'}>
@@ -206,6 +223,23 @@ export const IndicatorPanel: Component = () => {
                   }}
                 />
                 <span class={styles.value}>{indicator()?.size.width ?? 2}px</span>
+              </div>
+            </div>
+            <div class={styles.field}>
+              <label class={styles.label}>Height</label>
+              <div class={styles.inputGroup}>
+                <input
+                  type="range"
+                  min={INDICATOR_CONSTRAINTS.HEIGHT.MIN}
+                  max={INDICATOR_CONSTRAINTS.HEIGHT.MAX}
+                  step="0.5"
+                  value={indicator()?.size.height ?? 2}
+                  class={styles.slider}
+                  onInput={(e) => {
+                    updateIndicatorSize({ height: parseFloat(e.currentTarget.value) });
+                  }}
+                />
+                <span class={styles.value}>{indicator()?.size.height ?? 2}px</span>
               </div>
             </div>
           </Show>

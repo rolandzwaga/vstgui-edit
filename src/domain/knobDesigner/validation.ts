@@ -113,6 +113,12 @@ export const INDICATOR_CONSTRAINTS = {
     MAX: 10,
   },
 
+  /** Height/thickness constraints for dot and line types (pixels) */
+  HEIGHT: {
+    MIN: 0.5,
+    MAX: 10,
+  },
+
   /** Notch/groove depth constraints (pixels) */
   DEPTH: {
     MIN: 1,
@@ -370,6 +376,14 @@ export function validateIndicator(indicator: KnobIndicator): ValidationResult {
         'Radius'
       );
       if (!radiusResult.valid) return radiusResult;
+
+      const heightResult = validateNumericRange(
+        indicator.size.height,
+        INDICATOR_CONSTRAINTS.HEIGHT.MIN,
+        INDICATOR_CONSTRAINTS.HEIGHT.MAX,
+        'Height'
+      );
+      if (!heightResult.valid) return heightResult;
       break;
     }
     case 'line': {
@@ -388,6 +402,14 @@ export function validateIndicator(indicator: KnobIndicator): ValidationResult {
         'Width'
       );
       if (!widthResult.valid) return widthResult;
+
+      const heightResult = validateNumericRange(
+        indicator.size.height,
+        INDICATOR_CONSTRAINTS.HEIGHT.MIN,
+        INDICATOR_CONSTRAINTS.HEIGHT.MAX,
+        'Height'
+      );
+      if (!heightResult.valid) return heightResult;
       break;
     }
     case 'notch':

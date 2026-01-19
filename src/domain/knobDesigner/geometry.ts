@@ -237,24 +237,46 @@ export function createLayerGeometry(
 
 /**
  * Creates geometry for a dot indicator.
+ * Uses a squashed sphere (ellipsoid) to create a dome shape.
  *
- * @param radius - Dot radius
+ * @param radius - Dot radius (horizontal extent)
+ * @param height - Dot height (vertical extent)
  * @param segments - Number of segments
- * @returns SphereGeometry for the dot
+ * @returns SphereGeometry scaled to form an ellipsoid
  */
-export function createDotGeometry(radius: number, segments: number): SphereGeometry {
-  return new SphereGeometry(radius, segments, segments / 2);
+export function createDotGeometry(
+  radius: number,
+  height: number,
+  segments: number
+): SphereGeometry {
+  // Create a hemisphere (half sphere facing up)
+  const geometry = new SphereGeometry(
+    radius,
+    segments,
+    segments / 2,
+    0,
+    Math.PI * 2,
+    0,
+    Math.PI / 2
+  );
+  // Scale vertically based on height (relative to radius)
+  const scaleY = height / radius;
+  geometry.scale(1, scaleY, 1);
+  // Recompute normals after scaling to fix lighting
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 /**
  * Creates geometry for a line indicator.
  *
- * @param length - Line length
- * @param width - Line width
+ * @param length - Line length (z-axis, radial direction)
+ * @param width - Line width (x-axis, tangential direction)
+ * @param height - Line height (y-axis, vertical thickness)
  * @returns BoxGeometry for the line
  */
-export function createLineGeometry(length: number, width: number): BoxGeometry {
-  const height = width * 0.5; // Half as tall as wide
+export function createLineGeometry(length: number, width: number, height: number): BoxGeometry {
+  // BoxGeometry has flat face normals by default, which is correct for a box shape
   return new BoxGeometry(width, height, length);
 }
 
@@ -296,13 +318,14 @@ export function createIndicatorGeometry(
   segments: number
 ): BufferGeometry {
   const indicatorRadius = (indicator.radialPosition / 100) * layerRadius;
+  const height = indicator.size.height ?? 2; // Default height for backward compatibility
 
   switch (indicator.type) {
     case 'dot':
-      return createDotGeometry(indicator.size.radius, segments);
+      return createDotGeometry(indicator.size.radius, height, segments);
 
     case 'line':
-      return createLineGeometry(indicator.size.length, indicator.size.width);
+      return createLineGeometry(indicator.size.length, indicator.size.width, height);
 
     case 'notch':
       return createNotchGeometry(indicator.size.depth, indicator.size.width);
@@ -312,6 +335,6 @@ export function createIndicatorGeometry(
 
     default:
       // Fallback to dot
-      return createDotGeometry(indicator.size.radius, segments);
+      return createDotGeometry(indicator.size.radius, height, segments);
   }
 }

@@ -11,6 +11,16 @@ export {
   createDefaultDesign,
   DEFAULT_KNOB_DESIGN,
 } from './defaults';
+// Environment maps
+export {
+  DEFAULT_ENVIRONMENT_CONFIG,
+  disposeEnvironment,
+  type EnvironmentConfig,
+  generateProceduralEnvironment,
+  getEnvironmentTexture,
+  initializeEnvironment,
+  loadHDRIEnvironment,
+} from './environment';
 // Filmstrip
 export {
   blobToDataUrl,
@@ -53,6 +63,7 @@ export {
   cartesianToSpherical,
   createAmbientLight,
   createCamera,
+  createHemisphereLight,
   createMainLight,
   createScene,
   setCameraView,

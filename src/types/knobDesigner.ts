@@ -134,6 +134,9 @@ export interface IndicatorSize {
   /** Width for line type (pixels) */
   width: number;
 
+  /** Height/thickness for dot and line types (pixels) */
+  height: number;
+
   /** Depth for notch/groove types (pixels) */
   depth: number;
 }

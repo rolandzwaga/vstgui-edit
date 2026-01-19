@@ -47,18 +47,23 @@ export const KnobPreview: Component<KnobPreviewProps> = (props) => {
       return;
     }
 
-    try {
-      knobRendererService.initialize(canvasRef);
-      setIsInitialized(true);
+    // Initialize renderer asynchronously (environment map loading)
+    const initRenderer = async () => {
+      try {
+        await knobRendererService.initialize(canvasRef!);
+        setIsInitialized(true);
 
-      // Initial scene update
-      knobRendererService.updateScene(props.design);
-      knobRendererService.startPreviewAnimation();
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to initialize 3D renderer';
-      setWebglError(errorMsg);
-      props.onError?.(errorMsg);
-    }
+        // Initial scene update
+        knobRendererService.updateScene(props.design);
+        knobRendererService.startPreviewAnimation();
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to initialize 3D renderer';
+        setWebglError(errorMsg);
+        props.onError?.(errorMsg);
+      }
+    };
+
+    initRenderer();
   });
 
   // Setup resize observer

@@ -427,7 +427,7 @@ export function toggleIndicator(): void {
       enabled: true,
       type: 'line',
       material: { color: '#FFFFFFFF', metallic: false },
-      size: { radius: 3, length: 15, width: 2, depth: 2 },
+      size: { radius: 3, length: 15, width: 2, height: 2, depth: 2 },
       radialPosition: 75,
     };
   }

@@ -6,18 +6,23 @@
  */
 
 import {
+  ACESFilmicToneMapping,
   type AmbientLight,
   type DirectionalLight,
   Group,
+  type HemisphereLight,
   LinearFilter,
   Mesh,
+  NoToneMapping,
   type OrthographicCamera,
   RGBAFormat,
   type Scene,
+  type Texture,
   WebGLRenderer,
   WebGLRenderTarget,
 } from 'three';
 import UPNG from 'upng-js';
+import { disposeEnvironment, initializeEnvironment } from '../../domain/knobDesigner/environment';
 import {
   calculateLayerYOffset,
   calculateSegments,
@@ -32,6 +37,7 @@ import {
 import {
   createAmbientLight,
   createCamera,
+  createHemisphereLight,
   createMainLight,
   createScene,
   setCameraView as setCameraViewPosition,
@@ -49,7 +55,9 @@ let scene: Scene | null = null;
 let camera: OrthographicCamera | null = null;
 let mainLight: DirectionalLight | null = null;
 let ambientLight: AmbientLight | null = null;
+let hemisphereLight: HemisphereLight | null = null;
 let knobGroup: Group | null = null;
+let environmentTexture: Texture | null = null;
 
 let animationFrameId: number | null = null;
 const _previewAngle = 0;
@@ -149,7 +157,7 @@ export function isWebGLAvailable(): boolean {
  * @param canvas - Canvas element to render to
  * @throws If WebGL is not available
  */
-export function initialize(canvas: HTMLCanvasElement): void {
+export async function initialize(canvas: HTMLCanvasElement): Promise<void> {
   if (!isWebGLAvailable()) {
     throw new Error('WebGL is not available in this browser');
   }
@@ -164,6 +172,14 @@ export function initialize(canvas: HTMLCanvasElement): void {
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+  // Enable shadow mapping for realistic indicator shadows
+  renderer.shadowMap.enabled = true;
+
+  // Configure tone mapping for HDR environment
+  // ACES Filmic provides good contrast and color grading for metallic materials
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+
   // Get canvas dimensions
   const rect = canvas.getBoundingClientRect();
   renderer.setSize(rect.width, rect.height);
@@ -172,12 +188,25 @@ export function initialize(canvas: HTMLCanvasElement): void {
   scene = createScene();
   camera = createCamera(rect.width, rect.height);
 
+  // Initialize environment map for metallic reflections
+  // Uses a procedural studio lighting setup for realistic PBR materials
+  try {
+    environmentTexture = await initializeEnvironment(renderer);
+    scene.environment = environmentTexture;
+    // Control environment intensity (affects PBR material reflections)
+    scene.environmentIntensity = 0.8;
+  } catch (error) {
+    console.warn('[KnobRenderer] Failed to initialize environment map:', error);
+  }
+
   // Create lighting
   mainLight = createMainLight(315, 45);
   ambientLight = createAmbientLight(0.3);
+  hemisphereLight = createHemisphereLight(0.4);
   scene.add(mainLight);
   scene.add(mainLight.target);
   scene.add(ambientLight);
+  scene.add(hemisphereLight);
 
   // Create knob group
   knobGroup = new Group();
@@ -205,9 +234,14 @@ export function dispose(): void {
   // Dispose materials
   disposeMaterials();
 
+  // Dispose environment map
+  disposeEnvironment();
+  environmentTexture = null;
+
   // Dispose lighting
   mainLight = null;
   ambientLight = null;
+  hemisphereLight = null;
 
   // Dispose scene
   if (scene) {
@@ -270,6 +304,10 @@ export function updateScene(design: KnobDesign): void {
     const yOffset = calculateLayerYOffset(design.layers, index, overallHeight);
     mesh.position.y = yOffset - overallHeight / 2; // Center vertically
 
+    // Enable shadows - layers cast and receive shadows
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
     knobGroup?.add(mesh);
   });
 
@@ -282,10 +320,15 @@ export function updateScene(design: KnobDesign): void {
     const indicatorMaterial = createIndicatorMaterial(design.indicator.material);
     const indicatorMesh = new Mesh(indicatorGeometry, indicatorMaterial);
 
-    // Position indicator on top surface
+    // Position indicator on top surface, raised by half its height
     const indicatorRadius = (design.indicator.radialPosition / 100) * layerRadius;
     const topY = calculateLayerYOffset(design.layers, design.layers.length, overallHeight);
-    indicatorMesh.position.set(0, topY - overallHeight / 2, indicatorRadius);
+    const indicatorHeight = design.indicator.size.height ?? 2;
+    indicatorMesh.position.set(0, topY - overallHeight / 2 + indicatorHeight / 2, indicatorRadius);
+
+    // Enable shadows - indicator casts and receives shadows
+    indicatorMesh.castShadow = true;
+    indicatorMesh.receiveShadow = true;
 
     knobGroup?.add(indicatorMesh);
   }
@@ -315,12 +358,15 @@ export function setCameraView(view: CameraView): void {
  * Includes the base 180° offset to compensate for camera flip,
  * plus the user's rotation offset.
  *
+ * Rotation direction: positive angles rotate clockwise (to the right)
+ * This matches the natural knob behavior where turning right increases value.
+ *
  * @param angle - Rotation angle in degrees
  */
 export function setPreviewRotation(angle: number): void {
   if (!knobGroup) return;
-  // Base offset + user rotation offset + preview angle
-  knobGroup.rotation.y = Math.PI + currentRotationOffset + (angle * Math.PI) / 180;
+  // Base offset + user rotation offset - preview angle (negated for clockwise rotation)
+  knobGroup.rotation.y = Math.PI + currentRotationOffset - (angle * Math.PI) / 180;
 }
 
 /**
@@ -482,13 +528,6 @@ export async function generateFilmstrip(
     totalHeight,
   } = calculateFilmstripDimensions(frameCount, frameWidth, frameHeight, layout ?? 'vertical');
 
-  // Create render target
-  const target = new WebGLRenderTarget(totalWidth, totalHeight, {
-    minFilter: LinearFilter,
-    magFilter: LinearFilter,
-    format: RGBAFormat,
-  });
-
   // Report preparing stage
   onProgress({
     stage: 'preparing',
@@ -501,10 +540,16 @@ export async function generateFilmstrip(
   const originalWidth = renderer.domElement.width;
   const originalHeight = renderer.domElement.height;
   const originalPixelRatio = renderer.getPixelRatio();
+  const originalToneMapping = renderer.toneMapping;
+  const originalToneMappingExposure = renderer.toneMappingExposure;
 
   // CRITICAL: Set pixel ratio to 1 for render target operations
   // Device pixel ratio can cause viewport coordinate issues on high-DPI displays
   renderer.setPixelRatio(1);
+
+  // CRITICAL: Disable tone mapping when rendering to render target
+  // Tone mapping is meant for final display, not offscreen rendering
+  renderer.toneMapping = NoToneMapping;
 
   // Calculate frustum size based on actual design to ensure nothing clips
   const frustumSize = calculateFrustumSize(design);
@@ -517,45 +562,79 @@ export async function generateFilmstrip(
     'x',
     frameHeight,
     '- frustum:',
-    frustumSize.toFixed(1)
+    frustumSize.toFixed(1),
+    '- layout:',
+    layout ?? 'vertical',
+    '- framesPerRow:',
+    framesPerRow,
+    '- totalSize:',
+    totalWidth,
+    'x',
+    totalHeight
   );
 
   // Create a FRESH camera for filmstrip rendering with the calculated frustum
   const filmstripCamera = createCamera(frameWidth, frameHeight, frustumSize, design.cameraView);
 
+  // Create a SINGLE-FRAME render target (more reliable than viewport/scissor approach)
+  const frameTarget = new WebGLRenderTarget(frameWidth, frameHeight, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    format: RGBAFormat,
+  });
+
+  // Allocate the final composited pixel buffer
+  const finalPixels = new Uint8Array(totalWidth * totalHeight * 4);
+  const framePixels = new Uint8Array(frameWidth * frameHeight * 4);
+
+  console.log(`[Filmstrip] Using per-frame render target: ${frameWidth}x${frameHeight}`);
+
   try {
-    // Set render target once before the loop
-    renderer.setRenderTarget(target);
+    // CRITICAL: Reset ALL WebGL state before filmstrip generation
+    renderer.setRenderTarget(null);
+    renderer.setScissorTest(false);
 
-    // Clear the entire render target to transparent first
-    renderer.setClearColor(0x000000, 0);
-    renderer.clear();
-
-    // Render each frame
+    // Render each frame to its own render target, then copy pixels to final buffer
     for (let i = 0; i < frameCount && !generationCancelled; i++) {
       const col = i % framesPerRow;
       const row = Math.floor(i / framesPerRow);
 
-      // Position frame in render target - frame 0 at top, last frame at bottom
-      // In WebGL, Y=0 is at bottom, so we need to invert
-      const x = col * frameWidth;
-      const y = row * frameHeight; // Changed: frame 0 at y=0 (bottom of render target)
-
-      // Set viewport for this frame
-      renderer.setViewport(x, y, frameWidth, frameHeight);
-      renderer.setScissor(x, y, frameWidth, frameHeight);
-      renderer.setScissorTest(true);
-
-      // CRITICAL: Clear this frame's viewport before rendering
-      // Without this, previous frame content bleeds through
-      renderer.clear(true, true, true);
+      // Debug logging for first 3 frames and last frame
+      if (i < 3 || i === frameCount - 1) {
+        console.log(`[Filmstrip] Rendering frame ${i} at row=${row}, col=${col}`);
+      }
 
       // Calculate rotation angle for this frame
       const angle = startAngle + (i / (frameCount - 1)) * sweepAngle;
       setPreviewRotation(angle);
 
-      // Render frame using the fresh filmstrip camera
+      // Render this frame to the single-frame render target
+      renderer.setRenderTarget(frameTarget);
+      renderer.setViewport(0, 0, frameWidth, frameHeight);
+      renderer.setClearColor(0x000000, 0);
+      renderer.clear(true, true, true);
       renderer.render(scene, filmstripCamera);
+
+      // Read pixels from this frame
+      renderer.readRenderTargetPixels(frameTarget, 0, 0, frameWidth, frameHeight, framePixels);
+
+      // Copy frame pixels to the correct position in the final buffer
+      // WebGL Y is inverted, so we need to flip each frame vertically as we copy
+      // Frame 0 should be at the TOP of the final image (y=0 in image coordinates)
+      for (let srcY = 0; srcY < frameHeight; srcY++) {
+        // Flip each frame vertically: bottom row of WebGL becomes top row of image
+        const flippedSrcY = frameHeight - 1 - srcY;
+        // Destination Y: frame i goes at row i (frame 0 at top)
+        const destY = row * frameHeight + srcY;
+
+        const srcOffset = flippedSrcY * frameWidth * 4;
+        const destOffset = destY * totalWidth * 4 + col * frameWidth * 4;
+
+        // Copy one row of pixels
+        for (let x = 0; x < frameWidth * 4; x++) {
+          finalPixels[destOffset + x] = framePixels[srcOffset + x];
+        }
+      }
 
       // Report progress
       onProgress({
@@ -571,14 +650,16 @@ export async function generateFilmstrip(
       }
     }
 
+    // Dispose the frame render target
+    frameTarget.dispose();
+
     if (generationCancelled) {
-      target.dispose();
       throw new Error('Generation cancelled');
     }
 
+    console.log('[Filmstrip] Finished rendering all frames');
+
     // Reset render state
-    renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
-    renderer.setScissorTest(false);
     renderer.setRenderTarget(null);
 
     // Report compositing stage
@@ -589,11 +670,7 @@ export async function generateFilmstrip(
       percent: 95,
     });
 
-    // Extract pixels
-    const pixels = new Uint8Array(totalWidth * totalHeight * 4);
-    renderer.readRenderTargetPixels(target, 0, 0, totalWidth, totalHeight, pixels);
-
-    // Create canvas and flip Y-axis
+    // Create canvas directly from the pre-composited pixels (no flipping needed)
     const canvas = document.createElement('canvas');
     canvas.width = totalWidth;
     canvas.height = totalHeight;
@@ -603,31 +680,8 @@ export async function generateFilmstrip(
       throw new Error('Failed to create 2D context');
     }
 
-    // Flip the image vertically (WebGL Y is inverted)
-    const imageData = new ImageData(new Uint8ClampedArray(pixels), totalWidth, totalHeight);
-
-    // Create a temp canvas for flipping
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = totalWidth;
-    tempCanvas.height = totalHeight;
-    const tempCtx = tempCanvas.getContext('2d');
-
-    if (!tempCtx) {
-      throw new Error('Failed to create temp 2D context');
-    }
-
-    tempCtx.putImageData(imageData, 0, 0);
-
-    // Flip by drawing inverted
-    ctx.scale(1, -1);
-    ctx.drawImage(tempCanvas, 0, -totalHeight);
-
-    // Get flipped image data for compression
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-    const flippedImageData = ctx.getImageData(0, 0, totalWidth, totalHeight);
-
-    // Cleanup render target
-    target.dispose();
+    const imageData = new ImageData(new Uint8ClampedArray(finalPixels), totalWidth, totalHeight);
+    ctx.putImageData(imageData, 0, 0);
 
     // Report compression stage
     onProgress({
@@ -638,8 +692,9 @@ export async function generateFilmstrip(
     });
 
     // Compress with UPNG (0 = best compression)
+    // Use the imageData directly since we already handled Y-flip during pixel copy
     const pngBuffer = UPNG.encode(
-      [flippedImageData.data.buffer],
+      [imageData.data.buffer],
       totalWidth,
       totalHeight,
       0 // 0 colors = lossless, 0 compression level = best compression
@@ -667,6 +722,9 @@ export async function generateFilmstrip(
       renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
       renderer.setScissorTest(false);
       renderer.setRenderTarget(null);
+      // Restore tone mapping for preview rendering
+      renderer.toneMapping = originalToneMapping;
+      renderer.toneMappingExposure = originalToneMappingExposure;
     }
     // Restore camera frustum to match original preview canvas dimensions
     if (camera) {

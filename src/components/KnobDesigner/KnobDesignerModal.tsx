@@ -96,7 +96,6 @@ export const KnobDesignerModal: Component = () => {
     <Show when={knobDesignerStore.isOpen}>
       <div
         class={styles.overlay}
-        onClick={() => closeKnobDesigner()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="knob-designer-title"

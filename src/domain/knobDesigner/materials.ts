@@ -337,7 +337,8 @@ export function createMaterial(material: LayerMaterial): Material {
 
 /**
  * Creates a material for an indicator.
- * Returns basic or metallic based on the metallic flag.
+ * Returns metallic or matte (lit) material based on the metallic flag.
+ * Non-metallic indicators now use matte material to respond to scene lighting.
  *
  * @param material - Indicator material configuration
  * @returns Three.js Material
@@ -353,9 +354,12 @@ export function createIndicatorMaterial(material: IndicatorMaterial): Material {
   let result: Material;
 
   if (material.metallic) {
+    // Metallic indicator with high shininess
     result = createMetallicMaterial(material.color, 80, 50);
   } else {
-    result = createSolidMaterial(material.color);
+    // Use matte material so indicator responds to scene lighting
+    // This gives the indicator proper shading and makes it look 3D
+    result = createMatteMaterial(material.color);
   }
 
   materialCache.set(cacheKey, result);

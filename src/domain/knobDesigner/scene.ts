@@ -8,6 +8,7 @@
 import {
   AmbientLight,
   DirectionalLight,
+  HemisphereLight,
   OrthographicCamera,
   Scene,
   Spherical,
@@ -25,6 +26,7 @@ const _TRANSPARENT_BACKGROUND = 0x000000;
 /** Default light intensity */
 const MAIN_LIGHT_INTENSITY = 1.0;
 const AMBIENT_LIGHT_INTENSITY = 0.3;
+const HEMISPHERE_LIGHT_INTENSITY = 0.4;
 
 /** Distance of main light from scene center */
 const LIGHT_DISTANCE = 100;
@@ -158,10 +160,21 @@ export function createMainLight(
 
   // Configure shadow mapping for higher quality
   light.castShadow = true;
-  light.shadow.mapSize.width = 512;
-  light.shadow.mapSize.height = 512;
-  light.shadow.camera.near = 0.5;
-  light.shadow.camera.far = 500;
+  light.shadow.mapSize.width = 1024;
+  light.shadow.mapSize.height = 1024;
+  light.shadow.camera.near = 1;
+  light.shadow.camera.far = 300;
+
+  // Configure shadow camera frustum to cover the knob scene
+  // Knob diameter is ~40 world units, so we need bounds that encompass it
+  const shadowSize = 30;
+  light.shadow.camera.left = -shadowSize;
+  light.shadow.camera.right = shadowSize;
+  light.shadow.camera.top = shadowSize;
+  light.shadow.camera.bottom = -shadowSize;
+
+  // Reduce shadow bias to minimize artifacts
+  light.shadow.bias = -0.001;
 
   return light;
 }
@@ -174,6 +187,24 @@ export function createMainLight(
  */
 export function createAmbientLight(intensity: number = AMBIENT_LIGHT_INTENSITY): AmbientLight {
   return new AmbientLight(0xffffff, intensity);
+}
+
+/**
+ * Creates a hemisphere light for better metallic reflections.
+ * The gradient between sky and ground colors gives metallic surfaces
+ * more variation and a more realistic appearance.
+ *
+ * @param intensity - Light intensity (0-1)
+ * @returns Configured hemisphere light
+ */
+export function createHemisphereLight(
+  intensity: number = HEMISPHERE_LIGHT_INTENSITY
+): HemisphereLight {
+  // Sky color (warm white from above) and ground color (cool blue from below)
+  // This creates a subtle gradient that metallic surfaces can reflect
+  const skyColor = 0xffffff;
+  const groundColor = 0x444466;
+  return new HemisphereLight(skyColor, groundColor, intensity);
 }
 
 /**
