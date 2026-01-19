@@ -700,5 +700,3 @@ export const knobRendererService = {
   generateFilmstrip,
   cancelGeneration,
 };
-
-export default knobRendererService;

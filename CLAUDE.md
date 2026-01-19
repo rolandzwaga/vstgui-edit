@@ -88,6 +88,7 @@ npx tsc --noEmit                   # Type check
 **CSS**: Modules only (`*.module.css`), tokens in `src/styles/tokens.css`, no hardcoded colors
 **Components**: PascalCase files, `[Name]Props` interfaces, named exports, co-located tests (`.spec.tsx`)
 **Imports**: External → Internal absolute → Relative
+**Exports** Do NOT create duplicate exports, as in a named export and a default export. Whenever possible ONLY create a named export.
 
 ---
 

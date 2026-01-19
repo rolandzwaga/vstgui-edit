@@ -271,5 +271,3 @@ export const IndicatorPanel: Component = () => {
     </div>
   );
 };
-
-export default IndicatorPanel;
