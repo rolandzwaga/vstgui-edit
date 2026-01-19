@@ -213,7 +213,7 @@
 - [X] T087 Code review: verify slider implementation <500 LOC excluding tests (count files in sliderDesigner/ per SC-005)
 - [X] T088 Deprecate old knobDesignerStore in `F:\projects\vstgui-edit\src\stores\knobDesignerStore.ts` (add deprecation comments, keep for compatibility but redirect to controlDesignerStore)
 - [X] T089 Deprecate old knobRenderer in `F:\projects\vstgui-edit\src\services\knobRenderer\index.ts` (add deprecation comments, redirect imports to controlRenderer)
-- [ ] T090 **Commit**: Stage and commit Polish phase changes with message "feat: polish control designer with error handling, performance, and docs"
+- [X] T090 **Commit**: Stage and commit Polish phase changes with message "feat: polish control designer with error handling, performance, and docs"
 
 ---
 
