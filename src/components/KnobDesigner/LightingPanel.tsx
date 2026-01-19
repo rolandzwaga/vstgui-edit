@@ -71,15 +71,17 @@ export const LightingPanel: Component = () => {
             <div
               class={styles.previewDot}
               style={{
-                transform: `rotate(${lighting().azimuth}deg) translateY(${-30 * Math.cos((lighting().elevation * Math.PI) / 180)}px)`,
+                // Convert azimuth to CSS rotation: in our 3D scene, azimuth 0° = front (bottom of screen)
+                // CSS rotation: 0° = top. So CSS angle = 180 - azimuth
+                transform: `rotate(${180 - lighting().azimuth}deg) translateY(${-30 * Math.cos((lighting().elevation * Math.PI) / 180)}px)`,
               }}
             />
             <div class={styles.previewCenter} />
           </div>
           <div class={styles.previewLabels}>
-            <span class={styles.previewLabel} style={{ top: '0', left: '50%', transform: 'translateX(-50%)' }}>Front</span>
+            <span class={styles.previewLabel} style={{ top: '0', left: '50%', transform: 'translateX(-50%)' }}>Back</span>
             <span class={styles.previewLabel} style={{ top: '50%', right: '0', transform: 'translateY(-50%)' }}>Right</span>
-            <span class={styles.previewLabel} style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}>Back</span>
+            <span class={styles.previewLabel} style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}>Front</span>
             <span class={styles.previewLabel} style={{ top: '50%', left: '0', transform: 'translateY(-50%)' }}>Left</span>
           </div>
         </div>

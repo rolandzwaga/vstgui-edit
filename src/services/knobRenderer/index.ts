@@ -247,6 +247,10 @@ export function updateScene(design: KnobDesign): void {
   });
   knobGroup.clear();
 
+  // Apply 180° rotation around Y-axis to compensate for camera flip
+  // This keeps the visual appearance correct while making lighting directions intuitive
+  knobGroup.rotation.y = Math.PI;
+
   // Calculate parameters
   const overallDiameter = OVERALL_DIAMETER; // World units
   const overallHeight = 25; // World units
@@ -304,12 +308,14 @@ export function setCameraView(view: CameraView): void {
 
 /**
  * Sets the preview rotation angle.
+ * Includes the base 180° offset to compensate for camera flip.
  *
  * @param angle - Rotation angle in degrees
  */
 export function setPreviewRotation(angle: number): void {
   if (!knobGroup) return;
-  knobGroup.rotation.y = (angle * Math.PI) / 180;
+  // Add Math.PI base offset to compensate for camera orientation
+  knobGroup.rotation.y = Math.PI + (angle * Math.PI) / 180;
 }
 
 /**

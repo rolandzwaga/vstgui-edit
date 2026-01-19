@@ -92,8 +92,13 @@ export function createCamera(
 export function setCameraView(camera: OrthographicCamera, view: CameraView): void {
   if (view === 'top') {
     // Top view: camera above looking down at the knob
+    // Using -Z as up so that lighting directions are intuitive:
+    // - Azimuth 0° = front (bottom of screen, toward viewer)
+    // - Azimuth 90° = right
+    // - Azimuth 180° = back (top of screen)
+    // - Azimuth 270° = left
     camera.position.set(0, 100, 0);
-    camera.up.set(0, 0, 1); // Positive Z-axis points "up" in screen space
+    camera.up.set(0, 0, -1);
     camera.lookAt(0, 0, 0);
   } else {
     // Side view: camera in front looking at the knob from the side
