@@ -223,6 +223,9 @@ export interface KnobDesign {
   /** Display name (used when saving as preset) */
   name: string;
 
+  /** Control type discriminator - always 'knob' for KnobDesign */
+  controlType?: 'knob';
+
   /** Concentric layers (1-3, bottom to top) */
   layers: KnobLayer[];
 
@@ -278,6 +281,9 @@ export interface KnobPreset {
 
   /** User-provided display name (unique) */
   name: string;
+
+  /** Control type discriminator - always 'knob' for KnobPreset */
+  controlType: 'knob';
 
   /** Whether this is a built-in template (cannot be deleted) */
   isBuiltIn: boolean;

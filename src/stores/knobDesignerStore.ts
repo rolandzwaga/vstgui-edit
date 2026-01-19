@@ -691,7 +691,8 @@ export async function loadPreset(presetId: string): Promise<void> {
     }
 
     // Deep copy the design and assign new ID
-    const newDesign = copyDesign(preset.design, crypto.randomUUID());
+    // Cast is safe because we only load knob presets in this store
+    const newDesign = copyDesign(preset.design as KnobDesign, crypto.randomUUID());
 
     setDesign(newDesign);
     setSelectedPresetId(presetId);
@@ -730,6 +731,7 @@ export async function savePreset(name: string): Promise<string> {
     const preset: KnobPreset = {
       id: crypto.randomUUID(),
       name,
+      controlType: 'knob',
       isBuiltIn: false,
       createdAt: now,
       updatedAt: now,
@@ -771,7 +773,7 @@ export async function renamePreset(presetId: string, newName: string): Promise<v
       throw new Error(`A preset with the name "${newName}" already exists`);
     }
 
-    const updated: KnobPreset = {
+    const updated = {
       ...preset,
       name: newName,
       updatedAt: new Date().toISOString(),

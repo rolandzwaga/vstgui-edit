@@ -34,7 +34,7 @@
 - [X] T009 [P] Create shared validation utilities in `F:\projects\vstgui-edit\src\domain\controlDesigner\validation.ts` (base validation patterns)
 - [X] T010 [P] Create defaults factory in `F:\projects\vstgui-edit\src\domain\controlDesigner\defaults.ts` (shared default values)
 - [X] T011 [P] Create domain index in `F:\projects\vstgui-edit\src\domain\controlDesigner\index.ts` (re-exports)
-- [ ] T012 **Commit**: Stage and commit Phase 1 changes with message "feat: add control designer type system and shared utilities"
+- [X] T012 **Commit**: Stage and commit Phase 1 changes with message "feat: add control designer type system and shared utilities"
 
 ---
 
@@ -44,15 +44,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T013 Update IndexedDB schema in `F:\projects\vstgui-edit\src\domain\project\types.ts` and `F:\projects\vstgui-edit\src\services\indexedDB\database.ts` (bump DB_VERSION from 3 to 4, add controlType index to presets store, add migration logic in database.ts onupgradeneeded handler to add controlType: 'knob' to existing presets)
-- [ ] T014 Update preset service in `F:\projects\vstgui-edit\src\services\indexedDB\presetService.ts` (add getByControlType(controlType) query, update getAll to support controlType filter)
-- [ ] T015 Update project types in `F:\projects\vstgui-edit\src\domain\project\types.ts` (add INDEXES.PRESETS_BY_CONTROL_TYPE = 'controlType')
-- [ ] T016 Create knob validation in `F:\projects\vstgui-edit\src\domain\knobDesigner\validation.ts` (migrate knob-specific constraints from existing code)
-- [ ] T017 Create knob defaults in `F:\projects\vstgui-edit\src\domain\knobDesigner\defaults.ts` (migrate DEFAULT_KNOB_DESIGN, layer factories)
-- [ ] T018 Create knob plugin definition in `F:\projects\vstgui-edit\src\domain\knobDesigner\plugin.ts` (ControlTypePlugin implementation, wraps existing knob functionality, registers LayerPanel and IndicatorPanel)
-- [ ] T019 Create knob renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\knobRenderer.ts` (migrate from src/services/knobRenderer/index.ts, implement ControlRenderer interface)
-- [ ] T020 Create base renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (shared scene/camera/lighting setup extracted from knobRenderer)
-- [ ] T021 Create renderer service index in `F:\projects\vstgui-edit\src\services\controlRenderer\index.ts` (re-exports)
+- [X] T013 Update IndexedDB schema in `F:\projects\vstgui-edit\src\domain\project\types.ts` and `F:\projects\vstgui-edit\src\services\indexedDB\database.ts` (bump DB_VERSION from 3 to 4, add controlType index to presets store, add migration logic in database.ts onupgradeneeded handler to add controlType: 'knob' to existing presets)
+- [X] T014 Update preset service in `F:\projects\vstgui-edit\src\services\indexedDB\presetService.ts` (add getByControlType(controlType) query, update getAll to support controlType filter)
+- [X] T015 Update project types in `F:\projects\vstgui-edit\src\domain\project\types.ts` (add INDEXES.PRESETS_BY_CONTROL_TYPE = 'controlType')
+- [X] T016 Create knob validation in `F:\projects\vstgui-edit\src\domain\knobDesigner\validation.ts` (migrate knob-specific constraints from existing code) [Already exists, updated with controlType support]
+- [X] T017 Create knob defaults in `F:\projects\vstgui-edit\src\domain\knobDesigner\defaults.ts` (migrate DEFAULT_KNOB_DESIGN, layer factories) [Already exists, updated with controlType field]
+- [X] T018 Create knob plugin definition in `F:\projects\vstgui-edit\src\domain\knobDesigner\plugin.ts` (ControlTypePlugin implementation, wraps existing knob functionality, registers LayerPanel and IndicatorPanel)
+- [X] T019 Create knob renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\knobRenderer.ts` (migrate from src/services/knobRenderer/index.ts, implement ControlRenderer interface)
+- [X] T020 Create base renderer in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (shared scene/camera/lighting setup extracted from knobRenderer)
+- [X] T021 Create renderer service index in `F:\projects\vstgui-edit\src\services\controlRenderer\index.ts` (re-exports)
 - [ ] T022 **Commit**: Stage and commit Phase 2 changes with message "feat: extend IndexedDB for control types and create knob plugin"
 
 **Checkpoint**: Foundation ready - knob plugin registered, database schema updated

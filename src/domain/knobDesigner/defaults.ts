@@ -80,6 +80,7 @@ export const DEFAULT_KNOB_DESIGN: KnobDesign = {
  */
 const CLASSIC_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
   name: 'Classic',
+  controlType: 'knob',
   isBuiltIn: true,
   design: {
     id: '',
@@ -145,6 +146,7 @@ const CLASSIC_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
  */
 const MODERN_FLAT_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
   name: 'Modern Flat',
+  controlType: 'knob',
   isBuiltIn: true,
   design: {
     id: '',
@@ -210,6 +212,7 @@ const MODERN_FLAT_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
  */
 const VINTAGE_AMP_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
   name: 'Vintage Amp',
+  controlType: 'knob',
   isBuiltIn: true,
   design: {
     id: '',
@@ -293,6 +296,7 @@ const VINTAGE_AMP_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
  */
 const TECH_INDUSTRIAL_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
   name: 'Tech/Industrial',
+  controlType: 'knob',
   isBuiltIn: true,
   design: {
     id: '',
@@ -376,6 +380,7 @@ const TECH_INDUSTRIAL_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'>
  */
 const MINIMALIST_PRESET: Omit<KnobPreset, 'id' | 'createdAt' | 'updatedAt'> = {
   name: 'Minimalist',
+  controlType: 'knob',
   isBuiltIn: true,
   design: {
     id: '',

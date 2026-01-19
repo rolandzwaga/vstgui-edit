@@ -397,7 +397,7 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
 export const DB_NAME = 'vstgui-edit-projects';
 
 /** IndexedDB database version - increment when schema changes */
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 /** Object store names */
 export const STORES = {
@@ -411,6 +411,7 @@ export const INDEXES = {
   BITMAPS_BY_PROJECT: 'projectId',
   PRESETS_BY_NAME: 'name',
   PRESETS_BY_BUILTIN: 'isBuiltIn',
+  PRESETS_BY_CONTROL_TYPE: 'controlType',
 } as const;
 
 /** Auto-save debounce timers (milliseconds) */

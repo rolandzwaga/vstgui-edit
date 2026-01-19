@@ -1,14 +1,39 @@
 /**
  * Preset Service for IndexedDB
  *
- * CRUD operations for knob designer presets.
+ * CRUD operations for control designer presets.
+ * Supports multiple control types (knob, slider, etc.).
  * Follows the pattern established by bitmapService.
  */
 
 import { BUILTIN_PRESETS } from '../../domain/knobDesigner/defaults';
 import { INDEXES, STORES } from '../../domain/project/types';
-import type { KnobPreset } from '../../types/knobDesigner';
+import type { ControlTypeId } from '../../types/controlDesigner';
 import { getStore, promisifyRequest } from './database';
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+/**
+ * Base preset interface that all control presets implement.
+ * This is a more flexible type that works with both legacy KnobPreset
+ * and new control types.
+ */
+export interface BasePreset {
+  id: string;
+  name: string;
+  controlType: ControlTypeId;
+  isBuiltIn: boolean;
+  createdAt: string;
+  updatedAt: string;
+  design: unknown; // Allow any design shape for flexibility
+}
+
+/**
+ * Preset type used by the service - compatible with KnobPreset and future types.
+ */
+type Preset = BasePreset;
 
 // ============================================================================
 // Preset Service Implementation
@@ -21,7 +46,7 @@ export const presetService = {
    * @param preset - The preset to add
    * @throws If a preset with the same name already exists
    */
-  async add(preset: KnobPreset): Promise<void> {
+  async add(preset: Preset): Promise<void> {
     // Check for duplicate name
     const existing = await this.getByName(preset.name);
     if (existing && existing.id !== preset.id) {
@@ -37,7 +62,7 @@ export const presetService = {
    * @param id - The preset ID
    * @returns The preset or undefined if not found
    */
-  async get(id: string): Promise<KnobPreset | undefined> {
+  async get(id: string): Promise<Preset | undefined> {
     const store = getStore(STORES.PRESETS, 'readonly');
     return promisifyRequest(store.get(id));
   },
@@ -48,20 +73,30 @@ export const presetService = {
    * @param name - The preset name
    * @returns The preset or undefined if not found
    */
-  async getByName(name: string): Promise<KnobPreset | undefined> {
+  async getByName(name: string): Promise<Preset | undefined> {
     const store = getStore(STORES.PRESETS, 'readonly');
     const index = store.index(INDEXES.PRESETS_BY_NAME);
     return promisifyRequest(index.get(name));
   },
 
   /**
-   * Gets all presets.
+   * Gets all presets, optionally filtered by control type.
    *
-   * @returns Array of all presets, built-in first then alphabetical
+   * @param controlType - Optional control type to filter by
+   * @returns Array of presets, built-in first then alphabetical
    */
-  async getAll(): Promise<KnobPreset[]> {
+  async getAll(controlType?: ControlTypeId): Promise<Preset[]> {
     const store = getStore(STORES.PRESETS, 'readonly');
-    const all = await promisifyRequest(store.getAll());
+    let all: Preset[];
+
+    if (controlType) {
+      // Use the controlType index for filtering
+      const index = store.index(INDEXES.PRESETS_BY_CONTROL_TYPE);
+      all = await promisifyRequest(index.getAll(IDBKeyRange.only(controlType)));
+    } else {
+      all = await promisifyRequest(store.getAll());
+    }
+
     // Sort: built-in first, then alphabetical by name
     return all.sort((a, b) => {
       if (a.isBuiltIn !== b.isBuiltIn) {
@@ -72,26 +107,48 @@ export const presetService = {
   },
 
   /**
-   * Gets only built-in presets.
+   * Gets presets by control type.
    *
+   * @param controlType - The control type to filter by
+   * @returns Array of presets for the specified control type
+   */
+  async getByControlType(controlType: ControlTypeId): Promise<Preset[]> {
+    return this.getAll(controlType);
+  },
+
+  /**
+   * Gets only built-in presets, optionally filtered by control type.
+   *
+   * @param controlType - Optional control type to filter by
    * @returns Array of built-in presets
    */
-  async getBuiltIn(): Promise<KnobPreset[]> {
+  async getBuiltIn(controlType?: ControlTypeId): Promise<Preset[]> {
     const store = getStore(STORES.PRESETS, 'readonly');
     const index = store.index(INDEXES.PRESETS_BY_BUILTIN);
-    const builtIn = await promisifyRequest(index.getAll(IDBKeyRange.only(true)));
+    let builtIn: Preset[] = await promisifyRequest(index.getAll(IDBKeyRange.only(true)));
+
+    if (controlType) {
+      builtIn = builtIn.filter(p => p.controlType === controlType);
+    }
+
     return builtIn.sort((a, b) => a.name.localeCompare(b.name));
   },
 
   /**
-   * Gets only custom (user-created) presets.
+   * Gets only custom (user-created) presets, optionally filtered by control type.
    *
+   * @param controlType - Optional control type to filter by
    * @returns Array of custom presets, sorted alphabetically
    */
-  async getCustom(): Promise<KnobPreset[]> {
+  async getCustom(controlType?: ControlTypeId): Promise<Preset[]> {
     const store = getStore(STORES.PRESETS, 'readonly');
     const index = store.index(INDEXES.PRESETS_BY_BUILTIN);
-    const custom = await promisifyRequest(index.getAll(IDBKeyRange.only(false)));
+    let custom: Preset[] = await promisifyRequest(index.getAll(IDBKeyRange.only(false)));
+
+    if (controlType) {
+      custom = custom.filter(p => p.controlType === controlType);
+    }
+
     return custom.sort((a, b) => a.name.localeCompare(b.name));
   },
 
@@ -101,7 +158,7 @@ export const presetService = {
    * @param preset - The preset with updated values
    * @throws If preset does not exist or is built-in
    */
-  async update(preset: KnobPreset): Promise<void> {
+  async update(preset: Preset): Promise<void> {
     // Verify preset exists
     const existing = await this.get(preset.id);
     if (!existing) {
@@ -151,12 +208,13 @@ export const presetService = {
   },
 
   /**
-   * Gets the count of custom presets.
+   * Gets the count of custom presets, optionally filtered by control type.
    *
+   * @param controlType - Optional control type to filter by
    * @returns Number of custom presets
    */
-  async getCustomCount(): Promise<number> {
-    const custom = await this.getCustom();
+  async getCustomCount(controlType?: ControlTypeId): Promise<number> {
+    const custom = await this.getCustom(controlType);
     return custom.length;
   },
 
@@ -170,16 +228,17 @@ export const presetService = {
     const existing = await promisifyRequest(store.getAll());
 
     // If any built-in presets exist, skip seeding
-    const hasBuiltIn = existing.some((p: KnobPreset) => p.isBuiltIn);
+    const hasBuiltIn = existing.some((p: Preset) => p.isBuiltIn);
     if (hasBuiltIn) {
       return;
     }
 
     const now = new Date().toISOString();
     for (const template of BUILTIN_PRESETS) {
-      const preset: KnobPreset = {
+      const preset: Preset = {
         ...template,
         id: crypto.randomUUID(),
+        controlType: 'knob', // All built-in presets are knob presets
         createdAt: now,
         updatedAt: now,
       };

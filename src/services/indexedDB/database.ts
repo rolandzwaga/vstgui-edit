@@ -24,6 +24,7 @@ let dbInstance: IDBDatabase | null = null;
  * - v1: projects, bitmaps stores
  * - v2: (intermediate - may or may not have presets)
  * - v3: projects, bitmaps, presets stores (guaranteed)
+ * - v4: added controlType index to presets store
  *
  * @returns Promise resolving to the database instance
  */
@@ -39,6 +40,7 @@ export function openDatabase(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = event => {
       const db = (event.target as IDBOpenDBRequest).result;
+      const transaction = (event.target as IDBOpenDBRequest).transaction!;
       const oldVersion = event.oldVersion;
 
       // Migration from v0 (fresh install) or v1
@@ -60,6 +62,35 @@ export function openDatabase(): Promise<IDBDatabase> {
           presetStore.createIndex(INDEXES.PRESETS_BY_NAME, 'name', { unique: true });
           presetStore.createIndex(INDEXES.PRESETS_BY_BUILTIN, 'isBuiltIn', { unique: false });
         }
+      }
+
+      // Migration to v4: add controlType index to presets store
+      // Handles users upgrading from v3 with existing presets
+      if (oldVersion < 4) {
+        const presetStore = transaction.objectStore(STORES.PRESETS);
+
+        // Add the controlType index if it doesn't exist
+        if (!presetStore.indexNames.contains(INDEXES.PRESETS_BY_CONTROL_TYPE)) {
+          presetStore.createIndex(INDEXES.PRESETS_BY_CONTROL_TYPE, 'controlType', {
+            unique: false,
+          });
+        }
+
+        // Migrate existing presets to have controlType: 'knob'
+        // This is done using a cursor to update each record
+        const cursorRequest = presetStore.openCursor();
+        cursorRequest.onsuccess = cursorEvent => {
+          const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+          if (cursor) {
+            const preset = cursor.value;
+            // Add controlType if missing (existing presets are all knob presets)
+            if (!preset.controlType) {
+              preset.controlType = 'knob';
+              cursor.update(preset);
+            }
+            cursor.continue();
+          }
+        };
       }
     };
 
