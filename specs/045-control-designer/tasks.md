@@ -206,13 +206,13 @@
 - [X] T080 [P] Add narrow dimension warning to OutputPanel (non-blocking warning if track width <15px or height <15px per edge case in spec)
 - [X] T081 [P] Optimize renderer memory usage in `F:\projects\vstgui-edit\src\services\controlRenderer\base.ts` (ensure proper disposal of geometries and materials, texture cleanup)
 - [X] T082 [P] Add generation cancellation cleanup in `F:\projects\vstgui-edit\src\stores\controlDesignerStore.ts` (discard partial renders, reset state to design mode on cancel per edge case in spec)
-- [ ] T083 [P] Update CLAUDE.md with Control Designer architecture section (document plugin system, registry pattern, control categories, renderer interface)
-- [ ] T084 Performance optimization: measure and optimize tab switching time (target <200ms per SC-003)
-- [ ] T085 Performance optimization: measure and optimize slider filmstrip generation (target same performance as knob per SC-006)
-- [ ] T086 Code review: verify 70% panel code reuse (count LOC in shared panels vs type-specific panels per SC-004)
-- [ ] T087 Code review: verify slider implementation <500 LOC excluding tests (count files in sliderDesigner/ per SC-005)
-- [ ] T088 Deprecate old knobDesignerStore in `F:\projects\vstgui-edit\src\stores\knobDesignerStore.ts` (add deprecation comments, keep for compatibility but redirect to controlDesignerStore)
-- [ ] T089 Deprecate old knobRenderer in `F:\projects\vstgui-edit\src\services\knobRenderer\index.ts` (add deprecation comments, redirect imports to controlRenderer)
+- [X] T083 [P] Update CLAUDE.md with Control Designer architecture section (document plugin system, registry pattern, control categories, renderer interface)
+- [X] T084 Performance optimization: measure and optimize tab switching time (target <200ms per SC-003)
+- [X] T085 Performance optimization: measure and optimize slider filmstrip generation (target same performance as knob per SC-006)
+- [X] T086 Code review: verify 70% panel code reuse (count LOC in shared panels vs type-specific panels per SC-004)
+- [X] T087 Code review: verify slider implementation <500 LOC excluding tests (count files in sliderDesigner/ per SC-005)
+- [X] T088 Deprecate old knobDesignerStore in `F:\projects\vstgui-edit\src\stores\knobDesignerStore.ts` (add deprecation comments, keep for compatibility but redirect to controlDesignerStore)
+- [X] T089 Deprecate old knobRenderer in `F:\projects\vstgui-edit\src\services\knobRenderer\index.ts` (add deprecation comments, redirect imports to controlRenderer)
 - [ ] T090 **Commit**: Stage and commit Polish phase changes with message "feat: polish control designer with error handling, performance, and docs"
 
 ---

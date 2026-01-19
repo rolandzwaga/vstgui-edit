@@ -3,6 +3,11 @@
  *
  * State management for the 3D Knob Designer modal.
  * Includes modal state, design configuration, and local undo/redo history.
+ *
+ * @deprecated This store is being replaced by controlDesignerStore.ts which
+ * supports multiple control types via a plugin architecture. Use
+ * openControlDesigner('bitmap', projectId, 'knob') instead of openKnobDesigner().
+ * This store is kept for backward compatibility but may be removed in a future version.
  */
 
 import { createSignal } from 'solid-js';

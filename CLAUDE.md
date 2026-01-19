@@ -634,6 +634,83 @@ interface Project {
 
 ---
 
+## Control Designer Architecture (`src/domain/controlDesigner/`, `src/services/controlRenderer/`)
+
+### Plugin System
+
+The Control Designer uses a plugin architecture to support multiple control types (knob, slider) with shared infrastructure.
+
+**Registry** (`src/domain/controlDesigner/registry.ts`):
+```typescript
+registerControlType(plugin: ControlTypePlugin): void  // Register a control type plugin
+getControlTypePlugin(id: ControlTypeId): ControlTypePlugin | undefined
+getAllControlTypes(): ControlTypePlugin[]
+```
+
+**Plugin Interface** (`src/types/controlDesigner/base.ts`):
+```typescript
+interface ControlTypePlugin {
+  id: ControlTypeId;           // 'knob' | 'slider'
+  name: string;                // Display name
+  category: ControlCategory;   // 'rotational' | 'linear'
+  panels: PanelDefinition[];   // Geometry panels for this type
+  createDefaultDesign(): BaseControlDesign;
+  createRenderer(): ControlRenderer;
+  validate(design: BaseControlDesign): ValidationResult;
+}
+```
+
+**Control Categories**:
+- `rotational`: Knobs - use rotation offset and angle range
+- `linear`: Sliders - use position-based animation (0-1)
+
+### Renderer Interface
+
+```typescript
+interface ControlRenderer<T extends BaseControlDesign = BaseControlDesign> {
+  initialize(canvas: HTMLCanvasElement): Promise<void>;
+  updateScene(design: T): void;
+  setPosition?(position: number): void;  // For linear controls
+  renderPreview(): void;
+  resize?(width: number, height: number): void;
+  generateFilmstrip(design: T, onProgress: (p: GenerationProgress) => void): Promise<string>;
+  cancelGeneration?(): void;
+  dispose(): void;
+}
+```
+
+### Shared Domain Utilities
+
+| Module | Key Exports |
+|--------|-------------|
+| `materials.ts` | `createMaterial(config)`, `MATERIAL_PRESETS` |
+| `scene.ts` | `createScene()`, `createCamera()`, `createMainLight()`, `updateLightPosition()` |
+| `filmstrip.ts` | `calculateFilmstripDimensions()`, `estimateFileSize()` |
+| `validation.ts` | Base validation patterns for all control types |
+| `defaults.ts` | Shared default values for lighting, output |
+
+### Slider-Specific (`src/domain/sliderDesigner/`)
+
+| Module | Key Exports |
+|--------|-------------|
+| `geometry.ts` | `createTrackGeometry()`, `createHandleGeometry()`, `createValueFillGeometry()`, `calculateHandlePosition()` |
+| `defaults.ts` | `createDefaultSliderDesign()`, `DEFAULT_TRACK_MATERIAL`, `BUILTIN_SLIDER_PRESETS` |
+| `validation.ts` | `TRACK_CONSTRAINTS`, `HANDLE_CONSTRAINTS`, `validateSliderDesign()` |
+| `plugin.ts` | `sliderPlugin` - ControlTypePlugin implementation |
+
+### Store (`src/stores/controlDesignerStore.ts`)
+
+| Export | Description |
+|--------|-------------|
+| `controlDesignerStore` | State: `isOpen`, `activeControlType`, `activeDesign`, `designs`, `generationProgress` |
+| `openControlDesigner(bitmap, projectId, type?)` | Open modal with specified control type |
+| `switchControlType(type)` | Switch between knob/slider tabs |
+| `updateDesign(updates)` | Update active design with history |
+| `generateFilmstrip()` | Generate and download filmstrip |
+| `loadPreset(id)` / `savePreset(name)` | Preset management |
+
+---
+
 ## Project Components (`src/components/`)
 
 | Component | Purpose |
@@ -809,7 +886,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
-- 001-control-designer: Added [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+- 045-control-designer: Added plugin architecture for control types (knob, slider), shared renderer infrastructure, RoundedBoxGeometry from Three.js addons
 - 044-3d-knob-designer: Added IndexedDB (extend existing infrastructure with `presets` store, bump DB_VERSION to 2)
 - 043-project-storage: Added SolidJS 1.9.x, fflate (ZIP), native IndexedDB API
 - 042-styled-view-mode: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
@@ -817,6 +894,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 
 | Date | Feature | Summary |
 |------|---------|---------|
+| 01-19 | 045-control-designer | Plugin architecture for knob/slider control types, unified modal with tab switching, full 3D slider rendering, filmstrip generation, built-in presets, material selection |
 | 01-17 | 042-styled-view-mode | Styled view mode toggle (P key), document color rendering, adaptive selection overlays, wireframe fallback, opacity/transparency support, 254 tests |
 | 01-12 | 040-advanced-color-picker | Advanced color picker with HSB gradient, hue/alpha sliders, HEX/RGB/HSL input, document/predefined/recent color swatches, eyedropper tool, popup/inline modes, 307 tests |
 | 01-11 | 038-keyboard-shortcuts | Keyboard shortcuts panel (? / Ctrl+/), 44 shortcuts across 10 categories, centralized registry, searchable list, conflict detection, platform-aware display (Ctrl/Cmd), Preferences integration |

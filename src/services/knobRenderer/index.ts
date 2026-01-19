@@ -3,6 +3,13 @@
  *
  * Three.js rendering service for 3D knob preview and filmstrip generation.
  * Manages WebGL renderer, scene, camera, and lighting.
+ *
+ * @deprecated This renderer is being replaced by the plugin-based control renderer
+ * architecture in src/services/controlRenderer/. The knob functionality is now
+ * available via the knob plugin (src/domain/knobDesigner/plugin.ts) which uses
+ * the new ControlRenderer interface. This file is kept for backward compatibility
+ * with the legacy KnobDesignerModal but may be removed in a future version.
+ * New code should use controlDesignerStore and the knob plugin instead.
  */
 
 import {
