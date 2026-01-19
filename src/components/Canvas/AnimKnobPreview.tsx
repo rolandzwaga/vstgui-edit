@@ -104,8 +104,14 @@ async function loadBitmapInfo(
  */
 export const AnimKnobPreview: Component<AnimKnobPreviewProps> = (props) => {
   // Load bitmap info asynchronously
+  // Include bitmaps in the key so resource refetches when bitmap changes
   const [bitmapInfo] = createResource(
-    () => ({ viewId: props.viewId, viewHeight: props.height }),
+    () => ({
+      viewId: props.viewId,
+      viewHeight: props.height,
+      // This ensures refetch when any bitmap definition changes
+      bitmaps: getBitmaps(),
+    }),
     (params) => loadBitmapInfo(params.viewId, params.viewHeight)
   );
 

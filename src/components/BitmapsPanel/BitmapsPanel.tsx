@@ -64,6 +64,7 @@ export const BitmapsPanel: Component = () => {
     suggestedName: string;
   } | null>(null);
   const [uploadError, setUploadError] = createSignal<string | null>(null);
+  const [newlyCreatedName, setNewlyCreatedName] = createSignal<string | null>(null);
 
   onMount(() => {
     initBitmapHistoryOperations(
@@ -96,6 +97,10 @@ export const BitmapsPanel: Component = () => {
     const defaultBitmap: BitmapDefinition = {
       path: '',
     };
+
+    // Set the newly created name FIRST, before adding the bitmap
+    // This ensures the signal is set when the new BitmapItem mounts
+    setNewlyCreatedName(newName);
 
     addBitmap(newName, defaultBitmap);
     pushOperation(createAddBitmapOperation(newName, defaultBitmap));
@@ -269,6 +274,8 @@ export const BitmapsPanel: Component = () => {
                   onUsageClick={handleUsageClick}
                   onUpload={handleUpload}
                   isMissing={isBitmapMissing(item.name)}
+                  initialEditMode={newlyCreatedName() === item.name}
+                  onInitialEditConsumed={() => setNewlyCreatedName(null)}
                 />
               )}
             </For>

@@ -396,18 +396,21 @@ export const DEFAULT_PROJECT_SETTINGS: ProjectSettings = {
 /** IndexedDB database name */
 export const DB_NAME = 'vstgui-edit-projects';
 
-/** IndexedDB database version */
-export const DB_VERSION = 1;
+/** IndexedDB database version - increment when schema changes */
+export const DB_VERSION = 3;
 
 /** Object store names */
 export const STORES = {
   PROJECTS: 'projects',
   BITMAPS: 'bitmaps',
+  PRESETS: 'presets',
 } as const;
 
 /** Index names */
 export const INDEXES = {
   BITMAPS_BY_PROJECT: 'projectId',
+  PRESETS_BY_NAME: 'name',
+  PRESETS_BY_BUILTIN: 'isBuiltIn',
 } as const;
 
 /** Auto-save debounce timers (milliseconds) */

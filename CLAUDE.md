@@ -802,6 +802,7 @@ const selectedView = createMemo(() => selectedId() ? store.getView(selectedId()!
 ---
 
 ## Recent Changes
+- 044-3d-knob-designer: Added IndexedDB (extend existing infrastructure with `presets` store, bump DB_VERSION to 2)
 - 043-project-storage: Added SolidJS 1.9.x, fflate (ZIP), native IndexedDB API
 - 042-styled-view-mode: Added SolidJS 1.9.10, Vite 7.3.0, solid-fontawesome 0.2.1
 - 041-create-new-uidesc: Added SolidJS 1.9.10, Vite 7.3.0
