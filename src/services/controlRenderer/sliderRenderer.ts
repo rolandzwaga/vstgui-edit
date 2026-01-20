@@ -154,6 +154,9 @@ export class SliderRenderer implements ControlRenderer<SliderDesign> {
 
     // Create slider group
     this.sliderGroup = new Group();
+    // Rotate -90° around X-axis to orient geometry for top-down camera view
+    // This transforms the XY plane (where slider geometry is laid out) to XZ plane
+    this.sliderGroup.rotation.x = -Math.PI / 2;
     this.scene.add(this.sliderGroup);
   }
 

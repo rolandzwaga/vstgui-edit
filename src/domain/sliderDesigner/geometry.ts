@@ -31,6 +31,13 @@ const MIN_SEGMENTS = 16;
 /** Maximum segment count */
 const MAX_SEGMENTS = 64;
 
+/**
+ * Scale factor for track length to ensure 100% fits within viewport.
+ * This accounts for handle overhang and padding around the edges.
+ * Value of 0.65 means 100% track length uses 65% of the frame dimension.
+ */
+const TRACK_LENGTH_SCALE = 0.65;
+
 // ============================================================================
 // World Unit Conversions
 // ============================================================================
@@ -64,7 +71,8 @@ export function calculateTrackDimensions(
   const widthDimension = isVertical ? frameWidth : frameHeight;
 
   return {
-    length: percentToWorldUnits(track.length, lengthDimension),
+    // Apply scale factor so 100% length fits within viewport with margins
+    length: percentToWorldUnits(track.length, lengthDimension) * TRACK_LENGTH_SCALE,
     width: percentToWorldUnits(track.width, widthDimension),
     depth: track.depth,
   };

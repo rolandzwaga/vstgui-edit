@@ -7,7 +7,7 @@
   "type": "module",
   "main": "src/index.tsx",
   "scripts": {
-    "dev": "vite",
+    "dev": "node --dns-result-order=ipv4first ./node_modules/vite/bin/vite.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run --reporter=dot",
